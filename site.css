@@ -109,6 +109,15 @@ nav.links {
   height: 100%;
   border: 0;
 }
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.25rem;
+}
+@media (max-width: 560px) {
+  .video-grid { grid-template-columns: 1fr; }
+}
 .card a.btn-primary,
 a.btn-primary:visited {
   background: var(--accent);
