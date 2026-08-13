@@ -92,6 +92,23 @@ nav.links {
 .card p.muted, .muted { color: var(--muted); }
 .card ul { margin: 0.35rem 0 0.85rem; padding-left: 1.2rem; color: var(--muted); }
 .card a { color: var(--accent); }
+.video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0.5rem 0 0.75rem;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+}
+.video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 .card a.btn-primary,
 a.btn-primary:visited {
   background: var(--accent);
