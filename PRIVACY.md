@@ -198,5 +198,6 @@ Pour toute question concernant cette politique de confidentialité :
 - **Éditeur :** Rafael Orset
 - **Email :** orsetrafael@gmail.com
 - **Dépôt source :** https://github.com/rafa-create/BeatOnStep
-- **Version publique (Play / app) :** https://rafa-create.github.io/beatonstep-privacy/  
+- **Version publique (Play / app) :** https://rafa-create.github.io/beatonstep-privacy/privacy.html  
+  Accueil / présentation : https://rafa-create.github.io/beatonstep-privacy/  
   (repo public [`beatonstep-privacy`](https://github.com/rafa-create/beatonstep-privacy) + GitHub Pages. Archive Gist : https://gist.github.com/rafa-create/64aec3d741830bc11fb4d6e1f2aa8fbc)
