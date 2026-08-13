@@ -92,6 +92,15 @@ nav.links {
 .card p.muted, .muted { color: var(--muted); }
 .card ul { margin: 0.35rem 0 0.85rem; padding-left: 1.2rem; color: var(--muted); }
 .card a { color: var(--accent); }
+.card a.btn-primary,
+a.btn-primary:visited {
+  background: var(--accent);
+  color: #1a1a08;
+}
+.card a.btn-ghost,
+a.btn-ghost:visited {
+  color: var(--accent);
+}
 #content {
   background: color-mix(in srgb, var(--panel) 88%, black);
   border: 1px solid var(--line);
