@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Politique de confidentialité — BeatOnStep</title>
+  <meta name="description" content="Politique de confidentialité de l’application Android BeatOnStep." />
+  <link rel="icon" href="logo-400.jpg" type="image/jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand-row">
+        <img src="logo-400.jpg" width="56" height="56" alt="Logo BeatOnStep" />
+        <p class="brand">BeatOnStep</p>
+      </div>
+      <p class="sub">Politique de confidentialité</p>
+      <nav class="links">
+        <a class="btn btn-ghost" href="./">Accueil</a>
+      </nav>
+    </header>
+    <main id="content"><p class="status">Chargement…</p></main>
+    <footer>
+      Source : fichier <code>docs/PRIVACY.md</code> du dépôt BeatOnStep.
+      En cas de doute, la date « Dernière mise à jour » dans le texte fait foi.
+    </footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script>
+    (function () {
+      var el = document.getElementById("content");
+      fetch("PRIVACY.md", { cache: "no-cache" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(function (md) {
+          el.innerHTML = marked.parse(md);
+        })
+        .catch(function () {
+          el.innerHTML =
+            '<p class="status error">Impossible de charger la politique. ' +
+            'Ouvrez <a href="PRIVACY.md">PRIVACY.md</a> directement.</p>';
+        });
+    })();
+  </script>
+</body>
+</html>

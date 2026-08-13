@@ -3,148 +3,54 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Politique de confidentialité — BeatOnStep</title>
-  <meta name="description" content="Politique de confidentialité de l’application Android BeatOnStep." />
+  <title>BeatOnStep — musique au tempo de vos pas</title>
+  <meta name="description" content="Application Android : la musique s’adapte à votre cadence de course ou de marche. Privacy-first, sans pub." />
+  <link rel="icon" href="logo-400.jpg" type="image/jpeg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #0f1008;
-      --panel: #1a1b10;
-      --ink: #f4f1e0;
-      --muted: #b8b49a;
-      --accent: #fcea07;
-      --line: rgba(252, 234, 7, 0.22);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "DM Sans", system-ui, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(252, 234, 7, 0.18), transparent 55%),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(252, 234, 7, 0.08), transparent 50%),
-        var(--bg);
-      line-height: 1.65;
-    }
-    .wrap {
-      max-width: 44rem;
-      margin: 0 auto;
-      padding: 2.5rem 1.25rem 4rem;
-    }
-    header {
-      margin-bottom: 2rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--line);
-    }
-    .brand {
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.75rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--accent);
-      margin: 0 0 0.35rem;
-    }
-    .sub {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-    #content {
-      background: color-mix(in srgb, var(--panel) 88%, black);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 1.5rem 1.35rem 2rem;
-    }
-    #content > h1:first-child { margin-top: 0; }
-    #content h1, #content h2, #content h3 {
-      font-family: Fraunces, Georgia, serif;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.25;
-    }
-    #content h1 { font-size: 1.55rem; }
-    #content h2 {
-      font-size: 1.2rem;
-      margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--line);
-    }
-    #content h3 { font-size: 1.05rem; color: var(--accent); }
-    #content a { color: var(--accent); }
-    #content code {
-      font-size: 0.88em;
-      background: rgba(252, 234, 7, 0.12);
-      padding: 0.1em 0.35em;
-      border-radius: 4px;
-    }
-    #content table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      display: block;
-      overflow-x: auto;
-      margin: 1rem 0;
-    }
-    #content th, #content td {
-      border: 1px solid var(--line);
-      padding: 0.45rem 0.55rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    #content th { background: rgba(252, 234, 7, 0.1); }
-    #content blockquote {
-      margin: 1rem 0;
-      padding: 0.75rem 1rem;
-      border-left: 3px solid var(--accent);
-      background: rgba(252, 234, 7, 0.06);
-      color: var(--muted);
-    }
-    .status {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-    .status.error { color: #ff8f8f; }
-    footer {
-      margin-top: 1.5rem;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-  </style>
+  <link rel="stylesheet" href="site.css" />
 </head>
 <body>
   <div class="wrap">
     <header>
-      <p class="brand">BeatOnStep</p>
-      <p class="sub">Politique de confidentialité</p>
+      <div class="brand-row">
+        <img src="logo-400.jpg" width="56" height="56" alt="Logo BeatOnStep" />
+        <p class="brand">BeatOnStep</p>
+      </div>
+      <p class="sub">Musique au tempo de vos pas</p>
+      <nav class="links">
+        <a class="btn btn-primary" href="privacy.html">Confidentialité</a>
+        <a class="btn btn-ghost" href="https://github.com/rafa-create/beatonstep-privacy/discussions/1">Forum</a>
+      </nav>
     </header>
-    <main id="content"><p class="status">Chargement…</p></main>
+    <main class="card">
+      <h2>L’idée</h2>
+      <p>
+        BeatOnStep détecte votre cadence (pas par minute) et propose des morceaux
+        au bon BPM — pour courir ou marcher au rythme de la musique, sans tout régler à la main.
+      </p>
+      <h2>Sources musique</h2>
+      <ul>
+        <li>Fichiers sur le téléphone (lecture dans l’app)</li>
+        <li>YouTube Music (playlists, lecture dans YouTube)</li>
+        <li>Catalogue de démonstration libre de droits</li>
+      </ul>
+      <h2>Android</h2>
+      <p class="muted">
+        En test Alpha sur le Play Store. Pas de compte BeatOnStep, pas de publicité,
+        pas de tracking marketing.
+      </p>
+      <h2>Liens</h2>
+      <p>
+        <a href="privacy.html">Politique de confidentialité</a>
+        · <a href="https://github.com/rafa-create/beatonstep-privacy/discussions/1">Un bug, une idée ?</a>
+      </p>
+    </main>
     <footer>
-      Source : fichier <code>docs/PRIVACY.md</code> du dépôt BeatOnStep.
-      En cas de doute, la date « Dernière mise à jour » dans le texte fait foi.
+      Site public BeatOnStep — le code de l’app reste privé.
+      Crédits musiques de démo : voir la <a href="privacy.html">politique de confidentialité</a>.
     </footer>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-  <script>
-    (function () {
-      var el = document.getElementById("content");
-      fetch("PRIVACY.md", { cache: "no-cache" })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.text();
-        })
-        .then(function (md) {
-          el.innerHTML = marked.parse(md);
-        })
-        .catch(function () {
-          el.innerHTML =
-            '<p class="status error">Impossible de charger la politique. ' +
-            'Ouvrez <a href="PRIVACY.md">PRIVACY.md</a> directement, ' +
-            'ou le dépôt GitHub BeatOnStep.</p>';
-        });
-    })();
-  </script>
 </body>
 </html>
