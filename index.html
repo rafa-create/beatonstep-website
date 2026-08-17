@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BeatOnStep — musique au tempo de vos pas</title>
-  <meta name="description" content="Application Android : la musique s’adapte à votre cadence de course ou de marche. Privacy-first, sans pub." />
+  <title>BeatOnStep — musique au rythme de tes pas</title>
+  <meta name="description" content="Tu marches ou tu cours : l’app suit ta cadence et te propose des morceaux au bon tempo. Android, sans pub." />
   <link rel="canonical" href="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="BeatOnStep — musique au tempo de vos pas" />
-  <meta property="og:description" content="La musique s’adapte à votre cadence. Android, sans pub." />
+  <meta property="og:title" content="BeatOnStep — musique au rythme de tes pas" />
+  <meta property="og:description" content="La musique s’adapte à ta cadence. Android, sans pub." />
   <meta property="og:url" content="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -17,57 +17,80 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="site.css" />
+  <script>
+    window.BOS_TITLES = {
+      fr: "BeatOnStep — musique au rythme de tes pas",
+      en: "BeatOnStep — music that matches your stride"
+    };
+    window.BOS_DESC = {
+      fr: "Tu marches ou tu cours : l’app suit ta cadence et te propose des morceaux au bon tempo. Android, sans pub.",
+      en: "Walk or run: the app follows your cadence and picks tracks at the right tempo. Android, no ads."
+    };
+  </script>
+  <script src="i18n.js"></script>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="brand-row">
-        <img src="logo-400.jpg" width="56" height="56" alt="Logo BeatOnStep" />
+        <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
         <p class="brand">BeatOnStep</p>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-set="fr">FR</button>
+          <button type="button" data-set="en">EN</button>
+        </div>
       </div>
-      <p class="sub">Musique au tempo de vos pas</p>
+      <p class="sub" data-fr>Musique au rythme de tes pas</p>
+      <p class="sub" data-en>Music that matches your stride</p>
     </header>
     <main class="card">
-      <h2>En images</h2>
       <div class="video">
         <iframe
-          src="https://www.youtube.com/embed/XD0XW0KKgeE"
-          title="BeatOnStep — présentation"
+          src="https://www.youtube.com/embed/C6tUGhFoE5Y"
+          title="BeatOnStep"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
           loading="lazy"
         ></iframe>
       </div>
       <p class="muted">
-        <a href="https://www.youtube.com/watch?v=XD0XW0KKgeE">Ouvrir sur YouTube</a>
+        <a data-fr href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Voir sur YouTube (25 s)</a>
+        <a data-en href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Watch on YouTube (25 sec)</a>
       </p>
-      <h2>L’idée</h2>
-      <p>
-        BeatOnStep détecte votre cadence (pas par minute) et propose des morceaux
-        au bon BPM — pour courir ou marcher au rythme de la musique, sans tout régler à la main.
+      <p data-fr>
+        Tu marches ou tu cours. BeatOnStep écoute ta cadence et te propose un morceau
+        au bon tempo — plus besoin de zapper parce que c’est trop lent ou trop rapide.
       </p>
-      <h2>Sources musique</h2>
+      <p data-en>
+        You walk or run. BeatOnStep follows your cadence and puts on a track at the
+        right tempo — no more skipping because the song is too slow or too fast.
+      </p>
+      <h2 data-fr>Ta musique</h2>
+      <h2 data-en>Your music</h2>
       <ul>
-        <li>Fichiers sur le téléphone (lecture dans l’app)</li>
-        <li>YouTube Music (playlists, lecture dans YouTube)</li>
-        <li>Catalogue de démonstration libre de droits</li>
+        <li data-fr>Les titres déjà sur ton téléphone</li>
+        <li data-en>Songs already on your phone</li>
+        <li data-fr>Tes playlists YouTube Music</li>
+        <li data-en>Your YouTube Music playlists</li>
       </ul>
-      <p class="muted">
-        Android, en test Alpha. Pas de compte BeatOnStep, pas de publicité, pas de tracking marketing.
+      <p class="muted" data-fr>
+        Android, sans pub, sans compte à créer. En test Alpha : il faut accepter l’invitation Play.
+      </p>
+      <p class="muted" data-en>
+        Android, no ads, no account to create. Alpha test: accept the Play invite to install.
       </p>
       <nav class="cta">
-        <a class="btn btn-primary" href="https://play.google.com/apps/testing/com.patrick.beatonstep">Installer l’Alpha</a>
+        <a class="btn btn-primary" data-fr href="https://play.google.com/apps/testing/com.patrick.beatonstep">Essayer sur Android</a>
+        <a class="btn btn-primary" data-en href="https://play.google.com/apps/testing/com.patrick.beatonstep">Try it on Android</a>
       </nav>
-      <p class="muted">
-        Lien d’invitation Play Store — il faut accepter pour installer.
-      </p>
-      <h2>Autres vidéos</h2>
+      <h2 data-fr>Plus de démos</h2>
+      <h2 data-en>More demos</h2>
       <div class="video-grid">
-        <a class="video-thumb" href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">
-          <img src="https://img.youtube.com/vi/C6tUGhFoE5Y/hqdefault.jpg" alt="Vidéo BeatOnStep" width="480" height="360" />
-        </a>
         <a class="video-thumb" href="https://www.youtube.com/watch?v=5JaID75OP6Y">
-          <img src="https://img.youtube.com/vi/5JaID75OP6Y/hqdefault.jpg" alt="Vidéo BeatOnStep" width="480" height="360" />
+          <img src="https://img.youtube.com/vi/5JaID75OP6Y/hqdefault.jpg" alt="BeatOnStep" width="480" height="360" />
+        </a>
+        <a class="video-thumb" href="https://www.youtube.com/watch?v=XD0XW0KKgeE">
+          <img src="https://img.youtube.com/vi/XD0XW0KKgeE/hqdefault.jpg" alt="BeatOnStep" width="480" height="360" />
         </a>
       </div>
     </main>
@@ -76,7 +99,8 @@
       <span aria-hidden="true">·</span>
       <a href="https://www.linkedin.com/company/beatonstep">LinkedIn</a>
       <span aria-hidden="true">·</span>
-      <a href="privacy.html">Confidentialité</a>
+      <a data-fr data-keep-lang data-href="privacy.html" href="privacy.html">Confidentialité</a>
+      <a data-en data-keep-lang data-href="privacy.html" href="privacy.html">Privacy</a>
     </footer>
   </div>
 </body>

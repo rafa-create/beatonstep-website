@@ -34,6 +34,31 @@ header {
   gap: 0.85rem;
   margin-bottom: 0.5rem;
 }
+.lang {
+  margin-left: auto;
+  display: flex;
+  gap: 0.1rem;
+}
+.lang button {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+}
+.lang button[aria-pressed="true"] {
+  color: var(--accent);
+  background: rgba(252, 234, 7, 0.12);
+}
+html[lang="en"] [data-fr],
+html:not([lang="en"]) [data-en] {
+  display: none;
+}
 .brand-row img {
   width: 56px;
   height: 56px;
@@ -217,6 +242,7 @@ a.btn-ghost:visited {
   background: rgba(252, 234, 7, 0.06);
   color: var(--muted);
 }
+.legal-note { margin: 0 0 0.85rem; font-size: 0.9rem; }
 .status { color: var(--muted); font-size: 0.95rem; }
 .status.error { color: #ff8f8f; }
 footer {

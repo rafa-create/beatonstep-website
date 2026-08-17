@@ -14,20 +14,37 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="site.css" />
+  <script>
+    window.BOS_TITLES = {
+      fr: "Politique de confidentialité — BeatOnStep",
+      en: "Privacy policy — BeatOnStep"
+    };
+  </script>
+  <script src="i18n.js"></script>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="brand-row">
-        <img src="logo-400.jpg" width="56" height="56" alt="Logo BeatOnStep" />
+        <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
         <p class="brand">BeatOnStep</p>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-set="fr">FR</button>
+          <button type="button" data-set="en">EN</button>
+        </div>
       </div>
-      <p class="sub">Politique de confidentialité</p>
-      <p class="header-nav"><a href="./">← Accueil</a></p>
+      <p class="sub" data-fr>Politique de confidentialité</p>
+      <p class="sub" data-en>Privacy policy</p>
+      <p class="header-nav">
+        <a data-fr data-keep-lang data-href="./" href="./">← Accueil</a>
+        <a data-en data-keep-lang data-href="./" href="./">← Home</a>
+      </p>
     </header>
+    <p class="muted legal-note" data-en>The official policy is in French.</p>
     <main id="content"><p class="status">Chargement…</p></main>
     <footer>
-      <a href="./">Accueil</a>
+      <a data-fr data-keep-lang data-href="./" href="./">Accueil</a>
+      <a data-en data-keep-lang data-href="./" href="./">Home</a>
       <span aria-hidden="true">·</span>
       <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">Forum</a>
       <span aria-hidden="true">·</span>
