@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 10 août 2026
+**Dernière mise à jour :** 17 août 2026
 
 ## 1. Qui sommes-nous
 
@@ -39,7 +39,7 @@ Si vous connectez un compte Google pour utiliser YouTube Music dans BeatOnStep :
 - Vous pouvez **déconnecter** YouTube dans l’app : les jetons locaux sont alors effacés.
 - Le traitement de votre compte Google / YouTube est aussi régi par les politiques de **Google** ; BeatOnStep n’est pas l’éditeur de YouTube.
 
-Spotify et Deezer peuvent exister dans le code pour des tests, mais **ne sont pas proposés** dans la configuration Play Store actuelle (désactivés côté build).
+Spotify peut être proposé en **bêta limitée** (quelques comptes ajoutés à la main par l’éditeur, via OAuth Spotify). Deezer n’est pas proposé dans la configuration Play Store actuelle.
 
 ### 3.4 Serveur musique personnel (optionnel)
 
