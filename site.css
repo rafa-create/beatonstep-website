@@ -336,7 +336,8 @@ footer a:hover { color: var(--accent); }
   font-size: 0.95rem;
 }
 .demo {
-  margin: 0;
+  max-width: 44rem;
+  margin: 0 auto;
 }
 .demo h2:first-child { margin-top: 0; }
 
