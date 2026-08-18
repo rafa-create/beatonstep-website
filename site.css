@@ -135,7 +135,7 @@ nav.links {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  margin: 0.5rem 0 0.75rem;
+  margin: 0.5rem 0 0;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--line);
