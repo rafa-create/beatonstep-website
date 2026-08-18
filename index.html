@@ -40,10 +40,62 @@
           <button type="button" data-set="en">EN</button>
         </div>
       </div>
-      <p class="sub" data-fr>Musique au rythme de tes pas</p>
-      <p class="sub" data-en>Music that matches your stride</p>
     </header>
-    <main class="card">
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 data-fr>Ta musique<br />suit tes pas.</h1>
+        <h1 data-en>Your music<br />follows your stride.</h1>
+        <p class="lede" data-fr>
+          Marche ou course. L’app détecte ton rythme et te propose un morceau à la bonne allure.
+        </p>
+        <p class="lede" data-en>
+          Walk or run. The app reads your cadence and puts on a track at the right tempo.
+        </p>
+        <nav class="cta">
+          <a class="btn btn-primary" data-fr href="https://play.google.com/apps/testing/com.patrick.beatonstep">Essayer sur Android</a>
+          <a class="btn btn-primary" data-en href="https://play.google.com/apps/testing/com.patrick.beatonstep">Try it on Android</a>
+        </nav>
+        <p class="hero-note" data-fr>Android, sans pub. Alpha : invitation Play requise.</p>
+        <p class="hero-note" data-en>Android, no ads. Alpha: Play invite required.</p>
+      </div>
+      <div class="phone" aria-hidden="false">
+        <img
+          src="screenshot-home.png"
+          width="390"
+          height="844"
+          alt="BeatOnStep : rythme détecté et morceau proposé"
+        />
+      </div>
+    </section>
+
+    <section class="pillars" aria-label="Fonctionnalités">
+      <article class="pillar">
+        <p class="pillar-kicker">01</p>
+        <h2 data-fr>Tes pas</h2>
+        <h2 data-en>Your steps</h2>
+        <p data-fr>Le téléphone dans la poche suffit. Rien à porter.</p>
+        <p data-en>Phone in your pocket is enough. Nothing else to wear.</p>
+      </article>
+      <article class="pillar">
+        <p class="pillar-kicker">02</p>
+        <h2 data-fr>Ton allure</h2>
+        <h2 data-en>Your pace</h2>
+        <p data-fr>Mode adaptatif, ou tu fixes l’allure. La musique suit.</p>
+        <p data-en>Adaptive mode, or you set the pace. The music follows.</p>
+      </article>
+      <article class="pillar">
+        <p class="pillar-kicker">03</p>
+        <h2 data-fr>Tes musiques</h2>
+        <h2 data-en>Your music</h2>
+        <p data-fr>MP3, catalogue, YouTube Music, Spotify.</p>
+        <p data-en>MP3s, built-in catalog, YouTube Music, Spotify.</p>
+      </article>
+    </section>
+
+    <main class="card demo">
+      <h2 data-fr>Voir en 25 s</h2>
+      <h2 data-en>See it in 25 sec</h2>
       <div class="video">
         <iframe
           src="https://www.youtube.com/embed/C6tUGhFoE5Y"
@@ -54,35 +106,9 @@
         ></iframe>
       </div>
       <p class="muted">
-        <a data-fr href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Voir sur YouTube (25 s)</a>
-        <a data-en href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Watch on YouTube (25 sec)</a>
+        <a data-fr href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Ouvrir sur YouTube</a>
+        <a data-en href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">Open on YouTube</a>
       </p>
-      <p data-fr>
-        Tu marches ou tu cours. BeatOnStep écoute ta cadence et te propose un morceau
-        au bon tempo — plus besoin de zapper parce que c’est trop lent ou trop rapide.
-      </p>
-      <p data-en>
-        You walk or run. BeatOnStep follows your cadence and puts on a track at the
-        right tempo — no more skipping because the song is too slow or too fast.
-      </p>
-      <h2 data-fr>Ta musique</h2>
-      <h2 data-en>Your music</h2>
-      <ul>
-        <li data-fr>Les titres déjà sur ton téléphone</li>
-        <li data-en>Songs already on your phone</li>
-        <li data-fr>Tes playlists YouTube Music</li>
-        <li data-en>Your YouTube Music playlists</li>
-      </ul>
-      <p class="muted" data-fr>
-        Android, sans pub, sans compte à créer. En test Alpha : il faut accepter l’invitation Play.
-      </p>
-      <p class="muted" data-en>
-        Android, no ads, no account to create. Alpha test: accept the Play invite to install.
-      </p>
-      <nav class="cta">
-        <a class="btn btn-primary" data-fr href="https://play.google.com/apps/testing/com.patrick.beatonstep">Essayer sur Android</a>
-        <a class="btn btn-primary" data-en href="https://play.google.com/apps/testing/com.patrick.beatonstep">Try it on Android</a>
-      </nav>
       <h2 data-fr>Plus de démos</h2>
       <h2 data-en>More demos</h2>
       <div class="video-grid">
@@ -94,6 +120,7 @@
         </a>
       </div>
     </main>
+
     <footer>
       <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">Forum</a>
       <span aria-hidden="true">·</span>

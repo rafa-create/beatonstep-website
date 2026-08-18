@@ -19,9 +19,9 @@ body {
   line-height: 1.65;
 }
 .wrap {
-  max-width: 44rem;
+  max-width: 68rem;
   margin: 0 auto;
-  padding: 2.5rem 1.25rem 4rem;
+  padding: 2rem 1.25rem 4.5rem;
 }
 header {
   margin-bottom: 2rem;
@@ -85,7 +85,10 @@ nav.links {
   margin: 1.25rem 0 0;
 }
 .cta {
-  margin: 1.1rem 0 0.35rem;
+  margin: 1.35rem 0 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
 }
 .header-nav {
   margin: 0.85rem 0 0;
@@ -94,11 +97,12 @@ nav.links {
 .header-nav a { color: var(--accent); }
 .btn {
   display: inline-block;
-  padding: 0.55rem 0.95rem;
-  border-radius: 8px;
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.92rem;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
 }
 .btn-primary {
   background: var(--accent);
@@ -256,3 +260,92 @@ footer {
 }
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--accent); }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 280px);
+  gap: 2.5rem 3rem;
+  align-items: center;
+  margin: 0 0 2.75rem;
+}
+.hero-copy h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(2.35rem, 5.5vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin: 0 0 1rem;
+  color: var(--ink);
+}
+.lede {
+  margin: 0;
+  font-size: 1.12rem;
+  color: var(--muted);
+  max-width: 32rem;
+}
+.hero-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.phone {
+  justify-self: center;
+  width: min(100%, 280px);
+  padding: 10px;
+  border-radius: 32px;
+  background: #0a0a06;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 0 0 1px rgba(252, 234, 7, 0.08),
+    0 24px 60px rgba(0, 0, 0, 0.45);
+}
+.phone img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 24px;
+}
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  margin: 0 0 2.5rem;
+}
+.pillar {
+  background: color-mix(in srgb, var(--panel) 88%, black);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.25rem 1.2rem 1.35rem;
+}
+.pillar-kicker {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.pillar h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+}
+.pillar p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.demo {
+  margin: 0;
+}
+.demo h2:first-child { margin-top: 0; }
+
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    text-align: left;
+  }
+  .phone { width: min(100%, 240px); }
+  .pillars { grid-template-columns: 1fr; }
+}
