@@ -335,6 +335,41 @@ footer a:hover { color: var(--accent); }
   color: var(--muted);
   font-size: 0.95rem;
 }
+.shots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem 1.25rem;
+  margin: 0 0 2.75rem;
+  align-items: start;
+}
+.shot {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.shot .phone {
+  width: min(100%, 240px);
+}
+.shot figcaption {
+  text-align: center;
+  max-width: 16rem;
+}
+.shot figcaption strong {
+  display: block;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+}
+.shot figcaption span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
 .demo {
   max-width: 44rem;
   margin: 0 auto;
@@ -349,4 +384,6 @@ footer a:hover { color: var(--accent); }
   }
   .phone { width: min(100%, 240px); }
   .pillars { grid-template-columns: 1fr; }
+  .shots { grid-template-columns: 1fr; }
+  .shot .phone { width: min(100%, 260px); }
 }
