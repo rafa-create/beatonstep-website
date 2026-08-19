@@ -31,6 +31,7 @@ header {
 .brand-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.85rem;
   margin-bottom: 0.5rem;
 }
@@ -57,7 +58,7 @@ header {
 }
 html[lang="en"] [data-fr],
 html:not([lang="en"]) [data-en] {
-  display: none;
+  display: none !important;
 }
 .brand-row img {
   width: 56px;
@@ -66,12 +67,37 @@ html:not([lang="en"]) [data-en] {
   border: 1px solid var(--line);
 }
 .brand {
-  font-family: Fraunces, Georgia, serif;
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--accent);
   margin: 0;
+}
+.tag {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  background: var(--accent);
+  color: #111008;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+}
+.tag-ghost {
+  margin: 0;
+  background: #111008;
+  color: #fff;
+  border: 1px solid var(--line);
+}
+.ico {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  flex-shrink: 0;
 }
 .sub {
   margin: 0;
@@ -96,13 +122,16 @@ nav.links {
 }
 .header-nav a { color: var(--accent); }
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.85rem 1.35rem;
   border-radius: 999px;
   text-decoration: none;
-  font-weight: 700;
-  font-size: 0.98rem;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 .btn-primary {
   background: var(--accent);
@@ -121,9 +150,11 @@ nav.links {
   padding: 1.5rem 1.35rem 1.6rem;
 }
 .card h2 {
-  font-family: Fraunces, Georgia, serif;
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   margin: 1.35rem 0 0.4rem;
 }
 .card h2:first-child { margin-top: 0; }
@@ -272,15 +303,22 @@ a.btn-ghost:visited {
 .status.error { color: #ff8f8f; }
 footer {
   margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.85rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.55rem;
+  gap: 0.85rem 1.15rem;
 }
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--accent); }
+.foot-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 
 .hero {
   display: grid;
@@ -290,13 +328,26 @@ footer a:hover { color: var(--accent); }
   margin: 0 0 2.75rem;
 }
 .hero-copy h1 {
-  font-family: Fraunces, Georgia, serif;
-  font-size: clamp(2.35rem, 5.5vw, 4rem);
-  font-weight: 600;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+  font-weight: 800;
   letter-spacing: -0.04em;
-  line-height: 1.05;
-  margin: 0 0 1rem;
+  line-height: 1.02;
+  margin: 0 0 1.1rem;
   color: var(--ink);
+}
+.hero-line {
+  display: block;
+  text-transform: uppercase;
+}
+.hero-block {
+  display: inline-block;
+  margin-top: 0.18em;
+  background: #111008;
+  color: var(--accent);
+  text-transform: uppercase;
+  padding: 0.12em 0.38em 0.08em;
+  border-radius: 4px;
 }
 .lede {
   margin: 0;
@@ -326,6 +377,83 @@ footer a:hover { color: var(--accent); }
   height: auto;
   border-radius: 24px;
 }
+.split {
+  margin: 0 0 2.75rem;
+}
+.split h2,
+.sources h2,
+.section-head h2 {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: clamp(1.45rem, 3.2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 0 0 1rem;
+}
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+.split-card {
+  border-radius: 16px;
+  padding: 1.2rem 1.15rem 1.3rem;
+  background: color-mix(in srgb, var(--panel) 88%, black);
+}
+.split-card h3 {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.4rem;
+}
+.split-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.split-bad {
+  border: 1px solid rgba(255, 92, 92, 0.45);
+}
+.split-bad h3 { color: #ff8f8f; }
+.split-good {
+  border: 1px solid var(--accent);
+}
+.split-good h3 { color: var(--accent); }
+.sources {
+  margin: 0 0 2.75rem;
+}
+.source-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.source-row li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel) 88%, black);
+}
+.source-ico {
+  width: 1.85rem;
+  height: 1.85rem;
+  color: var(--accent);
+}
 .modes {
   margin: 0 0 2.75rem;
 }
@@ -334,10 +462,11 @@ footer a:hover { color: var(--accent); }
   margin: 0 0 1.15rem;
 }
 .section-head h2 {
-  font-family: Fraunces, Georgia, serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(1.45rem, 3vw, 1.85rem);
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: -0.03em;
+  text-transform: uppercase;
   margin: 0 0 0.4rem;
 }
 .section-head p {
@@ -364,11 +493,15 @@ footer a:hover { color: var(--accent); }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+.pillar .tag { margin: 0 0 0.7rem; }
 .pillar h3 {
-  font-family: Fraunces, Georgia, serif;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
   margin: 0 0 0.4rem;
+  color: var(--accent);
 }
 .pillar p {
   margin: 0;
@@ -400,9 +533,11 @@ footer a:hover { color: var(--accent); }
 }
 .shot figcaption strong {
   display: block;
-  font-family: Fraunces, Georgia, serif;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   margin: 0 0 0.25rem;
   color: var(--ink);
 }
@@ -425,7 +560,9 @@ footer a:hover { color: var(--accent); }
     text-align: left;
   }
   .phone { width: min(100%, 240px); }
-  .pillars { grid-template-columns: 1fr; }
+  .pillars,
+  .split-grid { grid-template-columns: 1fr; }
+  .source-row { grid-template-columns: 1fr 1fr; }
   .shots { grid-template-columns: 1fr; max-width: none; }
   .shot .phone { width: min(100%, 260px); }
 }
