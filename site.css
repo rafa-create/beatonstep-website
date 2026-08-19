@@ -93,6 +93,12 @@ html:not([lang="en"]) [data-en] {
   color: #fff;
   border: 1px solid var(--line);
 }
+.tag-soon {
+  margin: 0;
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+}
 .ico {
   width: 0.95rem;
   height: 0.95rem;
@@ -136,6 +142,12 @@ nav.links {
 .btn-primary {
   background: var(--accent);
   color: #1a1a08;
+}
+.btn-soon {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  cursor: default;
 }
 .btn-ghost {
   border: 1px solid var(--line);
@@ -382,6 +394,7 @@ footer a:hover { color: var(--accent); }
 }
 .split h2,
 .sources h2,
+.pace-modes h2,
 .section-head h2 {
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(1.45rem, 3.2vw, 2rem);
@@ -422,6 +435,69 @@ footer a:hover { color: var(--accent); }
   border: 1px solid var(--accent);
 }
 .split-good h3 { color: var(--accent); }
+.pace-modes {
+  margin: 0 0 2.75rem;
+}
+.pace-card .tag { margin: 0 0 0.7rem; }
+.pace-card p strong { color: var(--ink); font-weight: 700; }
+.pace-switch,
+.pace-mock {
+  margin-top: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: #111008;
+}
+.pace-switch {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pace-switch .on { color: var(--accent); }
+.pace-label {
+  margin: 0 0 0.2rem !important;
+  font-size: 0.68rem !important;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pace-value {
+  margin: 0 0 0.65rem !important;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  line-height: 1;
+}
+.pace-value span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pace-slider {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(244, 241, 224, 0.14);
+  position: relative;
+}
+.pace-slider i {
+  position: absolute;
+  top: 50%;
+  left: 42%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+}
 .sources {
   margin: 0 0 2.75rem;
 }

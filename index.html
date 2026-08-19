@@ -36,6 +36,8 @@
         <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
         <p class="brand">BeatOnStep</p>
         <span class="tag tag-ghost">Android</span>
+        <span class="tag tag-soon" data-fr>Bientôt iOS</span>
+        <span class="tag tag-soon" data-en>Soon on iOS</span>
         <div class="lang" role="group" aria-label="Language">
           <button type="button" data-set="fr">FR</button>
           <button type="button" data-set="en">EN</button>
@@ -68,9 +70,11 @@
             <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3.2 1.6v12.8L14 8 3.2 1.6z"/></svg>
             Try it on Android
           </a>
+          <span class="btn btn-soon" data-fr>Bientôt iOS</span>
+          <span class="btn btn-soon" data-en>Soon on iOS</span>
         </nav>
-        <p class="hero-note" data-fr>Sans pub. Test Alpha : une invitation Play suffit.</p>
-        <p class="hero-note" data-en>No ads. Alpha test: a Play invite is enough.</p>
+        <p class="hero-note" data-fr>Sans pub. Android en test Alpha — une invitation Play suffit. iOS arrive.</p>
+        <p class="hero-note" data-en>No ads. Android Alpha — a Play invite is enough. iOS is next.</p>
       </div>
       <div class="phone" aria-hidden="false">
         <img
@@ -131,6 +135,41 @@
       </details>
     </main>
 
+    <section class="pace-modes">
+      <p class="tag" data-fr>Allure</p>
+      <p class="tag" data-en>Pace</p>
+      <h2 data-fr>Adaptatif, ou tu fixes l’allure</h2>
+      <h2 data-en>Adaptive, or you lock the pace</h2>
+      <div class="split-grid">
+        <article class="split-card split-good pace-card">
+          <p class="tag">Mode 01</p>
+          <h3 data-fr>Adaptatif : il s’adapte à toi</h3>
+          <h3 data-en>Adaptive: it follows you</h3>
+          <p data-fr><strong>Tu accélères, la musique suit.</strong> L’app détecte le passage marche → course et bascule sur le bon tempo.</p>
+          <p data-en><strong>You speed up, the music follows.</strong> Walk to run: the app switches to the right tempo.</p>
+          <div class="pace-switch" aria-hidden="true">
+            <span data-fr>Marche</span>
+            <span data-en>Walk</span>
+            <span class="on" data-fr>Course</span>
+            <span class="on" data-en>Run</span>
+          </div>
+        </article>
+        <article class="split-card split-good pace-card">
+          <p class="tag">Mode 02</p>
+          <h3 data-fr>Ou tu fixes l’allure</h3>
+          <h3 data-en>Or you set the pace</h3>
+          <p data-fr><strong>Tu choisis le rythme. L’app trouve les morceaux.</strong> Pour une allure régulière, ou travailler l’endurance.</p>
+          <p data-en><strong>You pick the pace. The app finds the tracks.</strong> Steady training, or endurance work.</p>
+          <div class="pace-mock" aria-hidden="true">
+            <p class="pace-label" data-fr>Allure cible</p>
+            <p class="pace-label" data-en>Target pace</p>
+            <p class="pace-value">5:30 <span>min/km</span></p>
+            <div class="pace-slider"><i></i></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="sources">
       <p class="tag" data-fr>Compatibilité</p>
       <p class="tag" data-en>Sources</p>
@@ -165,8 +204,8 @@
         <figcaption>
           <strong data-fr>Ton allure</strong>
           <strong data-en>Your pace</strong>
-          <span data-fr>En min/km, comme une montre. Mode adaptatif, ou tu la bloques.</span>
-          <span data-en>In min/km, like a watch. Adaptive, or you lock it.</span>
+          <span data-fr>En min/km, comme une montre.</span>
+          <span data-en>In min/km, like a watch.</span>
         </figcaption>
       </figure>
       <figure class="shot">
@@ -191,23 +230,23 @@
       </header>
       <div class="pillars">
         <article class="pillar">
-          <p class="tag">Mode 01 · 5s</p>
+          <p class="tag">5s</p>
           <h3 data-fr>Cinq secondes</h3>
           <h3 data-en>Five seconds</h3>
           <p data-fr>Par défaut. L’allure bouge ? L’app attend 5 secondes que ça tienne, puis change de titre.</p>
           <p data-en>Default. Pace shifts? The app waits 5 seconds to be sure, then switches tracks.</p>
         </article>
         <article class="pillar">
-          <p class="tag" data-fr>Mode 02 · Fin</p>
-          <p class="tag" data-en>Mode 02 · End</p>
+          <p class="tag" data-fr>Fin</p>
+          <p class="tag" data-en>End</p>
           <h3 data-fr>Jusqu’au bout</h3>
           <h3 data-en>Play it out</h3>
           <p data-fr>Tu finis le morceau. Le suivant est déjà calé sur ta nouvelle allure.</p>
           <p data-en>You finish the track. The next one already matches your new pace.</p>
         </article>
         <article class="pillar">
-          <p class="tag" data-fr>Mode 03 · Immédiat</p>
-          <p class="tag" data-en>Mode 03 · Instant</p>
+          <p class="tag" data-fr>Immédiat</p>
+          <p class="tag" data-en>Instant</p>
           <h3 data-fr>Tout de suite</h3>
           <h3 data-en>Right away</h3>
           <p data-fr>Tu accélères ou tu ralentis : le titre change tout de suite.</p>
