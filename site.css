@@ -1,5 +1,5 @@
 :root {
-  --bg: #0f1008;
+  --bg: #0a0a08;
   --panel: #1a1b10;
   --ink: #f4f1e0;
   --muted: #b8b49a;
@@ -351,7 +351,7 @@ footer a:hover { color: var(--accent); }
   grid-row: 1;
   position: absolute;
   z-index: 0;
-  inset: 0 auto 0 50%;
+  inset: 1.35rem auto 0 50%;
   width: 100vw;
   margin-left: -50vw;
   overflow: hidden;
@@ -362,12 +362,12 @@ footer a:hover { color: var(--accent); }
   top: 0;
   right: 0;
   bottom: 0;
-  left: 42%;
-  width: 58%;
+  left: 38%;
+  width: 62%;
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: 68% 0%;
+  object-position: 72% 12%;
   will-change: transform;
 }
 .hero-bg::after {
@@ -378,12 +378,10 @@ footer a:hover { color: var(--accent); }
     linear-gradient(
       90deg,
       var(--bg) 0%,
-      var(--bg) 46%,
-      rgba(15, 16, 8, 0.88) 56%,
-      rgba(15, 16, 8, 0.35) 70%,
-      transparent 86%
-    ),
-    linear-gradient(180deg, transparent 0%, transparent 82%, var(--bg) 100%);
+      var(--bg) 44%,
+      rgba(10, 10, 8, 0.7) 58%,
+      transparent 78%
+    );
 }
 .hero-copy {
   grid-column: 1;
@@ -750,7 +748,7 @@ footer a:hover { color: var(--accent); }
   transform: scaleX(0);
   transform-origin: 0 50%;
   pointer-events: none;
-  box-shadow: 0 0 14px rgba(252, 234, 7, 0.5);
+  box-shadow: none;
 }
 html.js .reveal {
   opacity: 0;
@@ -797,11 +795,11 @@ html.js [data-pace-lock].is-in .pace-slider i {
   .hero-runner {
     left: 0;
     width: 100%;
-    object-position: 72% 0%;
+    object-position: 70% 10%;
   }
   .hero-bg::after {
     background:
-      linear-gradient(180deg, rgba(15, 16, 8, 0.55) 0%, transparent 28%, transparent 70%, var(--bg) 100%),
+      linear-gradient(180deg, var(--bg) 0%, transparent 32%, transparent 70%, var(--bg) 100%),
       linear-gradient(90deg, var(--bg) 0%, transparent 40%);
   }
   .demo {
