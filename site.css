@@ -468,45 +468,45 @@ footer a:hover { color: var(--accent); }
 .pace-switch .on { color: var(--accent); }
 .pace-mock {
   margin: 0.85rem 0 1.1rem;
-  padding: 1.35rem 1.3rem 1.45rem;
+  padding: 1.25rem 1.2rem 1.35rem;
   border-radius: 18px;
-  background: #f4f1e0;
+  background: var(--accent);
   color: #111008;
 }
 .pace-mock p { color: #111008; }
-.pace-label {
-  margin: 0 0 0.45rem !important;
-  font-size: 0.68rem !important;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #6b6758;
+.pace-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin: 0 0 1.1rem;
 }
 .pace-value {
   margin: 0 !important;
-  font-size: 3rem;
+  font-size: 2.35rem;
   font-weight: 800;
   letter-spacing: -0.05em;
   color: #111008;
   line-height: 0.95;
 }
 .pace-unit {
-  margin: 0.15rem 0 1rem !important;
-  font-size: 0.82rem !important;
+  margin: 0.2rem 0 0 !important;
+  font-size: 0.72rem !important;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #111008;
+  opacity: 0.72;
 }
 .pace-slider {
   height: 8px;
   border-radius: 999px;
-  background: #d4cfc0;
+  background: rgba(17, 16, 8, 0.18);
   position: relative;
 }
 .pace-slider-fill {
   display: block;
-  width: 42%;
+  width: 50%;
   height: 100%;
   border-radius: 999px;
   background: #111008;
@@ -514,12 +514,12 @@ footer a:hover { color: var(--accent); }
 .pace-slider i {
   position: absolute;
   top: 50%;
-  left: 42%;
+  left: 50%;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid #111008;
+  background: #111008;
+  border: 2px solid var(--accent);
   transform: translate(-50%, -50%);
 }
 .sources {
@@ -593,7 +593,6 @@ footer a:hover { color: var(--accent); }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.pillar .tag { margin: 0 0 0.7rem; }
 .pillar h3 {
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: 1.15rem;
@@ -601,7 +600,7 @@ footer a:hover { color: var(--accent); }
   letter-spacing: -0.02em;
   text-transform: uppercase;
   margin: 0 0 0.4rem;
-  color: var(--accent);
+  color: var(--ink);
 }
 .pillar p {
   margin: 0;
