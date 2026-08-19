@@ -362,13 +362,21 @@ footer a:hover { color: var(--accent); }
   top: 0;
   right: 0;
   bottom: 0;
-  left: 38%;
-  width: 62%;
+  left: 28%;
+  width: 72%;
   height: 100%;
   max-width: none;
   object-fit: cover;
   object-position: 72% 12%;
   will-change: transform;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 32%, #000 100%),
+    linear-gradient(to bottom, #000 0%, #000 86%, transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 32%, #000 100%),
+    linear-gradient(to bottom, #000 0%, #000 86%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
 }
 .hero-bg::after {
   content: "";
@@ -376,12 +384,15 @@ footer a:hover { color: var(--accent); }
   inset: 0;
   background:
     linear-gradient(
-      90deg,
+      100deg,
       var(--bg) 0%,
-      var(--bg) 44%,
-      rgba(10, 10, 8, 0.7) 58%,
-      transparent 78%
-    );
+      var(--bg) 34%,
+      color-mix(in srgb, var(--bg) 88%, transparent) 44%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 54%,
+      color-mix(in srgb, var(--bg) 22%, transparent) 68%,
+      transparent 86%
+    ),
+    linear-gradient(to bottom, var(--bg) 0%, transparent 16%, transparent 84%, var(--bg) 100%);
 }
 .hero-copy {
   grid-column: 1;
@@ -824,8 +835,8 @@ html.js [data-pace-lock].is-in .pace-slider i {
   }
   .hero-bg::after {
     background:
-      linear-gradient(180deg, var(--bg) 0%, transparent 32%, transparent 70%, var(--bg) 100%),
-      linear-gradient(90deg, var(--bg) 0%, transparent 40%);
+      linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 22%, transparent 48%, transparent 72%, var(--bg) 100%),
+      linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 40%, transparent) 28%, transparent 55%);
   }
   .demo {
     grid-template-columns: 1fr;
