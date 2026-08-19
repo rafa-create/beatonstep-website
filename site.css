@@ -26,6 +26,8 @@ body {
   padding: 2rem 1.25rem 5rem;
 }
 header {
+  position: relative;
+  z-index: 3;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--line);
@@ -349,6 +351,8 @@ footer a:hover { color: var(--accent); }
   min-height: 34rem;
 }
 .hero-bg {
+  grid-column: 1 / -1;
+  grid-row: 1;
   position: absolute;
   z-index: 0;
   top: 0;
@@ -364,8 +368,8 @@ footer a:hover { color: var(--accent); }
   top: 0;
   right: 0;
   bottom: 0;
-  left: 40%;
-  width: 60%;
+  left: 42%;
+  width: 58%;
   height: 100%;
   max-width: none;
   object-fit: cover;
@@ -380,18 +384,22 @@ footer a:hover { color: var(--accent); }
     linear-gradient(
       90deg,
       var(--bg) 0%,
-      var(--bg) 44%,
-      rgba(15, 16, 8, 0.82) 54%,
-      rgba(15, 16, 8, 0.28) 68%,
-      transparent 82%
+      var(--bg) 46%,
+      rgba(15, 16, 8, 0.88) 56%,
+      rgba(15, 16, 8, 0.35) 70%,
+      transparent 86%
     ),
-    linear-gradient(180deg, rgba(15, 16, 8, 0.35) 0%, transparent 18%, transparent 78%, var(--bg) 100%);
+    linear-gradient(180deg, rgba(15, 16, 8, 0.2) 0%, transparent 14%, transparent 82%, var(--bg) 100%);
 }
 .hero-copy {
+  grid-column: 1;
+  grid-row: 1;
   position: relative;
   z-index: 1;
 }
 .hero-visual {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
   z-index: 1;
   min-height: 28rem;
@@ -795,6 +803,15 @@ html.js [data-pace-lock].is-in .pace-slider i {
     min-height: 0;
     margin-bottom: var(--section-gap);
   }
+  .hero-bg {
+    grid-row: 1 / span 2;
+  }
+  .hero-copy,
+  .hero-visual {
+    grid-column: 1;
+  }
+  .hero-copy { grid-row: 1; }
+  .hero-visual { grid-row: 2; }
   .hero-runner {
     left: 0;
     width: 100%;
