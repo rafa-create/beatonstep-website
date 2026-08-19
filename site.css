@@ -11,6 +11,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: "DM Sans", system-ui, sans-serif;
   color: var(--ink);
   background:
@@ -342,52 +343,79 @@ footer a:hover { color: var(--accent); }
   grid-template-columns: minmax(16rem, 26rem) minmax(0, 1fr);
   gap: 1.25rem 1rem;
   align-items: center;
-  min-height: calc(100vh - 8.5rem);
   margin: 0 0 5.5rem;
   position: relative;
+  overflow: visible;
 }
 .hero-visual {
   position: relative;
-  align-self: stretch;
-  min-height: 26rem;
+  min-height: 28rem;
   display: grid;
-  align-items: end;
+  align-items: center;
   justify-items: end;
+  overflow: visible;
+  padding: 1.5rem 0 2.75rem;
 }
 .hero-runner {
   position: absolute;
-  inset: -6% -4% -8% -32%;
+  top: -8%;
+  bottom: -14%;
+  left: -38%;
+  right: calc(50% - 50vw);
   width: auto;
-  height: 118%;
+  height: auto;
   max-width: none;
   object-fit: cover;
-  object-position: 78% 22%;
+  object-position: 70% 22%;
   pointer-events: none;
   z-index: 0;
   will-change: transform;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 16%, #000 72%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 78%, transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 16%, #000 72%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 78%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: -8% calc(50% - 50vw) -14% -38%;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--bg) 0%, transparent 28%),
+    linear-gradient(180deg, var(--bg) 0%, transparent 16%, transparent 62%, var(--bg) 100%);
 }
 .hero-visual .phone {
   position: relative;
-  z-index: 1;
-  width: min(100%, 168px);
+  z-index: 2;
+  width: min(100%, 178px);
   justify-self: end;
-  margin: 0 6% 8% 0;
-  padding: 7px 7px 12px;
+  margin: 0 10% 0 0;
+  padding: 8px 8px 11px;
   border-radius: 26px;
-  overflow: hidden;
+  overflow: visible;
 }
-.hero-visual .phone img {
-  margin-top: -12%;
+.hero-visual .phone-screen {
+  overflow: hidden;
   border-radius: 18px;
+  aspect-ratio: 390 / 760;
+}
+.hero-visual .phone-screen img {
+  width: 100%;
+  height: auto;
+  margin-top: -11%;
+  border-radius: 0;
 }
 .hero-visual .phone::after {
   content: "";
   display: block;
   width: 34%;
   height: 3px;
-  margin: 7px auto 0;
+  margin: 8px auto 0;
   border-radius: 999px;
   background: rgba(244, 241, 224, 0.28);
 }
@@ -757,18 +785,25 @@ html.js [data-pace-lock].is-in .pace-slider i {
     margin-bottom: var(--section-gap);
   }
   .hero-visual {
-    min-height: 20rem;
+    min-height: 24rem;
     max-width: none;
     margin: 0;
+    padding: 0.5rem 0 2rem;
+    justify-items: center;
   }
   .hero-runner {
-    inset: -6% -8% -16% 8%;
-    height: 122%;
-    object-position: 80% 18%;
+    top: -6%;
+    bottom: -18%;
+    left: 6%;
+    right: calc(50% - 50vw);
+  }
+  .hero-visual::after {
+    inset: -6% calc(50% - 50vw) -18% 6%;
   }
   .hero-visual .phone {
-    width: min(100%, 148px);
-    margin: 0 8% 6% 0;
+    width: min(100%, 158px);
+    margin: 18% 0 0 22%;
+    justify-self: center;
   }
   .phone { width: min(100%, 240px); }
   .pillars,
