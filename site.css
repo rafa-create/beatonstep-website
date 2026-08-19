@@ -340,7 +340,7 @@ footer a:hover { color: var(--accent); }
   display: grid;
   grid-template-columns: minmax(17rem, 1.15fr) minmax(14rem, 0.85fr);
   gap: 1.25rem 2.25rem;
-  align-items: center;
+  align-items: start;
   position: relative;
   isolation: isolate;
   margin: 0 0 5.5rem;
@@ -350,17 +350,14 @@ footer a:hover { color: var(--accent); }
   grid-row: 1;
   position: relative;
   z-index: 0;
-  width: 100%;
-  height: min(38rem, 82vh);
-  overflow: visible;
+  width: min(100%, 22rem);
+  justify-self: end;
   pointer-events: none;
 }
 .hero-runner {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
+  height: auto;
   will-change: transform;
 }
 .hero-copy {
@@ -471,7 +468,22 @@ footer a:hover { color: var(--accent); }
 .pace-modes h2 {
   margin-bottom: 1.5rem;
 }
-.pace-card .tag { margin: 0 0 0.7rem; }
+.pace-card {
+  border: 1px solid var(--line);
+}
+.pace-kicker {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pace-card h3 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
 .pace-card p strong { color: var(--ink); font-weight: 700; }
 .pace-hint {
   margin-top: 0.35rem !important;
@@ -485,7 +497,7 @@ footer a:hover { color: var(--accent); }
   margin-top: 1.15rem;
   min-height: 4.5rem;
   padding: 1.15rem 1.25rem;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--line);
   border-radius: 16px;
   background: #111008;
   font-size: 1rem;
@@ -499,10 +511,11 @@ footer a:hover { color: var(--accent); }
   margin: 0.85rem 0 1.1rem;
   padding: 1.25rem 1.2rem 1.35rem;
   border-radius: 18px;
-  background: var(--accent);
-  color: #111008;
+  border: 1px solid var(--line);
+  background: #111008;
+  color: var(--ink);
 }
-.pace-mock p { color: #111008; }
+.pace-mock p { color: var(--ink); }
 .pace-pair {
   display: flex;
   justify-content: space-between;
@@ -515,22 +528,19 @@ footer a:hover { color: var(--accent); }
   font-size: 2.35rem;
   font-weight: 800;
   letter-spacing: -0.05em;
-  color: #111008;
+  color: var(--accent);
   line-height: 0.95;
 }
 .pace-unit {
   margin: 0.2rem 0 0 !important;
   font-size: 0.72rem !important;
   font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #111008;
-  opacity: 0.72;
+  letter-spacing: 0.06em;
 }
 .pace-slider {
   height: 8px;
   border-radius: 999px;
-  background: rgba(17, 16, 8, 0.18);
+  background: rgba(252, 234, 7, 0.16);
   position: relative;
 }
 .pace-slider-fill {
@@ -538,7 +548,7 @@ footer a:hover { color: var(--accent); }
   width: 50%;
   height: 100%;
   border-radius: 999px;
-  background: #111008;
+  background: var(--accent);
 }
 .pace-slider i {
   position: absolute;
@@ -547,8 +557,8 @@ footer a:hover { color: var(--accent); }
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #111008;
-  border: 2px solid var(--accent);
+  background: var(--accent);
+  border: 2px solid #111008;
   transform: translate(-50%, -50%);
 }
 .sources {
@@ -806,8 +816,6 @@ html.js [data-pace-lock].is-in .pace-slider i {
     grid-column: 1;
     grid-row: 2;
     width: min(19rem, 100%);
-    height: min(30rem, calc(70vw * 2.15));
-    min-height: 22rem;
     justify-self: center;
   }
   .demo {
