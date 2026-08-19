@@ -652,6 +652,52 @@ footer a:hover { color: var(--accent); }
 }
 .demo h2:first-child { margin-top: 0; }
 
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 50;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  box-shadow: 0 0 14px rgba(252, 234, 7, 0.5);
+}
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(1.35rem);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+html.js .reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(1.15rem);
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.js .reveal-stagger.is-in > * {
+  opacity: 1;
+  transform: none;
+}
+html.js .reveal-stagger.is-in > *:nth-child(1) { transition-delay: 0.04s; }
+html.js .reveal-stagger.is-in > *:nth-child(2) { transition-delay: 0.14s; }
+html.js .reveal-stagger.is-in > *:nth-child(3) { transition-delay: 0.24s; }
+html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
+html.js [data-pace-lock]:not(.is-in) .pace-slider-fill { width: 0; }
+html.js [data-pace-lock]:not(.is-in) .pace-slider i { left: 0; }
+html.js [data-pace-lock].is-in .pace-slider-fill {
+  width: 50%;
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
+}
+html.js [data-pace-lock].is-in .pace-slider i {
+  left: 50%;
+  transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
+}
+
 @media (max-width: 800px) {
   .hero {
     grid-template-columns: 1fr;
@@ -664,4 +710,20 @@ footer a:hover { color: var(--accent); }
   .source-row { grid-template-columns: 1fr 1fr; }
   .shots { grid-template-columns: 1fr; max-width: none; }
   .shot .phone { width: min(100%, 260px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress { display: none; }
+  html.js .reveal,
+  html.js .reveal.is-in,
+  html.js .reveal-stagger > *,
+  html.js .reveal-stagger.is-in > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html.js [data-pace-lock] .pace-slider-fill,
+  html.js [data-pace-lock] .pace-slider i {
+    transition: none;
+  }
 }

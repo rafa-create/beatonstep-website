@@ -30,6 +30,7 @@
   <script src="i18n.js"></script>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <div class="wrap">
     <header>
       <div class="brand-row">
@@ -86,12 +87,12 @@
       </div>
     </section>
 
-    <section class="split">
+    <section class="split reveal">
       <p class="tag" data-fr>Le problème</p>
       <p class="tag" data-en>The problem</p>
       <h2 data-fr>Playlist trop lente ? Trop rapide ?</h2>
       <h2 data-en>Playlist too slow? Too fast?</h2>
-      <div class="split-grid">
+      <div class="split-grid reveal-stagger">
         <article class="split-card split-bad">
           <h3 data-fr>Musique hors rythme</h3>
           <h3 data-en>Music off the beat</h3>
@@ -107,7 +108,7 @@
       </div>
     </section>
 
-    <main class="card demo">
+    <main class="card demo reveal">
       <h2 data-fr>En vidéo</h2>
       <h2 data-en>Watch</h2>
       <div class="video">
@@ -135,12 +136,12 @@
       </details>
     </main>
 
-    <section class="pace-modes">
+    <section class="pace-modes reveal">
       <p class="tag" data-fr>Allure</p>
       <p class="tag" data-en>Pace</p>
       <h2 data-fr>Adaptatif, ou tu fixes l’allure</h2>
       <h2 data-en>Adaptive, or you lock the pace</h2>
-      <div class="split-grid">
+      <div class="split-grid reveal-stagger">
         <article class="split-card split-good pace-card">
           <p class="tag">Mode 01</p>
           <h3 data-fr>Adaptatif : il s’adapte à toi</h3>
@@ -158,7 +159,7 @@
           <p class="tag">Mode 02</p>
           <h3 data-fr>Ou tu fixes l’allure</h3>
           <h3 data-en>Or you set the pace</h3>
-          <div class="pace-mock" aria-hidden="true">
+          <div class="pace-mock" data-pace-lock aria-hidden="true">
             <div class="pace-pair">
               <div>
                 <p class="pace-value">135</p>
@@ -176,18 +177,18 @@
           </div>
           <p data-fr><strong>Tu bloques l’allure, le BPM reste calé.</strong></p>
           <p data-en><strong>You lock the pace, the BPM stays put.</strong></p>
-          <p class="pace-hint" data-fr>5:00 min/km = 135 BPM. L’app trouve les morceaux à ce tempo.</p>
-          <p class="pace-hint" data-en>5:00 min/km = 135 BPM. The app finds tracks at that tempo.</p>
+          <p class="pace-hint" data-fr>L’app part de ta taille pour coller l’allure et le BPM. Une fois, dans les réglages.</p>
+          <p class="pace-hint" data-en>The app uses your height to match pace and BPM. Once, in settings.</p>
         </article>
       </div>
     </section>
 
-    <section class="sources">
+    <section class="sources reveal">
       <p class="tag" data-fr>Compatibilité</p>
       <p class="tag" data-en>Sources</p>
       <h2 data-fr>Tes fichiers, tes playlists</h2>
       <h2 data-en>Your files, your playlists</h2>
-      <ul class="source-row">
+      <ul class="source-row reveal-stagger">
         <li>
           <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
           <span>MP3</span>
@@ -208,7 +209,7 @@
       </ul>
     </section>
 
-    <section class="shots" aria-label="Aperçu de l’app">
+    <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
       <figure class="shot">
         <div class="phone">
           <img src="screenshot-pace.png" width="390" height="844" alt="Accueil : allure en min/km et calibration" />
@@ -233,14 +234,14 @@
       </figure>
     </section>
 
-    <section class="modes">
+    <section class="modes reveal">
       <header class="section-head">
         <h2 data-fr>Quand tu changes d’allure</h2>
         <h2 data-en>When your pace changes</h2>
         <p data-fr>Côte, récup, accélération : tu choisis comment le titre suit.</p>
         <p data-en>Hills, recovery, surge: you choose how the track follows.</p>
       </header>
-      <div class="pillars">
+      <div class="pillars reveal-stagger">
         <article class="pillar">
           <p class="pillar-kicker">5s</p>
           <h3 data-fr>Cinq secondes</h3>
@@ -284,5 +285,37 @@
       <a class="foot-link" data-en data-keep-lang data-href="privacy.html" href="privacy.html">Privacy</a>
     </footer>
   </div>
+  <script>
+    (function () {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.documentElement.classList.add("js");
+      var bar = document.querySelector(".scroll-progress");
+      function progress() {
+        if (!bar) return;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var p = max > 0 ? window.scrollY / max : 0;
+        bar.style.transform = "scaleX(" + Math.min(1, Math.max(0, p)) + ")";
+      }
+      progress();
+      window.addEventListener("scroll", progress, { passive: true });
+      window.addEventListener("resize", progress);
+      if (reduce) {
+        document.querySelectorAll(".reveal, .reveal-stagger, [data-pace-lock]").forEach(function (el) {
+          el.classList.add("is-in");
+        });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
+      document.querySelectorAll(".reveal, .reveal-stagger, [data-pace-lock]").forEach(function (el) {
+        io.observe(el);
+      });
+    })();
+  </script>
 </body>
 </html>
