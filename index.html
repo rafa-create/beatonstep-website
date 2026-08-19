@@ -51,8 +51,8 @@
         <img
           class="hero-runner"
           src="hero-runner.webp"
-          width="1000"
-          height="1500"
+          width="680"
+          height="1462"
           alt=""
         />
       </div>
@@ -218,23 +218,20 @@
           <span>Spotify</span>
         </li>
       </ul>
-      <ol class="setup-steps reveal-stagger">
+      <ul class="setup-steps reveal-stagger">
         <li>
-          <b>1</b>
           <p data-fr>Bibliothèque ou Réglages</p>
           <p data-en>Library or Settings</p>
         </li>
         <li>
-          <b>2</b>
           <p data-fr>Choisis une source — YouTube Music, par exemple — et connecte-toi.</p>
           <p data-en>Pick a source — YouTube Music, for example — and sign in.</p>
         </li>
         <li>
-          <b>3</b>
           <p data-fr>Coche tes playlists. En course, l’app piochera uniquement là-dedans, à ton allure.</p>
           <p data-en>Tick your playlists. On a run, the app picks only from those, at your pace.</p>
         </li>
-      </ol>
+      </ul>
     </section>
 
     <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
@@ -336,7 +333,7 @@
         var p = max > 0 ? window.scrollY / max : 0;
         bar.style.transform = "scaleX(" + Math.min(1, Math.max(0, p)) + ")";
         if (runner && !reduce) {
-          var y = Math.min(36, window.scrollY * 0.12);
+          var y = Math.min(14, window.scrollY * 0.06);
           runner.style.transform = "translate3d(0," + y + "px,0)";
         }
       }
