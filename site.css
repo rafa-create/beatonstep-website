@@ -14,10 +14,7 @@ body {
   overflow-x: hidden;
   font-family: "DM Sans", system-ui, sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(252, 234, 7, 0.18), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(252, 234, 7, 0.08), transparent 50%),
-    var(--bg);
+  background: var(--bg);
   line-height: 1.65;
 }
 .wrap {
@@ -370,7 +367,7 @@ footer a:hover { color: var(--accent); }
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: 72% 18%;
+  object-position: 68% 0%;
   will-change: transform;
 }
 .hero-bg::after {
@@ -386,7 +383,7 @@ footer a:hover { color: var(--accent); }
       rgba(15, 16, 8, 0.35) 70%,
       transparent 86%
     ),
-    linear-gradient(180deg, var(--bg) 0%, transparent 18%, transparent 80%, var(--bg) 100%);
+    linear-gradient(180deg, transparent 0%, transparent 82%, var(--bg) 100%);
 }
 .hero-copy {
   grid-column: 1;
@@ -800,11 +797,11 @@ html.js [data-pace-lock].is-in .pace-slider i {
   .hero-runner {
     left: 0;
     width: 100%;
-    object-position: 78% 16%;
+    object-position: 72% 0%;
   }
   .hero-bg::after {
     background:
-      linear-gradient(180deg, var(--bg) 0%, rgba(15, 16, 8, 0.82) 22%, rgba(15, 16, 8, 0.2) 48%, var(--bg) 100%),
+      linear-gradient(180deg, rgba(15, 16, 8, 0.55) 0%, transparent 28%, transparent 70%, var(--bg) 100%),
       linear-gradient(90deg, var(--bg) 0%, transparent 40%);
   }
   .demo {
