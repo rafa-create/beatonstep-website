@@ -335,10 +335,39 @@ footer a:hover { color: var(--accent); }
 
 .hero {
   display: grid;
-  grid-template-columns: 1fr minmax(220px, 280px);
-  gap: 2.5rem 3rem;
+  grid-template-columns: 1fr minmax(260px, 1fr);
+  gap: 2rem 1.75rem;
   align-items: center;
   margin: 0 0 var(--section-gap);
+  position: relative;
+}
+.hero-visual {
+  position: relative;
+  min-height: 28rem;
+  display: grid;
+  place-items: center;
+  justify-items: center;
+}
+.hero-runner {
+  position: absolute;
+  inset: -12% -18% -18% -8%;
+  width: auto;
+  height: 128%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 68% 42%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 100%);
+}
+.hero-visual .phone {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 232px);
+  justify-self: center;
+  margin: 8% 0 0 18%;
 }
 .hero-copy h1 {
   font-family: "DM Sans", system-ui, sans-serif;
@@ -704,6 +733,19 @@ html.js [data-pace-lock].is-in .pace-slider i {
     gap: 1.75rem;
     text-align: left;
   }
+  .hero-visual {
+    min-height: 22rem;
+    max-width: 22rem;
+    margin: 0 auto;
+  }
+  .hero-runner {
+    inset: -8% -10% -20% 10%;
+    height: 120%;
+  }
+  .hero-visual .phone {
+    width: min(100%, 210px);
+    margin: 6% 0 0 22%;
+  }
   .phone { width: min(100%, 240px); }
   .pillars,
   .split-grid { grid-template-columns: 1fr; }
@@ -714,6 +756,7 @@ html.js [data-pace-lock].is-in .pace-slider i {
 
 @media (prefers-reduced-motion: reduce) {
   .scroll-progress { display: none; }
+  .hero-runner { transform: none !important; will-change: auto; }
   html.js .reveal,
   html.js .reveal.is-in,
   html.js .reveal-stagger > *,
