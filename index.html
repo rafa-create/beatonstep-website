@@ -379,24 +379,80 @@
     </section>
 
     <section class="faq reveal">
-      <p class="faq-label" data-fr>Questions</p>
-      <p class="faq-label" data-en>Questions</p>
-      <details class="faq-item">
-        <summary>
-          <span data-fr>Quand arrive iOS ?</span>
-          <span data-en>When is iOS coming?</span>
-        </summary>
-        <p data-fr>Pas de date. Compte Apple Developer payé, démarche App Store en cours.</p>
-        <p data-en>No date yet. Apple Developer account is paid, App Store process is underway.</p>
-      </details>
-      <details class="faq-item">
-        <summary>
-          <span data-fr>Et Deezer ?</span>
-          <span data-en>What about Deezer?</span>
-        </summary>
-        <p data-fr>Quand Deezer autorisera à nouveau la création d’apps. Leur plateforme développeur n’accepte plus de nouvelles applications.</p>
-        <p data-en>When Deezer allows new apps again. Their developer platform is closed to new applications.</p>
-      </details>
+      <p class="tag" data-fr>Questions</p>
+      <p class="tag" data-en>Questions</p>
+      <header class="section-head">
+        <h2 data-fr>Avant de courir</h2>
+        <h2 data-en>Before you run</h2>
+        <p data-fr>L’essentiel, en une ligne. Clique pour l’ouvrir.</p>
+        <p data-en>The short version. Tap to open.</p>
+      </header>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Comment j’installe l’app ?</span>
+            <span data-en>How do I get the app?</span>
+          </summary>
+          <p data-fr>Android, via une invitation au test Play. Une invitation suffit.</p>
+          <p data-en>Android, through a Play testing invite. One invite is enough.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Il me faut Spotify ou YouTube ?</span>
+            <span data-en>Do I need Spotify or YouTube?</span>
+          </summary>
+          <p data-fr>Non. Le mix inclus est déjà là. Tu peux courir tout de suite, téléphone dans la poche.</p>
+          <p data-en>No. The included mix is already there. You can run right away, phone in your pocket.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Et mes fichiers sur le téléphone ?</span>
+            <span data-en>What about files on my phone?</span>
+          </summary>
+          <p data-fr>Tu les importes (Local). Lance l’analyse du rythme de chaque titre avant de partir.</p>
+          <p data-en>Import them (Local). Run rhythm analysis on each track before you head out.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>YouTube coupe la musique ?</span>
+            <span data-en>Does YouTube stop the music?</span>
+          </summary>
+          <p data-fr>YouTube Music s’ouvre dans son app. Sans YouTube Premium, revenir dans BeatOnStep coupe souvent la lecture. Premium garde l’arrière-plan.</p>
+          <p data-en>YouTube Music opens in its app. Without YouTube Premium, coming back to BeatOnStep often stops playback. Premium keeps it in the background.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Spotify, c’est dispo ?</span>
+            <span data-en>Is Spotify available?</span>
+          </summary>
+          <p data-fr>Oui, ça s’ouvre dans l’app Spotify. Il faut le PPM de chaque titre. Bêta sur invitation.</p>
+          <p data-en>Yes — it opens in the Spotify app. Each track needs a PPM. Invite-only beta.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Adaptatif ou Fixe ?</span>
+            <span data-en>Adaptive or Fixed?</span>
+          </summary>
+          <p data-fr>Adaptatif : l’allure live, la musique suit. Fixe : tu bloques l’allure, le PPM reste calé. Tu changes ça dans l’app.</p>
+          <p data-en>Adaptive: live pace, the music follows. Fixed: you lock the pace, PPM stays put. You can switch in the app.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Quand arrive iOS ?</span>
+            <span data-en>When is iOS coming?</span>
+          </summary>
+          <p data-fr>Pas de date. Compte Apple Developer payé, démarche App Store en cours.</p>
+          <p data-en>No date yet. Apple Developer account is paid, App Store process is underway.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span data-fr>Et Deezer ?</span>
+            <span data-en>What about Deezer?</span>
+          </summary>
+          <p data-fr>Quand Deezer autorisera à nouveau la création d’apps. Leur plateforme développeur n’accepte plus de nouvelles applications.</p>
+          <p data-en>When Deezer allows new apps again. Their developer platform is closed to new applications.</p>
+        </details>
+      </div>
     </section>
 
     <nav class="cta cta-end">
@@ -578,6 +634,18 @@
             btn.setAttribute("aria-pressed", "true");
             if (btn.parentElement) btn.parentElement.classList.add("is-on");
             if (key) root.setAttribute("data-src", key);
+          });
+        });
+      })();
+
+      (function faq() {
+        var items = document.querySelectorAll(".faq-item");
+        items.forEach(function (item) {
+          item.addEventListener("toggle", function () {
+            if (!item.open) return;
+            items.forEach(function (other) {
+              if (other !== item) other.removeAttribute("open");
+            });
           });
         });
       })();

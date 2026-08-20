@@ -840,22 +840,26 @@ footer a:hover { color: var(--accent); }
   font-size: 0.95rem;
 }
 .faq {
-  margin: 0 auto var(--section-gap);
-  max-width: 28rem;
+  margin: 0 0 var(--section-gap);
 }
-.faq-label {
-  margin: 0 0 0.35rem;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.faq .section-head {
+  margin-bottom: 1.15rem;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 40rem;
 }
 .faq-item {
-  border-top: 1px solid var(--line);
+  margin: 0;
+  background: color-mix(in srgb, var(--panel) 88%, black);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0 1.15rem;
 }
-.faq-item:last-child {
-  border-bottom: 1px solid var(--line);
+.faq-item[open] {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
 }
 .faq-item summary {
   cursor: pointer;
@@ -863,31 +867,45 @@ footer a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.8rem 0;
-  color: var(--muted);
+  gap: 1rem;
+  min-height: 3.15rem;
+  padding: 0.7rem 0;
+  color: var(--ink);
+  font-family: "DM Sans", system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after {
-  content: "+";
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1;
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(45deg);
+  margin-top: -0.22rem;
   flex-shrink: 0;
 }
-.faq-item[open] summary {
-  color: var(--ink);
+.faq-item[open] summary::after {
+  transform: rotate(-135deg);
+  margin-top: 0.18rem;
 }
-.faq-item[open] summary::after { content: "–"; }
-.faq-item summary:hover { color: var(--ink); }
+.faq-item summary:hover { color: var(--accent); }
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
 .faq-item p {
-  margin: 0 0 0.95rem;
+  margin: 0;
+  padding: 0 0 1.05rem;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.5;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 .shots {
   display: grid;
