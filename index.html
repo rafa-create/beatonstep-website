@@ -30,7 +30,20 @@
   <script src="i18n.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#main" data-fr>Aller au contenu</a>
+  <a class="skip-link" href="#main" data-en>Skip to content</a>
   <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="app-bar">
+    <div class="app-bar-inner">
+      <p data-fr>BeatOnStep sur Android — Alpha, sans pub.</p>
+      <p data-en>BeatOnStep on Android — Alpha, no ads.</p>
+      <a class="app-bar-btn" href="https://play.google.com/apps/testing/com.patrick.beatonstep">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3.2 1.6v12.8L14 8 3.2 1.6z"/></svg>
+        <span data-fr>Télécharger l’app</span>
+        <span data-en>Get the app</span>
+      </a>
+    </div>
+  </div>
   <div class="wrap">
     <header>
       <div class="brand-row">
@@ -46,7 +59,7 @@
       </div>
     </header>
 
-    <section class="hero">
+    <section class="hero" id="main">
       <div class="hero-bg" aria-hidden="true">
         <img
           class="hero-runner"
@@ -135,16 +148,6 @@
           </div>
         </details>
       </div>
-      <div class="phone demo-phone">
-        <div class="phone-screen">
-          <img
-            src="screenshot-home.png"
-            width="390"
-            height="844"
-            alt="BeatOnStep : allure en min/km et lecteur"
-          />
-        </div>
-      </div>
     </main>
 
     <section class="pace-modes reveal">
@@ -170,27 +173,41 @@
           <p class="pace-kicker">Mode 02</p>
           <h3 data-fr>Ou tu fixes l’allure</h3>
           <h3 data-en>Or you set the pace</h3>
-          <div class="pace-mock" data-pace-lock aria-hidden="true">
+          <div class="pace-mock" data-pace-lock>
             <div class="pace-pair">
               <div>
-                <p class="pace-value">135</p>
+                <p class="pace-value" data-pace-bpm>134</p>
                 <p class="pace-unit" data-fr>musique · BPM</p>
                 <p class="pace-unit" data-en>music · BPM</p>
               </div>
               <div>
-                <p class="pace-value">5:00</p>
+                <p class="pace-value" data-pace-min>5:00</p>
                 <p class="pace-unit">min/km</p>
               </div>
             </div>
-            <div class="pace-slider">
+            <div
+              class="pace-slider"
+              role="slider"
+              tabindex="0"
+              aria-valuemin="3.5"
+              aria-valuemax="7.5"
+              aria-valuenow="5"
+              aria-valuetext="5:00 min/km, 134 BPM"
+            >
               <span class="pace-slider-fill"></span>
               <i></i>
             </div>
+            <label class="pace-height">
+              <span data-fr>Ta taille</span>
+              <span data-en>Your height</span>
+              <input type="number" inputmode="numeric" min="140" max="210" step="1" value="170" data-pace-height />
+              <span>cm</span>
+            </label>
           </div>
-          <p data-fr><strong>Tu bloques l’allure, le BPM reste calé.</strong></p>
-          <p data-en><strong>You lock the pace, the BPM stays put.</strong></p>
-          <p class="pace-hint" data-fr>L’app part de ta taille pour coller l’allure et le BPM. Une fois, dans les réglages.</p>
-          <p class="pace-hint" data-en>The app uses your height to match pace and BPM. Once, in settings.</p>
+          <p data-fr><strong>Tu bloques l’allure, le BPM reste calé.</strong> Glisse le curseur : même formule que dans l’app.</p>
+          <p data-en><strong>You lock the pace, the BPM stays put.</strong> Drag the slider: same formula as the app.</p>
+          <p class="pace-hint" data-fr>La taille convertit min/km ↔ BPM, comme dans les réglages.</p>
+          <p class="pace-hint" data-en>Height converts min/km ↔ BPM, like in settings.</p>
         </article>
       </div>
     </section>
@@ -235,31 +252,6 @@
       </ul>
     </section>
 
-    <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
-      <figure class="shot">
-        <div class="phone">
-          <img src="screenshot-pace.png" width="390" height="844" alt="Accueil : allure en min/km et calibration" />
-        </div>
-        <figcaption>
-          <strong data-fr>Ton allure</strong>
-          <strong data-en>Your pace</strong>
-          <span data-fr>En min/km, comme une montre.</span>
-          <span data-en>In min/km, like a watch.</span>
-        </figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="phone">
-          <img src="screenshot-library.png" width="390" height="844" alt="Bibliothèque : pistes locales, mix inclus et YouTube Music" />
-        </div>
-        <figcaption>
-          <strong data-fr>Ta musique</strong>
-          <strong data-en>Your music</strong>
-          <span data-fr>Tes sources, tes playlists. L’app envoie un titre à ton allure.</span>
-          <span data-en>Your sources, your playlists. The app queues a track at your pace.</span>
-        </figcaption>
-      </figure>
-    </section>
-
     <section class="modes reveal">
       <header class="section-head">
         <h2 data-fr>Quand tu changes d’allure</h2>
@@ -292,6 +284,42 @@
           <p data-en>You speed up or slow down: the track changes right away.</p>
         </article>
       </div>
+    </section>
+
+    <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-home.png" width="390" height="844" alt="BeatOnStep : allure en min/km et lecteur" />
+        </div>
+        <figcaption>
+          <strong data-fr>En run</strong>
+          <strong data-en>On a run</strong>
+          <span data-fr>Allure et lecteur, téléphone dans la poche.</span>
+          <span data-en>Pace and player, phone in your pocket.</span>
+        </figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-pace.png" width="390" height="844" alt="Accueil : allure en min/km et calibration" />
+        </div>
+        <figcaption>
+          <strong data-fr>Ton allure</strong>
+          <strong data-en>Your pace</strong>
+          <span data-fr>En min/km, comme une montre.</span>
+          <span data-en>In min/km, like a watch.</span>
+        </figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-library.png" width="390" height="844" alt="Bibliothèque : pistes locales, mix inclus et YouTube Music" />
+        </div>
+        <figcaption>
+          <strong data-fr>Ta musique</strong>
+          <strong data-en>Your music</strong>
+          <span data-fr>Tes sources, tes playlists. L’app envoie un titre à ton allure.</span>
+          <span data-en>Your sources, your playlists. The app queues a track at your pace.</span>
+        </figcaption>
+      </figure>
     </section>
 
     <nav class="cta cta-end">
@@ -341,8 +369,115 @@
       progress();
       window.addEventListener("scroll", progress, { passive: true });
       window.addEventListener("resize", progress);
+
+      (function paceLock() {
+        var root = document.querySelector("[data-pace-lock]");
+        if (!root) return;
+        var bpmEl = root.querySelector("[data-pace-bpm]");
+        var minEl = root.querySelector("[data-pace-min]");
+        var heightEl = root.querySelector("[data-pace-height]");
+        var slider = root.querySelector(".pace-slider");
+        var fill = root.querySelector(".pace-slider-fill");
+        var knob = slider && slider.querySelector("i");
+        if (!bpmEl || !minEl || !heightEl || !slider || !fill || !knob) return;
+
+        var K = 0.878;
+        var PACE_MIN = 3.5;
+        var PACE_MAX = 7.5;
+        var HEIGHT_MIN = 140;
+        var HEIGHT_MAX = 210;
+        var pace = 5;
+        var height = 170;
+        var dragging = false;
+
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+        function formatPace(p) {
+          var total = Math.round(p * 60);
+          var min = Math.floor(total / 60);
+          var sec = total % 60;
+          if (sec === 60) {
+            min += 1;
+            sec = 0;
+          }
+          return min + ":" + (sec < 10 ? "0" : "") + sec;
+        }
+        function paceToBpm(p, h) {
+          return Math.round(1000 / p / (K * (h / 100)));
+        }
+        function ratioFromPace(p) {
+          return (PACE_MAX - p) / (PACE_MAX - PACE_MIN);
+        }
+        function render() {
+          var bpm = paceToBpm(pace, height);
+          var label = formatPace(pace);
+          bpmEl.textContent = String(bpm);
+          minEl.textContent = label;
+          var pct = (ratioFromPace(pace) * 100).toFixed(2) + "%";
+          fill.style.width = pct;
+          knob.style.left = pct;
+          slider.setAttribute("aria-valuenow", String(Math.round(pace * 20) / 20));
+          slider.setAttribute("aria-valuetext", label + " min/km, " + bpm + " BPM");
+        }
+        function setPaceFromClientX(x) {
+          var rect = slider.getBoundingClientRect();
+          var t = rect.width ? (x - rect.left) / rect.width : 0.5;
+          t = clamp(t, 0, 1);
+          pace = PACE_MAX - t * (PACE_MAX - PACE_MIN);
+          render();
+        }
+        function readHeight() {
+          var n = parseInt(heightEl.value, 10);
+          if (isNaN(n) || n < HEIGHT_MIN || n > HEIGHT_MAX) return;
+          height = n;
+          render();
+        }
+
+        slider.addEventListener("pointerdown", function (e) {
+          dragging = true;
+          slider.setPointerCapture(e.pointerId);
+          slider.focus({ preventScroll: true });
+          setPaceFromClientX(e.clientX);
+          e.preventDefault();
+        });
+        slider.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          setPaceFromClientX(e.clientX);
+        });
+        slider.addEventListener("pointerup", function () { dragging = false; });
+        slider.addEventListener("pointercancel", function () { dragging = false; });
+        slider.addEventListener("keydown", function (e) {
+          var step = e.shiftKey ? 0.25 : 0.05;
+          if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            pace = clamp(pace + step, PACE_MIN, PACE_MAX);
+            e.preventDefault();
+            render();
+          } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            pace = clamp(pace - step, PACE_MIN, PACE_MAX);
+            e.preventDefault();
+            render();
+          } else if (e.key === "Home") {
+            pace = PACE_MAX;
+            e.preventDefault();
+            render();
+          } else if (e.key === "End") {
+            pace = PACE_MIN;
+            e.preventDefault();
+            render();
+          }
+        });
+        heightEl.addEventListener("input", readHeight);
+        heightEl.addEventListener("change", function () {
+          heightEl.value = String(height);
+          render();
+        });
+        slider.setAttribute("aria-label", document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km");
+        render();
+      })();
+
       if (reduce) {
-        document.querySelectorAll(".reveal, .reveal-stagger, [data-pace-lock]").forEach(function (el) {
+        document.querySelectorAll(".reveal, .reveal-stagger").forEach(function (el) {
           el.classList.add("is-in");
         });
         return;
@@ -354,7 +489,7 @@
           io.unobserve(entry.target);
         });
       }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
-      document.querySelectorAll(".reveal, .reveal-stagger, [data-pace-lock]").forEach(function (el) {
+      document.querySelectorAll(".reveal, .reveal-stagger").forEach(function (el) {
         io.observe(el);
       });
     })();
