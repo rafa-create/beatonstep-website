@@ -51,6 +51,17 @@ body {
   justify-content: space-between;
   gap: 0.75rem 1rem;
 }
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.4rem;
+}
+.app-bar-btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
 .app-bar-inner p {
   margin: 0;
   color: var(--muted);
@@ -1357,6 +1368,7 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   .app-bar-inner {
     padding: 0.45rem 1.25rem;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .app-bar-inner p {
     font-size: 0.75rem;

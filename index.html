@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BeatOnStep — musique au rythme de tes pas</title>
-  <meta name="description" content="Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android." />
+  <meta name="description" content="Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android et iOS." />
   <link rel="canonical" href="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="BeatOnStep — musique au rythme de tes pas" />
-  <meta property="og:description" content="Tu cours. L’app lit ton allure en min/km et met un titre au même rythme. Android." />
+  <meta property="og:description" content="Tu cours. L’app lit ton allure en min/km et met un titre au même rythme. Android et iOS." />
   <meta property="og:url" content="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -23,8 +23,8 @@
       en: "BeatOnStep — music that matches your stride"
     };
     window.BOS_DESC = {
-      fr: "Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android.",
-      en: "You run: the app reads your pace in min/km and puts on a matching track. Android."
+      fr: "Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android et iOS.",
+      en: "You run: the app reads your pace in min/km and puts on a matching track. Android and iOS."
     };
   </script>
   <script src="i18n.js"></script>
@@ -35,13 +35,12 @@
   <div class="scroll-progress" aria-hidden="true"></div>
   <div class="app-bar">
     <div class="app-bar-inner">
-      <p data-fr>BeatOnStep pour Android</p>
-      <p data-en>BeatOnStep for Android</p>
-      <a class="app-bar-btn" href="https://play.google.com/apps/testing/com.patrick.beatonstep">
-        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3.2 1.6v12.8L14 8 3.2 1.6z"/></svg>
-        <span data-fr>Télécharger l’app</span>
-        <span data-en>Get the app</span>
-      </a>
+      <p data-fr>BeatOnStep — Android et iOS</p>
+      <p data-en>BeatOnStep — Android and iOS</p>
+      <div class="app-bar-actions">
+        <a class="app-bar-btn" href="https://play.google.com/apps/testing/com.patrick.beatonstep">Android</a>
+        <a class="app-bar-btn app-bar-btn-ghost" href="https://testflight.apple.com/v1/invite/5f3894cd93df453e8b9496f173e7199c1e22b0b9c0ee4557961c29f174b44bca195855c37?ct=6R7WQ85VXB&amp;advp=10000&amp;platform=ios">iOS</a>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -50,8 +49,7 @@
         <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
         <p class="brand">BeatOnStep</p>
         <span class="tag tag-ghost">Android</span>
-        <span class="tag tag-soon" data-fr>Bientôt iOS</span>
-        <span class="tag tag-soon" data-en>Soon on iOS</span>
+        <span class="tag tag-ghost">iOS</span>
         <div class="lang" role="group" aria-label="Language">
           <button type="button" data-set="fr">FR</button>
           <button type="button" data-set="en">EN</button>
@@ -93,9 +91,11 @@
             <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3.2 1.6v12.8L14 8 3.2 1.6z"/></svg>
             Try it on Android
           </a>
+          <a class="btn btn-ghost" data-fr href="https://testflight.apple.com/v1/invite/5f3894cd93df453e8b9496f173e7199c1e22b0b9c0ee4557961c29f174b44bca195855c37?ct=6R7WQ85VXB&amp;advp=10000&amp;platform=ios">Essayer sur iOS</a>
+          <a class="btn btn-ghost" data-en href="https://testflight.apple.com/v1/invite/5f3894cd93df453e8b9496f173e7199c1e22b0b9c0ee4557961c29f174b44bca195855c37?ct=6R7WQ85VXB&amp;advp=10000&amp;platform=ios">Try it on iOS</a>
         </nav>
-        <p class="hero-note" data-fr>Une invitation Play suffit.</p>
-        <p class="hero-note" data-en>A Play invite is enough.</p>
+        <p class="hero-note" data-fr>Play (Android) ou TestFlight (iPhone).</p>
+        <p class="hero-note" data-en>Play (Android) or TestFlight (iPhone).</p>
       </div>
     </section>
 
@@ -394,8 +394,8 @@
                 <span data-fr>Comment j’installe l’app ?</span>
                 <span data-en>How do I get the app?</span>
               </summary>
-              <p data-fr>Android, via une invitation au test Play. Une invitation suffit.</p>
-              <p data-en>Android, through a Play testing invite. One invite is enough.</p>
+              <p data-fr>Android : invitation Play. iPhone : TestFlight (installe d’abord l’app TestFlight). Un clic depuis ce site suffit.</p>
+              <p data-en>Android: a Play invite. iPhone: TestFlight (install the TestFlight app first). One tap from this site is enough.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -447,11 +447,11 @@
             </details>
             <details class="faq-item">
               <summary>
-                <span data-fr>Quand arrive iOS ?</span>
-                <span data-en>When is iOS coming?</span>
+                <span data-fr>Comment j’installe sur iPhone ?</span>
+                <span data-en>How do I install on iPhone?</span>
               </summary>
-              <p data-fr>Pas de date. Compte Apple Developer payé, démarche App Store en cours.</p>
-              <p data-en>No date yet. Apple Developer account is paid, App Store process is underway.</p>
+              <p data-fr>Installe l’app TestFlight, puis clique Essayer sur iOS. L’App Store public arrive ensuite.</p>
+              <p data-en>Install the TestFlight app, then tap Try it on iOS. The public App Store listing comes next.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -678,6 +678,8 @@
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3.2 1.6v12.8L14 8 3.2 1.6z"/></svg>
         Try it on Android
       </a>
+      <a class="btn btn-ghost" data-fr href="https://testflight.apple.com/v1/invite/5f3894cd93df453e8b9496f173e7199c1e22b0b9c0ee4557961c29f174b44bca195855c37?ct=6R7WQ85VXB&amp;advp=10000&amp;platform=ios">Essayer sur iOS</a>
+      <a class="btn btn-ghost" data-en href="https://testflight.apple.com/v1/invite/5f3894cd93df453e8b9496f173e7199c1e22b0b9c0ee4557961c29f174b44bca195855c37?ct=6R7WQ85VXB&amp;advp=10000&amp;platform=ios">Try it on iOS</a>
     </nav>
 
     <footer>
