@@ -410,9 +410,10 @@ footer {
 }
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--accent); }
-.foot-link img.ico {
-  width: 0.95rem;
-  height: 0.95rem;
+.foot-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .hero {
