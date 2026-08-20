@@ -199,13 +199,19 @@
           <h3 data-fr>Tu règles l’allure</h3>
           <h3 data-en>You set the pace</h3>
           <div class="pace-mock" data-pace-lock>
-            <div class="pace-pair">
-              <div>
+            <div class="pace-units" role="group" aria-label="Unité / Unit">
+              <button type="button" data-unit="ppm" aria-pressed="false">PPM</button>
+              <button type="button" data-unit="allure" aria-pressed="true">
+                <span data-fr>Allure</span>
+                <span data-en>Pace</span>
+              </button>
+            </div>
+            <div class="pace-pair" data-unit="allure">
+              <div data-col="ppm">
                 <p class="pace-value" data-pace-bpm>134</p>
-                <p class="pace-unit" data-fr>musique · BPM</p>
-                <p class="pace-unit" data-en>music · BPM</p>
+                <p class="pace-unit">PPM</p>
               </div>
-              <div>
+              <div data-col="allure">
                 <p class="pace-value" data-pace-min>5:00</p>
                 <p class="pace-unit">min/km</p>
               </div>
@@ -217,7 +223,7 @@
               aria-valuemin="2.5"
               aria-valuemax="15"
               aria-valuenow="5"
-              aria-valuetext="5:00 min/km, 134 BPM"
+              aria-valuetext="5:00 min/km, 134 PPM"
             >
               <span class="pace-slider-fill"></span>
               <i></i>
@@ -229,10 +235,10 @@
               <span>cm</span>
             </label>
           </div>
-          <p data-fr><strong>Tu bloques l’allure, le BPM reste calé.</strong> Glisse le curseur : même formule que dans l’app.</p>
-          <p data-en><strong>You lock the pace, the BPM stays put.</strong> Drag the slider: same formula as the app.</p>
-          <p class="pace-hint" data-fr>La taille convertit min/km ↔ BPM, comme dans les réglages.</p>
-          <p class="pace-hint" data-en>Height converts min/km ↔ BPM, like in settings.</p>
+          <p data-fr><strong>Tu bloques l’allure, le PPM reste calé.</strong> Glisse le curseur : même formule que dans l’app.</p>
+          <p data-en><strong>You lock the pace, the PPM stays put.</strong> Drag the slider: same formula as the app.</p>
+          <p class="pace-hint" data-fr>En Allure, la taille convertit min/km ↔ PPM, comme dans les réglages.</p>
+          <p class="pace-hint" data-en>In Pace, height converts min/km ↔ PPM, like in settings.</p>
         </article>
       </div>
     </section>
@@ -728,7 +734,9 @@
         var slider = root.querySelector(".pace-slider");
         var fill = root.querySelector(".pace-slider-fill");
         var knob = slider && slider.querySelector("i");
-        if (!bpmEl || !minEl || !heightEl || !slider || !fill || !knob) return;
+        var pair = root.querySelector(".pace-pair");
+        var unitBtns = root.querySelectorAll(".pace-units button");
+        if (!bpmEl || !minEl || !heightEl || !slider || !fill || !knob || !pair) return;
 
         var K = 0.878;
         var PACE_MIN = 2.5;
@@ -740,6 +748,7 @@
         var pace = 5;
         var height = 170;
         var dragging = false;
+        var unit = "allure";
 
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
@@ -758,8 +767,19 @@
           var bpm = Math.round(1000 / p / (K * (h / 100)));
           return Math.min(BPM_MAX, Math.max(BPM_MIN, bpm));
         }
+        function bpmToPace(b, h) {
+          return 1000 / (b * K * (h / 100));
+        }
         function ratioFromPace(p) {
           return (PACE_MAX - p) / (PACE_MAX - PACE_MIN);
+        }
+        function setBpm(b) {
+          pace = clamp(bpmToPace(clamp(Math.round(b), BPM_MIN, BPM_MAX), height), PACE_MIN, PACE_MAX);
+        }
+        function sliderLabel() {
+          return unit === "ppm"
+            ? "PPM"
+            : (document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km");
         }
         function render() {
           var bpm = paceToBpm(pace, height);
@@ -770,7 +790,10 @@
           fill.style.width = pct;
           knob.style.left = pct;
           slider.setAttribute("aria-valuenow", String(Math.round(pace * 20) / 20));
-          slider.setAttribute("aria-valuetext", label + " min/km, " + bpm + " BPM");
+          slider.setAttribute("aria-valuetext", label + " min/km, " + bpm + " PPM");
+          slider.setAttribute("aria-label", sliderLabel());
+          pair.setAttribute("data-unit", unit);
+          root.setAttribute("data-unit", unit);
         }
         function setPaceFromClientX(x) {
           var rect = slider.getBoundingClientRect();
@@ -782,7 +805,13 @@
         function readHeight() {
           var n = parseInt(heightEl.value, 10);
           if (isNaN(n) || n < HEIGHT_MIN || n > HEIGHT_MAX) return;
-          height = n;
+          if (unit === "ppm") {
+            var bpm = paceToBpm(pace, height);
+            height = n;
+            setBpm(bpm);
+          } else {
+            height = n;
+          }
           render();
         }
 
@@ -800,21 +829,26 @@
         slider.addEventListener("pointerup", function () { dragging = false; });
         slider.addEventListener("pointercancel", function () { dragging = false; });
         slider.addEventListener("keydown", function (e) {
-          var step = e.shiftKey ? 15 / 60 : 5 / 60;
+          var paceStep = e.shiftKey ? 15 / 60 : 5 / 60;
+          var ppmStep = e.shiftKey ? 5 : 1;
           if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-            pace = clamp(pace + step, PACE_MIN, PACE_MAX);
+            if (unit === "ppm") setBpm(paceToBpm(pace, height) - ppmStep);
+            else pace = clamp(pace + paceStep, PACE_MIN, PACE_MAX);
             e.preventDefault();
             render();
           } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-            pace = clamp(pace - step, PACE_MIN, PACE_MAX);
+            if (unit === "ppm") setBpm(paceToBpm(pace, height) + ppmStep);
+            else pace = clamp(pace - paceStep, PACE_MIN, PACE_MAX);
             e.preventDefault();
             render();
           } else if (e.key === "Home") {
-            pace = PACE_MAX;
+            if (unit === "ppm") setBpm(BPM_MIN);
+            else pace = PACE_MAX;
             e.preventDefault();
             render();
           } else if (e.key === "End") {
-            pace = PACE_MIN;
+            if (unit === "ppm") setBpm(BPM_MAX);
+            else pace = PACE_MIN;
             e.preventDefault();
             render();
           }
@@ -824,7 +858,17 @@
           heightEl.value = String(height);
           render();
         });
-        slider.setAttribute("aria-label", document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km");
+        unitBtns.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var next = btn.getAttribute("data-unit");
+            if (!next) return;
+            unit = next;
+            unitBtns.forEach(function (b) {
+              b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+            });
+            render();
+          });
+        });
         render();
       })();
 
