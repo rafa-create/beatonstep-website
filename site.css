@@ -57,11 +57,6 @@ body {
   flex-shrink: 0;
   gap: 0.4rem;
 }
-.app-bar-btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
 .app-bar-inner p {
   margin: 0;
   color: var(--muted);
@@ -69,23 +64,6 @@ body {
   font-weight: 600;
   line-height: 1.35;
 }
-.app-bar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #1a1a08;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-.app-bar-btn:hover { filter: brightness(1.08); }
-.app-bar-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .wrap {
   max-width: 68rem;
   margin: 0 auto;
@@ -205,6 +183,23 @@ nav.links {
   height: 44px;
   width: auto;
   display: block;
+}
+.store-badge-bar img {
+  height: 32px;
+}
+@media (max-width: 640px) {
+  .app-bar-inner {
+    padding: 0.4rem 0.85rem;
+  }
+  .app-bar-inner p {
+    font-size: 0.72rem;
+  }
+  .store-badge-bar img {
+    height: 28px;
+  }
+}
+@media (max-width: 480px) {
+  .app-bar-inner p { display: none; }
 }
 .store-badge:hover { opacity: 0.88; }
 .store-badge:focus-visible {
