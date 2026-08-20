@@ -189,8 +189,8 @@
               class="pace-slider"
               role="slider"
               tabindex="0"
-              aria-valuemin="3.5"
-              aria-valuemax="7.5"
+              aria-valuemin="2.5"
+              aria-valuemax="15"
               aria-valuenow="5"
               aria-valuetext="5:00 min/km, 134 BPM"
             >
@@ -382,8 +382,10 @@
         if (!bpmEl || !minEl || !heightEl || !slider || !fill || !knob) return;
 
         var K = 0.878;
-        var PACE_MIN = 3.5;
-        var PACE_MAX = 7.5;
+        var PACE_MIN = 2.5;
+        var PACE_MAX = 15;
+        var BPM_MIN = 40;
+        var BPM_MAX = 240;
         var HEIGHT_MIN = 140;
         var HEIGHT_MAX = 210;
         var pace = 5;
@@ -404,7 +406,8 @@
           return min + ":" + (sec < 10 ? "0" : "") + sec;
         }
         function paceToBpm(p, h) {
-          return Math.round(1000 / p / (K * (h / 100)));
+          var bpm = Math.round(1000 / p / (K * (h / 100)));
+          return Math.min(BPM_MAX, Math.max(BPM_MIN, bpm));
         }
         function ratioFromPace(p) {
           return (PACE_MAX - p) / (PACE_MAX - PACE_MIN);
@@ -448,7 +451,7 @@
         slider.addEventListener("pointerup", function () { dragging = false; });
         slider.addEventListener("pointercancel", function () { dragging = false; });
         slider.addEventListener("keydown", function (e) {
-          var step = e.shiftKey ? 0.25 : 0.05;
+          var step = e.shiftKey ? 15 / 60 : 5 / 60;
           if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
             pace = clamp(pace + step, PACE_MIN, PACE_MAX);
             e.preventDefault();

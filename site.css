@@ -34,10 +34,13 @@ body {
   top: 0.65rem;
 }
 .app-bar {
-  position: relative;
-  z-index: 4;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--panel) 78%, black);
+  background: color-mix(in srgb, var(--bg) 88%, var(--panel));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 .app-bar-inner {
   max-width: 68rem;
