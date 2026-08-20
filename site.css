@@ -1046,7 +1046,6 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   grid-template-columns: 1fr 1fr 1fr;
 }
 .schema-pair div,
-.schema-eq,
 .schema-band {
   background: var(--bg);
   border: 1px solid var(--line);
@@ -1073,20 +1072,74 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
 }
 .schema-eq {
   margin: 0 0 1rem;
-  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.95rem 0.85rem 0.85rem;
+}
+.eq-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
   color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1.45;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
 }
-.schema-eq span {
-  display: block;
-  margin-top: 0.35rem;
+.eq-line:last-of-type { margin-bottom: 0.9rem; }
+.eq-out { color: var(--accent); }
+.eq-op {
   color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 400;
+  font-weight: 700;
 }
+.eq-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 8.5rem;
+  text-align: center;
+}
+.eq-num {
+  padding: 0 0.35rem 0.22rem;
+  border-bottom: 2px solid var(--accent);
+}
+.eq-den {
+  padding: 0.22rem 0.35rem 0;
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--ink);
+}
+.eq-legend {
+  margin: 0;
+  display: grid;
+  gap: 0.28rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+}
+.eq-legend div {
+  display: grid;
+  grid-template-columns: 1.8rem 1fr;
+  gap: 0.45rem;
+  align-items: baseline;
+}
+.eq-legend dt {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.eq-legend dd { margin: 0; }
 .schema-band {
   margin: 0 0 1rem;
   display: flex;
@@ -1143,7 +1196,16 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   width: 0.95rem;
   height: 0.95rem;
 }
-.faq-item .schema-eq,
+.faq-item .eq-line {
+  color: var(--ink);
+  padding: 0;
+  margin: 0 0 0.75rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.faq-item .eq-line:last-of-type { margin-bottom: 0.9rem; }
 .faq-item .schema-band {
   color: var(--ink);
   padding: 0.7rem 0.75rem;
@@ -1185,12 +1247,6 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   color: var(--ink);
 }
 .faq-tech-sum::-webkit-details-marker { display: none; }
-.faq-tech-hint {
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--muted);
-}
 .faq-tech-sum::after {
   content: "";
   width: 0.42rem;

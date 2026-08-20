@@ -386,8 +386,8 @@
           <span class="faq-shell-title" data-en>Before you run</span>
         </summary>
         <div class="faq-panel">
-          <p class="faq-lead" data-fr>L’essentiel. Clique une question. Le bloc technique est en dessous, encore plié.</p>
-          <p class="faq-lead" data-en>The short version. Tap a question. Technical notes sit below, still folded.</p>
+          <p class="faq-lead" data-fr>L’essentiel. Clique une question. Le détail technique est en dessous.</p>
+          <p class="faq-lead" data-en>The short version. Tap a question. Technical notes sit below.</p>
           <div class="faq-list" data-faq-group="simple">
             <details class="faq-item">
               <summary>
@@ -475,8 +475,6 @@
             <summary class="faq-tech-sum">
               <span data-fr>Technique</span>
               <span data-en>Technical</span>
-              <span class="faq-tech-hint" data-fr>PPM, BPM, matching — encore plié</span>
-              <span class="faq-tech-hint" data-en>PPM, BPM, matching — still folded</span>
             </summary>
             <div class="faq-list" data-faq-group="tech">
               <details class="faq-item">
@@ -616,10 +614,54 @@
                   <span data-fr>Formule complète PPM ↔ allure</span>
                   <span data-en>Full PPM ↔ pace formula</span>
                 </summary>
-                <p class="schema-eq" data-fr>allure = 1000 / (PPM × 0,878 × taille_m)<span>inverse : PPM = 1000 / (allure × 0,878 × taille_m) · 134 PPM à 170 cm → 5:00</span></p>
-                <p class="schema-eq" data-en>pace = 1000 / (PPM × 0.878 × height_m)<span>inverse: PPM = 1000 / (pace × 0.878 × height_m) · 134 PPM at 170 cm → 5:00</span></p>
-                <p data-fr>k = 0,878 (foulée calibrée). Taille défaut 170 cm. La calibration utilisateur s’applique en plus sur l’allure affichée, pas sur le PPM brut.</p>
-                <p data-en>k = 0.878 (calibrated stride). Default height 170 cm. User calibration then scales displayed pace, not raw PPM.</p>
+                <figure class="schema-eq" data-fr>
+                  <p class="eq-line">
+                    <span class="eq-out">allure</span>
+                    <span class="eq-op">=</span>
+                    <span class="eq-frac">
+                      <span class="eq-num">1000</span>
+                      <span class="eq-den">PPM × k × h</span>
+                    </span>
+                  </p>
+                  <p class="eq-line">
+                    <span class="eq-out">PPM</span>
+                    <span class="eq-op">=</span>
+                    <span class="eq-frac">
+                      <span class="eq-num">1000</span>
+                      <span class="eq-den">allure × k × h</span>
+                    </span>
+                  </p>
+                  <dl class="eq-legend">
+                    <div><dt>k</dt><dd>0,878 — foulée calibrée</dd></div>
+                    <div><dt>h</dt><dd>taille en mètres (défaut 1,70)</dd></div>
+                    <div><dt>ex.</dt><dd>134 PPM à 170 cm → 5:00 min/km</dd></div>
+                  </dl>
+                </figure>
+                <figure class="schema-eq" data-en>
+                  <p class="eq-line">
+                    <span class="eq-out">pace</span>
+                    <span class="eq-op">=</span>
+                    <span class="eq-frac">
+                      <span class="eq-num">1000</span>
+                      <span class="eq-den">PPM × k × h</span>
+                    </span>
+                  </p>
+                  <p class="eq-line">
+                    <span class="eq-out">PPM</span>
+                    <span class="eq-op">=</span>
+                    <span class="eq-frac">
+                      <span class="eq-num">1000</span>
+                      <span class="eq-den">pace × k × h</span>
+                    </span>
+                  </p>
+                  <dl class="eq-legend">
+                    <div><dt>k</dt><dd>0.878 — calibrated stride</dd></div>
+                    <div><dt>h</dt><dd>height in meters (default 1.70)</dd></div>
+                    <div><dt>ex.</dt><dd>134 PPM at 170 cm → 5:00 min/km</dd></div>
+                  </dl>
+                </figure>
+                <p data-fr>Allure en min/km. La calibration utilisateur (Sous-estimée / Surestimée) s’applique ensuite sur l’allure affichée, pas sur le PPM brut.</p>
+                <p data-en>Pace is min/km. User calibration (too fast / too slow) then scales displayed pace, not raw PPM.</p>
               </details>
             </div>
             <div class="faq-forum">
