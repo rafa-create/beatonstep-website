@@ -804,15 +804,21 @@ footer a:hover { color: var(--accent); }
   border-radius: 16px;
   padding: 1.25rem 1.2rem 1.35rem;
 }
+.pillar .pillar-mode {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+}
 .pillar-ico {
   display: block;
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 0.95rem;
+  height: 0.95rem;
   color: var(--accent);
-  margin: 0 0 0.7rem;
+  flex-shrink: 0;
 }
-.pillar-kicker {
-  margin: 0 0 0.45rem;
+.pillar .pillar-kicker {
+  margin: 0;
   color: var(--accent);
   font-size: 0.72rem;
   font-weight: 700;
