@@ -237,54 +237,50 @@
       </div>
     </section>
 
-    <section class="sources reveal">
+    <section class="sources reveal" data-src="mix">
       <p class="tag" data-fr>Compatibilité</p>
       <p class="tag" data-en>Sources</p>
       <h2 data-fr>Tes fichiers, tes playlists</h2>
       <h2 data-en>Your files, your playlists</h2>
-      <p class="section-lead" data-fr>Le mix inclus et tes MP3 se lisent dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app, avec un titre calé sur ton allure.</p>
-      <p class="section-lead" data-en>The included mix and your MP3s play in BeatOnStep. YouTube Music and Spotify open in their own app, with a track locked to your pace.</p>
+      <p class="section-lead" data-fr>Mix inclus et MP3 : lecture dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app.</p>
+      <p class="section-lead" data-en>Included mix and MP3s play in BeatOnStep. YouTube Music and Spotify open in their apps.</p>
       <ul class="source-row reveal-stagger">
-        <li>
-          <label class="source-card">
-            <input type="radio" name="bos-src" value="mix" />
+        <li class="is-on">
+          <button type="button" class="source-card" data-src="mix" aria-pressed="true">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>
             <span data-fr>Mix inclus</span>
             <span data-en>Included mix</span>
-          </label>
+          </button>
         </li>
         <li>
-          <label class="source-card">
-            <input type="radio" name="bos-src" value="mp3" />
+          <button type="button" class="source-card" data-src="mp3" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
             <span>MP3</span>
-          </label>
+          </button>
         </li>
         <li>
-          <label class="source-card">
-            <input type="radio" name="bos-src" value="ytm" />
+          <button type="button" class="source-card" data-src="ytm" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="8" width="24" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="currentColor" d="M13 12.5v7l8-3.5-8-3.5z"/></svg>
             <span>YouTube Music</span>
-          </label>
+          </button>
         </li>
         <li>
-          <label class="source-card">
-            <input type="radio" name="bos-src" value="spotify" />
+          <button type="button" class="source-card" data-src="spotify" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 13.2c4.2-1.2 8.8-1 13 .8M9.2 16.8c3.8-1 8-.8 11.8.8M9.5 20.2c3.2-.8 6.8-.6 10 .6"/></svg>
             <span>Spotify</span>
-          </label>
+          </button>
         </li>
       </ul>
       <p class="source-hint" data-fr>Touche une source pour le détail.</p>
       <p class="source-hint" data-en>Tap a source for details.</p>
-      <p class="source-explain" data-src="mix" data-fr>Déjà dans l’app, sans compte. Suffit pour tester. Se lit dans BeatOnStep.</p>
-      <p class="source-explain" data-src="mix" data-en>Already in the app, no account. Enough to try it. Plays in BeatOnStep.</p>
-      <p class="source-explain" data-src="mp3" data-fr>Tes fichiers sur le téléphone. Tu les importes dans la bibliothèque, lecture dans BeatOnStep.</p>
-      <p class="source-explain" data-src="mp3" data-en>Files on your phone. Import them in the library; they play in BeatOnStep.</p>
-      <p class="source-explain" data-src="ytm" data-fr>Connecte ton compte. En course, le titre s’ouvre dans YouTube Music, calé sur ton allure.</p>
-      <p class="source-explain" data-src="ytm" data-en>Sign in. On a run, the track opens in YouTube Music, locked to your pace.</p>
-      <p class="source-explain" data-src="spotify" data-fr>Connecte ton compte. En course, le titre s’ouvre dans Spotify, calé sur ton allure.</p>
-      <p class="source-explain" data-src="spotify" data-en>Sign in. On a run, the track opens in Spotify, locked to your pace.</p>
+      <p class="source-explain" data-src="mix" data-fr>Pack livré avec l’app. Lecture dans BeatOnStep, sans compte.</p>
+      <p class="source-explain" data-src="mix" data-en>Ships with the app. Plays in BeatOnStep, no account.</p>
+      <p class="source-explain" data-src="mp3" data-fr>Fichiers du téléphone importés, lecture dans BeatOnStep. Lance l’analyse BPM de chaque titre avant.</p>
+      <p class="source-explain" data-src="mp3" data-en>Imported phone files, play in BeatOnStep. Run BPM analysis on each track first.</p>
+      <p class="source-explain" data-src="ytm" data-fr>S’ouvre dans l’app YouTube. YouTube Premium pour l’arrière-plan : sans ça, revenir ici coupe la lecture.</p>
+      <p class="source-explain" data-src="ytm" data-en>Opens in the YouTube app. YouTube Premium for background play: without it, coming back here stops playback.</p>
+      <p class="source-explain" data-src="spotify" data-fr>S’ouvre dans l’app Spotify. BPM à renseigner. Bêta sur invitation.</p>
+      <p class="source-explain" data-src="spotify" data-en>Opens in the Spotify app. BPM required. Invite-only beta.</p>
       <ul class="setup-steps reveal-stagger">
         <li>
           <p data-fr>Réglages : coche tes sources.</p>
@@ -528,6 +524,32 @@
         });
         slider.setAttribute("aria-label", document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km");
         render();
+      })();
+
+      (function sources() {
+        var root = document.querySelector(".sources");
+        if (!root) return;
+        var cards = root.querySelectorAll(".source-card");
+        function clear() {
+          cards.forEach(function (c) {
+            c.setAttribute("aria-pressed", "false");
+            if (c.parentElement) c.parentElement.classList.remove("is-on");
+          });
+          root.removeAttribute("data-src");
+        }
+        cards.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var key = btn.getAttribute("data-src");
+            if (btn.getAttribute("aria-pressed") === "true") {
+              clear();
+              return;
+            }
+            clear();
+            btn.setAttribute("aria-pressed", "true");
+            if (btn.parentElement) btn.parentElement.classList.add("is-on");
+            if (key) root.setAttribute("data-src", key);
+          });
+        });
       })();
 
       if (reduce) {

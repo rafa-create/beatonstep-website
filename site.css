@@ -687,8 +687,14 @@ footer a:hover { color: var(--accent); }
 }
 .source-row li {
   margin: 0;
-  padding: 0;
   list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel) 88%, black);
+}
+.source-row li.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
 }
 .source-card {
   display: flex;
@@ -696,29 +702,21 @@ footer a:hover { color: var(--accent); }
   align-items: center;
   gap: 0.45rem;
   width: 100%;
+  margin: 0;
   text-align: center;
+  font: inherit;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink);
   padding: 1rem 0.5rem;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--panel) 88%, black);
+  border: 0;
+  background: none;
   cursor: pointer;
+  border-radius: 14px;
 }
-.source-card input {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
-}
-.source-card:has(:checked) {
-  border-color: var(--accent);
-}
-.source-card:has(:focus-visible) {
+.source-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -736,13 +734,13 @@ footer a:hover { color: var(--accent); }
   line-height: 1.45;
 }
 .source-explain { display: none; }
-.sources:has([value="mix"]:checked) .source-explain[data-src="mix"],
-.sources:has([value="mp3"]:checked) .source-explain[data-src="mp3"],
-.sources:has([value="ytm"]:checked) .source-explain[data-src="ytm"],
-.sources:has([value="spotify"]:checked) .source-explain[data-src="spotify"] {
+.sources[data-src="mix"] .source-explain[data-src="mix"],
+.sources[data-src="mp3"] .source-explain[data-src="mp3"],
+.sources[data-src="ytm"] .source-explain[data-src="ytm"],
+.sources[data-src="spotify"] .source-explain[data-src="spotify"] {
   display: block;
 }
-.sources:has(.source-card :checked) .source-hint {
+.sources[data-src] .source-hint {
   display: none;
 }
 .setup-steps {
