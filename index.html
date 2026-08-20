@@ -150,6 +150,29 @@
       </div>
     </main>
 
+    <section class="first-run reveal">
+      <p class="tag" data-fr>Première sortie</p>
+      <p class="tag" data-en>First run</p>
+      <h2 data-fr>Tu peux courir tout de suite</h2>
+      <h2 data-en>You can run right away</h2>
+      <p class="section-lead" data-fr>Le mix inclus suffit pour tester. Tes playlists, plus tard.</p>
+      <p class="section-lead" data-en>The included mix is enough to try it. Your playlists can wait.</p>
+      <ul class="setup-steps reveal-stagger">
+        <li>
+          <p data-fr>Ouvre l’app. Le mix inclus est déjà là.</p>
+          <p data-en>Open the app. The included mix is already there.</p>
+        </li>
+        <li>
+          <p data-fr>Choisis Adaptatif (allure live) ou Fixe (tu règles).</p>
+          <p data-en>Pick Adaptive (live pace) or Fixed (you set it).</p>
+        </li>
+        <li>
+          <p data-fr>Démarre, téléphone dans la poche. Un titre part au rythme de tes pas.</p>
+          <p data-en>Start, phone in your pocket. A track kicks in with your stride.</p>
+        </li>
+      </ul>
+    </section>
+
     <section class="pace-modes reveal">
       <p class="tag" data-fr>Allure</p>
       <p class="tag" data-en>Pace</p>
@@ -157,9 +180,10 @@
       <h2 data-en>Adaptive, or you lock the pace</h2>
       <div class="split-grid reveal-stagger">
         <article class="split-card pace-card">
-          <p class="pace-kicker">Mode 01</p>
-          <h3 data-fr>Adaptatif : il s’adapte à toi</h3>
-          <h3 data-en>Adaptive: it follows you</h3>
+          <p class="pace-kicker" data-fr>Adaptatif</p>
+          <p class="pace-kicker" data-en>Adaptive</p>
+          <h3 data-fr>Il s’adapte à toi</h3>
+          <h3 data-en>It follows you</h3>
           <p data-fr><strong>Tu accélères, la musique suit.</strong> L’app détecte le passage marche → course et bascule sur le bon tempo.</p>
           <p data-en><strong>You speed up, the music follows.</strong> Walk to run: the app switches to the right tempo.</p>
           <div class="pace-switch" aria-hidden="true">
@@ -170,9 +194,10 @@
           </div>
         </article>
         <article class="split-card pace-card">
-          <p class="pace-kicker">Mode 02</p>
-          <h3 data-fr>Ou tu fixes l’allure</h3>
-          <h3 data-en>Or you set the pace</h3>
+          <p class="pace-kicker" data-fr>Fixe</p>
+          <p class="pace-kicker" data-en>Fixed</p>
+          <h3 data-fr>Tu règles l’allure</h3>
+          <h3 data-en>You set the pace</h3>
           <div class="pace-mock" data-pace-lock>
             <div class="pace-pair">
               <div>
@@ -217,15 +242,17 @@
       <p class="tag" data-en>Sources</p>
       <h2 data-fr>Tes fichiers, tes playlists</h2>
       <h2 data-en>Your files, your playlists</h2>
+      <p class="section-lead" data-fr>Le mix inclus et tes MP3 se lisent dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app, avec un titre calé sur ton allure.</p>
+      <p class="section-lead" data-en>The included mix and your MP3s play in BeatOnStep. YouTube Music and Spotify open in their own app, with a track locked to your pace.</p>
       <ul class="source-row reveal-stagger">
-        <li>
-          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
-          <span>MP3</span>
-        </li>
-        <li>
+        <li class="source-featured">
           <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>
           <span data-fr>Mix inclus</span>
           <span data-en>Included mix</span>
+        </li>
+        <li>
+          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
+          <span>MP3</span>
         </li>
         <li>
           <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="8" width="24" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="currentColor" d="M13 12.5v7l8-3.5-8-3.5z"/></svg>
@@ -238,52 +265,18 @@
       </ul>
       <ul class="setup-steps reveal-stagger">
         <li>
-          <p data-fr>Bibliothèque ou Réglages</p>
-          <p data-en>Library or Settings</p>
+          <p data-fr>Réglages : coche tes sources.</p>
+          <p data-en>Settings: tick your sources.</p>
         </li>
         <li>
-          <p data-fr>Choisis une source — YouTube Music, par exemple — et connecte-toi.</p>
-          <p data-en>Pick a source — YouTube Music, for example — and sign in.</p>
+          <p data-fr>Bibliothèque : connecte-toi si besoin, puis tes playlists.</p>
+          <p data-en>Library: sign in if needed, then pick playlists.</p>
         </li>
         <li>
-          <p data-fr>Coche tes playlists. En course, l’app piochera uniquement là-dedans, à ton allure.</p>
-          <p data-en>Tick your playlists. On a run, the app picks only from those, at your pace.</p>
+          <p data-fr>En course, l’app piochera uniquement là-dedans, à ton allure.</p>
+          <p data-en>On a run, the app picks only from those, at your pace.</p>
         </li>
       </ul>
-    </section>
-
-    <section class="modes reveal">
-      <header class="section-head">
-        <h2 data-fr>Quand tu changes d’allure</h2>
-        <h2 data-en>When your pace changes</h2>
-        <p data-fr>Côte, récup, accélération : tu choisis comment le titre suit.</p>
-        <p data-en>Hills, recovery, surge: you choose how the track follows.</p>
-      </header>
-      <div class="pillars reveal-stagger">
-        <article class="pillar">
-          <p class="pillar-kicker">5s</p>
-          <h3 data-fr>Quelques secondes</h3>
-          <h3 data-en>A few seconds</h3>
-          <p data-fr>Par défaut 5 s, réglable dans l’app. L’allure bouge ? L’app attend que ça tienne, puis change de titre.</p>
-          <p data-en>Default 5 s, adjustable in the app. Pace shifts? The app waits until it holds, then switches tracks.</p>
-        </article>
-        <article class="pillar">
-          <p class="pillar-kicker" data-fr>Fin</p>
-          <p class="pillar-kicker" data-en>End</p>
-          <h3 data-fr>Jusqu’au bout</h3>
-          <h3 data-en>Play it out</h3>
-          <p data-fr>Tu finis le morceau. Le suivant est déjà calé sur ta nouvelle allure.</p>
-          <p data-en>You finish the track. The next one already matches your new pace.</p>
-        </article>
-        <article class="pillar">
-          <p class="pillar-kicker" data-fr>Immédiat</p>
-          <p class="pillar-kicker" data-en>Instant</p>
-          <h3 data-fr>Tout de suite</h3>
-          <h3 data-en>Right away</h3>
-          <p data-fr>Tu accélères ou tu ralentis : le titre change tout de suite.</p>
-          <p data-en>You speed up or slow down: the track changes right away.</p>
-        </article>
-      </div>
     </section>
 
     <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
@@ -320,6 +313,42 @@
           <span data-en>Your sources, your playlists. The app queues a track at your pace.</span>
         </figcaption>
       </figure>
+    </section>
+
+    <section class="modes reveal">
+      <p class="tag" data-fr>Plus tard</p>
+      <p class="tag" data-en>Later</p>
+      <header class="section-head">
+        <h2 data-fr>Quand le titre change</h2>
+        <h2 data-en>When the track changes</h2>
+        <p data-fr>Après la première sortie, tu choisis dans l’app : quelques secondes, fin du morceau, ou tout de suite.</p>
+        <p data-en>After the first run, you pick in the app: a few seconds, end of the track, or right away.</p>
+      </header>
+      <div class="pillars reveal-stagger">
+        <article class="pillar">
+          <p class="pillar-kicker">5s</p>
+          <h3 data-fr>Quelques secondes</h3>
+          <h3 data-en>A few seconds</h3>
+          <p data-fr>Par défaut 5 s. L’allure bouge ? L’app attend que ça tienne, puis change de titre.</p>
+          <p data-en>Default 5 s. Pace shifts? The app waits until it holds, then switches tracks.</p>
+        </article>
+        <article class="pillar">
+          <p class="pillar-kicker" data-fr>Fin</p>
+          <p class="pillar-kicker" data-en>End</p>
+          <h3 data-fr>Jusqu’au bout</h3>
+          <h3 data-en>Play it out</h3>
+          <p data-fr>Tu finis le morceau. Le suivant est déjà calé sur ta nouvelle allure.</p>
+          <p data-en>You finish the track. The next one already matches your new pace.</p>
+        </article>
+        <article class="pillar">
+          <p class="pillar-kicker" data-fr>Immédiat</p>
+          <p class="pillar-kicker" data-en>Instant</p>
+          <h3 data-fr>Tout de suite</h3>
+          <h3 data-en>Right away</h3>
+          <p data-fr>Tu accélères ou tu ralentis : le titre change tout de suite.</p>
+          <p data-en>You speed up or slow down: the track changes right away.</p>
+        </article>
+      </div>
     </section>
 
     <nav class="cta cta-end">

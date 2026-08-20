@@ -479,6 +479,7 @@ footer a:hover { color: var(--accent); }
 }
 .split h2,
 .sources h2,
+.first-run h2,
 .pace-modes h2,
 .section-head h2 {
   font-family: "DM Sans", system-ui, sans-serif;
@@ -661,8 +662,23 @@ footer a:hover { color: var(--accent); }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+.section-lead {
+  margin: -0.35rem 0 1.15rem;
+  max-width: 38rem;
+  color: var(--muted);
+  font-size: 1rem;
+}
+.first-run {
+  margin: 0 0 var(--section-gap);
+}
+.first-run .setup-steps {
+  margin-top: 0.35rem;
+}
 .sources {
   margin: 0 0 var(--section-gap);
+}
+.source-row li.source-featured {
+  border-color: var(--accent);
 }
 .source-row {
   display: grid;
