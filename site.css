@@ -625,14 +625,9 @@ footer a:hover { color: var(--accent); }
   gap: 1rem;
   margin: 0 0 1.1rem;
 }
-.pace-pair[data-unit="allure"] [data-col="ppm"] .pace-value,
-.pace-pair[data-unit="ppm"] [data-col="allure"] .pace-value {
-  font-size: 1.35rem;
-  color: var(--ink);
-}
-.pace-pair[data-unit="allure"] [data-col="ppm"] .pace-unit,
-.pace-pair[data-unit="ppm"] [data-col="allure"] .pace-unit {
-  color: var(--muted);
+.pace-pair[data-unit="allure"] [data-run-u="ppm"],
+.pace-pair[data-unit="ppm"] [data-run-u="allure"] {
+  display: none;
 }
 .pace-mock[data-unit="ppm"] .pace-height {
   display: none;
