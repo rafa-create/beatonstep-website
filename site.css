@@ -677,9 +677,6 @@ footer a:hover { color: var(--accent); }
 .sources {
   margin: 0 0 var(--section-gap);
 }
-.source-row li.source-featured {
-  border-color: var(--accent);
-}
 .source-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -689,10 +686,16 @@ footer a:hover { color: var(--accent); }
   padding: 0;
 }
 .source-row li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.source-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.45rem;
+  width: 100%;
   text-align: center;
   font-size: 0.72rem;
   font-weight: 800;
@@ -703,11 +706,44 @@ footer a:hover { color: var(--accent); }
   border: 1px solid var(--line);
   border-radius: 14px;
   background: color-mix(in srgb, var(--panel) 88%, black);
+  cursor: pointer;
+}
+.source-card input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.source-card:has(:checked) {
+  border-color: var(--accent);
+}
+.source-card:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .source-ico {
   width: 1.85rem;
   height: 1.85rem;
   color: var(--accent);
+}
+.source-hint,
+.source-explain {
+  margin: 0.85rem 0 0;
+  max-width: 38rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.source-explain { display: none; }
+.sources:has([value="mix"]:checked) .source-explain[data-src="mix"],
+.sources:has([value="mp3"]:checked) .source-explain[data-src="mp3"],
+.sources:has([value="ytm"]:checked) .source-explain[data-src="ytm"],
+.sources:has([value="spotify"]:checked) .source-explain[data-src="spotify"] {
+  display: block;
+}
+.sources:has(.source-card :checked) .source-hint {
+  display: none;
 }
 .setup-steps {
   display: grid;

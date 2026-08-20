@@ -245,24 +245,46 @@
       <p class="section-lead" data-fr>Le mix inclus et tes MP3 se lisent dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app, avec un titre calé sur ton allure.</p>
       <p class="section-lead" data-en>The included mix and your MP3s play in BeatOnStep. YouTube Music and Spotify open in their own app, with a track locked to your pace.</p>
       <ul class="source-row reveal-stagger">
-        <li class="source-featured">
-          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>
-          <span data-fr>Mix inclus</span>
-          <span data-en>Included mix</span>
+        <li>
+          <label class="source-card">
+            <input type="radio" name="bos-src" value="mix" />
+            <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>
+            <span data-fr>Mix inclus</span>
+            <span data-en>Included mix</span>
+          </label>
         </li>
         <li>
-          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
-          <span>MP3</span>
+          <label class="source-card">
+            <input type="radio" name="bos-src" value="mp3" />
+            <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
+            <span>MP3</span>
+          </label>
         </li>
         <li>
-          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="8" width="24" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="currentColor" d="M13 12.5v7l8-3.5-8-3.5z"/></svg>
-          <span>YouTube Music</span>
+          <label class="source-card">
+            <input type="radio" name="bos-src" value="ytm" />
+            <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="8" width="24" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="currentColor" d="M13 12.5v7l8-3.5-8-3.5z"/></svg>
+            <span>YouTube Music</span>
+          </label>
         </li>
         <li>
-          <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 13.2c4.2-1.2 8.8-1 13 .8M9.2 16.8c3.8-1 8-.8 11.8.8M9.5 20.2c3.2-.8 6.8-.6 10 .6"/></svg>
-          <span>Spotify</span>
+          <label class="source-card">
+            <input type="radio" name="bos-src" value="spotify" />
+            <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 13.2c4.2-1.2 8.8-1 13 .8M9.2 16.8c3.8-1 8-.8 11.8.8M9.5 20.2c3.2-.8 6.8-.6 10 .6"/></svg>
+            <span>Spotify</span>
+          </label>
         </li>
       </ul>
+      <p class="source-hint" data-fr>Touche une source pour le détail.</p>
+      <p class="source-hint" data-en>Tap a source for details.</p>
+      <p class="source-explain" data-src="mix" data-fr>Déjà dans l’app, sans compte. Suffit pour tester. Se lit dans BeatOnStep.</p>
+      <p class="source-explain" data-src="mix" data-en>Already in the app, no account. Enough to try it. Plays in BeatOnStep.</p>
+      <p class="source-explain" data-src="mp3" data-fr>Tes fichiers sur le téléphone. Tu les importes dans la bibliothèque, lecture dans BeatOnStep.</p>
+      <p class="source-explain" data-src="mp3" data-en>Files on your phone. Import them in the library; they play in BeatOnStep.</p>
+      <p class="source-explain" data-src="ytm" data-fr>Connecte ton compte. En course, le titre s’ouvre dans YouTube Music, calé sur ton allure.</p>
+      <p class="source-explain" data-src="ytm" data-en>Sign in. On a run, the track opens in YouTube Music, locked to your pace.</p>
+      <p class="source-explain" data-src="spotify" data-fr>Connecte ton compte. En course, le titre s’ouvre dans Spotify, calé sur ton allure.</p>
+      <p class="source-explain" data-src="spotify" data-en>Sign in. On a run, the track opens in Spotify, locked to your pace.</p>
       <ul class="setup-steps reveal-stagger">
         <li>
           <p data-fr>Réglages : coche tes sources.</p>
