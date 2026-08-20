@@ -804,6 +804,13 @@ footer a:hover { color: var(--accent); }
   border-radius: 16px;
   padding: 1.25rem 1.2rem 1.35rem;
 }
+.pillar-ico {
+  display: block;
+  width: 1.85rem;
+  height: 1.85rem;
+  color: var(--accent);
+  margin: 0 0 0.7rem;
+}
 .pillar-kicker {
   margin: 0 0 0.45rem;
   color: var(--accent);
