@@ -379,80 +379,254 @@
     </section>
 
     <section class="faq reveal">
-      <p class="tag" data-fr>Questions</p>
-      <p class="tag" data-en>Questions</p>
-      <header class="section-head">
-        <h2 data-fr>Avant de courir</h2>
-        <h2 data-en>Before you run</h2>
-        <p data-fr>L’essentiel, en une ligne. Clique pour l’ouvrir.</p>
-        <p data-en>The short version. Tap to open.</p>
-      </header>
-      <div class="faq-list">
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Comment j’installe l’app ?</span>
-            <span data-en>How do I get the app?</span>
-          </summary>
-          <p data-fr>Android, via une invitation au test Play. Une invitation suffit.</p>
-          <p data-en>Android, through a Play testing invite. One invite is enough.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Il me faut Spotify ou YouTube ?</span>
-            <span data-en>Do I need Spotify or YouTube?</span>
-          </summary>
-          <p data-fr>Non. Le mix inclus est déjà là. Tu peux courir tout de suite, téléphone dans la poche.</p>
-          <p data-en>No. The included mix is already there. You can run right away, phone in your pocket.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Et mes fichiers sur le téléphone ?</span>
-            <span data-en>What about files on my phone?</span>
-          </summary>
-          <p data-fr>Tu les importes (Local). Lance l’analyse du rythme de chaque titre avant de partir.</p>
-          <p data-en>Import them (Local). Run rhythm analysis on each track before you head out.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>YouTube coupe la musique ?</span>
-            <span data-en>Does YouTube stop the music?</span>
-          </summary>
-          <p data-fr>YouTube Music s’ouvre dans son app. Sans YouTube Premium, revenir dans BeatOnStep coupe souvent la lecture. Premium garde l’arrière-plan.</p>
-          <p data-en>YouTube Music opens in its app. Without YouTube Premium, coming back to BeatOnStep often stops playback. Premium keeps it in the background.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Spotify, c’est dispo ?</span>
-            <span data-en>Is Spotify available?</span>
-          </summary>
-          <p data-fr>Oui, ça s’ouvre dans l’app Spotify. Il faut le PPM de chaque titre. Bêta sur invitation.</p>
-          <p data-en>Yes — it opens in the Spotify app. Each track needs a PPM. Invite-only beta.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Adaptatif ou Fixe ?</span>
-            <span data-en>Adaptive or Fixed?</span>
-          </summary>
-          <p data-fr>Adaptatif : l’allure live, la musique suit. Fixe : tu bloques l’allure, le PPM reste calé. Tu changes ça dans l’app.</p>
-          <p data-en>Adaptive: live pace, the music follows. Fixed: you lock the pace, PPM stays put. You can switch in the app.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Quand arrive iOS ?</span>
-            <span data-en>When is iOS coming?</span>
-          </summary>
-          <p data-fr>Pas de date. Compte Apple Developer payé, démarche App Store en cours.</p>
-          <p data-en>No date yet. Apple Developer account is paid, App Store process is underway.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span data-fr>Et Deezer ?</span>
-            <span data-en>What about Deezer?</span>
-          </summary>
-          <p data-fr>Quand Deezer autorisera à nouveau la création d’apps. Leur plateforme développeur n’accepte plus de nouvelles applications.</p>
-          <p data-en>When Deezer allows new apps again. Their developer platform is closed to new applications.</p>
-        </details>
-      </div>
+      <details class="faq-shell">
+        <summary class="faq-shell-sum">
+          <span class="faq-kicker">FAQ</span>
+          <span class="faq-shell-title" data-fr>Avant de courir</span>
+          <span class="faq-shell-title" data-en>Before you run</span>
+        </summary>
+        <div class="faq-panel">
+          <p class="faq-lead" data-fr>L’essentiel. Clique une question. Le bloc technique est en dessous, encore plié.</p>
+          <p class="faq-lead" data-en>The short version. Tap a question. Technical notes sit below, still folded.</p>
+          <div class="faq-list" data-faq-group="simple">
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Comment j’installe l’app ?</span>
+                <span data-en>How do I get the app?</span>
+              </summary>
+              <p data-fr>Android, via une invitation au test Play. Une invitation suffit.</p>
+              <p data-en>Android, through a Play testing invite. One invite is enough.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Il me faut Spotify ou YouTube ?</span>
+                <span data-en>Do I need Spotify or YouTube?</span>
+              </summary>
+              <p data-fr>Non. Le mix inclus est déjà là. Tu peux courir tout de suite, téléphone dans la poche.</p>
+              <p data-en>No. The included mix is already there. You can run right away, phone in your pocket.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Et mes fichiers sur le téléphone ?</span>
+                <span data-en>What about files on my phone?</span>
+              </summary>
+              <p data-fr>Tu les importes (Local). Lance l’analyse du rythme de chaque titre avant de partir.</p>
+              <p data-en>Import them (Local). Run rhythm analysis on each track before you head out.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>YouTube coupe la musique ?</span>
+                <span data-en>Does YouTube stop the music?</span>
+              </summary>
+              <p data-fr>YouTube Music s’ouvre dans son app. Sans YouTube Premium, revenir dans BeatOnStep coupe souvent la lecture. Premium garde l’arrière-plan.</p>
+              <p data-en>YouTube Music opens in its app. Without YouTube Premium, coming back to BeatOnStep often stops playback. Premium keeps it in the background.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Spotify, c’est dispo ?</span>
+                <span data-en>Is Spotify available?</span>
+              </summary>
+              <p data-fr>Oui, ça s’ouvre dans l’app Spotify. Il faut le BPM de chaque titre. Bêta sur invitation.</p>
+              <p data-en>Yes — it opens in the Spotify app. Each track needs a BPM. Invite-only beta.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>C’est quoi PPM et BPM ?</span>
+                <span data-en>What’s PPM vs BPM?</span>
+              </summary>
+              <p data-fr>PPM = tes pas par minute (cadence). BPM = le tempo du titre. L’app envoie un morceau dont le BPM colle à ton PPM.</p>
+              <p data-en>PPM is your steps per minute (cadence). BPM is the track’s tempo. The app queues a song whose BPM matches your PPM.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Comment le PPM devient une allure ?</span>
+                <span data-en>How does PPM become pace?</span>
+              </summary>
+              <p data-fr>Allure (min/km) = 1000 / (PPM × 0,878 × taille en mètres). Même formule que dans l’app. Exemple : 134 PPM à 170 cm → 5:00 min/km. Tu règles la taille dans les réglages.</p>
+              <p data-en>Pace (min/km) = 1000 / (PPM × 0.878 × height in meters). Same formula as the app. Example: 134 PPM at 170 cm → 5:00 min/km. You set height in settings.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Adaptatif ou Fixe ?</span>
+                <span data-en>Adaptive or Fixed?</span>
+              </summary>
+              <p data-fr>Adaptatif : l’allure live, la musique suit. Fixe : tu bloques l’allure, le PPM reste calé. Tu changes ça dans l’app.</p>
+              <p data-en>Adaptive: live pace, the music follows. Fixed: you lock the pace, PPM stays put. You can switch in the app.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Quand arrive iOS ?</span>
+                <span data-en>When is iOS coming?</span>
+              </summary>
+              <p data-fr>Pas de date. Compte Apple Developer payé, démarche App Store en cours.</p>
+              <p data-en>No date yet. Apple Developer account is paid, App Store process is underway.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span data-fr>Et Deezer ?</span>
+                <span data-en>What about Deezer?</span>
+              </summary>
+              <p data-fr>Quand Deezer autorisera à nouveau la création d’apps. Leur plateforme développeur n’accepte plus de nouvelles applications.</p>
+              <p data-en>When Deezer allows new apps again. Their developer platform is closed to new applications.</p>
+            </details>
+          </div>
+
+          <details class="faq-tech">
+            <summary class="faq-tech-sum">
+              <span data-fr>Technique</span>
+              <span data-en>Technical</span>
+              <span class="faq-tech-hint" data-fr>PPM, BPM, matching — encore plié</span>
+              <span class="faq-tech-hint" data-en>PPM, BPM, matching — still folded</span>
+            </summary>
+            <div class="faq-list" data-faq-group="tech">
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>Comment on détecte le PPM ?</span>
+                  <span data-en>How is PPM detected?</span>
+                </summary>
+                <figure class="faq-schema">
+                  <ol class="schema-flow">
+                    <li><span data-fr>Accéléro ~50 Hz</span><span data-en>Accel ~50 Hz</span></li>
+                    <li><span data-fr>Calibration 1,25 s</span><span data-en>Calibrate 1.25 s</span></li>
+                    <li><span data-fr>Passe-haut + lissage</span><span data-en>High-pass + smooth</span></li>
+                    <li><span data-fr>Pics = pas</span><span data-en>Peaks = steps</span></li>
+                    <li><span data-fr>PPM lissé</span><span data-en>Smoothed PPM</span></li>
+                  </ol>
+                </figure>
+                <p data-fr>Accéléromètre du téléphone, ~50 Hz. On prend la magnitude √(x²+y²+z²). Environ 1,25 s de calibration, puis un passe-haut (500 ms) et un lissage (100 ms). Les pas sont des pics : fenêtre 480 ms en marche, 360 ms en course. Le PPM est la moyenne tronquée des intervalles entre pas (interne 30–300). Sans pas pendant 3,5 s, le PPM retombe à 0.</p>
+                <p data-en>Phone accelerometer, ~50 Hz. Magnitude √(x²+y²+z²). About 1.25 s of calibration, then a 500 ms high-pass and 100 ms smoothing. Steps are peaks: 480 ms window walking, 360 ms running. PPM is a trimmed mean of inter-step intervals (internal 30–300). No step for 3.5 s → PPM drops to 0.</p>
+                <p data-fr>Marche → course est automatique (score toutes les 750 ms, après 5 s d’échauffement). En Adaptatif, la cible est encore lissée : moyenne des 10 derniers relevés, mise à jour si ça bouge de plus de 5 PPM. Il faut 8 pas avant le premier titre.</p>
+                <p data-en>Walk → run is automatic (score every 750 ms, after a 5 s warmup). In Adaptive, the target is smoothed again: average of the last 10 readings, updated if it moves by more than 5 PPM. 8 steps before the first track.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>Adaptatif vs Fixe, sous le capot</span>
+                  <span data-en>Adaptive vs Fixed, under the hood</span>
+                </summary>
+                <div class="schema-pair">
+                  <div>
+                    <strong data-fr>Adaptatif</strong>
+                    <strong data-en>Adaptive</strong>
+                    <span data-fr>Capteur ON → PPM lissé → matching continu</span>
+                    <span data-en>Sensor ON → smoothed PPM → continuous matching</span>
+                  </div>
+                  <div>
+                    <strong data-fr>Fixe</strong>
+                    <strong data-en>Fixed</strong>
+                    <span data-fr>Capteur OFF → cible manuelle → matching au changement</span>
+                    <span data-en>Sensor OFF → manual target → match on change</span>
+                  </div>
+                </div>
+                <p data-fr>Adaptatif : le capteur tourne, le matching est continu (sauf si le PPM n’a presque pas bougé). Fixe : capteur arrêté. Tu règles PPM ou allure sur l’accueil (40–240 PPM, 2:30–15:00 min/km). Le matching ne relance que quand tu changes la cible.</p>
+                <p data-en>Adaptive: the sensor runs, matching is continuous (unless PPM barely moved). Fixed: sensor off. You set PPM or pace on Home (40–240 PPM, 2:30–15:00 min/km). Matching only reruns when you change the target.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>D’où vient le BPM, par source ?</span>
+                  <span data-en>Where does BPM come from, per source?</span>
+                </summary>
+                <figure class="faq-schema">
+                  <ol class="schema-flow">
+                    <li><span data-fr>Mix : déjà tagué</span><span data-en>Mix: pre-tagged</span></li>
+                    <li><span data-fr>Local : analyse ~90 s</span><span data-en>Local: ~90 s analysis</span></li>
+                    <li><span data-fr>Spotify / YT : saisie</span><span data-en>Spotify / YT: you set it</span></li>
+                    <li><span data-fr>Sans BPM : ignoré</span><span data-en>No BPM: skipped</span></li>
+                  </ol>
+                </figure>
+                <p data-fr>Mix inclus : BPM déjà dans le pack, lecture dans BeatOnStep. Local : rien à l’import. Analyse serveur (~90 s / piste) ou nom de fichier « Artiste - Titre (BPM-120).mp3 ». Sinon estimation 120, à confirmer. Un titre sans BPM n’entre pas dans le matching.</p>
+                <p data-en>Included mix: BPM ships in the pack, plays in BeatOnStep. Local: nothing on import. Server analysis (~90 s / track) or filename “Artist - Title (BPM-120).mp3”. Else estimated 120, to confirm. A track with no BPM never enters matching.</p>
+                <p data-fr>Spotify et YouTube Music : lecture dans leur app. Pas de BPM auto. Tu saisis le BPM, ou tu lances la détection bêta (MusicBrainz / AcousticBrainz). YouTube Premium pour garder la lecture en arrière-plan. Deezer, plus tard : BPM API si Deezer le fournit — bloqué tant que leur plateforme développeur est fermée.</p>
+                <p data-en>Spotify and YouTube Music: play in their apps. No auto BPM. You enter BPM, or run the beta detect (MusicBrainz / AcousticBrainz). YouTube Premium to keep background play. Deezer later: API BPM when Deezer provides it — blocked while their developer platform is closed.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>Comment un titre est choisi ?</span>
+                  <span data-en>How is a track chosen?</span>
+                </summary>
+                <p class="schema-band" aria-hidden="true">
+                  <span>PPM</span>
+                  <i></i>
+                  <span>±10</span>
+                  <i></i>
+                  <span>BPM</span>
+                </p>
+                <figure class="faq-schema">
+                  <ol class="schema-flow">
+                    <li><span data-fr>Sources cochées</span><span data-en>Ticked sources</span></li>
+                    <li>BPM &gt; 0</li>
+                    <li>|BPM − PPM| ≤ 10</li>
+                    <li><span data-fr>Meilleur score</span><span data-en>Best score</span></li>
+                    <li><span data-fr>Pas les 5 derniers</span><span data-en>Not last 5</span></li>
+                  </ol>
+                </figure>
+                <p data-fr>Parmi les sources cochées, seulement les titres avec BPM &gt; 0. On garde ceux dont |BPM − PPM cible| ≤ 10 (tolérance par défaut, pas exposée dans l’UI). Plus c’est proche, plus le score est haut. On évite les 5 derniers titres. Si tu forces un morceau, le matching reprend au suivant.</p>
+                <p data-en>From ticked sources, only tracks with BPM &gt; 0. Keep those with |BPM − target PPM| ≤ 10 (default tolerance, not in the UI). Closer = higher score. Avoids the last 5 tracks. If you force a song, matching resumes on the next one.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>5 s / Fin / Immédiat, concrètement</span>
+                  <span data-en>5 s / End / Now, concretely</span>
+                </summary>
+                <div class="schema-pair schema-triple">
+                  <div>
+                    <strong data-fr>Immédiat</strong>
+                    <strong data-en>Now</strong>
+                    <span data-fr>Écart &gt; 10 → change tout de suite</span>
+                    <span data-en>Gap &gt; 10 → switch now</span>
+                  </div>
+                  <div>
+                    <strong>5 s</strong>
+                    <span data-fr>Attend que ça tienne · candidat figé · crossfade 1 s</span>
+                    <span data-en>Wait until it holds · frozen candidate · 1 s crossfade</span>
+                  </div>
+                  <div>
+                    <strong data-fr>Fin</strong>
+                    <strong data-en>End</strong>
+                    <span data-fr>On finit le morceau, puis on change</span>
+                    <span data-en>Finish the track, then switch</span>
+                  </div>
+                </div>
+                <p data-fr>Écart = |BPM du titre − PPM cible| &gt; 10. Immédiat : on change tout de suite. 5 s (réglable 2–15, défaut 5) : on attend que la nouvelle allure tienne. Le candidat est figé (anti yo-yo). Si lecture dans BeatOnStep, crossfade 1 s. Fin : on attend la fin du morceau ; bannière dans les 5 dernières secondes s’il y a encore mismatch.</p>
+                <p data-en>Gap = |track BPM − target PPM| &gt; 10. Now: switch immediately. 5 s (adjustable 2–15, default 5): wait until the new pace holds. The candidate is frozen (anti yo-yo). In-app playback gets a 1 s crossfade. End: wait until the track finishes; banner in the last 5 seconds if still mismatched.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>Calibration Sous-estimée / Surestimée</span>
+                  <span data-en>Too fast / too slow calibration</span>
+                </summary>
+                <div class="schema-pair">
+                  <div>
+                    <strong data-fr>À l’écran</strong>
+                    <strong data-en>On screen</strong>
+                    <span data-fr>PPM brut inchangé · allure × facteur</span>
+                    <span data-en>Raw PPM unchanged · pace × factor</span>
+                  </div>
+                  <div>
+                    <strong data-fr>Pour le matching</strong>
+                    <strong data-en>For matching</strong>
+                    <span data-fr>PPM effectif = PPM brut / facteur</span>
+                    <span data-en>Effective PPM = raw PPM / factor</span>
+                  </div>
+                </div>
+                <p data-fr>Uniquement en Adaptatif, pendant la détection. Chaque tap = ±2 % sur un facteur (borné entre 1/3 et 3). L’allure affichée est multipliée par ce facteur. Le PPM envoyé au matching est divisé par ce facteur. Le PPM brut à l’écran ne change pas.</p>
+                <p data-en>Adaptive only, while detecting. Each tap = ±2% on a factor (clamped 1/3 to 3). Displayed pace is multiplied by that factor. PPM sent to matching is divided by it. The raw PPM on screen does not change.</p>
+              </details>
+              <details class="faq-item">
+                <summary>
+                  <span data-fr>Formule complète PPM ↔ allure</span>
+                  <span data-en>Full PPM ↔ pace formula</span>
+                </summary>
+                <p class="schema-eq" data-fr>allure = 1000 / (PPM × 0,878 × taille_m)<span>inverse : PPM = 1000 / (allure × 0,878 × taille_m) · 134 PPM à 170 cm → 5:00</span></p>
+                <p class="schema-eq" data-en>pace = 1000 / (PPM × 0.878 × height_m)<span>inverse: PPM = 1000 / (pace × 0.878 × height_m) · 134 PPM at 170 cm → 5:00</span></p>
+                <p data-fr>k = 0,878 (foulée calibrée). Taille défaut 170 cm. La calibration utilisateur s’applique en plus sur l’allure affichée, pas sur le PPM brut.</p>
+                <p data-en>k = 0.878 (calibrated stride). Default height 170 cm. User calibration then scales displayed pace, not raw PPM.</p>
+              </details>
+            </div>
+            <p class="faq-forum" data-fr>Un bug, une idée d’évolution, un désaccord sur la formule ? <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">Écris sur le forum</a>.</p>
+            <p class="faq-forum" data-en>A bug, a feature idea, a disagreement on the formula? <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">Write on the forum</a>.</p>
+          </details>
+        </div>
+      </details>
     </section>
 
     <nav class="cta cta-end">
@@ -639,15 +813,18 @@
       })();
 
       (function faq() {
-        var items = document.querySelectorAll(".faq-item");
-        items.forEach(function (item) {
-          item.addEventListener("toggle", function () {
-            if (!item.open) return;
-            items.forEach(function (other) {
-              if (other !== item) other.removeAttribute("open");
+        function exclusive(nodes) {
+          nodes.forEach(function (item) {
+            item.addEventListener("toggle", function () {
+              if (!item.open) return;
+              nodes.forEach(function (other) {
+                if (other !== item) other.removeAttribute("open");
+              });
             });
           });
-        });
+        }
+        exclusive(document.querySelectorAll('[data-faq-group="simple"] > .faq-item'));
+        exclusive(document.querySelectorAll('[data-faq-group="tech"] > .faq-item'));
       })();
 
       if (reduce) {
