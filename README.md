@@ -1,5 +1,10 @@
-﻿# BeatOnStep — Politique de confidentialité
+﻿# BeatOnStep — site public
 
-Page publique : https://rafa-create.github.io/beatonstep-privacy/
+Live : https://rafa-create.github.io/beatonstep-website/
 
-Source synchronisée depuis le dépôt privé BeatOnStep (docs/PRIVACY.md).
+Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et la doc interne — **pas** une copie de ce site.
+
+- Accueil : `/`
+- Politique : `/privacy.html` (texte = `PRIVACY.md`, source canonique dans BeatOnStep `docs/PRIVACY.md`)
+
+Éditer **ici**. Un push sur `main` met le site en ligne.
