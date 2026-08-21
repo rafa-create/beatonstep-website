@@ -58,8 +58,6 @@
       <div class="brand-row">
         <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
         <p class="brand">BeatOnStep</p>
-        <span class="tag tag-ghost">Android</span>
-        <span class="tag tag-ghost">iOS</span>
         <div class="lang" role="group" aria-label="Language">
           <button type="button" data-set="fr">FR</button>
           <button type="button" data-set="en">EN</button>
@@ -114,16 +112,45 @@
     <section class="split reveal">
       <p class="tag" data-fr>Le problème</p>
       <p class="tag" data-en>The problem</p>
-      <h2 data-fr>Playlist trop lente ? Trop rapide ?</h2>
-      <h2 data-en>Playlist too slow? Too fast?</h2>
+      <h2 data-fr>Playlist <em class="split-pain split-pain-slow">trop lente</em> ? <em class="split-pain split-pain-fast">Trop rapide</em> ?</h2>
+      <h2 data-en>Playlist <em class="split-pain split-pain-slow">too slow</em>? <em class="split-pain split-pain-fast">Too fast</em>?</h2>
       <div class="split-grid reveal-stagger">
         <article class="split-card split-bad">
+          <div class="beat-viz" aria-hidden="true">
+            <p class="beat-read">
+              <span class="beat-swap">
+                <span>90</span>
+                <span>172</span>
+              </span>
+              <span class="beat-unit">BPM</span>
+              <span class="beat-op">≠</span>
+              <span>134</span>
+              <span class="beat-unit">PPM</span>
+            </p>
+            <div class="beat-track">
+              <i class="beat-dot beat-dot-music"></i>
+              <i class="beat-dot beat-dot-steps"></i>
+            </div>
+          </div>
           <h3 data-fr>Musique hors rythme</h3>
           <h3 data-en>Music off the beat</h3>
           <p data-fr>Ça casse la cadence. Tes jambes fatiguent pendant l’effort.</p>
           <p data-en>It breaks your cadence. Your legs pay for it.</p>
         </article>
         <article class="split-card split-good">
+          <div class="beat-viz" aria-hidden="true">
+            <p class="beat-read">
+              <span>134</span>
+              <span class="beat-unit">BPM</span>
+              <span class="beat-op beat-op-ok">=</span>
+              <span>134</span>
+              <span class="beat-unit">PPM</span>
+            </p>
+            <div class="beat-track beat-track-sync">
+              <i class="beat-dot beat-dot-music"></i>
+              <i class="beat-dot beat-dot-steps"></i>
+            </div>
+          </div>
           <h3 data-fr>La solution BeatOnStep</h3>
           <h3 data-en>The BeatOnStep fix</h3>
           <p data-fr>Un titre calé sur ton allure, en min/km. Tout de suite.</p>
@@ -131,36 +158,6 @@
         </article>
       </div>
     </section>
-
-    <main class="demo reveal">
-      <div class="demo-main">
-        <h2 data-fr>En vidéo</h2>
-        <h2 data-en>Watch</h2>
-        <div class="video">
-          <iframe
-            src="https://www.youtube.com/embed/5JaID75OP6Y"
-            title="BeatOnStep — démo 1:08"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-            loading="lazy"
-          ></iframe>
-        </div>
-        <details class="more-videos">
-          <summary>
-            <span data-fr>Autres vidéos</span>
-            <span data-en>More videos</span>
-          </summary>
-          <div class="video-grid">
-            <a class="video-thumb" href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">
-              <img src="https://img.youtube.com/vi/C6tUGhFoE5Y/hqdefault.jpg" alt="BeatOnStep, 25 s" width="480" height="360" />
-            </a>
-            <a class="video-thumb" href="https://www.youtube.com/watch?v=XD0XW0KKgeE">
-              <img src="https://img.youtube.com/vi/XD0XW0KKgeE/hqdefault.jpg" alt="BeatOnStep, 1:42" width="480" height="360" />
-            </a>
-          </div>
-        </details>
-      </div>
-    </main>
 
     <section class="first-run reveal">
       <p class="tag" data-fr>Première sortie</p>
@@ -196,13 +193,11 @@
           <p class="pace-kicker" data-en>Adaptive</p>
           <h3 data-fr>Il s’adapte à toi</h3>
           <h3 data-en>It follows you</h3>
-          <p data-fr><strong>Tu accélères, la musique suit.</strong> L’app détecte le passage marche → course et bascule sur le bon tempo.</p>
-          <p data-en><strong>You speed up, the music follows.</strong> Walk to run: the app switches to the right tempo.</p>
+          <p data-fr>Bascule sur le bon tempo.</p>
+          <p data-en>Switches to the right tempo.</p>
           <div class="pace-switch" aria-hidden="true">
-            <span data-fr>Marche</span>
-            <span data-en>Walk</span>
-            <span class="on" data-fr>Course</span>
-            <span class="on" data-en>Run</span>
+            <span data-fr>marche - footing - sprint</span>
+            <span data-en>walk - jog - sprint</span>
           </div>
         </article>
         <article class="split-card pace-card">
@@ -255,8 +250,8 @@
           </div>
           <p data-fr><strong>À gauche le BPM du titre, à droite ton rythme.</strong> Glisse le curseur : même formule que dans l’app.</p>
           <p data-en><strong>Left is the track BPM, right is your rhythm.</strong> Drag the slider: same formula as the app.</p>
-          <p class="pace-hint" data-fr>La taille (1–400 cm) ne sert qu’en Allure, <a href="#faq-formule">pour convertir min/km ↔ PPM</a>.</p>
-          <p class="pace-hint" data-en>Height (1–400 cm) is only for Pace, <a href="#faq-formule">to convert min/km ↔ PPM</a>.</p>
+          <p class="pace-hint" data-fr>La taille ne sert qu’en Allure, <a href="#faq-formule">pour convertir min/km ↔ PPM</a>.</p>
+          <p class="pace-hint" data-en>Height is only for Pace, <a href="#faq-formule">to convert min/km ↔ PPM</a>.</p>
         </article>
       </div>
     </section>
@@ -266,8 +261,8 @@
       <p class="tag" data-en>Sources</p>
       <h2 data-fr>Tes fichiers, tes playlists</h2>
       <h2 data-en>Your files, your playlists</h2>
-      <p class="section-lead" data-fr>Mix inclus et fichiers locaux : lecture dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app.</p>
-      <p class="section-lead" data-en>Included mix and local files play in BeatOnStep. YouTube Music and Spotify open in their apps.</p>
+      <p class="section-lead" data-fr>Mix inclus et Musiques téléphone : lecture dans BeatOnStep. YouTube Music et Spotify s’ouvrent dans leur app.</p>
+      <p class="section-lead" data-en>Included mix and Phone music play in BeatOnStep. YouTube Music and Spotify open in their apps.</p>
       <ul class="source-row reveal-stagger">
         <li class="is-on">
           <button type="button" class="source-card" data-src="mix" aria-pressed="true">
@@ -279,7 +274,8 @@
         <li>
           <button type="button" class="source-card" data-src="mp3" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M8 4h12l6 6v18H8V4zm12 1.8V12h6.2L20 5.8zM12 16h8v2h-8v-2zm0 5h8v2h-8v-2z"/></svg>
-            <span>Local</span>
+            <span data-fr>Musiques téléphone</span>
+            <span data-en>Phone music</span>
           </button>
         </li>
         <li>
@@ -346,7 +342,7 @@
       </figure>
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-library.png" width="390" height="844" alt="Bibliothèque : pistes locales, mix inclus et YouTube Music" />
+          <img src="screenshot-library.png" width="390" height="844" alt="Bibliothèque : musiques téléphone, mix inclus et YouTube Music" />
         </div>
         <figcaption>
           <strong data-fr>Ta musique</strong>
@@ -402,6 +398,36 @@
       </div>
     </section>
 
+    <section class="demo reveal">
+      <div class="demo-main">
+        <h2 data-fr>En vidéo</h2>
+        <h2 data-en>Watch</h2>
+        <div class="video">
+          <iframe
+            src="https://www.youtube.com/embed/5JaID75OP6Y"
+            title="BeatOnStep — démo 1:08"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+        <details class="more-videos">
+          <summary>
+            <span data-fr>Autres vidéos</span>
+            <span data-en>More videos</span>
+          </summary>
+          <div class="video-grid">
+            <a class="video-thumb" href="https://www.youtube.com/watch?v=C6tUGhFoE5Y">
+              <img src="https://img.youtube.com/vi/C6tUGhFoE5Y/hqdefault.jpg" alt="BeatOnStep, 25 s" width="480" height="360" />
+            </a>
+            <a class="video-thumb" href="https://www.youtube.com/watch?v=XD0XW0KKgeE">
+              <img src="https://img.youtube.com/vi/XD0XW0KKgeE/hqdefault.jpg" alt="BeatOnStep, 1:42" width="480" height="360" />
+            </a>
+          </div>
+        </details>
+      </div>
+    </section>
+
     <section class="faq reveal">
       <details class="faq-shell">
         <summary class="faq-shell-sum">
@@ -434,8 +460,8 @@
                 <span data-fr>Et mes fichiers sur le téléphone ?</span>
                 <span data-en>What about files on my phone?</span>
               </summary>
-              <p data-fr>Tu les importes (Local). Lance l’analyse du rythme de chaque titre avant de partir.</p>
-              <p data-en>Import them (Local). Run rhythm analysis on each track before you head out.</p>
+              <p data-fr>Tu les importes (Musiques téléphone). Lance l’analyse du rythme de chaque titre avant de partir.</p>
+              <p data-en>Import them (Phone music). Run rhythm analysis on each track before you head out.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -542,13 +568,13 @@
                 <figure class="faq-schema">
                   <ol class="schema-flow">
                     <li><span data-fr>Mix : déjà tagué</span><span data-en>Mix: pre-tagged</span></li>
-                    <li><span data-fr>Local : analyse ~90 s</span><span data-en>Local: ~90 s analysis</span></li>
+                    <li><span data-fr>Musiques téléphone : analyse ~90 s</span><span data-en>Phone music: ~90 s analysis</span></li>
                     <li><span data-fr>Spotify / YT : saisie</span><span data-en>Spotify / YT: you set it</span></li>
                     <li><span data-fr>Sans BPM : ignoré</span><span data-en>No BPM: skipped</span></li>
                   </ol>
                 </figure>
-                <p data-fr>Mix inclus : BPM déjà dans le pack, lecture dans BeatOnStep. Local : rien à l’import. Analyse serveur (~90 s / piste) ou nom de fichier « Artiste - Titre (BPM-120).mp3 ». Sinon estimation 120, à confirmer. Un titre sans BPM n’entre pas dans le matching.</p>
-                <p data-en>Included mix: BPM ships in the pack, plays in BeatOnStep. Local: nothing on import. Server analysis (~90 s / track) or filename “Artist - Title (BPM-120).mp3”. Else estimated 120, to confirm. A track with no BPM never enters matching.</p>
+                <p data-fr>Mix inclus : BPM déjà dans le pack, lecture dans BeatOnStep. Musiques téléphone : rien à l’import. Analyse serveur (~90 s / piste) ou nom de fichier « Artiste - Titre (BPM-120).mp3 ». Sinon estimation 120, à confirmer. Un titre sans BPM n’entre pas dans le matching.</p>
+                <p data-en>Included mix: BPM ships in the pack, plays in BeatOnStep. Phone music: nothing on import. Server analysis (~90 s / track) or filename “Artist - Title (BPM-120).mp3”. Else estimated 120, to confirm. A track with no BPM never enters matching.</p>
                 <p data-fr>Spotify et YouTube Music : lecture dans leur app. Pas de BPM auto. Tu saisis le BPM, ou tu lances la détection bêta (MusicBrainz / AcousticBrainz). YouTube Premium pour garder la lecture en arrière-plan. Deezer, plus tard : BPM API si Deezer le fournit — bloqué tant que leur plateforme développeur est fermée.</p>
                 <p data-en>Spotify and YouTube Music: play in their apps. No auto BPM. You enter BPM, or run the beta detect (MusicBrainz / AcousticBrainz). YouTube Premium to keep background play. Deezer later: API BPM when Deezer provides it — blocked while their developer platform is closed.</p>
               </details>
@@ -716,6 +742,10 @@
       <a class="foot-link" href="https://www.instagram.com/beatonstep/">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="11.4" cy="4.6" r="0.8" fill="currentColor"/></svg>
         Instagram
+      </a>
+      <a class="foot-link" href="https://www.youtube.com/@coulonpaktric1321">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.2" width="13" height="9.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M6.6 5.8v4.4L10.8 8z"/></svg>
+        YouTube
       </a>
       <a class="foot-link" href="https://www.linkedin.com/company/beatonstep">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M5.1 6.4h1.6V12H5.1V6.4zM5.9 4.1a.95.95 0 1 1 0 1.9.95.95 0 0 1 0-1.9zM8.1 6.4h1.55v.76h.02c.22-.41.75-.84 1.55-.84 1.66 0 1.97 1.09 1.97 2.5V12h-1.6V9.1c0-.7-.01-1.6-.97-1.6s-1.12.76-1.12 1.55V12H8.1V6.4z"/></svg>

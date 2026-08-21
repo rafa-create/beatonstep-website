@@ -78,7 +78,7 @@ header {
 .brand-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.65rem;
   margin-bottom: 0;
 }
@@ -91,6 +91,7 @@ header {
 .lang {
   margin-left: auto;
   display: flex;
+  flex-shrink: 0;
   gap: 0.1rem;
 }
 .lang button {
@@ -133,12 +134,6 @@ html:not([lang="en"]) [data-en] {
   text-transform: uppercase;
   padding: 0.28rem 0.7rem;
   border-radius: 999px;
-}
-.tag-ghost {
-  margin: 0;
-  background: #111008;
-  color: #fff;
-  border: 1px solid var(--line);
 }
 .tag-soon {
   margin: 0;
@@ -190,9 +185,14 @@ nav.links {
 @media (max-width: 640px) {
   .app-bar-inner {
     padding: 0.4rem 0.85rem;
+    justify-content: center;
   }
   .app-bar-inner p {
     font-size: 0.72rem;
+  }
+  .app-bar-actions {
+    justify-content: center;
+    gap: 0.9rem;
   }
   .store-badge-bar img {
     height: 28px;
@@ -200,6 +200,14 @@ nav.links {
 }
 @media (max-width: 480px) {
   .app-bar-inner p { display: none; }
+  .app-bar-inner {
+    justify-content: center;
+  }
+  .app-bar-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
 }
 .store-badge:hover { opacity: 0.88; }
 .store-badge:focus-visible {
@@ -535,6 +543,147 @@ footer a:hover { color: var(--accent); }
   color: var(--muted);
   font-size: 0.95rem;
 }
+.split h2 em {
+  font-style: normal;
+}
+.split-pain {
+  display: inline-block;
+}
+.split.is-in .split-pain-slow {
+  animation: split-pain-slow 5s ease-in-out infinite;
+}
+.split.is-in .split-pain-fast {
+  animation: split-pain-fast 5s ease-in-out infinite;
+}
+@keyframes split-pain-slow {
+  0%, 42% { color: #ff8f8f; }
+  50%, 92% { color: inherit; }
+  100% { color: #ff8f8f; }
+}
+@keyframes split-pain-fast {
+  0%, 42% { color: inherit; }
+  50%, 92% { color: #ff8f8f; }
+  100% { color: inherit; }
+}
+.beat-viz {
+  margin: 0 0 0.95rem;
+  padding: 0.75rem 0.85rem 0.85rem;
+  border-radius: 12px;
+  background: #111008;
+}
+.split-card .beat-read {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0 0 0.7rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.beat-unit {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.beat-op {
+  margin: 0 0.15rem;
+  color: #ff8f8f;
+}
+.beat-op-ok {
+  color: var(--accent);
+}
+.beat-swap {
+  display: inline-grid;
+  justify-items: end;
+  min-width: 2.1ch;
+}
+.beat-swap span {
+  grid-area: 1 / 1;
+}
+.split.is-in .beat-swap span:first-child {
+  animation: beat-swap-a 5s ease-in-out infinite;
+}
+.split.is-in .beat-swap span:last-child {
+  animation: beat-swap-b 5s ease-in-out infinite;
+}
+@keyframes beat-swap-a {
+  0%, 42% { opacity: 1; }
+  50%, 92% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes beat-swap-b {
+  0%, 42% { opacity: 0; }
+  50%, 92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.beat-track {
+  position: relative;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: rgba(244, 241, 224, 0.06);
+  overflow: hidden;
+}
+.beat-dot {
+  position: absolute;
+  top: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  margin-top: -0.36rem;
+  border-radius: 50%;
+  left: 6%;
+}
+.split-bad .beat-dot-music {
+  background: #ff8f8f;
+  box-shadow: 0 0 10px rgba(255, 143, 143, 0.55);
+}
+.split-bad .beat-dot-steps {
+  background: var(--ink);
+  opacity: 0.7;
+}
+.split-good .beat-dot-music,
+.split-good .beat-dot-steps {
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(252, 234, 7, 0.55);
+}
+.split-good .beat-dot-steps {
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-top: -0.24rem;
+}
+.split.is-in .split-bad .beat-dot-music {
+  animation: beat-run 1.55s linear infinite;
+}
+.split.is-in .split-bad .beat-dot-steps {
+  animation: beat-run 0.92s linear infinite;
+}
+.split.is-in .split-good .beat-dot-music,
+.split.is-in .split-good .beat-dot-steps {
+  animation: beat-run 0.72s linear infinite;
+}
+@keyframes beat-run {
+  0% { left: 6%; }
+  100% { left: calc(94% - 0.72rem); }
+}
+.split.is-in .split-bad {
+  animation: split-bad-pulse 5s ease-in-out infinite;
+}
+.split.is-in .split-good {
+  animation: split-good-glow 1.44s ease-in-out infinite;
+}
+@keyframes split-bad-pulse {
+  0%, 42% { border-color: rgba(255, 92, 92, 0.7); }
+  50%, 92% { border-color: rgba(255, 92, 92, 0.35); }
+  100% { border-color: rgba(255, 92, 92, 0.7); }
+}
+@keyframes split-good-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 234, 7, 0); }
+  50% { box-shadow: 0 0 0 3px rgba(252, 234, 7, 0.18); }
+}
 .split-bad {
   border: 1px solid rgba(255, 92, 92, 0.45);
 }
@@ -585,9 +734,8 @@ footer a:hover { color: var(--accent); }
 }
 .pace-switch {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 0.75rem;
   margin-top: 1.15rem;
   min-height: 4.5rem;
   padding: 1.15rem 1.25rem;
@@ -596,11 +744,10 @@ footer a:hover { color: var(--accent); }
   background: #111008;
   font-size: 1rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-align: center;
 }
-.pace-switch .on { color: var(--accent); }
 .pace-mock {
   margin: 0.85rem 0 1.1rem;
   padding: 1.25rem 1.2rem 1.35rem;
@@ -1474,4 +1621,22 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
     transform: none;
     transition: none;
   }
+  .split.is-in .split-pain-slow,
+  .split.is-in .split-pain-fast,
+  .split.is-in .beat-swap span:first-child,
+  .split.is-in .beat-swap span:last-child,
+  .split.is-in .split-bad .beat-dot-music,
+  .split.is-in .split-bad .beat-dot-steps,
+  .split.is-in .split-good .beat-dot-music,
+  .split.is-in .split-good .beat-dot-steps,
+  .split.is-in .split-bad,
+  .split.is-in .split-good {
+    animation: none;
+  }
+  .split-pain-slow { color: #ff8f8f; }
+  .beat-swap span:last-child { opacity: 0; }
+  .split-bad .beat-dot-music { left: 18%; }
+  .split-bad .beat-dot-steps { left: 62%; }
+  .split-good .beat-dot-music,
+  .split-good .beat-dot-steps { left: 46%; }
 }

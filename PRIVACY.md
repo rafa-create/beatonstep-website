@@ -1,12 +1,12 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 17 août 2026
+**Dernière mise à jour :** 21 août 2026
 
 ## 1. Qui sommes-nous
 
 BeatOnStep est une application Android de course/marche rythmée qui adapte la musique au rythme de vos foulées. Cette politique décrit quelles données l'application traite et comment.
 
-**Éditeur :** Rafael Orset — contact : orsetrafael@gmail.com
+**Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
 ## 2. Données collectées (principe)
 
@@ -91,7 +91,7 @@ L’application n’est pas spécifiquement destinée aux enfants de moins de 13
 
 - Données **uniquement locales** (bibliothèque, réglages, jetons) : vous les contrôlez via l’app (ex. déconnexion YouTube) ou la désinstallation.
 - Compte **Google / YouTube** : exercez vos droits auprès de Google selon leurs procédures.
-- Serveur musique de l’éditeur : pas de compte utilisateur BeatOnStep ; pour toute question, contactez l’éditeur (e-mail ci-dessous).
+- Serveur musique de l’éditeur : pas de compte utilisateur BeatOnStep ; pour toute question, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
 
@@ -196,7 +196,7 @@ Tous par **Kevin MacLeod**, tous sous **CC-BY 4.0**, hébergés à l’origine s
 Pour toute question concernant cette politique de confidentialité :
 
 - **Éditeur :** Rafael Orset
-- **Email :** orsetrafael@gmail.com
+- **Forum :** [github.com/rafa-create/beatonstep-website/discussions/1](https://github.com/rafa-create/beatonstep-website/discussions/1)
 - **Dépôt source :** https://github.com/rafa-create/BeatOnStep
 - **Version publique (Play / app) :** https://rafa-create.github.io/beatonstep-website/privacy.html  
   Accueil / présentation : https://rafa-create.github.io/beatonstep-website/  
