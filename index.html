@@ -135,8 +135,8 @@
               </div>
             </div>
             <div class="beat-track">
-              <i class="beat-dot beat-dot-music"></i>
-              <i class="beat-dot beat-dot-steps"></i>
+              <span class="beat-dot beat-dot-music"></span>
+              <span class="beat-dot beat-dot-steps"></span>
             </div>
           </div>
           <h3 data-fr>Musique hors rythme</h3>
@@ -154,14 +154,14 @@
               <span class="beat-unit">PPM</span>
             </p>
             <div class="beat-track">
-              <i class="beat-dot beat-dot-music"></i>
-              <i class="beat-dot beat-dot-steps"></i>
+              <span class="beat-dot beat-dot-music"></span>
+              <span class="beat-dot beat-dot-steps"></span>
             </div>
           </div>
           <h3 data-fr>La solution BeatOnStep</h3>
           <h3 data-en>The BeatOnStep fix</h3>
-          <p data-fr>Un titre calé sur ton allure, en min/km. Tout de suite.</p>
-          <p data-en>A track locked to your pace, in min/km. Right away.</p>
+          <p data-fr>Un titre avec le BPM qui correspond au rythme de tes pas.</p>
+          <p data-en>A track whose BPM matches the rhythm of your steps.</p>
         </article>
       </div>
     </section>
@@ -202,41 +202,47 @@
           <h3 data-en>It follows you</h3>
           <p data-fr>Bascule sur le bon tempo.</p>
           <p data-en>Switches to the right tempo.</p>
-          <div class="beat-viz beat-viz-follow" data-adaptive-follow aria-hidden="true">
+          <div class="beat-viz beat-viz-follow" data-adaptive-follow>
             <div class="beat-pair">
               <div class="beat-col beat-col-music">
-                <p class="beat-value" data-adapt-bpm>90</p>
-                <p class="beat-label">
-                  <span data-fr>musique · BPM</span>
-                  <span data-en>music · BPM</span>
+                <p class="beat-value beat-value-fit" data-adapt-music>
+                  <span data-stage="0" class="is-on" data-fr>Musique douce</span>
+                  <span data-stage="0" class="is-on" data-en>Soft music</span>
+                  <span data-stage="1" data-fr>Musique rapide</span>
+                  <span data-stage="1" data-en>Fast music</span>
+                  <span data-stage="2" data-fr>Musique très rapide</span>
+                  <span data-stage="2" data-en>Very fast music</span>
                 </p>
               </div>
-              <span class="beat-op beat-op-ok">=</span>
+              <span class="beat-op beat-op-ok" aria-hidden="true">=</span>
               <div class="beat-col beat-col-run">
-                <p class="beat-value" data-adapt-ppm>90</p>
-                <p class="beat-label">
-                  <span data-fr>coureur · PPM</span>
-                  <span data-en>runner · PPM</span>
+                <p class="beat-value beat-value-fit" data-adapt-run>
+                  <span data-stage="0" class="is-on" data-fr>Marche</span>
+                  <span data-stage="0" class="is-on" data-en>Walk</span>
+                  <span data-stage="1" data-fr>Course rapide</span>
+                  <span data-stage="1" data-en>Fast run</span>
+                  <span data-stage="2" data-fr>Sprint</span>
+                  <span data-stage="2" data-en>Sprint</span>
                 </p>
               </div>
             </div>
-            <div class="beat-track">
-              <i class="beat-dot beat-dot-music"></i>
-              <i class="beat-dot beat-dot-steps"></i>
+            <div class="beat-track" aria-hidden="true">
+              <span class="beat-dot beat-dot-music"></span>
+              <span class="beat-dot beat-dot-steps"></span>
             </div>
-            <div class="pace-scale">
-              <span class="pace-step pace-step-walk is-on">
+            <div class="pace-scale" role="group" aria-label="Allure">
+              <button type="button" class="pace-step is-on" data-stage="0" aria-pressed="true">
                 <span data-fr>marche</span>
                 <span data-en>walk</span>
-              </span>
-              <span class="pace-step pace-step-jog">
+              </button>
+              <button type="button" class="pace-step" data-stage="1" aria-pressed="false">
                 <span data-fr>footing</span>
                 <span data-en>jog</span>
-              </span>
-              <span class="pace-step pace-step-sprint">
+              </button>
+              <button type="button" class="pace-step" data-stage="2" aria-pressed="false">
                 <span data-fr>sprint</span>
                 <span data-en>sprint</span>
-              </span>
+              </button>
             </div>
           </div>
         </article>
@@ -829,9 +835,6 @@
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
         }
-        function maxX(el) {
-          return Math.max(0, track.clientWidth - el.offsetWidth);
-        }
         function xFromBpm(bpm) {
           return clamp((bpm - BPM_MIN) / (BPM_MAX - BPM_MIN), 0, 1);
         }
@@ -839,7 +842,7 @@
           return Math.round(BPM_MIN + clamp(x, 0, 1) * (BPM_MAX - BPM_MIN));
         }
         function place(el, x) {
-          el.style.left = x * maxX(el) + "px";
+          el.style.left = clamp(x, 0, 1) * 100 + "%";
         }
 
         var runnerX = xFromBpm(PPM);
@@ -886,61 +889,71 @@
         var track = root.querySelector(".beat-track");
         var music = root.querySelector(".beat-dot-music");
         var steps = root.querySelector(".beat-dot-steps");
-        var bpmEl = root.querySelector("[data-adapt-bpm]");
-        var ppmEl = root.querySelector("[data-adapt-ppm]");
-        var labels = root.querySelectorAll(".pace-step");
-        if (!track || !music || !steps || !bpmEl || !ppmEl) return;
+        var musicWords = root.querySelectorAll("[data-adapt-music] [data-stage]");
+        var runWords = root.querySelectorAll("[data-adapt-run] [data-stage]");
+        var labels = root.querySelectorAll(".pace-scale .pace-step");
+        if (!track || !music || !steps || !labels.length) return;
+
+        var XS = [0.1, 0.5, 0.9];
+        var HOLD = 2.15;
+        var stage = 0;
+        var targetX = XS[0];
+        var runnerX = XS[0];
+        var musicX = XS[0];
+        var holdLeft = HOLD;
+        var pausedUntil = 0;
 
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
         }
-        function maxX(el) {
-          return Math.max(0, track.clientWidth - el.offsetWidth);
-        }
         function place(el, x) {
-          el.style.left = x * maxX(el) + "px";
+          el.style.left = clamp(x, 0, 1) * 100 + "%";
         }
-        function ppmFromX(x) {
-          return Math.round(90 + clamp(x, 0, 1) * 100);
-        }
-        function setStage(x) {
-          var stage = x < 0.33 ? 0 : x < 0.72 ? 1 : 2;
+        function setStage(next, hold) {
+          stage = next;
+          targetX = XS[stage];
+          holdLeft = hold == null ? HOLD : hold;
           labels.forEach(function (el, i) {
-            el.classList.toggle("is-on", i === stage);
+            var on = i === stage;
+            el.classList.toggle("is-on", on);
+            el.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          [musicWords, runWords].forEach(function (nodes) {
+            nodes.forEach(function (el) {
+              el.classList.toggle("is-on", el.getAttribute("data-stage") === String(stage));
+            });
           });
         }
-        function draw(runnerX, musicX) {
-          var n = ppmFromX(runnerX);
-          bpmEl.textContent = String(n);
-          ppmEl.textContent = String(n);
+        function draw() {
           place(steps, runnerX);
           place(music, musicX);
-          setStage(runnerX);
         }
 
-        var runnerX = 0.1;
-        var musicX = 0.1;
-        draw(runnerX, musicX);
+        setStage(0);
+        draw();
         if (reduce) return;
 
-        var t = 0;
+        labels.forEach(function (btn, i) {
+          btn.addEventListener("click", function () {
+            setStage(i, 3.2);
+            pausedUntil = performance.now() + 2800;
+          });
+        });
+
         var last = 0;
-        var cycle = 7.5;
         function tick(ts) {
           if (!last) last = ts;
           var dt = Math.min(0.05, (ts - last) / 1000);
           last = ts;
-          t += dt;
-          var u = (t % cycle) / cycle;
-          var wave = 0.5 - 0.5 * Math.cos(u * Math.PI * 2);
-          runnerX = 0.08 + 0.84 * wave;
+          runnerX += (targetX - runnerX) * Math.min(1, dt * 4.2);
           musicX += (runnerX - musicX) * Math.min(1, dt * 3.1);
-          draw(runnerX, musicX);
+          if (ts >= pausedUntil && Math.abs(runnerX - targetX) < 0.012) {
+            holdLeft -= dt;
+            if (holdLeft <= 0) setStage((stage + 1) % 3);
+          }
+          draw();
           requestAnimationFrame(tick);
         }
-        window.addEventListener("resize", function () {
-          draw(runnerX, musicX);
-        });
         requestAnimationFrame(tick);
       })();
 
