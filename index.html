@@ -118,10 +118,7 @@
         <article class="split-card split-bad">
           <div class="beat-viz" aria-hidden="true">
             <p class="beat-read">
-              <span class="beat-swap">
-                <span>90</span>
-                <span>172</span>
-              </span>
+              <span>90</span>
               <span class="beat-unit">BPM</span>
               <span class="beat-op">≠</span>
               <span>134</span>
@@ -146,7 +143,7 @@
               <span>134</span>
               <span class="beat-unit">PPM</span>
             </p>
-            <div class="beat-track beat-track-sync">
+            <div class="beat-track">
               <i class="beat-dot beat-dot-music"></i>
               <i class="beat-dot beat-dot-steps"></i>
             </div>
@@ -320,7 +317,7 @@
     <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-home.png" width="390" height="844" alt="BeatOnStep : allure en min/km et lecteur" />
+          <img src="screenshot-home.png" width="575" height="1024" alt="BeatOnStep : allure en min/km et lecteur" />
         </div>
         <figcaption>
           <strong data-fr>En run</strong>
@@ -331,18 +328,18 @@
       </figure>
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-pace.png" width="390" height="844" alt="Accueil : allure en min/km et calibration" />
+          <img src="screenshot-pace.png" width="575" height="1024" alt="Réglages : Adaptatif, allure en min/km et changement de titre" />
         </div>
         <figcaption>
-          <strong data-fr>Ton allure</strong>
-          <strong data-en>Your pace</strong>
-          <span data-fr>En min/km, comme une montre.</span>
-          <span data-en>In min/km, like a watch.</span>
+          <strong data-fr>Réglages</strong>
+          <strong data-en>Settings</strong>
+          <span data-fr>Adaptatif, allure en min/km. Tu choisis quand le titre change.</span>
+          <span data-en>Adaptive, pace in min/km. You pick when the track changes.</span>
         </figcaption>
       </figure>
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-library.png" width="390" height="844" alt="Bibliothèque : musiques téléphone, mix inclus et YouTube Music" />
+          <img src="screenshot-library.png" width="575" height="1024" alt="Bibliothèque : mix inclus et sources" />
         </div>
         <figcaption>
           <strong data-fr>Ta musique</strong>
@@ -774,6 +771,56 @@
       progress();
       window.addEventListener("scroll", progress, { passive: true });
       window.addEventListener("resize", progress);
+
+      (function mismatchDots() {
+        var track = document.querySelector(".split-bad .beat-track");
+        var music = document.querySelector(".split-bad .beat-dot-music");
+        var steps = document.querySelector(".split-bad .beat-dot-steps");
+        if (!track || !music || !steps) return;
+
+        function hsl(h) {
+          return "hsl(" + h + " 78% 58%)";
+        }
+        var hMusic = Math.floor(Math.random() * 360);
+        var hSteps = (hMusic + 90 + Math.floor(Math.random() * 140)) % 360;
+        music.style.background = hsl(hMusic);
+        music.style.boxShadow = "0 0 10px " + hsl(hMusic);
+        steps.style.background = hsl(hSteps);
+        steps.style.boxShadow = "0 0 10px " + hsl(hSteps);
+
+        if (reduce) return;
+
+        var dots = [
+          { el: music, x: 0.12, v: 0.28 + Math.random() * 0.55 },
+          { el: steps, x: 0.68, v: -(0.22 + Math.random() * 0.6) }
+        ];
+        var last = 0;
+
+        function maxX(el) {
+          return Math.max(0, track.clientWidth - el.offsetWidth);
+        }
+        function tick(ts) {
+          if (!last) last = ts;
+          var dt = Math.min(0.05, (ts - last) / 1000);
+          last = ts;
+          dots.forEach(function (d) {
+            d.x += d.v * dt;
+            if (d.x <= 0) {
+              d.x = 0;
+              d.v = 0.18 + Math.random() * 0.7;
+            } else if (d.x >= 1) {
+              d.x = 1;
+              d.v = -(0.18 + Math.random() * 0.7);
+            } else if (Math.random() < 0.012) {
+              d.v += (Math.random() - 0.5) * 0.5;
+              if (Math.abs(d.v) < 0.12) d.v = (d.v < 0 ? -1 : 1) * (0.18 + Math.random() * 0.4);
+            }
+            d.el.style.left = d.x * maxX(d.el) + "px";
+          });
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      })();
 
       (function paceLock() {
         var root = document.querySelector("[data-pace-lock]");

@@ -597,30 +597,6 @@ footer a:hover { color: var(--accent); }
 .beat-op-ok {
   color: var(--accent);
 }
-.beat-swap {
-  display: inline-grid;
-  justify-items: end;
-  min-width: 2.1ch;
-}
-.beat-swap span {
-  grid-area: 1 / 1;
-}
-.split.is-in .beat-swap span:first-child {
-  animation: beat-swap-a 5s ease-in-out infinite;
-}
-.split.is-in .beat-swap span:last-child {
-  animation: beat-swap-b 5s ease-in-out infinite;
-}
-@keyframes beat-swap-a {
-  0%, 42% { opacity: 1; }
-  50%, 92% { opacity: 0; }
-  100% { opacity: 1; }
-}
-@keyframes beat-swap-b {
-  0%, 42% { opacity: 0; }
-  50%, 92% { opacity: 1; }
-  100% { opacity: 0; }
-}
 .beat-track {
   position: relative;
   height: 1.35rem;
@@ -635,54 +611,21 @@ footer a:hover { color: var(--accent); }
   height: 0.72rem;
   margin-top: -0.36rem;
   border-radius: 50%;
-  left: 6%;
-}
-.split-bad .beat-dot-music {
-  background: #ff8f8f;
-  box-shadow: 0 0 10px rgba(255, 143, 143, 0.55);
-}
-.split-bad .beat-dot-steps {
-  background: var(--ink);
-  opacity: 0.7;
+  left: 8%;
+  will-change: left;
 }
 .split-good .beat-dot-music,
 .split-good .beat-dot-steps {
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--accent);
   box-shadow: 0 0 12px rgba(252, 234, 7, 0.55);
+  will-change: auto;
 }
 .split-good .beat-dot-steps {
   width: 0.48rem;
   height: 0.48rem;
   margin-top: -0.24rem;
-}
-.split.is-in .split-bad .beat-dot-music {
-  animation: beat-run 1.55s linear infinite;
-}
-.split.is-in .split-bad .beat-dot-steps {
-  animation: beat-run 0.92s linear infinite;
-}
-.split.is-in .split-good .beat-dot-music,
-.split.is-in .split-good .beat-dot-steps {
-  animation: beat-run 0.72s linear infinite;
-}
-@keyframes beat-run {
-  0% { left: 6%; }
-  100% { left: calc(94% - 0.72rem); }
-}
-.split.is-in .split-bad {
-  animation: split-bad-pulse 5s ease-in-out infinite;
-}
-.split.is-in .split-good {
-  animation: split-good-glow 1.44s ease-in-out infinite;
-}
-@keyframes split-bad-pulse {
-  0%, 42% { border-color: rgba(255, 92, 92, 0.7); }
-  50%, 92% { border-color: rgba(255, 92, 92, 0.35); }
-  100% { border-color: rgba(255, 92, 92, 0.7); }
-}
-@keyframes split-good-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 234, 7, 0); }
-  50% { box-shadow: 0 0 0 3px rgba(252, 234, 7, 0.18); }
 }
 .split-bad {
   border: 1px solid rgba(255, 92, 92, 0.45);
@@ -1622,21 +1565,10 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
     transition: none;
   }
   .split.is-in .split-pain-slow,
-  .split.is-in .split-pain-fast,
-  .split.is-in .beat-swap span:first-child,
-  .split.is-in .beat-swap span:last-child,
-  .split.is-in .split-bad .beat-dot-music,
-  .split.is-in .split-bad .beat-dot-steps,
-  .split.is-in .split-good .beat-dot-music,
-  .split.is-in .split-good .beat-dot-steps,
-  .split.is-in .split-bad,
-  .split.is-in .split-good {
+  .split.is-in .split-pain-fast {
     animation: none;
   }
   .split-pain-slow { color: #ff8f8f; }
-  .beat-swap span:last-child { opacity: 0; }
   .split-bad .beat-dot-music { left: 18%; }
   .split-bad .beat-dot-steps { left: 62%; }
-  .split-good .beat-dot-music,
-  .split-good .beat-dot-steps { left: 46%; }
 }
