@@ -663,12 +663,24 @@ footer a:hover { color: var(--accent); }
 }
 .beat-pair .beat-op {
   margin: 0 0.15rem 0.85rem;
-  align-self: center;
+  align-self: end;
   font-size: 1.15rem;
   font-weight: 800;
+  line-height: 1;
 }
 .beat-op-ok {
   color: var(--accent);
+}
+.beat-viz-follow .beat-pair {
+  align-items: center;
+}
+.beat-viz-follow .beat-pair .beat-op {
+  margin: 0 0.2rem;
+  align-self: center;
+}
+.beat-viz-follow .beat-value-fit {
+  min-height: 2.6em;
+  align-items: center;
 }
 .beat-track {
   position: relative;
