@@ -117,13 +117,23 @@
       <div class="split-grid reveal-stagger">
         <article class="split-card split-bad">
           <div class="beat-viz" aria-hidden="true">
-            <p class="beat-read">
-              <span>90</span>
-              <span class="beat-unit">BPM</span>
+            <div class="beat-pair">
+              <div>
+                <p class="beat-value" data-beat-bpm>90</p>
+                <p class="beat-label">
+                  <span data-fr>musique · BPM</span>
+                  <span data-en>music · BPM</span>
+                </p>
+              </div>
               <span class="beat-op">≠</span>
-              <span>134</span>
-              <span class="beat-unit">PPM</span>
-            </p>
+              <div>
+                <p class="beat-value">134</p>
+                <p class="beat-label">
+                  <span data-fr>coureur · PPM</span>
+                  <span data-en>runner · PPM</span>
+                </p>
+              </div>
+            </div>
             <div class="beat-track">
               <i class="beat-dot beat-dot-music"></i>
               <i class="beat-dot beat-dot-steps"></i>
@@ -193,8 +203,18 @@
           <p data-fr>Bascule sur le bon tempo.</p>
           <p data-en>Switches to the right tempo.</p>
           <div class="pace-switch" aria-hidden="true">
-            <span data-fr>marche - footing - sprint</span>
-            <span data-en>walk - jog - sprint</span>
+            <span class="pace-step pace-step-walk">
+              <span data-fr>marche</span>
+              <span data-en>walk</span>
+            </span>
+            <span class="pace-step pace-step-jog">
+              <span data-fr>footing</span>
+              <span data-en>jog</span>
+            </span>
+            <span class="pace-step pace-step-sprint">
+              <span data-fr>sprint</span>
+              <span data-en>sprint</span>
+            </span>
           </div>
         </article>
         <article class="split-card pace-card">
@@ -202,22 +222,22 @@
           <p class="pace-kicker" data-en>Fixed</p>
           <h3 data-fr>Tu règles l’allure</h3>
           <h3 data-en>You set the pace</h3>
-          <div class="pace-mock" data-pace-lock data-unit="allure">
+          <div class="pace-mock" data-pace-lock data-unit="ppm">
             <div class="pace-units" role="group" aria-label="Unité / Unit">
-              <button type="button" data-unit="ppm" aria-pressed="false">PPM</button>
-              <button type="button" data-unit="allure" aria-pressed="true">
+              <button type="button" data-unit="ppm" aria-pressed="true">PPM</button>
+              <button type="button" data-unit="allure" aria-pressed="false">
                 <span data-fr>Allure</span>
                 <span data-en>Pace</span>
               </button>
             </div>
-            <div class="pace-pair" data-unit="allure">
+            <div class="pace-pair" data-unit="ppm">
               <div>
                 <p class="pace-value" data-pace-music>134</p>
                 <p class="pace-unit" data-fr>musique · BPM</p>
                 <p class="pace-unit" data-en>music · BPM</p>
               </div>
               <div>
-                <p class="pace-value" data-pace-run>5:00</p>
+                <p class="pace-value" data-pace-run>134</p>
                 <p class="pace-unit">
                   <span data-fr>coureur · </span>
                   <span data-en>runner · </span>
@@ -230,10 +250,10 @@
               class="pace-slider"
               role="slider"
               tabindex="0"
-              aria-valuemin="2.5"
-              aria-valuemax="15"
-              aria-valuenow="5"
-              aria-valuetext="5:00 min/km, 134 BPM"
+              aria-valuemin="40"
+              aria-valuemax="240"
+              aria-valuenow="134"
+              aria-valuetext="134 PPM, 134 BPM"
             >
               <span class="pace-slider-fill"></span>
               <i></i>
@@ -732,21 +752,21 @@
     </nav>
 
     <footer>
-      <a class="foot-link" href="https://github.com/rafa-create/beatonstep-website/discussions/1">
+      <a class="foot-link" href="https://github.com/rafa-create/beatonstep-website/discussions/1" aria-label="Forum">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.5 3.2A1.2 1.2 0 0 1 2.7 2h7.6A1.2 1.2 0 0 1 11.5 3.2v5.1H5.2L1.5 11.6V3.2zm5.2 7.1h6.6A1.2 1.2 0 0 1 14.5 11.5v2.7l-3.2-2.1H6.7z"/></svg>
-        Forum
+        <span class="foot-label">Forum</span>
       </a>
-      <a class="foot-link" href="https://www.instagram.com/beatonstep/">
+      <a class="foot-link" href="https://www.instagram.com/beatonstep/" aria-label="Instagram">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="11.4" cy="4.6" r="0.8" fill="currentColor"/></svg>
-        Instagram
+        <span class="foot-label">Instagram</span>
       </a>
-      <a class="foot-link" href="https://www.youtube.com/@coulonpaktric1321">
+      <a class="foot-link" href="https://www.youtube.com/@coulonpaktric1321" aria-label="YouTube">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.2" width="13" height="9.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M6.6 5.8v4.4L10.8 8z"/></svg>
-        YouTube
+        <span class="foot-label">YouTube</span>
       </a>
-      <a class="foot-link" href="https://www.linkedin.com/company/beatonstep">
+      <a class="foot-link" href="https://www.linkedin.com/company/beatonstep" aria-label="LinkedIn">
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M5.1 6.4h1.6V12H5.1V6.4zM5.9 4.1a.95.95 0 1 1 0 1.9.95.95 0 0 1 0-1.9zM8.1 6.4h1.55v.76h.02c.22-.41.75-.84 1.55-.84 1.66 0 1.97 1.09 1.97 2.5V12h-1.6V9.1c0-.7-.01-1.6-.97-1.6s-1.12.76-1.12 1.55V12H8.1V6.4z"/></svg>
-        LinkedIn
+        <span class="foot-label">LinkedIn</span>
       </a>
       <a class="foot-link" data-fr data-keep-lang data-href="privacy.html" href="privacy.html">Confidentialité</a>
       <a class="foot-link" data-en data-keep-lang data-href="privacy.html" href="privacy.html">Privacy</a>
@@ -776,11 +796,32 @@
         var track = document.querySelector(".split-bad .beat-track");
         var music = document.querySelector(".split-bad .beat-dot-music");
         var steps = document.querySelector(".split-bad .beat-dot-steps");
-        if (!track || !music || !steps) return;
+        var bpmEl = document.querySelector("[data-beat-bpm]");
+        if (!track || !music || !steps || !bpmEl) return;
+
+        var BPM_MIN = 40;
+        var BPM_MAX = 240;
+        var PPM = 134;
 
         function hsl(h) {
           return "hsl(" + h + " 78% 58%)";
         }
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+        function maxX(el) {
+          return Math.max(0, track.clientWidth - el.offsetWidth);
+        }
+        function xFromBpm(bpm) {
+          return clamp((bpm - BPM_MIN) / (BPM_MAX - BPM_MIN), 0, 1);
+        }
+        function bpmFromX(x) {
+          return Math.round(BPM_MIN + clamp(x, 0, 1) * (BPM_MAX - BPM_MIN));
+        }
+        function place(el, x) {
+          el.style.left = x * maxX(el) + "px";
+        }
+
         var hMusic = Math.floor(Math.random() * 360);
         var hSteps = (hMusic + 90 + Math.floor(Math.random() * 140)) % 360;
         music.style.background = hsl(hMusic);
@@ -788,37 +829,41 @@
         steps.style.background = hsl(hSteps);
         steps.style.boxShadow = "0 0 10px " + hsl(hSteps);
 
+        var runnerX = xFromBpm(PPM);
+        place(steps, runnerX);
+
+        var musicX = xFromBpm(90);
+        place(music, musicX);
+        bpmEl.textContent = String(bpmFromX(musicX));
+
         if (reduce) return;
 
-        var dots = [
-          { el: music, x: 0.12, v: 0.28 + Math.random() * 0.55 },
-          { el: steps, x: 0.68, v: -(0.22 + Math.random() * 0.6) }
-        ];
+        var v = (Math.random() < 0.5 ? -1 : 1) * (0.22 + Math.random() * 0.45);
         var last = 0;
 
-        function maxX(el) {
-          return Math.max(0, track.clientWidth - el.offsetWidth);
-        }
         function tick(ts) {
           if (!last) last = ts;
           var dt = Math.min(0.05, (ts - last) / 1000);
           last = ts;
-          dots.forEach(function (d) {
-            d.x += d.v * dt;
-            if (d.x <= 0) {
-              d.x = 0;
-              d.v = 0.18 + Math.random() * 0.7;
-            } else if (d.x >= 1) {
-              d.x = 1;
-              d.v = -(0.18 + Math.random() * 0.7);
-            } else if (Math.random() < 0.012) {
-              d.v += (Math.random() - 0.5) * 0.5;
-              if (Math.abs(d.v) < 0.12) d.v = (d.v < 0 ? -1 : 1) * (0.18 + Math.random() * 0.4);
-            }
-            d.el.style.left = d.x * maxX(d.el) + "px";
-          });
+          musicX += v * dt;
+          if (musicX <= 0) {
+            musicX = 0;
+            v = 0.18 + Math.random() * 0.55;
+          } else if (musicX >= 1) {
+            musicX = 1;
+            v = -(0.18 + Math.random() * 0.55);
+          } else if (Math.random() < 0.018) {
+            v = (v < 0 ? 1 : -1) * (0.16 + Math.random() * 0.6);
+          }
+          place(steps, runnerX);
+          place(music, musicX);
+          bpmEl.textContent = String(bpmFromX(musicX));
           requestAnimationFrame(tick);
         }
+        window.addEventListener("resize", function () {
+          place(steps, runnerX);
+          place(music, musicX);
+        });
         requestAnimationFrame(tick);
       })();
 
@@ -845,7 +890,7 @@
         var ppm = 134;
         var height = 170;
         var dragging = false;
-        var unit = "allure";
+        var unit = "ppm";
 
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));

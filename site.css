@@ -197,6 +197,15 @@ nav.links {
   .store-badge-bar img {
     height: 28px;
   }
+  .foot-label { display: none; }
+  footer {
+    justify-content: center;
+    gap: 1.15rem 1.35rem;
+  }
+  footer .foot-link .ico {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
 }
 @media (max-width: 480px) {
   .app-bar-inner p { display: none; }
@@ -583,6 +592,31 @@ footer a:hover { color: var(--accent); }
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
+.beat-pair {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 0.25rem 0.4rem;
+  margin: 0 0 0.75rem;
+  text-align: center;
+}
+.beat-value {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.beat-label {
+  margin: 0.28rem 0 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .beat-unit {
   color: var(--muted);
   font-size: 0.62rem;
@@ -593,6 +627,12 @@ footer a:hover { color: var(--accent); }
 .beat-op {
   margin: 0 0.15rem;
   color: #ff8f8f;
+}
+.beat-pair .beat-op {
+  margin: 0 0.15rem 0.85rem;
+  align-self: center;
+  font-size: 1.15rem;
+  font-weight: 800;
 }
 .beat-op-ok {
   color: var(--accent);
@@ -613,6 +653,12 @@ footer a:hover { color: var(--accent); }
   border-radius: 50%;
   left: 8%;
   will-change: left;
+}
+.split-bad .beat-dot-music {
+  z-index: 2;
+}
+.split-bad .beat-dot-steps {
+  z-index: 1;
 }
 .split-good .beat-dot-music,
 .split-good .beat-dot-steps {
@@ -677,19 +723,82 @@ footer a:hover { color: var(--accent); }
 }
 .pace-switch {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.4rem;
+  position: relative;
   margin-top: 1.15rem;
   min-height: 4.5rem;
-  padding: 1.15rem 1.25rem;
+  padding: 1.05rem 0.85rem 0.95rem;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: #111008;
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: var(--accent);
   text-align: center;
+}
+.pace-switch::before {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 1.28rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6b6758, var(--accent));
+}
+.pace-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+}
+.pace-step::before {
+  content: "";
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 4px #111008;
+}
+.pace-step-walk {
+  color: #9a967e;
+  font-size: 0.68rem;
+}
+.pace-step-walk::before {
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-top: 0.28rem;
+}
+.pace-step-jog {
+  color: color-mix(in srgb, var(--accent) 78%, #f4f1e0);
+  font-size: 0.74rem;
+}
+.pace-step-jog::before {
+  width: 0.72rem;
+  height: 0.72rem;
+  margin-top: 0.16rem;
+  background: var(--accent);
+}
+.pace-step-sprint {
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+.pace-step-sprint::before {
+  width: 0.98rem;
+  height: 0.98rem;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px #111008, 0 0 14px rgba(252, 234, 7, 0.45);
+}
+.reveal-stagger.is-in .pace-step-sprint::before {
+  animation: pace-step-pulse 1.8s ease-in-out infinite;
+}
+@keyframes pace-step-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px #111008, 0 0 10px rgba(252, 234, 7, 0.3); }
+  50% { box-shadow: 0 0 0 4px #111008, 0 0 18px rgba(252, 234, 7, 0.7); }
 }
 .pace-mock {
   margin: 0.85rem 0 1.1rem;
@@ -1565,10 +1674,9 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
     transition: none;
   }
   .split.is-in .split-pain-slow,
-  .split.is-in .split-pain-fast {
+  .split.is-in .split-pain-fast,
+  .reveal-stagger.is-in .pace-step-sprint::before {
     animation: none;
   }
   .split-pain-slow { color: #ff8f8f; }
-  .split-bad .beat-dot-music { left: 18%; }
-  .split-bad .beat-dot-steps { left: 62%; }
 }
