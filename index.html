@@ -35,8 +35,10 @@
   <div class="scroll-progress" aria-hidden="true"></div>
   <div class="app-bar">
     <div class="app-bar-inner">
-      <p data-fr>BeatOnStep — Android et iOS</p>
-      <p data-en>BeatOnStep — Android and iOS</p>
+      <div class="app-bar-slot">
+        <p class="app-bar-title" data-fr>BeatOnStep — Android et iOS</p>
+        <p class="app-bar-title" data-en>BeatOnStep — Android and iOS</p>
+      </div>
       <div class="app-bar-actions">
         <a class="store-badge store-badge-bar" data-fr href="https://play.google.com/apps/testing/com.patrick.beatonstep">
           <img src="badges/google-play-fr.svg" width="135" height="40" alt="Disponible sur Google Play" />
@@ -56,8 +58,12 @@
   <div class="wrap">
     <header>
       <div class="brand-row">
-        <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
-        <p class="brand">BeatOnStep</p>
+        <div class="brand-anchor">
+          <div class="brand-lockup">
+            <img src="logo-400.jpg" width="56" height="56" alt="BeatOnStep" />
+            <p class="brand">BeatOnStep</p>
+          </div>
+        </div>
         <div class="lang" role="group" aria-label="Language">
           <button type="button" data-set="fr">FR</button>
           <button type="button" data-set="en">EN</button>
@@ -830,6 +836,99 @@
       progress();
       window.addEventListener("scroll", progress, { passive: true });
       window.addEventListener("resize", progress);
+
+      (function brandDock() {
+        var lockup = document.querySelector(".brand-lockup");
+        var anchor = document.querySelector(".brand-anchor");
+        var slot = document.querySelector(".app-bar-slot");
+        var titles = document.querySelectorAll(".app-bar-title");
+        if (!lockup || !anchor || !slot) return;
+
+        var rest = null;
+        var mq = window.matchMedia("(max-width: 800px)");
+        var DEST_SCALE = 32 / 44;
+
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+        function lerp(a, b, t) {
+          return a + (b - a) * t;
+        }
+        function smooth(t) {
+          return t * t * (3 - 2 * t);
+        }
+
+        function reset() {
+          lockup.classList.remove("is-flying");
+          lockup.style.cssText = "";
+          if (lockup.parentNode !== anchor) anchor.appendChild(lockup);
+          anchor.style.cssText = "";
+          for (var i = 0; i < titles.length; i++) titles[i].style.opacity = "";
+          rest = null;
+        }
+
+        function measure() {
+          if (mq.matches) {
+            reset();
+            return;
+          }
+          lockup.classList.remove("is-flying");
+          lockup.style.cssText = "";
+          var from = lockup.getBoundingClientRect();
+          var to = slot.getBoundingClientRect();
+          anchor.style.width = from.width + "px";
+          anchor.style.height = from.height + "px";
+          rest = {
+            w: from.width,
+            h: from.height,
+            dist: Math.max(24, from.top + window.scrollY - to.top)
+          };
+        }
+
+        function apply() {
+          if (mq.matches) return;
+          if (!rest) measure();
+          if (!rest) return;
+          var from = anchor.getBoundingClientRect();
+          var to = slot.getBoundingClientRect();
+          var p = clamp(1 - (from.top - to.top) / rest.dist, 0, 1);
+          if (reduce) p = p > 0.35 ? 1 : 0;
+          var e = reduce ? p : smooth(p);
+          var scale = lerp(1, DEST_SCALE, e);
+          var destH = rest.h * scale;
+          var x = lerp(from.left, to.left, e);
+          var y = lerp(from.top, to.top + (to.height - destH) / 2, e);
+          lockup.classList.add("is-flying");
+          if (lockup.parentNode !== document.body) document.body.appendChild(lockup);
+          lockup.style.width = rest.w + "px";
+          lockup.style.transform =
+            "translate3d(" + x + "px," + y + "px,0) scale(" + scale + ")";
+          var titleOp = String(clamp(1 - e * 1.45, 0, 1));
+          for (var i = 0; i < titles.length; i++) titles[i].style.opacity = titleOp;
+        }
+
+        measure();
+        apply();
+        window.addEventListener("scroll", apply, { passive: true });
+        window.addEventListener("resize", function () {
+          measure();
+          apply();
+        });
+        if (mq.addEventListener) {
+          mq.addEventListener("change", function () {
+            measure();
+            apply();
+          });
+        }
+        document.querySelectorAll(".lang button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            requestAnimationFrame(function () {
+              measure();
+              apply();
+            });
+          });
+        });
+      })();
 
       (function mismatchDots() {
         var track = document.querySelector(".split-bad .beat-track");
