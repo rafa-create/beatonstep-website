@@ -18,6 +18,17 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="site.css" />
   <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("bos-theme");
+        if (t !== "light" && t !== "dark") t = "dark";
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <script>
     window.BOS_TITLES = {
       fr: "BeatOnStep — musique au rythme de tes pas",
       en: "BeatOnStep — music that matches your stride"
@@ -64,9 +75,21 @@
             <p class="brand">BeatOnStep</p>
           </div>
         </div>
-        <div class="lang" role="group" aria-label="Language">
-          <button type="button" data-set="fr">FR</button>
-          <button type="button" data-set="en">EN</button>
+        <div class="chrome">
+          <div class="theme-pills" role="group" aria-label="Apparence">
+            <button type="button" data-theme-set="dark" aria-pressed="true">
+              <span data-fr>Sombre</span>
+              <span data-en>Dark</span>
+            </button>
+            <button type="button" data-theme-set="light" aria-pressed="false">
+              <span data-fr>Clair</span>
+              <span data-en>Light</span>
+            </button>
+          </div>
+          <div class="lang" role="group" aria-label="Language">
+            <button type="button" data-set="fr">FR</button>
+            <button type="button" data-set="en">EN</button>
+          </div>
         </div>
       </div>
     </header>
@@ -267,7 +290,7 @@
           <p class="pace-kicker" data-en>Fixed</p>
           <h3 data-fr>Tu règles l’allure</h3>
           <h3 data-en>You set the pace</h3>
-          <div class="pace-mock" data-pace-lock data-unit="ppm">
+          <div class="beat-viz beat-viz-lock" data-pace-lock data-unit="ppm">
             <div class="pace-units" role="group" aria-label="Unité / Unit">
               <button type="button" data-unit="ppm" aria-pressed="true">PPM</button>
               <button type="button" data-unit="allure" aria-pressed="false">
@@ -275,24 +298,27 @@
                 <span data-en>Pace</span>
               </button>
             </div>
-            <div class="pace-pair" data-unit="ppm">
-              <div>
-                <p class="pace-value" data-pace-run>134</p>
-                <p class="pace-unit">
+            <div class="beat-pair" data-unit="ppm">
+              <div class="beat-col beat-col-run">
+                <p class="beat-value" data-pace-run>134</p>
+                <p class="beat-label">
                   <span data-fr>coureur · </span>
                   <span data-en>runner · </span>
                   <span data-run-u="allure">min/km</span>
                   <span data-run-u="ppm">PPM</span>
                 </p>
               </div>
-              <div>
-                <p class="pace-value" data-pace-music>134</p>
-                <p class="pace-unit" data-fr>musique · BPM</p>
-                <p class="pace-unit" data-en>music · BPM</p>
+              <span class="beat-op beat-op-ok" aria-hidden="true">=</span>
+              <div class="beat-col beat-col-music">
+                <p class="beat-value" data-pace-music>134</p>
+                <p class="beat-label">
+                  <span data-fr>musique · BPM</span>
+                  <span data-en>music · BPM</span>
+                </p>
               </div>
             </div>
             <div
-              class="pace-slider"
+              class="beat-track"
               role="slider"
               tabindex="0"
               aria-valuemin="40"
@@ -300,8 +326,8 @@
               aria-valuenow="134"
               aria-valuetext="134 PPM, 134 BPM"
             >
-              <span class="pace-slider-fill"></span>
-              <i></i>
+              <span class="beat-dot beat-dot-music" aria-hidden="true"></span>
+              <span class="beat-dot beat-dot-steps" aria-hidden="true"></span>
             </div>
             <label class="pace-height">
               <span data-fr>Ta taille</span>
@@ -310,8 +336,8 @@
               <span>cm</span>
             </label>
           </div>
-          <p data-fr><strong>À gauche ton rythme, à droite le BPM du titre.</strong> Glisse le curseur : même formule que dans l’app.</p>
-          <p data-en><strong>Left is your rhythm, right is the track BPM.</strong> Drag the slider: same formula as the app.</p>
+          <p data-fr><strong>Glisse la pastille jaune</strong> : la verte suit. Même formule que dans l’app.</p>
+          <p data-en><strong>Drag the yellow pill</strong>: the green one follows. Same formula as the app.</p>
           <p class="pace-hint" data-fr>La taille ne sert qu’en Allure, <a href="#faq-formule">pour convertir min/km ↔ PPM</a>.</p>
           <p class="pace-hint" data-en>Height is only for Pace, <a href="#faq-formule">to convert min/km ↔ PPM</a>.</p>
         </article>
@@ -1072,12 +1098,12 @@
         var musicEl = root.querySelector("[data-pace-music]");
         var runEl = root.querySelector("[data-pace-run]");
         var heightEl = root.querySelector("[data-pace-height]");
-        var slider = root.querySelector(".pace-slider");
-        var fill = root.querySelector(".pace-slider-fill");
-        var knob = slider && slider.querySelector("i");
-        var pair = root.querySelector(".pace-pair");
+        var track = root.querySelector(".beat-track");
+        var music = root.querySelector(".beat-dot-music");
+        var steps = root.querySelector(".beat-dot-steps");
+        var pair = root.querySelector(".beat-pair");
         var unitBtns = root.querySelectorAll(".pace-units button");
-        if (!musicEl || !runEl || !heightEl || !slider || !fill || !knob || !pair) return;
+        if (!musicEl || !runEl || !heightEl || !track || !music || !steps || !pair) return;
 
         var K = 0.878;
         var PACE_MIN = 2.5;
@@ -1090,6 +1116,9 @@
         var height = 170;
         var dragging = false;
         var unit = "ppm";
+        var targetX = 0.5;
+        var runnerX = 0.5;
+        var musicX = 0.5;
 
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
@@ -1120,93 +1149,121 @@
         function currentPace() {
           return ppmToPace(ppm, height);
         }
+        function ratioFromPpm() {
+          if (unit === "ppm") return (ppm - PPM_MIN) / (PPM_MAX - PPM_MIN);
+          var pace = clamp(currentPace(), PACE_MIN, PACE_MAX);
+          return (PACE_MAX - pace) / (PACE_MAX - PACE_MIN);
+        }
+        function place(el, x) {
+          el.style.left = clamp(x, 0, 1) * 100 + "%";
+        }
         function sliderLabel() {
           if (unit === "ppm") return "PPM";
           return document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km";
         }
-        function render() {
+        function syncTarget() {
+          targetX = clamp(ratioFromPpm(), 0, 1);
+          if (reduce) {
+            runnerX = targetX;
+            musicX = targetX;
+            drawDots();
+          }
+        }
+        function renderLabels() {
           var pace = currentPace();
           var label = formatPace(pace);
           musicEl.textContent = String(ppm);
           runEl.textContent = unit === "ppm" ? String(ppm) : label;
-          var ratio = unit === "ppm"
-            ? (ppm - PPM_MIN) / (PPM_MAX - PPM_MIN)
-            : (PACE_MAX - clamp(pace, PACE_MIN, PACE_MAX)) / (PACE_MAX - PACE_MIN);
-          var pct = (clamp(ratio, 0, 1) * 100).toFixed(2) + "%";
-          fill.style.width = pct;
-          knob.style.left = pct;
           if (unit === "ppm") {
-            slider.setAttribute("aria-valuemin", String(PPM_MIN));
-            slider.setAttribute("aria-valuemax", String(PPM_MAX));
-            slider.setAttribute("aria-valuenow", String(ppm));
-            slider.setAttribute("aria-valuetext", ppm + " PPM, " + ppm + " BPM");
+            track.setAttribute("aria-valuemin", String(PPM_MIN));
+            track.setAttribute("aria-valuemax", String(PPM_MAX));
+            track.setAttribute("aria-valuenow", String(ppm));
+            track.setAttribute("aria-valuetext", ppm + " PPM, " + ppm + " BPM");
           } else {
-            slider.setAttribute("aria-valuemin", String(PACE_MIN));
-            slider.setAttribute("aria-valuemax", String(PACE_MAX));
-            slider.setAttribute("aria-valuenow", String(Math.round(clamp(pace, PACE_MIN, PACE_MAX) * 20) / 20));
-            slider.setAttribute("aria-valuetext", label + " min/km, " + ppm + " BPM");
+            track.setAttribute("aria-valuemin", String(PACE_MIN));
+            track.setAttribute("aria-valuemax", String(PACE_MAX));
+            track.setAttribute(
+              "aria-valuenow",
+              String(Math.round(clamp(pace, PACE_MIN, PACE_MAX) * 20) / 20)
+            );
+            track.setAttribute("aria-valuetext", label + " min/km, " + ppm + " BPM");
           }
-          slider.setAttribute("aria-label", sliderLabel());
+          track.setAttribute("aria-label", sliderLabel());
           pair.setAttribute("data-unit", unit);
           root.setAttribute("data-unit", unit);
         }
+        function drawDots() {
+          place(steps, runnerX);
+          place(music, musicX);
+        }
         function setFromClientX(x) {
-          var rect = slider.getBoundingClientRect();
+          var rect = track.getBoundingClientRect();
           var t = rect.width ? (x - rect.left) / rect.width : 0.5;
           t = clamp(t, 0, 1);
           if (unit === "ppm") setPpm(PPM_MIN + t * (PPM_MAX - PPM_MIN));
           else setFromPace(PACE_MAX - t * (PACE_MAX - PACE_MIN));
-          render();
+          syncTarget();
+          renderLabels();
         }
         function readHeight() {
           var n = parseInt(heightEl.value, 10);
           if (isNaN(n) || n < HEIGHT_MIN || n > HEIGHT_MAX) return;
           height = n;
-          render();
+          syncTarget();
+          renderLabels();
         }
 
-        slider.addEventListener("pointerdown", function (e) {
+        track.addEventListener("pointerdown", function (e) {
           dragging = true;
-          slider.setPointerCapture(e.pointerId);
-          slider.focus({ preventScroll: true });
+          track.setPointerCapture(e.pointerId);
+          track.focus({ preventScroll: true });
           setFromClientX(e.clientX);
           e.preventDefault();
         });
-        slider.addEventListener("pointermove", function (e) {
+        track.addEventListener("pointermove", function (e) {
           if (!dragging) return;
           setFromClientX(e.clientX);
         });
-        slider.addEventListener("pointerup", function () { dragging = false; });
-        slider.addEventListener("pointercancel", function () { dragging = false; });
-        slider.addEventListener("keydown", function (e) {
+        track.addEventListener("pointerup", function () {
+          dragging = false;
+        });
+        track.addEventListener("pointercancel", function () {
+          dragging = false;
+        });
+        track.addEventListener("keydown", function (e) {
           var paceStep = e.shiftKey ? 15 / 60 : 5 / 60;
           var ppmStep = e.shiftKey ? 5 : 1;
           if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
             if (unit === "ppm") setPpm(ppm - ppmStep);
             else setFromPace(currentPace() + paceStep);
             e.preventDefault();
-            render();
+            syncTarget();
+            renderLabels();
           } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
             if (unit === "ppm") setPpm(ppm + ppmStep);
             else setFromPace(currentPace() - paceStep);
             e.preventDefault();
-            render();
+            syncTarget();
+            renderLabels();
           } else if (e.key === "Home") {
             if (unit === "ppm") setPpm(PPM_MIN);
             else setFromPace(PACE_MAX);
             e.preventDefault();
-            render();
+            syncTarget();
+            renderLabels();
           } else if (e.key === "End") {
             if (unit === "ppm") setPpm(PPM_MAX);
             else setFromPace(PACE_MIN);
             e.preventDefault();
-            render();
+            syncTarget();
+            renderLabels();
           }
         });
         heightEl.addEventListener("input", readHeight);
         heightEl.addEventListener("change", function () {
           heightEl.value = String(height);
-          render();
+          syncTarget();
+          renderLabels();
         });
         unitBtns.forEach(function (btn) {
           btn.addEventListener("click", function () {
@@ -1216,10 +1273,30 @@
             unitBtns.forEach(function (b) {
               b.setAttribute("aria-pressed", b === btn ? "true" : "false");
             });
-            render();
+            syncTarget();
+            renderLabels();
           });
         });
-        render();
+
+        syncTarget();
+        runnerX = targetX;
+        musicX = targetX;
+        renderLabels();
+        drawDots();
+
+        if (reduce) return;
+
+        var last = 0;
+        function tick(ts) {
+          if (!last) last = ts;
+          var dt = Math.min(0.05, (ts - last) / 1000);
+          last = ts;
+          runnerX += (targetX - runnerX) * Math.min(1, dt * 14);
+          musicX += (runnerX - musicX) * Math.min(1, dt * 5.5);
+          drawDots();
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
       })();
 
       (function sources() {
