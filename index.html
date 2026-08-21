@@ -118,7 +118,7 @@
         <article class="split-card split-bad">
           <div class="beat-viz" aria-hidden="true">
             <div class="beat-pair">
-              <div>
+              <div class="beat-col beat-col-music">
                 <p class="beat-value" data-beat-bpm>90</p>
                 <p class="beat-label">
                   <span data-fr>musique · BPM</span>
@@ -126,7 +126,7 @@
                 </p>
               </div>
               <span class="beat-op">≠</span>
-              <div>
+              <div class="beat-col beat-col-run">
                 <p class="beat-value">134</p>
                 <p class="beat-label">
                   <span data-fr>coureur · PPM</span>
@@ -202,19 +202,42 @@
           <h3 data-en>It follows you</h3>
           <p data-fr>Bascule sur le bon tempo.</p>
           <p data-en>Switches to the right tempo.</p>
-          <div class="pace-switch" aria-hidden="true">
-            <span class="pace-step pace-step-walk">
-              <span data-fr>marche</span>
-              <span data-en>walk</span>
-            </span>
-            <span class="pace-step pace-step-jog">
-              <span data-fr>footing</span>
-              <span data-en>jog</span>
-            </span>
-            <span class="pace-step pace-step-sprint">
-              <span data-fr>sprint</span>
-              <span data-en>sprint</span>
-            </span>
+          <div class="beat-viz beat-viz-follow" data-adaptive-follow aria-hidden="true">
+            <div class="beat-pair">
+              <div class="beat-col beat-col-music">
+                <p class="beat-value" data-adapt-bpm>90</p>
+                <p class="beat-label">
+                  <span data-fr>musique · BPM</span>
+                  <span data-en>music · BPM</span>
+                </p>
+              </div>
+              <span class="beat-op beat-op-ok">=</span>
+              <div class="beat-col beat-col-run">
+                <p class="beat-value" data-adapt-ppm>90</p>
+                <p class="beat-label">
+                  <span data-fr>coureur · PPM</span>
+                  <span data-en>runner · PPM</span>
+                </p>
+              </div>
+            </div>
+            <div class="beat-track">
+              <i class="beat-dot beat-dot-music"></i>
+              <i class="beat-dot beat-dot-steps"></i>
+            </div>
+            <div class="pace-scale">
+              <span class="pace-step pace-step-walk is-on">
+                <span data-fr>marche</span>
+                <span data-en>walk</span>
+              </span>
+              <span class="pace-step pace-step-jog">
+                <span data-fr>footing</span>
+                <span data-en>jog</span>
+              </span>
+              <span class="pace-step pace-step-sprint">
+                <span data-fr>sprint</span>
+                <span data-en>sprint</span>
+              </span>
+            </div>
           </div>
         </article>
         <article class="split-card pace-card">
@@ -803,9 +826,6 @@
         var BPM_MAX = 240;
         var PPM = 134;
 
-        function hsl(h) {
-          return "hsl(" + h + " 78% 58%)";
-        }
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
         }
@@ -821,13 +841,6 @@
         function place(el, x) {
           el.style.left = x * maxX(el) + "px";
         }
-
-        var hMusic = Math.floor(Math.random() * 360);
-        var hSteps = (hMusic + 90 + Math.floor(Math.random() * 140)) % 360;
-        music.style.background = hsl(hMusic);
-        music.style.boxShadow = "0 0 10px " + hsl(hMusic);
-        steps.style.background = hsl(hSteps);
-        steps.style.boxShadow = "0 0 10px " + hsl(hSteps);
 
         var runnerX = xFromBpm(PPM);
         place(steps, runnerX);
@@ -863,6 +876,70 @@
         window.addEventListener("resize", function () {
           place(steps, runnerX);
           place(music, musicX);
+        });
+        requestAnimationFrame(tick);
+      })();
+
+      (function adaptiveFollow() {
+        var root = document.querySelector("[data-adaptive-follow]");
+        if (!root) return;
+        var track = root.querySelector(".beat-track");
+        var music = root.querySelector(".beat-dot-music");
+        var steps = root.querySelector(".beat-dot-steps");
+        var bpmEl = root.querySelector("[data-adapt-bpm]");
+        var ppmEl = root.querySelector("[data-adapt-ppm]");
+        var labels = root.querySelectorAll(".pace-step");
+        if (!track || !music || !steps || !bpmEl || !ppmEl) return;
+
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+        function maxX(el) {
+          return Math.max(0, track.clientWidth - el.offsetWidth);
+        }
+        function place(el, x) {
+          el.style.left = x * maxX(el) + "px";
+        }
+        function ppmFromX(x) {
+          return Math.round(90 + clamp(x, 0, 1) * 100);
+        }
+        function setStage(x) {
+          var stage = x < 0.33 ? 0 : x < 0.72 ? 1 : 2;
+          labels.forEach(function (el, i) {
+            el.classList.toggle("is-on", i === stage);
+          });
+        }
+        function draw(runnerX, musicX) {
+          var n = ppmFromX(runnerX);
+          bpmEl.textContent = String(n);
+          ppmEl.textContent = String(n);
+          place(steps, runnerX);
+          place(music, musicX);
+          setStage(runnerX);
+        }
+
+        var runnerX = 0.1;
+        var musicX = 0.1;
+        draw(runnerX, musicX);
+        if (reduce) return;
+
+        var t = 0;
+        var last = 0;
+        var cycle = 7.5;
+        function tick(ts) {
+          if (!last) last = ts;
+          var dt = Math.min(0.05, (ts - last) / 1000);
+          last = ts;
+          t += dt;
+          var u = (t % cycle) / cycle;
+          var wave = 0.5 - 0.5 * Math.cos(u * Math.PI * 2);
+          runnerX = 0.08 + 0.84 * wave;
+          musicX += (runnerX - musicX) * Math.min(1, dt * 3.1);
+          draw(runnerX, musicX);
+          requestAnimationFrame(tick);
+        }
+        window.addEventListener("resize", function () {
+          draw(runnerX, musicX);
         });
         requestAnimationFrame(tick);
       })();
