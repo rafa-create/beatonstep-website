@@ -118,19 +118,19 @@
         <article class="split-card split-bad">
           <div class="beat-viz" aria-hidden="true">
             <div class="beat-pair">
-              <div class="beat-col beat-col-music">
-                <p class="beat-value" data-beat-bpm>90</p>
-                <p class="beat-label">
-                  <span data-fr>musique · BPM</span>
-                  <span data-en>music · BPM</span>
-                </p>
-              </div>
-              <span class="beat-op">≠</span>
               <div class="beat-col beat-col-run">
                 <p class="beat-value">134</p>
                 <p class="beat-label">
                   <span data-fr>coureur · PPM</span>
                   <span data-en>runner · PPM</span>
+                </p>
+              </div>
+              <span class="beat-op">≠</span>
+              <div class="beat-col beat-col-music">
+                <p class="beat-value" data-beat-bpm>90</p>
+                <p class="beat-label">
+                  <span data-fr>musique · BPM</span>
+                  <span data-en>music · BPM</span>
                 </p>
               </div>
             </div>
@@ -146,13 +146,23 @@
         </article>
         <article class="split-card split-good">
           <div class="beat-viz" aria-hidden="true">
-            <p class="beat-read">
-              <span>134</span>
-              <span class="beat-unit">BPM</span>
+            <div class="beat-pair">
+              <div class="beat-col beat-col-run">
+                <p class="beat-value">134</p>
+                <p class="beat-label">
+                  <span data-fr>coureur · PPM</span>
+                  <span data-en>runner · PPM</span>
+                </p>
+              </div>
               <span class="beat-op beat-op-ok">=</span>
-              <span>134</span>
-              <span class="beat-unit">PPM</span>
-            </p>
+              <div class="beat-col beat-col-music">
+                <p class="beat-value">134</p>
+                <p class="beat-label">
+                  <span data-fr>musique · BPM</span>
+                  <span data-en>music · BPM</span>
+                </p>
+              </div>
+            </div>
             <div class="beat-track">
               <span class="beat-dot beat-dot-music"></span>
               <span class="beat-dot beat-dot-steps"></span>
@@ -204,17 +214,6 @@
           <p data-en>Switches to the right tempo.</p>
           <div class="beat-viz beat-viz-follow" data-adaptive-follow>
             <div class="beat-pair">
-              <div class="beat-col beat-col-music">
-                <p class="beat-value beat-value-fit" data-adapt-music>
-                  <span data-stage="0" class="is-on" data-fr>Musique douce</span>
-                  <span data-stage="0" class="is-on" data-en>Soft music</span>
-                  <span data-stage="1" data-fr>Musique rapide</span>
-                  <span data-stage="1" data-en>Fast music</span>
-                  <span data-stage="2" data-fr>Musique très rapide</span>
-                  <span data-stage="2" data-en>Very fast music</span>
-                </p>
-              </div>
-              <span class="beat-op beat-op-ok" aria-hidden="true">=</span>
               <div class="beat-col beat-col-run">
                 <p class="beat-value beat-value-fit" data-adapt-run>
                   <span data-stage="0" class="is-on" data-fr>Marche</span>
@@ -223,6 +222,17 @@
                   <span data-stage="1" data-en>Fast run</span>
                   <span data-stage="2" data-fr>Sprint</span>
                   <span data-stage="2" data-en>Sprint</span>
+                </p>
+              </div>
+              <span class="beat-op beat-op-ok" aria-hidden="true">=</span>
+              <div class="beat-col beat-col-music">
+                <p class="beat-value beat-value-fit" data-adapt-music>
+                  <span data-stage="0" class="is-on" data-fr>Musique douce</span>
+                  <span data-stage="0" class="is-on" data-en>Soft music</span>
+                  <span data-stage="1" data-fr>Musique rapide</span>
+                  <span data-stage="1" data-en>Fast music</span>
+                  <span data-stage="2" data-fr>Musique très rapide</span>
+                  <span data-stage="2" data-en>Very fast music</span>
                 </p>
               </div>
             </div>
@@ -261,11 +271,6 @@
             </div>
             <div class="pace-pair" data-unit="ppm">
               <div>
-                <p class="pace-value" data-pace-music>134</p>
-                <p class="pace-unit" data-fr>musique · BPM</p>
-                <p class="pace-unit" data-en>music · BPM</p>
-              </div>
-              <div>
                 <p class="pace-value" data-pace-run>134</p>
                 <p class="pace-unit">
                   <span data-fr>coureur · </span>
@@ -273,6 +278,11 @@
                   <span data-run-u="allure">min/km</span>
                   <span data-run-u="ppm">PPM</span>
                 </p>
+              </div>
+              <div>
+                <p class="pace-value" data-pace-music>134</p>
+                <p class="pace-unit" data-fr>musique · BPM</p>
+                <p class="pace-unit" data-en>music · BPM</p>
               </div>
             </div>
             <div
@@ -294,8 +304,8 @@
               <span>cm</span>
             </label>
           </div>
-          <p data-fr><strong>À gauche le BPM du titre, à droite ton rythme.</strong> Glisse le curseur : même formule que dans l’app.</p>
-          <p data-en><strong>Left is the track BPM, right is your rhythm.</strong> Drag the slider: same formula as the app.</p>
+          <p data-fr><strong>À gauche ton rythme, à droite le BPM du titre.</strong> Glisse le curseur : même formule que dans l’app.</p>
+          <p data-en><strong>Left is your rhythm, right is the track BPM.</strong> Drag the slider: same formula as the app.</p>
           <p class="pace-hint" data-fr>La taille ne sert qu’en Allure, <a href="#faq-formule">pour convertir min/km ↔ PPM</a>.</p>
           <p class="pace-hint" data-en>Height is only for Pace, <a href="#faq-formule">to convert min/km ↔ PPM</a>.</p>
         </article>

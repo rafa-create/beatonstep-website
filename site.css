@@ -4,6 +4,8 @@
   --ink: #f4f1e0;
   --muted: #b8b49a;
   --accent: #fcea07;
+  --music: #2e9a52;
+  --music-glow: rgba(46, 154, 82, 0.7);
   --line: rgba(252, 234, 7, 0.22);
   --section-gap: 4.25rem;
 }
@@ -620,7 +622,7 @@ footer a:hover { color: var(--accent); }
   text-transform: uppercase;
 }
 .split-card .beat-col-music p {
-  color: #5fd47a;
+  color: var(--music);
 }
 .split-card .beat-col-run p {
   color: var(--accent);
@@ -691,8 +693,8 @@ footer a:hover { color: var(--accent); }
 .split-bad .beat-dot-music,
 .beat-viz-follow .beat-dot-music {
   z-index: 2;
-  background: #5fd47a;
-  box-shadow: 0 0 0 1px #5fd47a, 0 0 12px rgba(95, 212, 122, 0.7);
+  background: var(--music);
+  box-shadow: 0 0 0 1px var(--music), 0 0 12px var(--music-glow);
 }
 .split-bad .beat-dot-steps,
 .beat-viz-follow .beat-dot-steps {
@@ -715,8 +717,8 @@ footer a:hover { color: var(--accent); }
 }
 .split-good .beat-dot-music {
   z-index: 2;
-  background: #5fd47a;
-  box-shadow: 0 0 0 1px #5fd47a, 0 0 12px rgba(95, 212, 122, 0.7);
+  background: var(--music);
+  box-shadow: 0 0 0 1px var(--music), 0 0 12px var(--music-glow);
 }
 .split-bad {
   border: 1px solid rgba(255, 92, 92, 0.45);
