@@ -97,8 +97,15 @@
     <section class="hero" id="main">
       <div class="hero-bg" aria-hidden="true">
         <img
-          class="hero-runner"
+          class="hero-runner hero-runner-dark"
           src="hero-runner.webp"
+          width="680"
+          height="1170"
+          alt=""
+        />
+        <img
+          class="hero-runner hero-runner-light"
+          src="hero-runner-light.webp"
           width="680"
           height="1170"
           alt=""
@@ -848,15 +855,17 @@
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       document.documentElement.classList.add("js");
       var bar = document.querySelector(".scroll-progress");
-      var runner = document.querySelector(".hero-runner");
+      var runners = document.querySelectorAll(".hero-runner");
       function progress() {
         if (!bar) return;
         var max = document.documentElement.scrollHeight - window.innerHeight;
         var p = max > 0 ? window.scrollY / max : 0;
         bar.style.transform = "scaleX(" + Math.min(1, Math.max(0, p)) + ")";
-        if (runner && !reduce) {
+        if (runners.length && !reduce) {
           var y = Math.min(14, window.scrollY * 0.06);
-          runner.style.transform = "translate3d(0," + y + "px,0)";
+          runners.forEach(function (runner) {
+            runner.style.transform = "translate3d(0," + y + "px,0)";
+          });
         }
       }
       progress();

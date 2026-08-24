@@ -11,6 +11,7 @@ html[data-theme="dark"] {
   --music-glow: rgba(46, 154, 82, 0.7);
   --line: rgba(252, 234, 7, 0.22);
   --on-accent: #1a1a08;
+  --accent-glow: rgba(252, 234, 7, 0.7);
   --danger: #ff8f8f;
   --track: rgba(244, 241, 224, 0.1);
   --section-gap: 4.25rem;
@@ -22,12 +23,13 @@ html[data-theme="light"] {
   --fill: #ece9dc;
   --ink: #1c1b14;
   --muted: #5e5a4b;
-  --accent: #fcea07;
+  --accent: #b8960a;
   --emphasis: #1c1b14;
   --music: #2d6b38;
   --music-glow: rgba(45, 107, 56, 0.35);
   --line: rgba(28, 27, 20, 0.14);
   --on-accent: #1c1b14;
+  --accent-glow: rgba(184, 150, 10, 0.35);
   --danger: #b42318;
   --track: rgba(28, 27, 20, 0.08);
   color-scheme: light;
@@ -493,12 +495,12 @@ a.btn-ghost:visited {
   text-align: left;
   vertical-align: top;
 }
-#content th { background: rgba(252, 234, 7, 0.1); }
+#content th { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 #content blockquote {
   margin: 1rem 0;
   padding: 0.75rem 1rem;
   border-left: 3px solid var(--accent);
-  background: rgba(252, 234, 7, 0.06);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
   color: var(--muted);
 }
 .legal-note { margin: 0 0 0.85rem; font-size: 0.9rem; }
@@ -547,6 +549,9 @@ footer a:hover { color: var(--accent); }
   height: auto;
   will-change: transform;
 }
+.hero-runner-light { display: none; }
+html[data-theme="light"] .hero-runner-dark { display: none; }
+html[data-theme="light"] .hero-runner-light { display: block; }
 .hero-copy {
   grid-column: 1;
   grid-row: 1;
@@ -594,7 +599,7 @@ footer a:hover { color: var(--accent); }
   background: #0a0a06;
   border: 1px solid var(--line);
   box-shadow:
-    0 0 0 1px rgba(252, 234, 7, 0.08),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
     0 24px 60px rgba(0, 0, 0, 0.45);
 }
 .phone img {
@@ -800,7 +805,7 @@ footer a:hover { color: var(--accent); }
 .beat-viz-follow .beat-dot-steps {
   z-index: 1;
   background: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(252, 234, 7, 0.7);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
 }
 .split-good .beat-dot-music,
 .split-good .beat-dot-steps {
@@ -813,7 +818,7 @@ footer a:hover { color: var(--accent); }
   height: 1.15rem;
   margin-top: -0.575rem;
   background: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(252, 234, 7, 0.7);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
 }
 .split-good .beat-dot-music {
   z-index: 2;
@@ -932,7 +937,7 @@ footer a:hover { color: var(--accent); }
   height: 1.15rem;
   margin-top: -0.575rem;
   background: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(252, 234, 7, 0.7);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
   pointer-events: none;
 }
 .beat-viz-lock .beat-pair[data-unit="allure"] [data-run-u="ppm"],

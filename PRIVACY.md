@@ -1,203 +1,312 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 21 août 2026
+**Dernière mise à jour :** 24 août 2026
+
+---
+
+*[English version below — Privacy Policy in English](#privacy-policy--beatonstep-english)*
+
+---
 
 ## 1. Qui sommes-nous
 
-BeatOnStep est une application Android de course/marche rythmée qui adapte la musique au rythme de vos foulées. Cette politique décrit quelles données l'application traite et comment.
+BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible en accès anticipé sur **Google Play** (test interne) et sur **Apple TestFlight**.
 
 **Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
-## 2. Données collectées (principe)
+## 2. Principe général : pas de collecte éditeur
 
-**L’éditeur BeatOnStep ne collecte pas de compte utilisateur BeatOnStep, n’utilise pas de publicité, ni d’analytique / tracking commercial.** Aucune donnée de cadence (PPM), de parcours GPS ou de bibliothèque locale n’est envoyée à l’éditeur à des fins marketing.
+BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'intègre **pas d'analytique ou de tracking commercial**. Aucune donnée de cadence (PPM), de parcours, ni de bibliothèque musicale n'est envoyée à l'éditeur à des fins marketing ou de profilage.
 
-Selon les fonctions que **vous** activez, l’application peut toutefois échanger des données avec **des services que vous choisissez** (Google / YouTube, serveur musique optionnel) ou avec l’infrastructure de mises à jour (Expo). Détail ci-dessous.
+Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services tiers que **vous choisissez** (Google / YouTube, Spotify) ou avec des infrastructures techniques nécessaires à son fonctionnement (serveur mix, mises à jour). Le détail figure ci-dessous.
 
 ## 3. Fonctionnalités et flux de données
 
-### 3.1 Bibliothèque locale (fichiers audio sur l’appareil)
+### 3.1 Fichiers audio locaux (Musiques téléphone)
 
 - Les fichiers que vous importez restent **sur votre appareil**.
-- Métadonnées associées (chemin, BPM saisi ou détecté, préférences) : stockage **local uniquement**.
-- Aucune obligation d’envoyer ces fichiers hors de l’appareil pour utiliser la détection de cadence et la lecture locale.
+- Les métadonnées associées (chemin, BPM, préférences) sont stockées **localement uniquement**.
+- Aucun fichier audio n'est envoyé hors de l'appareil pour la détection de cadence ni la lecture locale, sauf si vous déclenchez l'analyse BPM serveur (§ 3.3).
 
 ### 3.2 Détection de cadence (PPM)
 
-- L’accéléromètre / capteurs de mouvement sont lus **sur l’appareil** pour estimer votre cadence.
-- Ces mesures **ne sont pas transmises** à l’éditeur ni à un serveur BeatOnStep à des fins de profilage.
-- Elles servent uniquement au fonctionnement temps réel de l’app (proposition / lancement de musique adaptée).
+- L'accéléromètre est lu **sur l'appareil** pour estimer votre cadence de pas.
+- Ces mesures **ne sont pas transmises** à l'éditeur ni à un serveur BeatOnStep.
+- Elles servent uniquement au fonctionnement temps réel de l'app (sélection et lecture de musique adaptée à votre rythme).
 
-### 3.3 YouTube Music (optionnel, connexion Google)
+### 3.3 Mix inclus et serveur musique (optionnel)
+
+Le catalogue de démo (77 morceaux libres de droits) est hébergé sur un serveur de l'éditeur (`https://beatonstep.tail09d8d8.ts.net/music`).
+
+- Ce serveur **n'est pas un réseau social** ni un service public : il sert uniquement le catalogue de démo.
+- Pas de création de compte, pas de cookie publicitaire, pas de télémétrie marketing.
+- Si vous envoyez un fichier audio pour **analyse BPM**, ce fichier transite par le serveur pour traitement ; il n'est pas conservé à des fins de stockage permanent ni revendu.
+
+### 3.4 YouTube Music (optionnel)
 
 Si vous connectez un compte Google pour utiliser YouTube Music dans BeatOnStep :
 
-- L’app utilise **OAuth 2.0 (PKCE)** avec un Client ID Android public ; **aucun client secret** n’est embarqué dans l’application.
-- Des **jetons d’accès / rafraîchissement** sont stockés **localement** sur l’appareil (espace privé de l’app).
-- L’app interroge les **API Google / YouTube Data** (ex. listes de lecture, métadonnées de vidéos / titres) **au nom de votre compte**, uniquement pour afficher et proposer de la musique.
-- La **lecture** s’effectue en ouvrant / s’appuyant sur l’écosystème YouTube (ex. application YouTube) ; BeatOnStep ne reçoit pas votre mot de passe Google.
-- Vous pouvez **déconnecter** YouTube dans l’app : les jetons locaux sont alors effacés.
-- Le traitement de votre compte Google / YouTube est aussi régi par les politiques de **Google** ; BeatOnStep n’est pas l’éditeur de YouTube.
+- L'app utilise **OAuth 2.0 (PKCE)** avec un Client ID Android public ; **aucun secret client** n'est embarqué dans l'application.
+- Les **jetons d'accès / rafraîchissement** sont stockés **localement** sur l'appareil (espace privé de l'app) et ne sont jamais envoyés à l'éditeur.
+- L'app interroge les **API Google / YouTube Data** (playlists, métadonnées) uniquement pour afficher et proposer de la musique.
+- La lecture s'effectue via l'écosystème YouTube ; BeatOnStep ne reçoit pas votre mot de passe Google.
+- Vous pouvez **déconnecter** YouTube dans l'app à tout moment : les jetons locaux sont alors effacés.
+- Le traitement de votre compte Google est aussi régi par les politiques de **Google** ; BeatOnStep n'est pas l'éditeur de YouTube.
 
-Spotify peut être proposé en **bêta limitée** (quelques comptes ajoutés à la main par l’éditeur, via OAuth Spotify). Deezer n’est pas proposé dans la configuration Play Store actuelle.
+### 3.5 Spotify (bêta limitée, optionnel)
 
-### 3.4 Serveur musique personnel (optionnel)
+Spotify peut être proposé en accès très limité (quelques comptes ajoutés manuellement par l'éditeur, via OAuth Spotify). Le fonctionnement est analogue à YouTube Music : authentification OAuth, stockage local des jetons, pas de transmission à l'éditeur.
 
-- L’app peut se connecter à un serveur privé de l’éditeur (`https://beatonstep.tail09d8d8.ts.net/music`) pour lister des morceaux de démonstration et, le cas échéant, **analyser le tempo (BPM)** d’un fichier audio que vous envoyez pour analyse.
-- Ce serveur **n’est pas un réseau social** ni un service public d’analytique : usage éditeur / catalogue de démo.
-- Pas de création de compte utilisateur BeatOnStep, pas de cookie publicitaire, pas de télémétrie marketing sur ce serveur.
-- Les fichiers envoyés pour analyse BPM ne sont pas destinés à un stockage permanent ni à une revente.
+### 3.6 Mises à jour (Expo OTA)
 
-### 3.5 Mises à jour de l’application (Expo)
+L'app peut contacter les services **Expo** pour vérifier et télécharger des mises à jour JavaScript liées à votre installation. Il ne s'agit pas d'un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n'est envoyée via ce canal.
 
-- L’app peut contacter les services **Expo** pour vérifier / télécharger des mises à jour JavaScript (OTA) liées à votre installation.
-- Cela ne constitue pas un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n’est envoyée à l’éditeur via ce canal à des fins commerciales.
+## 4. Permissions demandées
 
-## 4. Permissions Android demandées
+### Android
 
 | Permission | Raison |
 |------------|--------|
-| `HIGH_SAMPLING_RATE_SENSORS` | Lecture de l’accéléromètre à haute fréquence pour détecter votre cadence de pas (PPM). |
+| `HIGH_SAMPLING_RATE_SENSORS` | Lecture de l'accéléromètre à haute fréquence pour détecter la cadence de pas (PPM). |
 | `FOREGROUND_SERVICE` | Maintenir la lecture musicale et la détection de cadence en arrière-plan (téléphone verrouillé). |
 | `WAKE_LOCK` | Limiter la mise en veille du capteur pendant une session. |
 
-Aucune permission n’accède à votre position GPS, vos contacts, vos photos, votre microphone ou votre caméra pour le fonctionnement décrit ci-dessus. L’accès à des fichiers audio locaux se fait via les mécanismes système de sélection / bibliothèque lorsque vous importez de la musique.
+### iOS (TestFlight)
 
-## 5. Stockage local
+BeatOnStep demande uniquement l'accès aux **capteurs de mouvement** (accéléromètre) pour la détection de cadence. Sur iOS, cet accès est géré par le framework natif sans permission explicite demandée à l'utilisateur.
 
-Sur votre appareil, dans l’espace privé de l’app, peuvent figurer notamment :
+L'accès à la **médiathèque** (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.
 
-- Bibliothèque importée (chemins, BPM, sources).
-- Préférences (mode marche/course, plages cibles, réglages YouTube, etc.).
-- Jetons OAuth YouTube (si vous êtes connecté).
+**Aucune permission** n'accède à votre position GPS, vos contacts, votre appareil photo ou votre microphone.
 
-La **désinstallation** de l’application supprime en principe ces données locales. La déconnexion YouTube efface les jetons sans désinstaller l’app.
+## 5. Données stockées localement
+
+Sur votre appareil, dans l'espace privé de l'app :
+
+- Bibliothèque importée (chemins, BPM, sources activées).
+- Préférences (mode, plages cibles, réglages, langue).
+- Jetons OAuth YouTube / Spotify (si connecté).
+
+La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Spotify) efface les jetons correspondants sans désinstaller l'app.
 
 ## 6. Services tiers
 
-| Service | Quand | Données concernées (résumé) |
-|---------|--------|-----------------------------|
-| **Google / YouTube** | Si vous connectez YouTube Music | Authentification OAuth ; requêtes API playlists / métadonnées ; lecture via YouTube |
-| **Serveur musique BeatOnStep** | Si vous utilisez le catalogue / l’analyse BPM serveur | Liste de titres ; éventuel envoi audio pour BPM |
-| **Expo (mises à jour)** | Automatique selon config de l’app | Vérification / téléchargement de mises à jour OTA |
+| Service | Quand | Ce qui transite |
+|---------|-------|-----------------|
+| **Google / YouTube** | Si vous connectez YouTube Music | Authentification OAuth ; requêtes API playlists / métadonnées |
+| **Apple (TestFlight)** | Distribution iOS en accès anticipé | Gestion de la version bêta par Apple selon ses propres règles |
+| **Expo** | Automatique | Vérification / téléchargement de mises à jour OTA |
+| **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
+| **Spotify** | Si activé en bêta | Authentification OAuth ; métadonnées playlists |
 
-**Pas de** SDK de publicité, de mesure d’audience marketing, ni de réseau social intégré hors le parcours YouTube que vous déclenchez.
+Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que le parcours OAuth que vous déclenchez.
 
 ## 7. Enfants
 
-L’application n’est pas spécifiquement destinée aux enfants de moins de 13 ans et ne collecte sciemment aucune donnée les concernant.
+L'application n'est pas destinée aux enfants de moins de 13 ans (16 ans dans l'UE) et ne collecte sciemment aucune donnée les concernant.
 
-## 8. Vos droits (RGPD)
+## 8. Vos droits (RGPD / vie privée)
 
-- Données **uniquement locales** (bibliothèque, réglages, jetons) : vous les contrôlez via l’app (ex. déconnexion YouTube) ou la désinstallation.
-- Compte **Google / YouTube** : exercez vos droits auprès de Google selon leurs procédures.
-- Serveur musique de l’éditeur : pas de compte utilisateur BeatOnStep ; pour toute question, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **Données locales** (bibliothèque, réglages, jetons) : vous les contrôlez directement dans l'app ou via la désinstallation.
+- **Compte Google / YouTube** : exercez vos droits auprès de Google selon leurs procédures.
+- **Compte Spotify** : exercez vos droits auprès de Spotify.
+- **Serveur musique** : pas de compte utilisateur BeatOnStep ; pour toute question, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
 
-Cette politique peut être mise à jour. La date en haut du document reflète la dernière révision. La version courante est disponible à l’URL publique communiquée sur la fiche Google Play (Gist) et dans l’app (*Réglages → À propos*).
+Cette politique peut être mise à jour. La date en haut du document reflète la dernière révision. La version en vigueur est disponible à l'adresse communiquée sur la fiche **Google Play** et dans l'app (*Réglages → À propos*) :
 
-## 10. Crédits musicaux (catalogue serveur)
+**https://rafa-create.github.io/beatonstep-website/privacy.html**
 
-Le catalogue de démonstration servi par le mode serveur (cf. § 3.4) est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
-
-### Attribution générale
-
-> *Music : tracks by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)) — licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).*
-
-Les fichiers audio sont servis sans modification du contenu original (l’analyse BPM est purement informationnelle et ne modifie pas les fichiers).
-
-### Détail des 77 morceaux du catalogue
-
-Tous par **Kevin MacLeod**, tous sous **CC-BY 4.0**, hébergés à l’origine sur [incompetech.com/music/royalty-free/](https://incompetech.com/music/royalty-free/). Les BPM listés sont ceux mesurés par l’algorithme `librosa.beat.beat_track` du serveur BeatOnStep (seuil de confidence ≥ 0,77, mesures du 2026-05-22 et 2026-05-24).
-
-| Titre | BPM mesuré | Source |
-|-------|-----------:|--------|
-| Backbay Lounge | 117 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Backbay%20Lounge.mp3) |
-| Big Mojo | 105 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Big%20Mojo.mp3) |
-| Black Vortex | 161 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Black%20Vortex.mp3) |
-| Blippy Trance | 199 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Blippy%20Trance.mp3) |
-| Brittle Rille | 74 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Brittle%20Rille.mp3) |
-| Bumbly March | 93 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Bumbly%20March.mp3) |
-| Cambodian Odyssey | 110 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cambodian%20Odyssey.mp3) |
-| Carefree | 185 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3) |
-| Carpe Diem | 185 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carpe%20Diem.mp3) |
-| Cipher2 | 152 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cipher2.mp3) |
-| Cold Funk | 110 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cold%20Funk.mp3) |
-| Comfortable Mystery | 136 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Comfortable%20Mystery.mp3) |
-| Comparsa | 87 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Comparsa.mp3) |
-| Cool Vibes | 83 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cool%20Vibes.mp3) |
-| Crinoline Dreams | 117 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Crinoline%20Dreams.mp3) |
-| Deliberate Thought | 114 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Deliberate%20Thought.mp3) |
-| Disco con Tutti | 117 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Disco%20con%20Tutti.mp3) |
-| District Four | 123 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/District%20Four.mp3) |
-| Dreams Become Real | 114 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Dreams%20Become%20Real.mp3) |
-| Dreamy Flashback | 108 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Dreamy%20Flashback.mp3) |
-| Easy Jam | 161 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Easy%20Jam.mp3) |
-| Easy Lemon | 82 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Easy%20Lemon.mp3) |
-| EDM Detection Mode | 129 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/EDM%20Detection%20Mode.mp3) |
-| Electrodoodle | 161 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Electrodoodle.mp3) |
-| Fast Talkin | 136 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fast%20Talkin.mp3) |
-| Fearless First | 102 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fearless%20First.mp3) |
-| Floating Cities | 123 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Floating%20Cities.mp3) |
-| Fluffing a Duck | 82 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluffing%20a%20Duck.mp3) |
-| Folk Round | 114 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Folk%20Round.mp3) |
-| Funkorama | 133 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Funkorama.mp3) |
-| Funky Chunk | 117 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Funky%20Chunk.mp3) |
-| Furious Freak | 75 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Furious%20Freak.mp3) |
-| Hep Cats | 116 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hep%20Cats.mp3) |
-| Hidden Agenda | 129 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hidden%20Agenda.mp3) |
-| Hyperfun | 199 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hyperfun.mp3) |
-| Industrial Cinematic | 99 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Industrial%20Cinematic.mp3) |
-| Industrial Music Box | 70 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Industrial%20Music%20Box.mp3) |
-| Intrepid | 75 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Intrepid.mp3) |
-| Investigations | 98 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Investigations.mp3) |
-| Jaunty Gumption | 144 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Jaunty%20Gumption.mp3) |
-| Local Forecast | 98 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Local%20Forecast.mp3) |
-| Local Forecast - Elevator | 108 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Local%20Forecast%20-%20Elevator.mp3) |
-| Long Stroll | 99 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Long%20Stroll.mp3) |
-| Marty Gots a Plan | 136 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Marty%20Gots%20a%20Plan.mp3) |
-| Mining by Moonlight | 105 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Mining%20by%20Moonlight.mp3) |
-| Modern Jazz Samba | 115 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Modern%20Jazz%20Samba.mp3) |
-| Monkeys Spinning Monkeys | 116 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3) |
-| Moonlight Hall | 136 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Moonlight%20Hall.mp3) |
-| Mountain Emperor | 102 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Mountain%20Emperor.mp3) |
-| Movement Proposition | 106 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Movement%20Proposition.mp3) |
-| Off to Osaka | 117 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Off%20to%20Osaka.mp3) |
-| Olde Timey | 90 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Olde%20Timey.mp3) |
-| One-eyed Maestro | 116 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/One-eyed%20Maestro.mp3) |
-| Onion Capers | 89 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Onion%20Capers.mp3) |
-| Pamgaea | 185 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pamgaea.mp3) |
-| Pixelland | 108 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pixelland.mp3) |
-| Plain Loafer | 116 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Plain%20Loafer.mp3) |
-| Plans in Motion | 129 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Plans%20in%20Motion.mp3) |
-| Pop Goes the Weasel | 65 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pop%20Goes%20the%20Weasel.mp3) |
-| Rite of Passage | 129 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Rite%20of%20Passage.mp3) |
-| Rocket Power | 127 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Rocket%20Power.mp3) |
-| Run Amok | 144 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Run%20Amok.mp3) |
-| Salty Ditty | 120 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Salty%20Ditty.mp3) |
-| Severe Tire Damage | 144 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Severe%20Tire%20Damage.mp3) |
-| Slow Burn | 161 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Slow%20Burn.mp3) |
-| Sneaky Adventure | 108 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Adventure.mp3) |
-| Sneaky Snitch | 88 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3) |
-| Spy Glass | 68 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Spy%20Glass.mp3) |
-| Tabuk | 108 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Tabuk.mp3) |
-| The Builder | 123 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Builder.mp3) |
-| The Cannery | 172 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Cannery.mp3) |
-| The Lift | 136 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Lift.mp3) |
-| The Show Must Be Go | 127 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Show%20Must%20Be%20Go.mp3) |
-| Volatile Reaction | 144 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Volatile%20Reaction.mp3) |
-| Voltaic | 123 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Voltaic.mp3) |
-| Wallpaper | 185 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wallpaper.mp3) |
-| Welcome to the Show | 123 | [incompetech.com](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Welcome%20to%20the%20Show.mp3) |
-
-## 11. Contact
-
-Pour toute question concernant cette politique de confidentialité :
+## 10. Contact
 
 - **Éditeur :** Rafael Orset
 - **Forum :** [github.com/rafa-create/beatonstep-website/discussions/1](https://github.com/rafa-create/beatonstep-website/discussions/1)
-- **Dépôt source :** https://github.com/rafa-create/BeatOnStep
-- **Version publique (Play / app) :** https://rafa-create.github.io/beatonstep-website/privacy.html  
-  Accueil / présentation : https://rafa-create.github.io/beatonstep-website/  
-  (repo public [`beatonstep-website`](https://github.com/rafa-create/beatonstep-website) + GitHub Pages. Archive Gist : https://gist.github.com/rafa-create/64aec3d741830bc11fb4d6e1f2aa8fbc)
+
+---
+
+## 11. Crédits musicaux (catalogue mix inclus)
+
+Le catalogue de démo est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
+
+> *Music: tracks by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)) — licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).*
+
+Les BPM listés sont mesurés par l'algorithme `librosa.beat.beat_track` (seuil de confiance ≥ 0,77, mesures de mai 2026).
+
+| Titre | BPM | Titre | BPM |
+|-------|----:|-------|----:|
+| Backbay Lounge | 117 | Jaunty Gumption | 144 |
+| Big Mojo | 105 | Local Forecast | 98 |
+| Black Vortex | 161 | Local Forecast - Elevator | 108 |
+| Blippy Trance | 199 | Long Stroll | 99 |
+| Brittle Rille | 74 | Marty Gots a Plan | 136 |
+| Bumbly March | 93 | Mining by Moonlight | 105 |
+| Cambodian Odyssey | 110 | Modern Jazz Samba | 115 |
+| Carefree | 185 | Monkeys Spinning Monkeys | 116 |
+| Carpe Diem | 185 | Moonlight Hall | 136 |
+| Cipher2 | 152 | Mountain Emperor | 102 |
+| Cold Funk | 110 | Movement Proposition | 106 |
+| Comfortable Mystery | 136 | Off to Osaka | 117 |
+| Comparsa | 87 | Olde Timey | 90 |
+| Cool Vibes | 83 | One-eyed Maestro | 116 |
+| Crinoline Dreams | 117 | Onion Capers | 89 |
+| Deliberate Thought | 114 | Pamgaea | 185 |
+| Disco con Tutti | 117 | Pixelland | 108 |
+| District Four | 123 | Plain Loafer | 116 |
+| Dreams Become Real | 114 | Plans in Motion | 129 |
+| Dreamy Flashback | 108 | Pop Goes the Weasel | 65 |
+| Easy Jam | 161 | Rite of Passage | 129 |
+| Easy Lemon | 82 | Rocket Power | 127 |
+| EDM Detection Mode | 129 | Run Amok | 144 |
+| Electrodoodle | 161 | Salty Ditty | 120 |
+| Fast Talkin | 136 | Severe Tire Damage | 144 |
+| Fearless First | 102 | Slow Burn | 161 |
+| Floating Cities | 123 | Sneaky Adventure | 108 |
+| Fluffing a Duck | 82 | Sneaky Snitch | 88 |
+| Folk Round | 114 | Spy Glass | 68 |
+| Funkorama | 133 | Tabuk | 108 |
+| Funky Chunk | 117 | The Builder | 123 |
+| Furious Freak | 75 | The Cannery | 172 |
+| Hep Cats | 116 | The Lift | 136 |
+| Hidden Agenda | 129 | The Show Must Be Go | 127 |
+| Hyperfun | 199 | Volatile Reaction | 144 |
+| Industrial Cinematic | 99 | Voltaic | 123 |
+| Industrial Music Box | 70 | Wallpaper | 185 |
+| Intrepid | 75 | Welcome to the Show | 123 |
+| Investigations | 98 | | |
+
+Tous les morceaux sont hébergés à l'origine sur [incompetech.com/music/royalty-free/](https://incompetech.com/music/royalty-free/) et servis sans modification du contenu audio original.
+
+---
+---
+
+# Privacy Policy — BeatOnStep (English)
+
+**Last updated:** August 24, 2026
+
+*The official binding version of this policy is in French (above). This English translation is provided for convenience.*
+
+## 1. Who we are
+
+BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available in early access on **Google Play** (internal test) and **Apple TestFlight**.
+
+**Publisher:** Rafael Orset — contact: [BeatOnStep forum](https://github.com/rafa-create/beatonstep-website/discussions/1)
+
+## 2. Core principle: no publisher-side data collection
+
+BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
+
+Depending on the features **you** enable, the app may exchange data with third-party services **you choose** (Google / YouTube, Spotify) or with technical infrastructure required for its operation (mix server, updates). Details below.
+
+## 3. Features and data flows
+
+### 3.1 Local audio files (Phone music)
+
+- Files you import stay **on your device**.
+- Associated metadata (path, BPM, preferences) is stored **locally only**.
+- No audio file is sent off-device for cadence detection or local playback, unless you trigger server-side BPM analysis (§ 3.3).
+
+### 3.2 Cadence detection (SPM)
+
+- The accelerometer is read **on-device** to estimate your step cadence.
+- These readings are **not transmitted** to the publisher or any BeatOnStep server.
+- They are used solely for real-time app operation (selecting and playing music matched to your pace).
+
+### 3.3 Included mix and music server (optional)
+
+The demo catalogue (77 royalty-free tracks) is hosted on a publisher server (`https://beatonstep.tail09d8d8.ts.net/music`).
+
+- This server is **not a social network** or public service: it serves only the demo catalogue.
+- No account creation, no advertising cookies, no marketing telemetry.
+- If you send an audio file for **BPM analysis**, it transits through the server for processing; it is not retained permanently or resold.
+
+### 3.4 YouTube Music (optional)
+
+If you connect a Google account to use YouTube Music in BeatOnStep:
+
+- The app uses **OAuth 2.0 (PKCE)** with a public Android Client ID; **no client secret** is embedded in the app.
+- **Access / refresh tokens** are stored **locally** on your device (app private storage) and are never sent to the publisher.
+- The app queries **Google / YouTube Data APIs** (playlists, metadata) solely to display and suggest music.
+- Playback is handled via the YouTube ecosystem; BeatOnStep does not receive your Google password.
+- You can **disconnect** YouTube in the app at any time: local tokens are then deleted.
+- Your Google account is also governed by **Google's** own policies; BeatOnStep is not the publisher of YouTube.
+
+### 3.5 Spotify (limited beta, optional)
+
+Spotify may be offered in very limited access (a small number of accounts added manually by the publisher, via Spotify OAuth). The mechanism is the same as YouTube Music: OAuth authentication, local token storage, no transmission to the publisher.
+
+### 3.6 Updates (Expo OTA)
+
+The app may contact **Expo** services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.
+
+## 4. Permissions
+
+### Android
+
+| Permission | Purpose |
+|------------|---------|
+| `HIGH_SAMPLING_RATE_SENSORS` | Read the accelerometer at high frequency to detect step cadence (SPM). |
+| `FOREGROUND_SERVICE` | Keep music playback and cadence detection running in the background (locked screen). |
+| `WAKE_LOCK` | Prevent the sensor from sleeping during a session. |
+
+### iOS (TestFlight)
+
+BeatOnStep requests access only to **motion sensors** (accelerometer) for cadence detection. On iOS, this is handled by the native framework without an explicit user-facing permission prompt.
+
+Access to the **media library** (Phone music) triggers a standard system permission request when you import music from your device.
+
+**No permission** accesses your GPS location, contacts, camera, or microphone.
+
+## 5. Locally stored data
+
+On your device, in the app's private storage:
+
+- Imported library (paths, BPM, enabled sources).
+- Preferences (mode, target ranges, settings, language).
+- YouTube / Spotify OAuth tokens (if connected).
+
+**Uninstalling** the app removes this data. Disconnecting a service (YouTube, Spotify) deletes the corresponding tokens without uninstalling the app.
+
+## 6. Third-party services
+
+| Service | When | What transits |
+|---------|------|---------------|
+| **Google / YouTube** | If you connect YouTube Music | OAuth authentication; playlist / metadata API requests |
+| **Apple (TestFlight)** | iOS early-access distribution | Beta version management by Apple under their own terms |
+| **Expo** | Automatic | OTA update verification / download |
+| **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
+| **Spotify** | If enabled in beta | OAuth authentication; playlist metadata |
+
+No advertising SDK, no marketing audience measurement, no integrated social network beyond the OAuth flow you initiate.
+
+## 7. Children
+
+The app is not directed at children under 13 (16 in the EU) and does not knowingly collect data from them.
+
+## 8. Your rights (GDPR / privacy)
+
+- **Local data** (library, settings, tokens): you control it directly in the app or by uninstalling.
+- **Google / YouTube account**: exercise your rights with Google under their procedures.
+- **Spotify account**: exercise your rights with Spotify.
+- **Music server**: no BeatOnStep user account; for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+
+## 9. Changes
+
+This policy may be updated. The date at the top reflects the latest revision. The current version is available at the address listed on **Google Play** and in the app (*Settings → About*):
+
+**https://rafa-create.github.io/beatonstep-website/privacy.html**
+
+## 10. Contact
+
+- **Publisher:** Rafael Orset
+- **Forum:** [github.com/rafa-create/beatonstep-website/discussions/1](https://github.com/rafa-create/beatonstep-website/discussions/1)
+
+---
+
+## 11. Music credits (included mix catalogue)
+
+The demo catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
+
+> *Music: tracks by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)) — licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).*
+
+BPM values are measured by the `librosa.beat.beat_track` algorithm (confidence threshold ≥ 0.77, measured May 2026). See the French section above for the full track list.
