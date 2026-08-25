@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 24 août 2026
+**Dernière mise à jour :** 25 août 2026
 
 ---
 
@@ -127,62 +127,25 @@ Cette politique peut être mise à jour. La date en haut du document reflète la
 
 ## 11. Crédits musicaux (catalogue mix inclus)
 
-Le catalogue de démo est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
+Le catalogue « Mix inclus » est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (usage commercial autorisé **avec attribution**).
 
-> *Music: tracks by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)) — licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).*
+**Artistes (sources) :**
 
-Les BPM listés sont mesurés par l'algorithme `librosa.beat.beat_track` (seuil de confiance ≥ 0,77, mesures de mai 2026).
+- **Kevin MacLeod** — [incompetech.com](https://incompetech.com)
+- **Scott Buckley** — [scottbuckley.com.au](https://www.scottbuckley.com.au/library/)
+- **Alexander Nakarada** — [creatorchords.com](https://creatorchords.com/)
 
-| Titre | BPM | Titre | BPM |
-|-------|----:|-------|----:|
-| Backbay Lounge | 117 | Jaunty Gumption | 144 |
-| Big Mojo | 105 | Local Forecast | 98 |
-| Black Vortex | 161 | Local Forecast - Elevator | 108 |
-| Blippy Trance | 199 | Long Stroll | 99 |
-| Brittle Rille | 74 | Marty Gots a Plan | 136 |
-| Bumbly March | 93 | Mining by Moonlight | 105 |
-| Cambodian Odyssey | 110 | Modern Jazz Samba | 115 |
-| Carefree | 185 | Monkeys Spinning Monkeys | 116 |
-| Carpe Diem | 185 | Moonlight Hall | 136 |
-| Cipher2 | 152 | Mountain Emperor | 102 |
-| Cold Funk | 110 | Movement Proposition | 106 |
-| Comfortable Mystery | 136 | Off to Osaka | 117 |
-| Comparsa | 87 | Olde Timey | 90 |
-| Cool Vibes | 83 | One-eyed Maestro | 116 |
-| Crinoline Dreams | 117 | Onion Capers | 89 |
-| Deliberate Thought | 114 | Pamgaea | 185 |
-| Disco con Tutti | 117 | Pixelland | 108 |
-| District Four | 123 | Plain Loafer | 116 |
-| Dreams Become Real | 114 | Plans in Motion | 129 |
-| Dreamy Flashback | 108 | Pop Goes the Weasel | 65 |
-| Easy Jam | 161 | Rite of Passage | 129 |
-| Easy Lemon | 82 | Rocket Power | 127 |
-| EDM Detection Mode | 129 | Run Amok | 144 |
-| Electrodoodle | 161 | Salty Ditty | 120 |
-| Fast Talkin | 136 | Severe Tire Damage | 144 |
-| Fearless First | 102 | Slow Burn | 161 |
-| Floating Cities | 123 | Sneaky Adventure | 108 |
-| Fluffing a Duck | 82 | Sneaky Snitch | 88 |
-| Folk Round | 114 | Spy Glass | 68 |
-| Funkorama | 133 | Tabuk | 108 |
-| Funky Chunk | 117 | The Builder | 123 |
-| Furious Freak | 75 | The Cannery | 172 |
-| Hep Cats | 116 | The Lift | 136 |
-| Hidden Agenda | 129 | The Show Must Be Go | 127 |
-| Hyperfun | 199 | Volatile Reaction | 144 |
-| Industrial Cinematic | 99 | Voltaic | 123 |
-| Industrial Music Box | 70 | Wallpaper | 185 |
-| Intrepid | 75 | Welcome to the Show | 123 |
-| Investigations | 98 | | |
+Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 
-Tous les morceaux sont hébergés à l'origine sur [incompetech.com/music/royalty-free/](https://incompetech.com/music/royalty-free/) et servis sans modification du contenu audio original.
+**Liste complète des titres (obligatoire pour l’attribution CC-BY) :**  
+[Crédits musicaux — Mix inclus](https://rafa-create.github.io/beatonstep-website/music-credits.html)
 
 ---
 ---
 
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** August 24, 2026
+**Last updated:** August 25, 2026
 
 *The official binding version of this policy is in French (above). This English translation is provided for convenience.*
 
@@ -305,8 +268,15 @@ This policy may be updated. The date at the top reflects the latest revision. Th
 
 ## 11. Music credits (included mix catalogue)
 
-The demo catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
+The « Included mix » catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
 
-> *Music: tracks by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)) — licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).*
+**Artists (sources):**
 
-BPM values are measured by the `librosa.beat.beat_track` algorithm (confidence threshold ≥ 0.77, measured May 2026). See the French section above for the full track list.
+- **Kevin MacLeod** — [incompetech.com](https://incompetech.com)
+- **Scott Buckley** — [scottbuckley.com.au](https://www.scottbuckley.com.au/library/)
+- **Alexander Nakarada** — [creatorchords.com](https://creatorchords.com/)
+
+BPM values are measured on the server (`librosa.beat.beat_track`, confidence ≥ 0.77).
+
+**Full track list (required for CC-BY attribution):**  
+[Music credits — Included mix](https://rafa-create.github.io/beatonstep-website/music-credits.html)
