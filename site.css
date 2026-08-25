@@ -1224,14 +1224,6 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   text-transform: uppercase;
   padding: 0.28rem 0.7rem;
   border-radius: 999px;
-}
-.faq-shell-title {
-  font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: var(--ink);
   margin-right: auto;
 }
 .faq-shell-sum::after {
