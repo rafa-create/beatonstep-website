@@ -85,7 +85,7 @@
         <a data-en data-keep-lang data-href="./" href="./">← Home</a>
       </p>
     </header>
-    <p class="muted legal-note" data-en>The binding version is in French; the English translation follows below.</p>
+    <p class="muted legal-note" data-en>English translation for convenience. The French text is the binding version.</p>
     <main id="content"><p class="status">Chargement…</p></main>
     <footer>
       <a class="foot-link" data-fr data-keep-lang data-href="./" href="./">Accueil</a>
@@ -114,19 +114,31 @@
   <script>
     (function () {
       var el = document.getElementById("content");
-      fetch("PRIVACY.md", { cache: "no-cache" })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.text();
-        })
-        .then(function (md) {
-          el.innerHTML = marked.parse(md);
-        })
-        .catch(function () {
-          el.innerHTML =
-            '<p class="status error">Impossible de charger la politique. ' +
-            'Ouvrez <a href="PRIVACY.md">PRIVACY.md</a> directement.</p>';
-        });
+      function fileFor(lang) {
+        return lang === "en" ? "PRIVACY.en.md" : "PRIVACY.fr.md";
+      }
+      function load(lang) {
+        el.innerHTML = '<p class="status">' + (lang === "en" ? "Loading…" : "Chargement…") + "</p>";
+        fetch(fileFor(lang), { cache: "no-cache" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.text();
+          })
+          .then(function (md) {
+            el.innerHTML = marked.parse(md);
+          })
+          .catch(function () {
+            el.innerHTML =
+              '<p class="status error">' +
+              (lang === "en"
+                ? 'Could not load the policy. Open <a href="PRIVACY.en.md">PRIVACY.en.md</a>.'
+                : 'Impossible de charger la politique. Ouvrez <a href="PRIVACY.fr.md">PRIVACY.fr.md</a>.') +
+              "</p>";
+          });
+      }
+      var start = document.documentElement.lang === "en" ? "en" : "fr";
+      load(start);
+      if (window.BOS_onLangChange) window.BOS_onLangChange(load);
     })();
   </script>
 </body>

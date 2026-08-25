@@ -32,12 +32,6 @@
     };
   </script>
   <script src="i18n.js"></script>
-  <style>
-    main table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 0.75rem 0 1.5rem; }
-    main th, main td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid rgba(252, 234, 7, 0.18); vertical-align: top; }
-    main th { color: var(--muted, #b8b49a); font-weight: 600; }
-    main td:nth-child(2) { white-space: nowrap; text-align: right; }
-  </style>
 </head>
 <body>
   <a class="skip-link" href="#content" data-fr>Aller au contenu</a>
@@ -109,19 +103,31 @@
   <script>
     (function () {
       var el = document.getElementById("content");
-      fetch("MUSIC-CREDITS.md", { cache: "no-cache" })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.text();
-        })
-        .then(function (md) {
-          el.innerHTML = marked.parse(md);
-        })
-        .catch(function () {
-          el.innerHTML =
-            '<p class="status error">Impossible de charger les crédits. ' +
-            'Ouvrez <a href="MUSIC-CREDITS.md">MUSIC-CREDITS.md</a> directement.</p>';
-        });
+      function fileFor(lang) {
+        return lang === "en" ? "MUSIC-CREDITS.en.md" : "MUSIC-CREDITS.fr.md";
+      }
+      function load(lang) {
+        el.innerHTML = '<p class="status">' + (lang === "en" ? "Loading…" : "Chargement…") + "</p>";
+        fetch(fileFor(lang), { cache: "no-cache" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.text();
+          })
+          .then(function (md) {
+            el.innerHTML = marked.parse(md);
+          })
+          .catch(function () {
+            el.innerHTML =
+              '<p class="status error">' +
+              (lang === "en"
+                ? 'Could not load credits. Open <a href="MUSIC-CREDITS.en.md">MUSIC-CREDITS.en.md</a>.'
+                : 'Impossible de charger les crédits. Ouvrez <a href="MUSIC-CREDITS.fr.md">MUSIC-CREDITS.fr.md</a>.') +
+              "</p>";
+          });
+      }
+      var start = document.documentElement.lang === "en" ? "en" : "fr";
+      load(start);
+      if (window.BOS_onLangChange) window.BOS_onLangChange(load);
     })();
   </script>
 </body>

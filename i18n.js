@@ -1,6 +1,7 @@
 (function () {
   var KEY = "bos-lang";
   var THEME_KEY = "bos-theme";
+  var listeners = [];
 
   function readLang() {
     var q = /(?:\?|&)lang=(en|fr)\b/.exec(location.search);
@@ -59,7 +60,16 @@
       var base = a.getAttribute("data-href") || a.getAttribute("href");
       a.setAttribute("href", withLang(base, lang));
     });
+    listeners.forEach(function (fn) {
+      try {
+        fn(lang);
+      } catch (e) {}
+    });
   }
+
+  window.BOS_onLangChange = function (fn) {
+    if (typeof fn === "function") listeners.push(fn);
+  };
 
   var lang = readLang();
   var theme = readTheme();

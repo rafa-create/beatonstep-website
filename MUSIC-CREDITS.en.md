@@ -1,20 +1,20 @@
-# Crédits musicaux — Mix inclus BeatOnStep
+# Music credits — BeatOnStep included mix
 
-**Dernière mise à jour :** 2026-08-25
+**Last updated:** 2026-08-25
 
-Le catalogue « Mix inclus » de BeatOnStep est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (usage commercial autorisé **avec attribution**).
+The BeatOnStep « Included mix » catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
 
-Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
+BPM values are measured on the server (librosa.beat.beat_track, confidence ≥ 0.77). They may differ slightly from BPM values published by the artists.
 
-**Total :** 181 titres
+**Total:** 181 tracks
 
 ## Kevin MacLeod
 
-- **Licence :** [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- **Album / source :** Incompetech (CC-BY 4.0)
-- **Site :** [incompetech.com](https://incompetech.com)
+- **License:** [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- **Album / source:** Incompetech (CC-BY 4.0)
+- **Site:** [incompetech.com](https://incompetech.com)
 
-| Titre | BPM | Lien source |
+| Title | BPM | Source link |
 |-------|----:|-------------|
 | 8bit Dungeon Boss | 113 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/8bit%20Dungeon%20Boss.mp3) |
 | 8bit Dungeon Level | 108 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/8bit%20Dungeon%20Level.mp3) |
@@ -197,3 +197,5 @@ Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confia
 | Wizardtorium | 117 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wizardtorium.mp3) |
 | Your Call | 99 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Your%20Call.mp3) |
 | ZigZag | 161 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/ZigZag.mp3) |
+
+---
