@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BeatOnStep — musique au rythme de tes pas</title>
-  <meta name="description" content="Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android et iOS." />
+  <meta name="description" content="Tu cours : l’app lit ton rythme (PPM) et met un titre au même tempo. Android et iOS." />
   <link rel="canonical" href="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="BeatOnStep — musique au rythme de tes pas" />
-  <meta property="og:description" content="Tu cours. L’app lit ton allure en min/km et met un titre au même rythme. Android et iOS." />
+  <meta property="og:description" content="Tu cours. L’app lit ton rythme (PPM) et met un titre au même tempo. Android et iOS." />
   <meta property="og:url" content="https://rafa-create.github.io/beatonstep-website/" />
   <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -34,8 +34,8 @@
       en: "BeatOnStep — music that matches your stride"
     };
     window.BOS_DESC = {
-      fr: "Tu cours : l’app lit ton allure en min/km et met un titre au même rythme. Android et iOS.",
-      en: "You run: the app reads your pace in min/km and puts on a matching track. Android and iOS."
+      fr: "Tu cours : l’app lit ton rythme (PPM) et met un titre au même tempo. Android et iOS.",
+      en: "You run: the app reads your rhythm (PPM) and puts on a track at the right tempo. Android and iOS."
     };
   </script>
   <script src="i18n.js"></script>
@@ -121,10 +121,10 @@
           <span class="hero-block">follows your stride</span>
         </h1>
         <p class="lede" data-fr>
-          Tu cours. L’app lit ton allure en min/km et met un titre au même rythme. Téléphone dans la poche, rien d’autre à porter.
+          Tu cours. L’app lit ton rythme en pas par minute (PPM) et met un titre au même tempo. Téléphone dans la poche, rien d’autre à porter.
         </p>
         <p class="lede" data-en>
-          You run. The app reads your pace in min/km and puts on a track that matches. Phone in your pocket — nothing else to wear.
+          You run. The app reads your rhythm in steps per minute (PPM) and puts on a track at the same tempo. Phone in your pocket — nothing else to wear.
         </p>
         <nav class="cta">
           <a class="store-badge" data-fr href="https://play.google.com/apps/testing/com.patrick.beatonstep">
@@ -225,8 +225,8 @@
           <p data-en>Open the app. The included mix is already there.</p>
         </li>
         <li>
-          <p data-fr>Choisis Adaptatif (allure live) ou Fixe (tu règles).</p>
-          <p data-en>Pick Adaptive (live pace) or Fixed (you set it).</p>
+          <p data-fr>Choisis Adaptatif (rythme live) ou Fixe (tu règles le PPM).</p>
+          <p data-en>Pick Adaptive (live rhythm) or Fixed (you set the PPM).</p>
         </li>
         <li>
           <p data-fr>Démarre, téléphone dans la poche. Un titre part au rythme de tes pas.</p>
@@ -236,10 +236,10 @@
     </section>
 
     <section class="pace-modes reveal">
-      <p class="tag" data-fr>Allure</p>
-      <p class="tag" data-en>Pace</p>
-      <h2 data-fr>Adaptatif, ou tu fixes l’allure</h2>
-      <h2 data-en>Adaptive, or you lock the pace</h2>
+      <p class="tag" data-fr>Rythme</p>
+      <p class="tag" data-en>Rhythm</p>
+      <h2 data-fr>Adaptatif, ou tu fixes le rythme</h2>
+      <h2 data-en>Adaptive, or you lock the rhythm</h2>
       <div class="split-grid reveal-stagger">
         <article class="split-card pace-card">
           <p class="pace-kicker" data-fr>Adaptatif</p>
@@ -276,7 +276,7 @@
               <span class="beat-dot beat-dot-music"></span>
               <span class="beat-dot beat-dot-steps"></span>
             </div>
-            <div class="pace-scale" role="group" aria-label="Allure">
+            <div class="pace-scale" role="group" aria-label="Rythme">
               <button type="button" class="pace-step is-on" data-stage="0" aria-pressed="true">
                 <span data-fr>marche</span>
                 <span data-en>walk</span>
@@ -295,24 +295,15 @@
         <article class="split-card pace-card">
           <p class="pace-kicker" data-fr>Fixe</p>
           <p class="pace-kicker" data-en>Fixed</p>
-          <h3 data-fr>Tu règles l’allure</h3>
-          <h3 data-en>You set the pace</h3>
+          <h3 data-fr>Tu règles le PPM</h3>
+          <h3 data-en>You set the PPM</h3>
           <div class="beat-viz beat-viz-lock" data-pace-lock data-unit="ppm">
-            <div class="pace-units" role="group" aria-label="Unité / Unit">
-              <button type="button" data-unit="ppm" aria-pressed="true">PPM</button>
-              <button type="button" data-unit="allure" aria-pressed="false">
-                <span data-fr>Allure</span>
-                <span data-en>Pace</span>
-              </button>
-            </div>
             <div class="beat-pair" data-unit="ppm">
               <div class="beat-col beat-col-run">
                 <p class="beat-value" data-pace-run>134</p>
                 <p class="beat-label">
-                  <span data-fr>coureur · </span>
-                  <span data-en>runner · </span>
-                  <span data-run-u="allure">min/km</span>
-                  <span data-run-u="ppm">PPM</span>
+                  <span data-fr>coureur · PPM</span>
+                  <span data-en>runner · PPM</span>
                 </p>
               </div>
               <span class="beat-op beat-op-ok" aria-hidden="true">=</span>
@@ -332,21 +323,14 @@
               aria-valuemax="240"
               aria-valuenow="134"
               aria-valuetext="134 PPM, 134 BPM"
+              aria-label="PPM"
             >
               <span class="beat-dot beat-dot-music" aria-hidden="true"></span>
               <span class="beat-dot beat-dot-steps" aria-hidden="true"></span>
             </div>
-            <label class="pace-height">
-              <span data-fr>Ta taille</span>
-              <span data-en>Your height</span>
-              <input type="number" inputmode="numeric" min="1" max="400" step="1" value="170" data-pace-height />
-              <span>cm</span>
-            </label>
           </div>
-          <p data-fr><strong>Glisse la pastille jaune</strong> : la verte suit. Même formule que dans l’app.</p>
-          <p data-en><strong>Drag the yellow pill</strong>: the green one follows. Same formula as the app.</p>
-          <p class="pace-hint" data-fr>La taille ne sert qu’en Allure, <a href="#faq-formule">pour convertir min/km ↔ PPM</a>.</p>
-          <p class="pace-hint" data-en>Height is only for Pace, <a href="#faq-formule">to convert min/km ↔ PPM</a>.</p>
+          <p data-fr><strong>Glisse la pastille jaune</strong> : la verte suit. PPM coureur = BPM du titre.</p>
+          <p data-en><strong>Drag the yellow pill</strong>: the green one follows. Runner PPM = track BPM.</p>
         </article>
       </div>
     </section>
@@ -406,8 +390,8 @@
           <p data-en>Library: sign in if needed, then pick playlists.</p>
         </li>
         <li>
-          <p data-fr>En course, l’app piochera uniquement là-dedans, à ton allure.</p>
-          <p data-en>On a run, the app picks only from those, at your pace.</p>
+          <p data-fr>En course, l’app piochera uniquement là-dedans, à ton rythme.</p>
+          <p data-en>On a run, the app picks only from those, at your rhythm.</p>
         </li>
       </ul>
     </section>
@@ -415,24 +399,24 @@
     <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-home.png" width="575" height="1024" alt="BeatOnStep : allure en min/km et lecteur" />
+          <img src="screenshot-home.png" width="575" height="1024" alt="BeatOnStep : PPM et lecteur" />
         </div>
         <figcaption>
           <strong data-fr>En run</strong>
           <strong data-en>On a run</strong>
-          <span data-fr>Allure et lecteur, téléphone dans la poche.</span>
-          <span data-en>Pace and player, phone in your pocket.</span>
+          <span data-fr>PPM et lecteur, téléphone dans la poche.</span>
+          <span data-en>PPM and player, phone in your pocket.</span>
         </figcaption>
       </figure>
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-pace.png" width="575" height="1024" alt="Réglages : Adaptatif, allure en min/km et changement de titre" />
+          <img src="screenshot-pace.png" width="575" height="1024" alt="Réglages : Adaptatif, PPM et changement de titre" />
         </div>
         <figcaption>
           <strong data-fr>Réglages</strong>
           <strong data-en>Settings</strong>
-          <span data-fr>Adaptatif, allure en min/km. Tu choisis quand le titre change.</span>
-          <span data-en>Adaptive, pace in min/km. You pick when the track changes.</span>
+          <span data-fr>Adaptatif ou Fixe. Tu choisis quand le titre change.</span>
+          <span data-en>Adaptive or Fixed. You pick when the track changes.</span>
         </figcaption>
       </figure>
       <figure class="shot">
@@ -442,8 +426,8 @@
         <figcaption>
           <strong data-fr>Ta musique</strong>
           <strong data-en>Your music</strong>
-          <span data-fr>Tes sources, tes playlists. L’app envoie un titre à ton allure.</span>
-          <span data-en>Your sources, your playlists. The app queues a track at your pace.</span>
+          <span data-fr>Tes sources, tes playlists. L’app envoie un titre à ton PPM.</span>
+          <span data-en>Your sources, your playlists. The app queues a track at your PPM.</span>
         </figcaption>
       </figure>
     </section>
@@ -465,8 +449,8 @@
           </p>
           <h3 data-fr>Quelques secondes</h3>
           <h3 data-en>A few seconds</h3>
-          <p data-fr>Par défaut 5 s. L’allure bouge ? L’app attend que ça tienne, puis change de titre.</p>
-          <p data-en>Default 5 s. Pace shifts? The app waits until it holds, then switches tracks.</p>
+          <p data-fr>Par défaut 5 s. Le PPM bouge ? L’app attend que ça tienne, puis change de titre.</p>
+          <p data-en>Default 5 s. PPM shifts? The app waits until it holds, then switches tracks.</p>
         </article>
         <article class="pillar">
           <p class="pillar-mode">
@@ -476,8 +460,8 @@
           </p>
           <h3 data-fr>Jusqu’au bout</h3>
           <h3 data-en>Play it out</h3>
-          <p data-fr>Tu finis le morceau. Le suivant est déjà calé sur ta nouvelle allure.</p>
-          <p data-en>You finish the track. The next one already matches your new pace.</p>
+          <p data-fr>Tu finis le morceau. Le suivant est déjà calé sur ton nouveau PPM.</p>
+          <p data-en>You finish the track. The next one already matches your new PPM.</p>
         </article>
         <article class="pillar">
           <p class="pillar-mode">
@@ -574,19 +558,23 @@
             </details>
             <details class="faq-item">
               <summary>
-                <span data-fr>C’est quoi PPM et BPM ?</span>
-                <span data-en>What’s PPM vs BPM?</span>
+                <span data-fr>C’est quoi PPM et BPM ? Pourquoi pas d’allure ?</span>
+                <span data-en>What’s PPM vs BPM? Why no pace?</span>
               </summary>
-              <p data-fr>PPM = tes pas par minute (cadence). BPM = le tempo du titre. L’app envoie un morceau dont le BPM colle à ton PPM.</p>
-              <p data-en>PPM is your steps per minute (cadence). BPM is the track’s tempo. The app queues a song whose BPM matches your PPM.</p>
+              <p data-fr><strong>PPM</strong> = rythme du coureur : pas par minute, mesurés par l’accéléromètre. <strong>BPM</strong> = tempo de la musique : battements par minute. BeatOnStep choisit des titres dont le BPM est proche de ton PPM.</p>
+              <p data-en><strong>PPM</strong> is the runner’s rhythm: steps per minute, from the accelerometer. <strong>BPM</strong> is the track’s tempo: beats per minute. BeatOnStep picks tracks whose BPM is close to your PPM.</p>
+              <p data-fr><strong>Pourquoi pas d’allure (min/km) ?</strong> L’estimation d’allure à partir du PPM et de la taille n’est pas assez fiable aujourd’hui. On affiche le PPM. Une calibration plus précise (ex. 100 m + GPS) pourra revenir plus tard — ce n’est pas livré pour l’instant.</p>
+              <p data-en><strong>Why no pace (min/km)?</strong> Estimating pace from PPM and height isn’t reliable enough yet. We show PPM. A more precise calibration (e.g. 100 m + GPS) may come back later — it’s not shipped today.</p>
+              <p data-fr>Conseils : téléphone en <strong>poche</strong>. La détection est un peu plus sensible sur Android ; tu pourras calibrer plus tard. En arrière-plan, le compte de pas peut être légèrement sous-estimé.</p>
+              <p data-en>Tips: phone in your <strong>pocket</strong>. Detection is a bit more sensitive on Android; you’ll be able to calibrate later. In the background, the step count can be slightly under-counted.</p>
             </details>
             <details class="faq-item">
               <summary>
                 <span data-fr>Adaptatif ou Fixe ?</span>
                 <span data-en>Adaptive or Fixed?</span>
               </summary>
-              <p data-fr>Adaptatif : l’allure live, la musique suit. Fixe : tu bloques l’allure, le PPM reste calé. Tu changes ça dans l’app.</p>
-              <p data-en>Adaptive: live pace, the music follows. Fixed: you lock the pace, PPM stays put. You can switch in the app.</p>
+              <p data-fr>Adaptatif : le PPM live, la musique suit. Fixe : tu bloques le PPM, la cible reste calée. Tu changes ça dans l’app.</p>
+              <p data-en>Adaptive: live PPM, the music follows. Fixed: you lock the PPM, the target stays put. You can switch in the app.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -650,8 +638,8 @@
                     <span data-en>Sensor OFF → manual target → match on change</span>
                   </div>
                 </div>
-                <p data-fr>Adaptatif : le capteur tourne, le matching est continu (sauf si le PPM n’a presque pas bougé). Fixe : capteur arrêté. Tu règles PPM ou allure sur l’accueil (40–240 PPM, 2:30–15:00 min/km). Le matching ne relance que quand tu changes la cible.</p>
-                <p data-en>Adaptive: the sensor runs, matching is continuous (unless PPM barely moved). Fixed: sensor off. You set PPM or pace on Home (40–240 PPM, 2:30–15:00 min/km). Matching only reruns when you change the target.</p>
+                <p data-fr>Adaptatif : le capteur tourne, le matching est continu (sauf si le PPM n’a presque pas bougé). Fixe : capteur arrêté. Tu règles le PPM sur l’accueil (40–240). Le matching ne relance que quand tu changes la cible.</p>
+                <p data-en>Adaptive: the sensor runs, matching is continuous (unless PPM barely moved). Fixed: sensor off. You set PPM on Home (40–240). Matching only reruns when you change the target.</p>
               </details>
               <details class="faq-item">
                 <summary>
@@ -719,8 +707,8 @@
                     <span data-en>Finish the track, then switch</span>
                   </div>
                 </div>
-                <p data-fr>Écart = |BPM du titre − PPM cible| &gt; 10. Immédiat : on change tout de suite. 5 s (réglable 2–15, défaut 5) : on attend que la nouvelle allure tienne. Le candidat est figé (anti yo-yo). Si lecture dans BeatOnStep, crossfade 1 s. Fin : on attend la fin du morceau ; bannière dans les 5 dernières secondes s’il y a encore mismatch.</p>
-                <p data-en>Gap = |track BPM − target PPM| &gt; 10. Now: switch immediately. 5 s (adjustable 2–15, default 5): wait until the new pace holds. The candidate is frozen (anti yo-yo). In-app playback gets a 1 s crossfade. End: wait until the track finishes; banner in the last 5 seconds if still mismatched.</p>
+                <p data-fr>Écart = |BPM du titre − PPM cible| &gt; 10. Immédiat : on change tout de suite. 5 s (réglable 2–15, défaut 5) : on attend que le nouveau PPM tienne. Le candidat est figé (anti yo-yo). Si lecture dans BeatOnStep, crossfade 1 s. Fin : on attend la fin du morceau ; bannière dans les 5 dernières secondes s’il y a encore mismatch.</p>
+                <p data-en>Gap = |track BPM − target PPM| &gt; 10. Now: switch immediately. 5 s (adjustable 2–15, default 5): wait until the new PPM holds. The candidate is frozen (anti yo-yo). In-app playback gets a 1 s crossfade. End: wait until the track finishes; banner in the last 5 seconds if still mismatched.</p>
               </details>
               <details class="faq-item">
                 <summary>
@@ -731,8 +719,8 @@
                   <div>
                     <strong data-fr>À l’écran</strong>
                     <strong data-en>On screen</strong>
-                    <span data-fr>PPM brut inchangé · allure × facteur</span>
-                    <span data-en>Raw PPM unchanged · pace × factor</span>
+                    <span data-fr>PPM brut inchangé · cible × facteur</span>
+                    <span data-en>Raw PPM unchanged · target × factor</span>
                   </div>
                   <div>
                     <strong data-fr>Pour le matching</strong>
@@ -741,14 +729,16 @@
                     <span data-en>Effective PPM = raw PPM / factor</span>
                   </div>
                 </div>
-                <p data-fr>Uniquement en Adaptatif, pendant la détection. Chaque tap = ±2 % sur un facteur (borné entre 1/3 et 3). L’allure affichée est multipliée par ce facteur. Le PPM envoyé au matching est divisé par ce facteur. Le PPM brut à l’écran ne change pas.</p>
-                <p data-en>Adaptive only, while detecting. Each tap = ±2% on a factor (clamped 1/3 to 3). Displayed pace is multiplied by that factor. PPM sent to matching is divided by it. The raw PPM on screen does not change.</p>
+                <p data-fr>Uniquement en Adaptatif, pendant la détection. Chaque tap = ±2 % sur un facteur (borné entre 1/3 et 3). Le PPM envoyé au matching est divisé par ce facteur. Le PPM brut à l’écran ne change pas.</p>
+                <p data-en>Adaptive only, while detecting. Each tap = ±2% on a factor (clamped 1/3 to 3). PPM sent to matching is divided by it. The raw PPM on screen does not change.</p>
               </details>
               <details class="faq-item" id="faq-formule">
                 <summary>
-                  <span data-fr>Formule complète PPM ↔ allure</span>
-                  <span data-en>Full PPM ↔ pace formula</span>
+                  <span data-fr>Formule PPM ↔ allure (pas affichée)</span>
+                  <span data-en>PPM ↔ pace formula (not shown)</span>
                 </summary>
+                <p data-fr>L’app n’affiche plus l’allure (min/km) : la conversion PPM + taille est trop approximative. La formule reste documentée ici pour transparence ; une calibration (ex. 100 m + GPS) pourra revenir plus tard.</p>
+                <p data-en>The app no longer shows pace (min/km): converting PPM + height is too approximate. The formula stays documented here for transparency; a calibration (e.g. 100 m + GPS) may come back later.</p>
                 <figure class="schema-eq" data-fr>
                   <p class="eq-line">
                     <span class="eq-out">allure</span>
@@ -795,8 +785,6 @@
                     <div><dt>ex.</dt><dd>134 PPM at 170 cm → 5:00 min/km</dd></div>
                   </dl>
                 </figure>
-                <p data-fr>Allure en min/km. La calibration utilisateur (Sous-estimée / Surestimée) s’applique ensuite sur l’allure affichée, pas sur le PPM brut.</p>
-                <p data-en>Pace is min/km. User calibration (too fast / too slow) then scales displayed pace, not raw PPM.</p>
               </details>
             </div>
             <div class="faq-forum">
@@ -1106,25 +1094,15 @@
         if (!root) return;
         var musicEl = root.querySelector("[data-pace-music]");
         var runEl = root.querySelector("[data-pace-run]");
-        var heightEl = root.querySelector("[data-pace-height]");
         var track = root.querySelector(".beat-track");
         var music = root.querySelector(".beat-dot-music");
         var steps = root.querySelector(".beat-dot-steps");
-        var pair = root.querySelector(".beat-pair");
-        var unitBtns = root.querySelectorAll(".pace-units button");
-        if (!musicEl || !runEl || !heightEl || !track || !music || !steps || !pair) return;
+        if (!musicEl || !runEl || !track || !music || !steps) return;
 
-        var K = 0.878;
-        var PACE_MIN = 2.5;
-        var PACE_MAX = 15;
         var PPM_MIN = 40;
         var PPM_MAX = 240;
-        var HEIGHT_MIN = 1;
-        var HEIGHT_MAX = 400;
         var ppm = 134;
-        var height = 170;
         var dragging = false;
-        var unit = "ppm";
         var targetX = 0.5;
         var runnerX = 0.5;
         var musicX = 0.5;
@@ -1132,46 +1110,14 @@
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
         }
-        function formatPace(p) {
-          if (!isFinite(p) || p <= 0) return "--";
-          var total = Math.round(p * 60);
-          var min = Math.floor(total / 60);
-          var sec = total % 60;
-          if (sec === 60) {
-            min += 1;
-            sec = 0;
-          }
-          return min + ":" + (sec < 10 ? "0" : "") + sec;
-        }
-        function ppmToPace(p, h) {
-          return 1000 / (p * K * (h / 100));
-        }
-        function paceToPpm(p, h) {
-          return Math.round(1000 / p / (K * (h / 100)));
-        }
         function setPpm(n) {
           ppm = clamp(Math.round(n), PPM_MIN, PPM_MAX);
-        }
-        function setFromPace(p) {
-          setPpm(paceToPpm(clamp(p, PACE_MIN, PACE_MAX), height));
-        }
-        function currentPace() {
-          return ppmToPace(ppm, height);
-        }
-        function ratioFromPpm() {
-          if (unit === "ppm") return (ppm - PPM_MIN) / (PPM_MAX - PPM_MIN);
-          var pace = clamp(currentPace(), PACE_MIN, PACE_MAX);
-          return (PACE_MAX - pace) / (PACE_MAX - PACE_MIN);
         }
         function place(el, x) {
           el.style.left = clamp(x, 0, 1) * 100 + "%";
         }
-        function sliderLabel() {
-          if (unit === "ppm") return "PPM";
-          return document.documentElement.lang === "en" ? "Pace in min/km" : "Allure en min/km";
-        }
         function syncTarget() {
-          targetX = clamp(ratioFromPpm(), 0, 1);
+          targetX = clamp((ppm - PPM_MIN) / (PPM_MAX - PPM_MIN), 0, 1);
           if (reduce) {
             runnerX = targetX;
             musicX = targetX;
@@ -1179,27 +1125,12 @@
           }
         }
         function renderLabels() {
-          var pace = currentPace();
-          var label = formatPace(pace);
           musicEl.textContent = String(ppm);
-          runEl.textContent = unit === "ppm" ? String(ppm) : label;
-          if (unit === "ppm") {
-            track.setAttribute("aria-valuemin", String(PPM_MIN));
-            track.setAttribute("aria-valuemax", String(PPM_MAX));
-            track.setAttribute("aria-valuenow", String(ppm));
-            track.setAttribute("aria-valuetext", ppm + " PPM, " + ppm + " BPM");
-          } else {
-            track.setAttribute("aria-valuemin", String(PACE_MIN));
-            track.setAttribute("aria-valuemax", String(PACE_MAX));
-            track.setAttribute(
-              "aria-valuenow",
-              String(Math.round(clamp(pace, PACE_MIN, PACE_MAX) * 20) / 20)
-            );
-            track.setAttribute("aria-valuetext", label + " min/km, " + ppm + " BPM");
-          }
-          track.setAttribute("aria-label", sliderLabel());
-          pair.setAttribute("data-unit", unit);
-          root.setAttribute("data-unit", unit);
+          runEl.textContent = String(ppm);
+          track.setAttribute("aria-valuemin", String(PPM_MIN));
+          track.setAttribute("aria-valuemax", String(PPM_MAX));
+          track.setAttribute("aria-valuenow", String(ppm));
+          track.setAttribute("aria-valuetext", ppm + " PPM, " + ppm + " BPM");
         }
         function drawDots() {
           place(steps, runnerX);
@@ -1208,16 +1139,7 @@
         function setFromClientX(x) {
           var rect = track.getBoundingClientRect();
           var t = rect.width ? (x - rect.left) / rect.width : 0.5;
-          t = clamp(t, 0, 1);
-          if (unit === "ppm") setPpm(PPM_MIN + t * (PPM_MAX - PPM_MIN));
-          else setFromPace(PACE_MAX - t * (PACE_MAX - PACE_MIN));
-          syncTarget();
-          renderLabels();
-        }
-        function readHeight() {
-          var n = parseInt(heightEl.value, 10);
-          if (isNaN(n) || n < HEIGHT_MIN || n > HEIGHT_MAX) return;
-          height = n;
+          setPpm(PPM_MIN + clamp(t, 0, 1) * (PPM_MAX - PPM_MIN));
           syncTarget();
           renderLabels();
         }
@@ -1240,51 +1162,28 @@
           dragging = false;
         });
         track.addEventListener("keydown", function (e) {
-          var paceStep = e.shiftKey ? 15 / 60 : 5 / 60;
           var ppmStep = e.shiftKey ? 5 : 1;
           if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-            if (unit === "ppm") setPpm(ppm - ppmStep);
-            else setFromPace(currentPace() + paceStep);
+            setPpm(ppm - ppmStep);
             e.preventDefault();
             syncTarget();
             renderLabels();
           } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-            if (unit === "ppm") setPpm(ppm + ppmStep);
-            else setFromPace(currentPace() - paceStep);
+            setPpm(ppm + ppmStep);
             e.preventDefault();
             syncTarget();
             renderLabels();
           } else if (e.key === "Home") {
-            if (unit === "ppm") setPpm(PPM_MIN);
-            else setFromPace(PACE_MAX);
+            setPpm(PPM_MIN);
             e.preventDefault();
             syncTarget();
             renderLabels();
           } else if (e.key === "End") {
-            if (unit === "ppm") setPpm(PPM_MAX);
-            else setFromPace(PACE_MIN);
+            setPpm(PPM_MAX);
             e.preventDefault();
             syncTarget();
             renderLabels();
           }
-        });
-        heightEl.addEventListener("input", readHeight);
-        heightEl.addEventListener("change", function () {
-          heightEl.value = String(height);
-          syncTarget();
-          renderLabels();
-        });
-        unitBtns.forEach(function (btn) {
-          btn.addEventListener("click", function () {
-            var next = btn.getAttribute("data-unit");
-            if (!next) return;
-            unit = next;
-            unitBtns.forEach(function (b) {
-              b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-            });
-            syncTarget();
-            renderLabels();
-          });
         });
 
         syncTarget();
