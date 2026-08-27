@@ -21,25 +21,11 @@ SIZES = [
 
 SCREENS = [
     {
-        "file": "screenshot-home.png",
-        "name": "01-accueil",
-        "kicker": "BEATONSTEP",
-        "title": "Ta musique\nsuit tes pas",
-        "sub": "L'app lit ton allure et met un titre au même rythme.",
-    },
-    {
         "file": "screenshot-pace.png",
-        "name": "02-reglages",
+        "name": "01-reglages",
         "kicker": "BEATONSTEP",
         "title": "Adaptatif,\nou tu fixes",
         "sub": "Marche, footing, sprint : la musique suit.",
-    },
-    {
-        "file": "screenshot-library.png",
-        "name": "03-bibliotheque",
-        "kicker": "BEATONSTEP",
-        "title": "Le bon titre,\nau bon BPM",
-        "sub": "Mix démo et musiques téléphone.",
     },
 ]
 
