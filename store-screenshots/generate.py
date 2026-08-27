@@ -21,11 +21,32 @@ SIZES = [
 
 SCREENS = [
     {
-        "file": "screenshot-pace.png",
-        "name": "01-reglages",
+        "file": "screenshot-adaptive.png",
+        "name": "01-adaptatif",
         "kicker": "BEATONSTEP",
-        "title": "Adaptatif,\nou tu fixes",
-        "sub": "Marche, footing, sprint : la musique suit.",
+        "title": "Adaptatif :\nla musique suit",
+        "sub": "Le PPM suit ta cadence. Un titre se cale dessus.",
+    },
+    {
+        "file": "screenshot-fixed.png",
+        "name": "02-fixe",
+        "kicker": "BEATONSTEP",
+        "title": "Fixe :\ntu règles le PPM",
+        "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
+    },
+    {
+        "file": "screenshot-settings.png",
+        "name": "03-reglages",
+        "kicker": "BEATONSTEP",
+        "title": "Réglages\nclairs",
+        "sub": "Adaptatif ou Fixe, et quand le titre change.",
+    },
+    {
+        "file": "screenshot-library.png",
+        "name": "04-bibliotheque",
+        "kicker": "BEATONSTEP",
+        "title": "Tes fichiers,\nau bon BPM",
+        "sub": "Musiques téléphone triées par BPM.",
     },
 ]
 

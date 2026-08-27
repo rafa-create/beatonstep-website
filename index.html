@@ -335,6 +335,53 @@
       </div>
     </section>
 
+    <section class="shots reveal-stagger" aria-label="Aperçu de l’app">
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-adaptive.png" width="575" height="1024" alt="Accueil : mode Adaptatif" />
+        </div>
+        <figcaption>
+          <strong data-fr>Adaptatif</strong>
+          <strong data-en>Adaptive</strong>
+          <span data-fr>Le PPM suit ta cadence. La musique se cale dessus.</span>
+          <span data-en>PPM follows your cadence. The music locks to it.</span>
+        </figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-fixed.png" width="575" height="1024" alt="Accueil : mode Fixe" />
+        </div>
+        <figcaption>
+          <strong data-fr>Fixe</strong>
+          <strong data-en>Fixed</strong>
+          <span data-fr>Tu règles le PPM cible. L’app envoie des titres à ce rythme.</span>
+          <span data-en>You set the target PPM. The app queues tracks at that pace.</span>
+        </figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-settings.png" width="575" height="1024" alt="Réglages : détection et changement de titre" />
+        </div>
+        <figcaption>
+          <strong data-fr>Réglages</strong>
+          <strong data-en>Settings</strong>
+          <span data-fr>Adaptatif ou Fixe, et quand le titre change (immédiat, 5 s, fin).</span>
+          <span data-en>Adaptive or Fixed, and when the track changes (now, 5 s, end).</span>
+        </figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone">
+          <img src="screenshot-library.png" width="575" height="1024" alt="Bibliothèque : musiques téléphone et BPM" />
+        </div>
+        <figcaption>
+          <strong data-fr>Bibliothèque</strong>
+          <strong data-en>Library</strong>
+          <span data-fr>Tes fichiers téléphone, triés par BPM. Analyse en file si besoin.</span>
+          <span data-en>Your phone files, sorted by BPM. Queued analysis when needed.</span>
+        </figcaption>
+      </figure>
+    </section>
+
     <section class="sources reveal" data-src="mix">
       <p class="tag" data-fr>Compatibilité</p>
       <p class="tag" data-en>Sources</p>
@@ -391,6 +438,15 @@
       <p class="source-explain" data-src="spotify" data-en>Not available yet. Same validation constraint for v1; Spotify developer access stays very limited. Later: invite-only beta, playback in the Spotify app.</p>
       <p class="source-explain" data-src="deezer" data-fr>Pas encore disponible. La plateforme développeur Deezer n’accepte plus de nouvelles apps. On réactivera quand Deezer rouvrira l’accès.</p>
       <p class="source-explain" data-src="deezer" data-en>Not available yet. Deezer’s developer platform no longer accepts new apps. We’ll turn it back on when Deezer reopens access.</p>
+      <figure class="source-preview" hidden>
+        <div class="phone">
+          <img src="screenshot-youtube.png" width="575" height="1024" alt="" data-preview-img />
+        </div>
+        <figcaption>
+          <span data-fr data-preview-cap-fr></span>
+          <span data-en data-preview-cap-en></span>
+        </figcaption>
+      </figure>
       <ul class="setup-steps reveal-stagger">
         <li>
           <p data-fr>Réglages : coche Mix démo et/ou Musiques téléphone.</p>
@@ -405,20 +461,6 @@
           <p data-en>On a run, the app picks only from those, at your rhythm.</p>
         </li>
       </ul>
-    </section>
-
-    <section class="shots reveal" aria-label="Aperçu de l’app">
-      <figure class="shot">
-        <div class="phone">
-          <img src="screenshot-pace.png" width="575" height="1024" alt="Réglages : Adaptatif, PPM et changement de titre" />
-        </div>
-        <figcaption>
-          <strong data-fr>Réglages</strong>
-          <strong data-en>Settings</strong>
-          <span data-fr>Adaptatif ou Fixe. Tu choisis quand le titre change.</span>
-          <span data-en>Adaptive or Fixed. You pick when the track changes.</span>
-        </figcaption>
-      </figure>
     </section>
 
     <section class="modes reveal">
@@ -1200,12 +1242,49 @@
         var root = document.querySelector(".sources");
         if (!root) return;
         var cards = root.querySelectorAll(".source-card");
+        var preview = root.querySelector(".source-preview");
+        var previewImg = root.querySelector("[data-preview-img]");
+        var capFr = root.querySelector("[data-preview-cap-fr]");
+        var capEn = root.querySelector("[data-preview-cap-en]");
+        var shots = {
+          mp3: {
+            src: "screenshot-library.png",
+            alt: "Bibliothèque : musiques téléphone",
+            fr: "Musiques téléphone — tri BPM, analyse en file.",
+            en: "Phone music — BPM sort, queued analysis."
+          },
+          ytm: {
+            src: "screenshot-youtube.png",
+            alt: "BeatOnStep avec lecture YouTube",
+            fr: "Aperçu — lecture dans l’app YouTube (bientôt).",
+            en: "Preview — playback in the YouTube app (soon)."
+          },
+          spotify: {
+            src: "screenshot-spotify.png",
+            alt: "BeatOnStep avec lecture Spotify",
+            fr: "Aperçu — lecture dans l’app Spotify (bientôt).",
+            en: "Preview — playback in the Spotify app (soon)."
+          }
+        };
+        function showPreview(key) {
+          if (!preview || !previewImg || !shots[key]) {
+            if (preview) preview.hidden = true;
+            return;
+          }
+          var s = shots[key];
+          previewImg.src = s.src;
+          previewImg.alt = s.alt;
+          if (capFr) capFr.textContent = s.fr;
+          if (capEn) capEn.textContent = s.en;
+          preview.hidden = false;
+        }
         function clear() {
           cards.forEach(function (c) {
             c.setAttribute("aria-pressed", "false");
             if (c.parentElement) c.parentElement.classList.remove("is-on");
           });
           root.removeAttribute("data-src");
+          if (preview) preview.hidden = true;
         }
         cards.forEach(function (btn) {
           btn.addEventListener("click", function () {
@@ -1218,6 +1297,7 @@
             btn.setAttribute("aria-pressed", "true");
             if (btn.parentElement) btn.parentElement.classList.add("is-on");
             if (key) root.setAttribute("data-src", key);
+            showPreview(key);
           });
         });
       })();
