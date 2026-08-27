@@ -1,8 +1,8 @@
-# Music credits — BeatOnStep included mix
+# Music credits — BeatOnStep demo mix
 
 **Last updated:** 2026-08-25
 
-The BeatOnStep « Included mix » catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
+The BeatOnStep « Demo mix » catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
 
 BPM values are measured on the server (librosa.beat.beat_track, confidence ≥ 0.77). They may differ slightly from BPM values published by the artists.
 

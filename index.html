@@ -217,12 +217,12 @@
       <p class="tag" data-en>First run</p>
       <h2 data-fr>Tu peux courir tout de suite</h2>
       <h2 data-en>You can run right away</h2>
-      <p class="section-lead" data-fr>Le mix inclus suffit pour tester. Tes playlists, plus tard.</p>
-      <p class="section-lead" data-en>The included mix is enough to try it. Your playlists can wait.</p>
+      <p class="section-lead" data-fr>Le Mix démo suffit pour tester. Spotify, YouTube et Deezer arrivent plus tard.</p>
+      <p class="section-lead" data-en>The Demo mix is enough to try it. Spotify, YouTube and Deezer come later.</p>
       <ul class="setup-steps reveal-stagger">
         <li>
-          <p data-fr>Ouvre l’app. Le mix inclus est déjà là.</p>
-          <p data-en>Open the app. The included mix is already there.</p>
+          <p data-fr>Ouvre l’app. Le Mix démo est déjà là.</p>
+          <p data-en>Open the app. The Demo mix is already there.</p>
         </li>
         <li>
           <p data-fr>Choisis Adaptatif (rythme live) ou Fixe (tu règles le PPM).</p>
@@ -338,16 +338,16 @@
     <section class="sources reveal" data-src="mix">
       <p class="tag" data-fr>Compatibilité</p>
       <p class="tag" data-en>Sources</p>
-      <h2 data-fr>Tes fichiers, tes playlists</h2>
-      <h2 data-en>Your files, your playlists</h2>
-      <p class="section-lead" data-fr>Mix inclus et Musiques téléphone : lecture dans BeatOnStep. YouTube et Spotify s’ouvrent dans leur app.</p>
-      <p class="section-lead" data-en>Included mix and Phone music play in BeatOnStep. YouTube and Spotify open in their apps.</p>
+      <h2 data-fr>Tes sources musique</h2>
+      <h2 data-en>Your music sources</h2>
+      <p class="section-lead" data-fr>Disponibles maintenant : Mix démo et Musiques téléphone. YouTube, Spotify et Deezer : pas encore.</p>
+      <p class="section-lead" data-en>Available now: Demo mix and Phone music. YouTube, Spotify and Deezer: not yet.</p>
       <ul class="source-row reveal-stagger">
         <li class="is-on">
           <button type="button" class="source-card" data-src="mix" aria-pressed="true">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>
-            <span data-fr>Mix inclus</span>
-            <span data-en>Included mix</span>
+            <span data-fr>Mix démo</span>
+            <span data-en>Demo mix</span>
           </button>
         </li>
         <li>
@@ -358,36 +358,47 @@
           </button>
         </li>
         <li>
-          <button type="button" class="source-card" data-src="ytm" aria-pressed="false">
+          <button type="button" class="source-card source-card-soon" data-src="ytm" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="8" width="24" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="currentColor" d="M13 12.5v7l8-3.5-8-3.5z"/></svg>
-            <span>YouTube</span>
+            <span data-fr>YouTube · bientôt</span>
+            <span data-en>YouTube · soon</span>
           </button>
         </li>
         <li>
-          <button type="button" class="source-card" data-src="spotify" aria-pressed="false">
+          <button type="button" class="source-card source-card-soon" data-src="spotify" aria-pressed="false">
             <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.4"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 13.2c4.2-1.2 8.8-1 13 .8M9.2 16.8c3.8-1 8-.8 11.8.8M9.5 20.2c3.2-.8 6.8-.6 10 .6"/></svg>
-            <span>Spotify</span>
+            <span data-fr>Spotify · bientôt</span>
+            <span data-en>Spotify · soon</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="source-card source-card-soon" data-src="deezer" aria-pressed="false">
+            <svg class="source-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M4 20h3v6H4v-6zm5-4h3v10H9V16zm5-4h3v14h-3V12zm5 2h3v12h-3V14zm5-6h3v18h-3V8z"/></svg>
+            <span data-fr>Deezer · bientôt</span>
+            <span data-en>Deezer · soon</span>
           </button>
         </li>
       </ul>
       <p class="source-hint" data-fr>Touche une source pour le détail.</p>
       <p class="source-hint" data-en>Tap a source for details.</p>
-      <p class="source-explain" data-src="mix" data-fr>Pack livré avec l’app. Lecture dans BeatOnStep, sans compte.</p>
-      <p class="source-explain" data-src="mix" data-en>Ships with the app. Plays in BeatOnStep, no account.</p>
-      <p class="source-explain" data-src="mp3" data-fr>Fichiers du téléphone importés, lecture dans BeatOnStep. Lance l’analyse BPM de chaque titre avant.</p>
-      <p class="source-explain" data-src="mp3" data-en>Imported phone files, play in BeatOnStep. Run BPM analysis on each track first.</p>
-      <p class="source-explain" data-src="ytm" data-fr>S’ouvre dans l’app YouTube. YouTube Premium pour l’arrière-plan : sans ça, revenir ici coupe la lecture.</p>
-      <p class="source-explain" data-src="ytm" data-en>Opens in the YouTube app. YouTube Premium for background play: without it, coming back here stops playback.</p>
-      <p class="source-explain" data-src="spotify" data-fr>S’ouvre dans l’app Spotify. BPM à renseigner. Bêta sur invitation.</p>
-      <p class="source-explain" data-src="spotify" data-en>Opens in the Spotify app. BPM required. Invite-only beta.</p>
+      <p class="source-explain" data-src="mix" data-fr>Catalogue d’essai CC-BY (Kevin MacLeod, Scott Buckley) pour courir tout de suite. BPM déjà dans le pack, lecture dans BeatOnStep. Internet requis. Si le serveur est down : « Mix démo indisponible pour le moment, réessayez plus tard ».</p>
+      <p class="source-explain" data-src="mix" data-en>CC-BY demo catalogue (Kevin MacLeod, Scott Buckley) so you can run right away. BPM ships in the pack, plays in BeatOnStep. Internet required. If the server is down: “Demo mix unavailable right now, try again later.”</p>
+      <p class="source-explain" data-src="mp3" data-fr>Fichiers déjà sur ton téléphone, lecture dans BeatOnStep. BPM à analyser ou à saisir avant de partir.</p>
+      <p class="source-explain" data-src="mp3" data-en>Files already on your phone, play in BeatOnStep. Analyze or enter BPM before you head out.</p>
+      <p class="source-explain" data-src="ytm" data-fr>Pas encore disponible. On attend la validation des plateformes (Apple, Google) avant de le réactiver. Ensuite : import de playlists + lecture dans l’app YouTube.</p>
+      <p class="source-explain" data-src="ytm" data-en>Not available yet. We’re waiting on platform validation (Apple, Google) before turning it back on. Then: playlist import + playback in the YouTube app.</p>
+      <p class="source-explain" data-src="spotify" data-fr>Pas encore disponible. Même contrainte de validation pour la 1ʳᵉ version ; l’accès développeur Spotify reste très limité. Plus tard : bêta invitation, lecture dans l’app Spotify.</p>
+      <p class="source-explain" data-src="spotify" data-en>Not available yet. Same validation constraint for v1; Spotify developer access stays very limited. Later: invite-only beta, playback in the Spotify app.</p>
+      <p class="source-explain" data-src="deezer" data-fr>Pas encore disponible. La plateforme développeur Deezer n’accepte plus de nouvelles apps. On réactivera quand Deezer rouvrira l’accès.</p>
+      <p class="source-explain" data-src="deezer" data-en>Not available yet. Deezer’s developer platform no longer accepts new apps. We’ll turn it back on when Deezer reopens access.</p>
       <ul class="setup-steps reveal-stagger">
         <li>
-          <p data-fr>Réglages : coche tes sources.</p>
-          <p data-en>Settings: tick your sources.</p>
+          <p data-fr>Réglages : coche Mix démo et/ou Musiques téléphone.</p>
+          <p data-en>Settings: tick Demo mix and/or Phone music.</p>
         </li>
         <li>
-          <p data-fr>Bibliothèque : connecte-toi si besoin, puis tes playlists.</p>
-          <p data-en>Library: sign in if needed, then pick playlists.</p>
+          <p data-fr>Bibliothèque : le Mix démo se charge en ligne ; importe tes fichiers si tu veux.</p>
+          <p data-en>Library: the Demo mix loads online; import your files if you want.</p>
         </li>
         <li>
           <p data-fr>En course, l’app piochera uniquement là-dedans, à ton rythme.</p>
@@ -421,13 +432,13 @@
       </figure>
       <figure class="shot">
         <div class="phone">
-          <img src="screenshot-library.png" width="575" height="1024" alt="Bibliothèque : mix inclus et sources" />
+          <img src="screenshot-library.png" width="575" height="1024" alt="Bibliothèque : mix démo et sources" />
         </div>
         <figcaption>
           <strong data-fr>Ta musique</strong>
           <strong data-en>Your music</strong>
-          <span data-fr>Tes sources, tes playlists. L’app envoie un titre à ton PPM.</span>
-          <span data-en>Your sources, your playlists. The app queues a track at your PPM.</span>
+          <span data-fr>Mix démo et fichiers téléphone. L’app envoie un titre à ton PPM.</span>
+          <span data-en>Demo mix and phone files. The app queues a track at your PPM.</span>
         </figcaption>
       </figure>
     </section>
@@ -529,8 +540,8 @@
                 <span data-fr>Il me faut Spotify ou YouTube ?</span>
                 <span data-en>Do I need Spotify or YouTube?</span>
               </summary>
-              <p data-fr>Non. Le mix inclus est déjà là. Tu peux courir tout de suite, téléphone dans la poche.</p>
-              <p data-en>No. The included mix is already there. You can run right away, phone in your pocket.</p>
+              <p data-fr>Non. Le Mix démo + (optionnel) tes fichiers téléphone suffisent. YouTube, Spotify et Deezer arrivent plus tard.</p>
+              <p data-en>No. The Demo mix + (optional) phone files are enough. YouTube, Spotify and Deezer come later.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -542,19 +553,19 @@
             </details>
             <details class="faq-item">
               <summary>
-                <span data-fr>YouTube coupe la musique ?</span>
-                <span data-en>Does YouTube stop the music?</span>
+                <span data-fr>YouTube, c’est dispo ?</span>
+                <span data-en>Is YouTube available?</span>
               </summary>
-              <p data-fr>YouTube s’ouvre dans son app. Sans YouTube Premium, revenir dans BeatOnStep coupe souvent la lecture. Premium garde l’arrière-plan.</p>
-              <p data-en>YouTube opens in its app. Without YouTube Premium, coming back to BeatOnStep often stops playback. Premium keeps it in the background.</p>
+              <p data-fr>Pas encore. On attend la validation des plateformes (Apple, Google). Ensuite : import de playlists et lecture dans l’app YouTube.</p>
+              <p data-en>Not yet. We’re waiting on platform validation (Apple, Google). Then: playlist import and playback in the YouTube app.</p>
             </details>
             <details class="faq-item">
               <summary>
                 <span data-fr>Spotify, c’est dispo ?</span>
                 <span data-en>Is Spotify available?</span>
               </summary>
-              <p data-fr>Oui, ça s’ouvre dans l’app Spotify. Il faut le BPM de chaque titre. Bêta sur invitation.</p>
-              <p data-en>Yes — it opens in the Spotify app. Each track needs a BPM. Invite-only beta.</p>
+              <p data-fr>Pas encore. Même contrainte de validation pour la 1ʳᵉ version ; l’accès développeur Spotify est très limité. Plus tard : bêta invitation, lecture dans l’app Spotify.</p>
+              <p data-en>Not yet. Same validation constraint for v1; Spotify developer access is very limited. Later: invite-only beta, playback in the Spotify app.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -589,8 +600,8 @@
                 <span data-fr>Et Deezer ?</span>
                 <span data-en>What about Deezer?</span>
               </summary>
-              <p data-fr>Quand Deezer autorisera à nouveau la création d’apps. Leur plateforme développeur n’accepte plus de nouvelles applications.</p>
-              <p data-en>When Deezer allows new apps again. Their developer platform is closed to new applications.</p>
+              <p data-fr>Pas encore. La plateforme développeur Deezer n’accepte plus de nouvelles apps. On réactivera quand Deezer rouvrira l’accès.</p>
+              <p data-en>Not yet. Deezer’s developer platform no longer accepts new apps. We’ll turn it back on when Deezer reopens access.</p>
             </details>
           </div>
 
@@ -650,14 +661,14 @@
                   <ol class="schema-flow">
                     <li><span data-fr>Mix : déjà tagué</span><span data-en>Mix: pre-tagged</span></li>
                     <li><span data-fr>Musiques téléphone : analyse ~90 s</span><span data-en>Phone music: ~90 s analysis</span></li>
-                    <li><span data-fr>Spotify / YT : saisie</span><span data-en>Spotify / YT: you set it</span></li>
+                    <li><span data-fr>YT / Spotify : plus tard</span><span data-en>YT / Spotify: later</span></li>
                     <li><span data-fr>Sans BPM : ignoré</span><span data-en>No BPM: skipped</span></li>
                   </ol>
                 </figure>
-                <p data-fr>Mix inclus : BPM déjà dans le pack, lecture dans BeatOnStep. Musiques téléphone : rien à l’import. Analyse serveur (~90 s / piste) ou nom de fichier « Artiste - Titre (BPM-120).mp3 ». Sinon estimation 120, à confirmer. Un titre sans BPM n’entre pas dans le matching.</p>
-                <p data-en>Included mix: BPM ships in the pack, plays in BeatOnStep. Phone music: nothing on import. Server analysis (~90 s / track) or filename “Artist - Title (BPM-120).mp3”. Else estimated 120, to confirm. A track with no BPM never enters matching.</p>
-                <p data-fr>Spotify et YouTube : lecture dans leur app. Pas de BPM auto. Tu saisis le BPM, ou tu lances la détection bêta (MusicBrainz / AcousticBrainz). YouTube Premium pour garder la lecture en arrière-plan. Deezer, plus tard : BPM API si Deezer le fournit — bloqué tant que leur plateforme développeur est fermée.</p>
-                <p data-en>Spotify and YouTube: play in their apps. No auto BPM. You enter BPM, or run the beta detect (MusicBrainz / AcousticBrainz). YouTube Premium to keep background play. Deezer later: API BPM when Deezer provides it — blocked while their developer platform is closed.</p>
+                <p data-fr>Mix démo : BPM déjà dans le pack, lecture dans BeatOnStep. Musiques téléphone : rien à l’import. Analyse serveur (~90 s / piste) ou nom de fichier « Artiste - Titre (BPM-120).mp3 ». Sinon estimation 120, à confirmer. Un titre sans BPM n’entre pas dans le matching.</p>
+                <p data-en>Demo mix: BPM ships in the pack, plays in BeatOnStep. Phone music: nothing on import. Server analysis (~90 s / track) or filename “Artist - Title (BPM-120).mp3”. Else estimated 120, to confirm. A track with no BPM never enters matching.</p>
+                <p data-fr>YouTube, Spotify et Deezer : pas encore dans la 1ʳᵉ version. Quand ils seront dispo : lecture dans leur app, BPM à saisir (ou détection bêta). Deezer reste bloqué tant que leur accès développeur est fermé.</p>
+                <p data-en>YouTube, Spotify and Deezer: not in the first version yet. When available: play in their apps, BPM you enter (or beta detect). Deezer stays blocked while their developer access is closed.</p>
               </details>
               <details class="faq-item">
                 <summary>

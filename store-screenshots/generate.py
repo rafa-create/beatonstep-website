@@ -39,7 +39,7 @@ SCREENS = [
         "name": "03-bibliotheque",
         "kicker": "BEATONSTEP",
         "title": "Le bon titre,\nau bon BPM",
-        "sub": "Mix inclus et musiques téléphone.",
+        "sub": "Mix démo et musiques téléphone.",
     },
 ]
 
