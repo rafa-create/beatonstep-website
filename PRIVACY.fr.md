@@ -1,10 +1,10 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 27 août 2026
+**Dernière mise à jour :** 28 août 2026
 
 ## 1. Qui sommes-nous
 
-BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible en accès anticipé sur **Google Play** (test interne) et sur **Apple TestFlight**.
+BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible sur **Google Play** (test interne) et sur **l'App Store** (iOS).
 
 **Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
@@ -71,7 +71,7 @@ L'app peut contacter les services **Expo** pour vérifier et télécharger des m
 | `FOREGROUND_SERVICE` | Maintenir la lecture musicale et la détection de cadence en arrière-plan (téléphone verrouillé). |
 | `WAKE_LOCK` | Limiter la mise en veille du capteur pendant une session. |
 
-### iOS (TestFlight)
+### iOS (App Store)
 
 BeatOnStep demande uniquement l'accès aux **capteurs de mouvement** (accéléromètre) pour la détection de cadence. Sur iOS, cet accès est géré par le framework natif sans permission explicite demandée à l'utilisateur.
 
@@ -94,7 +94,7 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 | Service | Quand | Ce qui transite |
 |---------|-------|-----------------|
 | **Google / YouTube** | Pas encore en version store (plus tard, si vous connectez) | Authentification OAuth ; requêtes API playlists / métadonnées |
-| **Apple (TestFlight)** | Distribution iOS en accès anticipé | Gestion de la version bêta par Apple selon ses propres règles |
+| **Apple (App Store)** | Distribution iOS | Gestion par Apple selon ses propres règles |
 | **Expo** | Automatique | Vérification / téléchargement de mises à jour OTA |
 | **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
 | **Spotify** | Pas encore en version store (plus tard, bêta invitation) | Authentification OAuth ; métadonnées playlists |

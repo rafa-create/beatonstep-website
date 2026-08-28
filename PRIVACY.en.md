@@ -1,12 +1,12 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** August 27, 2026
+**Last updated:** August 28, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
 ## 1. Who we are
 
-BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available in early access on **Google Play** (internal test) and **Apple TestFlight**.
+BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on **Google Play** (internal test) and the **App Store** (iOS).
 
 **Publisher:** Rafael Orset — contact: [BeatOnStep forum](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
@@ -73,7 +73,7 @@ The app may contact **Expo** services to check for and download JavaScript updat
 | `FOREGROUND_SERVICE` | Keep music playback and cadence detection running in the background (locked screen). |
 | `WAKE_LOCK` | Prevent the sensor from sleeping during a session. |
 
-### iOS (TestFlight)
+### iOS (App Store)
 
 BeatOnStep requests access only to **motion sensors** (accelerometer) for cadence detection. On iOS, this is handled by the native framework without an explicit user-facing permission prompt.
 
@@ -96,7 +96,7 @@ On your device, in the app's private storage:
 | Service | When | What transits |
 |---------|------|---------------|
 | **Google / YouTube** | Not in store v1 yet (later, if you connect) | OAuth authentication; playlist / metadata API requests |
-| **Apple (TestFlight)** | iOS early-access distribution | Beta version management by Apple under their own terms |
+| **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
 | **Spotify** | Not in store v1 yet (later, invite beta) | OAuth authentication; playlist metadata |
