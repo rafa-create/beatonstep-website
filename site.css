@@ -807,12 +807,6 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   background: var(--accent);
   box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
 }
-.split-good .beat-dot-music,
-.split-good .beat-dot-steps {
-  left: 50%;
-  transform: translateX(-50%);
-  will-change: auto;
-}
 .split-good .beat-dot-steps {
   width: 1.15rem;
   height: 1.15rem;
@@ -824,6 +818,34 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   z-index: 2;
   background: var(--music);
   box-shadow: 0 0 0 1px var(--music), 0 0 12px var(--music-glow);
+}
+.beat-viz-match .beat-track,
+.beat-viz-mismatch .beat-track {
+  height: 1.85rem;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.beat-viz-match .beat-track:active,
+.beat-viz-mismatch .beat-track:active {
+  cursor: grabbing;
+}
+.beat-viz-match .beat-track:focus-visible,
+.beat-viz-mismatch .beat-track:focus-visible {
+  outline: none;
+}
+.beat-viz-match .beat-dot-music,
+.beat-viz-match .beat-dot-steps,
+.beat-viz-mismatch .beat-dot-music,
+.beat-viz-mismatch .beat-dot-steps {
+  pointer-events: none;
+}
+.beat-viz-match .beat-dot-steps,
+.beat-viz-mismatch .beat-dot-steps {
+  z-index: 2;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: -0.575rem;
 }
 .split-bad {
   border: 1px solid rgba(255, 92, 92, 0.45);

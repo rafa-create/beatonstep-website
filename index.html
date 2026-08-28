@@ -152,10 +152,10 @@
       <h2 data-en>Playlist <em class="split-pain split-pain-slow">too slow</em>? <em class="split-pain split-pain-fast">Too fast</em>?</h2>
       <div class="split-grid reveal-stagger">
         <article class="split-card split-bad">
-          <div class="beat-viz" aria-hidden="true">
+          <div class="beat-viz beat-viz-mismatch" data-split-mismatch>
             <div class="beat-pair">
               <div class="beat-col beat-col-run">
-                <p class="beat-value">134</p>
+                <p class="beat-value" data-mismatch-ppm>134</p>
                 <p class="beat-label">
                   <span data-fr>coureur · PPM</span>
                   <span data-en>runner · PPM</span>
@@ -170,7 +170,16 @@
                 </p>
               </div>
             </div>
-            <div class="beat-track">
+            <div
+              class="beat-track"
+              role="slider"
+              tabindex="0"
+              aria-valuemin="40"
+              aria-valuemax="240"
+              aria-valuenow="134"
+              aria-valuetext="134 PPM"
+              aria-label="PPM coureur"
+            >
               <span class="beat-dot beat-dot-music"></span>
               <span class="beat-dot beat-dot-steps"></span>
             </div>
@@ -181,10 +190,10 @@
           <p data-en>It breaks your cadence. Your legs pay for it.</p>
         </article>
         <article class="split-card split-good">
-          <div class="beat-viz" aria-hidden="true">
+          <div class="beat-viz beat-viz-match" data-split-match>
             <div class="beat-pair">
               <div class="beat-col beat-col-run">
-                <p class="beat-value">134</p>
+                <p class="beat-value" data-match-ppm>134</p>
                 <p class="beat-label">
                   <span data-fr>coureur · PPM</span>
                   <span data-en>runner · PPM</span>
@@ -192,14 +201,23 @@
               </div>
               <span class="beat-op beat-op-ok">=</span>
               <div class="beat-col beat-col-music">
-                <p class="beat-value">134</p>
+                <p class="beat-value" data-match-bpm>134</p>
                 <p class="beat-label">
                   <span data-fr>musique · BPM</span>
                   <span data-en>music · BPM</span>
                 </p>
               </div>
             </div>
-            <div class="beat-track">
+            <div
+              class="beat-track"
+              role="slider"
+              tabindex="0"
+              aria-valuemin="40"
+              aria-valuemax="240"
+              aria-valuenow="134"
+              aria-valuetext="134 PPM, 134 BPM"
+              aria-label="PPM"
+            >
               <span class="beat-dot beat-dot-music"></span>
               <span class="beat-dot beat-dot-steps"></span>
             </div>
@@ -985,35 +1003,99 @@
       })();
 
       (function mismatchDots() {
-        var track = document.querySelector(".split-bad .beat-track");
-        var music = document.querySelector(".split-bad .beat-dot-music");
-        var steps = document.querySelector(".split-bad .beat-dot-steps");
-        var bpmEl = document.querySelector("[data-beat-bpm]");
-        if (!track || !music || !steps || !bpmEl) return;
+        var root = document.querySelector("[data-split-mismatch]");
+        if (!root) return;
+        var track = root.querySelector(".beat-track");
+        var music = root.querySelector(".beat-dot-music");
+        var steps = root.querySelector(".beat-dot-steps");
+        var ppmEl = root.querySelector("[data-mismatch-ppm]");
+        var bpmEl = root.querySelector("[data-beat-bpm]");
+        if (!track || !music || !steps || !ppmEl || !bpmEl) return;
 
         var BPM_MIN = 40;
         var BPM_MAX = 240;
-        var PPM = 134;
+        var ppm = 134;
+        var dragging = false;
+        var animating = true;
 
         function clamp(n, a, b) {
           return Math.min(b, Math.max(a, n));
         }
-        function xFromBpm(bpm) {
-          return clamp((bpm - BPM_MIN) / (BPM_MAX - BPM_MIN), 0, 1);
+        function xFromVal(v) {
+          return clamp((v - BPM_MIN) / (BPM_MAX - BPM_MIN), 0, 1);
         }
-        function bpmFromX(x) {
+        function valFromX(x) {
           return Math.round(BPM_MIN + clamp(x, 0, 1) * (BPM_MAX - BPM_MIN));
         }
         function place(el, x) {
           el.style.left = clamp(x, 0, 1) * 100 + "%";
         }
+        function renderPpm() {
+          ppmEl.textContent = String(ppm);
+          track.setAttribute("aria-valuenow", String(ppm));
+          track.setAttribute("aria-valuetext", ppm + " PPM");
+        }
+        function setPpmFromClientX(x) {
+          ppm = valFromX((function () {
+            var rect = track.getBoundingClientRect();
+            return rect.width ? (x - rect.left) / rect.width : 0.5;
+          })());
+          place(steps, xFromVal(ppm));
+          renderPpm();
+        }
 
-        var runnerX = xFromBpm(PPM);
+        var runnerX = xFromVal(ppm);
         place(steps, runnerX);
+        renderPpm();
 
-        var musicX = xFromBpm(90);
+        var musicX = xFromVal(90);
         place(music, musicX);
-        bpmEl.textContent = String(bpmFromX(musicX));
+        bpmEl.textContent = String(valFromX(musicX));
+
+        track.addEventListener("pointerdown", function (e) {
+          dragging = true;
+          animating = false;
+          track.setPointerCapture(e.pointerId);
+          track.focus({ preventScroll: true });
+          setPpmFromClientX(e.clientX);
+          e.preventDefault();
+        });
+        track.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          setPpmFromClientX(e.clientX);
+        });
+        track.addEventListener("pointerup", function () {
+          dragging = false;
+          animating = true;
+        });
+        track.addEventListener("pointercancel", function () {
+          dragging = false;
+          animating = true;
+        });
+        track.addEventListener("blur", function () {
+          animating = true;
+        });
+        track.addEventListener("keydown", function (e) {
+          var step = e.shiftKey ? 5 : 1;
+          if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            ppm = clamp(ppm - step, BPM_MIN, BPM_MAX);
+            e.preventDefault();
+          } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            ppm = clamp(ppm + step, BPM_MIN, BPM_MAX);
+            e.preventDefault();
+          } else if (e.key === "Home") {
+            ppm = BPM_MIN;
+            e.preventDefault();
+          } else if (e.key === "End") {
+            ppm = BPM_MAX;
+            e.preventDefault();
+          } else {
+            return;
+          }
+          animating = false;
+          place(steps, xFromVal(ppm));
+          renderPpm();
+        });
 
         if (reduce) return;
 
@@ -1024,25 +1106,142 @@
           if (!last) last = ts;
           var dt = Math.min(0.05, (ts - last) / 1000);
           last = ts;
-          musicX += v * dt;
-          if (musicX <= 0) {
-            musicX = 0;
-            v = 0.18 + Math.random() * 0.55;
-          } else if (musicX >= 1) {
-            musicX = 1;
-            v = -(0.18 + Math.random() * 0.55);
-          } else if (Math.random() < 0.018) {
-            v = (v < 0 ? 1 : -1) * (0.16 + Math.random() * 0.6);
+          if (animating && !dragging) {
+            musicX += v * dt;
+            if (musicX <= 0) {
+              musicX = 0;
+              v = 0.18 + Math.random() * 0.55;
+            } else if (musicX >= 1) {
+              musicX = 1;
+              v = -(0.18 + Math.random() * 0.55);
+            } else if (Math.random() < 0.018) {
+              v = (v < 0 ? 1 : -1) * (0.16 + Math.random() * 0.6);
+            }
+            bpmEl.textContent = String(valFromX(musicX));
+            place(music, musicX);
           }
-          place(steps, runnerX);
-          place(music, musicX);
-          bpmEl.textContent = String(bpmFromX(musicX));
           requestAnimationFrame(tick);
         }
         window.addEventListener("resize", function () {
-          place(steps, runnerX);
+          place(steps, xFromVal(ppm));
           place(music, musicX);
         });
+        requestAnimationFrame(tick);
+      })();
+
+      (function splitMatch() {
+        var root = document.querySelector("[data-split-match]");
+        if (!root) return;
+        var ppmEl = root.querySelector("[data-match-ppm]");
+        var bpmEl = root.querySelector("[data-match-bpm]");
+        var track = root.querySelector(".beat-track");
+        var music = root.querySelector(".beat-dot-music");
+        var steps = root.querySelector(".beat-dot-steps");
+        if (!ppmEl || !bpmEl || !track || !music || !steps) return;
+
+        var PPM_MIN = 40;
+        var PPM_MAX = 240;
+        var ppm = 134;
+        var dragging = false;
+        var targetX = 0.5;
+        var runnerX = 0.5;
+        var musicX = 0.5;
+
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+        function setPpm(n) {
+          ppm = clamp(Math.round(n), PPM_MIN, PPM_MAX);
+        }
+        function place(el, x) {
+          el.style.left = clamp(x, 0, 1) * 100 + "%";
+        }
+        function syncTarget() {
+          targetX = clamp((ppm - PPM_MIN) / (PPM_MAX - PPM_MIN), 0, 1);
+          if (reduce) {
+            runnerX = targetX;
+            musicX = targetX;
+            drawDots();
+          }
+        }
+        function renderLabels() {
+          ppmEl.textContent = String(ppm);
+          bpmEl.textContent = String(ppm);
+          track.setAttribute("aria-valuenow", String(ppm));
+          track.setAttribute("aria-valuetext", ppm + " PPM, " + ppm + " BPM");
+        }
+        function drawDots() {
+          place(steps, runnerX);
+          place(music, musicX);
+        }
+        function setFromClientX(x) {
+          var rect = track.getBoundingClientRect();
+          var t = rect.width ? (x - rect.left) / rect.width : 0.5;
+          setPpm(PPM_MIN + clamp(t, 0, 1) * (PPM_MAX - PPM_MIN));
+          syncTarget();
+          renderLabels();
+        }
+
+        track.addEventListener("pointerdown", function (e) {
+          dragging = true;
+          track.setPointerCapture(e.pointerId);
+          track.focus({ preventScroll: true });
+          setFromClientX(e.clientX);
+          e.preventDefault();
+        });
+        track.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          setFromClientX(e.clientX);
+        });
+        track.addEventListener("pointerup", function () {
+          dragging = false;
+        });
+        track.addEventListener("pointercancel", function () {
+          dragging = false;
+        });
+        track.addEventListener("keydown", function (e) {
+          var ppmStep = e.shiftKey ? 5 : 1;
+          if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            setPpm(ppm - ppmStep);
+            e.preventDefault();
+            syncTarget();
+            renderLabels();
+          } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            setPpm(ppm + ppmStep);
+            e.preventDefault();
+            syncTarget();
+            renderLabels();
+          } else if (e.key === "Home") {
+            setPpm(PPM_MIN);
+            e.preventDefault();
+            syncTarget();
+            renderLabels();
+          } else if (e.key === "End") {
+            setPpm(PPM_MAX);
+            e.preventDefault();
+            syncTarget();
+            renderLabels();
+          }
+        });
+
+        syncTarget();
+        runnerX = targetX;
+        musicX = targetX;
+        renderLabels();
+        drawDots();
+
+        if (reduce) return;
+
+        var last = 0;
+        function tick(ts) {
+          if (!last) last = ts;
+          var dt = Math.min(0.05, (ts - last) / 1000);
+          last = ts;
+          runnerX += (targetX - runnerX) * Math.min(1, dt * 14);
+          musicX += (runnerX - musicX) * Math.min(1, dt * 5.5);
+          drawDots();
+          requestAnimationFrame(tick);
+        }
         requestAnimationFrame(tick);
       })();
 
