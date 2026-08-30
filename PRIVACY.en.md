@@ -6,7 +6,7 @@
 
 ## 1. Who we are
 
-BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on **Google Play** (internal test) and the **App Store** (iOS).
+BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on **Google Play** (Android) and the **App Store** (iOS).
 
 **Publisher:** Rafael Orset — contact: [BeatOnStep forum](https://github.com/rafa-create/beatonstep-website/discussions/1)
 

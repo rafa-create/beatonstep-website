@@ -4,7 +4,7 @@
 
 ## 1. Qui sommes-nous
 
-BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible sur **Google Play** (test interne) et sur **l'App Store** (iOS).
+BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible sur **Google Play** (Android) et sur **l'App Store** (iOS).
 
 **Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
