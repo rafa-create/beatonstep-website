@@ -1097,6 +1097,13 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   height: 1.85rem;
   color: var(--accent);
 }
+.source-note {
+  margin: 0.65rem 0 0;
+  max-width: 42rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
 .source-hint,
 .source-explain {
   margin: 0.85rem 0 0;
