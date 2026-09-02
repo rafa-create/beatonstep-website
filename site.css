@@ -1051,7 +1051,7 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 }
 .source-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 0.75rem;
   list-style: none;
   margin: 0;
@@ -1109,9 +1109,61 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 .sources[data-src="mix"] .source-explain[data-src="mix"],
 .sources[data-src="mp3"] .source-explain[data-src="mp3"],
 .sources[data-src="ytm"] .source-explain[data-src="ytm"],
+.sources[data-src="apple-music"] .source-explain[data-src="apple-music"],
 .sources[data-src="spotify"] .source-explain[data-src="spotify"],
 .sources[data-src="deezer"] .source-explain[data-src="deezer"] {
   display: block;
+}
+.sources[data-src="apple-music"] .source-compare {
+  display: block;
+}
+.source-compare {
+  display: none;
+  margin: 1rem 0 0;
+  max-width: 42rem;
+}
+.source-compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.source-compare th,
+.source-compare td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+.source-compare thead th {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.source-compare tbody th {
+  font-weight: 700;
+  width: 28%;
+}
+.source-compare a {
+  color: var(--accent);
+}
+.source-compare-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .source-card-soon {
   color: var(--muted);
@@ -1657,11 +1709,17 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+.app-preview {
+  margin: 0 0 var(--section-gap);
+}
+.app-preview .section-lead {
+  max-width: 38rem;
+}
 .shots {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem 1.25rem;
-  margin: 0 auto var(--section-gap);
+  margin: 1.25rem auto 0;
   max-width: 52rem;
   align-items: start;
   justify-items: center;

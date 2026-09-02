@@ -14,7 +14,7 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
 
-Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube if connected, BPM analysis) or with technical infrastructure (updates). **Spotify and Deezer are not offered yet.** Details below.
+Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, BPM analysis) or with technical infrastructure (updates). **Spotify and Deezer are not offered yet.** Details below.
 
 ## 3. Features and data flows
 
@@ -50,15 +50,32 @@ If you connect a Google account to use YouTube in BeatOnStep:
 - You can **disconnect** YouTube in the app at any time: local tokens are deleted.
 - Your Google account remains governed by **Google's** policies.
 
-### 3.5 Spotify (not offered yet)
+### 3.5 Apple Music (optional)
+
+If you connect an Apple account to use Apple Music in BeatOnStep:
+
+- Feature **initiated by you**; BeatOnStep **does not provide** an Apple Music catalogue.
+- Secure Apple sign-in; the publisher does **not** receive your Apple password.
+- **Access tokens** are stored **locally** on the device and are **never transmitted** to the publisher or resold.
+- The app queries **Apple** services to display **your** playlists and metadata (tracks, artists, BPM you enter or detect).
+- No audio files are cached by BeatOnStep; **playback** happens in the **Apple Music** app — not inside BeatOnStep.
+- An active **Apple Music subscription** is required to listen to the catalogue via Apple.
+- You can **disconnect** Apple Music in the app at any time: local tokens are deleted.
+- Your Apple account remains governed by **Apple's** policies.
+
+**iPhone:** automatic playback in Apple Music; music can keep playing in the background while BeatOnStep runs.
+
+**Android:** the Apple Music app ([Google Play](https://play.google.com/store/apps/details?id=com.apple.android.music)) must be installed; BeatOnStep opens the track in that app (no BeatOnStep built-in player).
+
+### 3.6 Spotify (not offered yet)
 
 Spotify is **not offered** for now: developer access is very limited (~5 test accounts). Reactivation planned later (invite-only beta), playback in the Spotify app — with no transmission to the publisher.
 
-### 3.6 Deezer (not offered yet)
+### 3.7 Deezer (not offered yet)
 
 Deezer is **not offered**: Deezer's developer platform no longer accepts new applications. Reactivation is possible if Deezer reopens access.
 
-### 3.7 Updates (Expo OTA)
+### 3.8 Updates (Expo OTA)
 
 The app may contact **Expo** services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.
 
@@ -86,15 +103,16 @@ On your device, in the app's private storage:
 
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
-- YouTube connection tokens (if connected); Spotify (when available).
+- YouTube and Apple Music connection tokens (if connected); Spotify (when available).
 
-**Uninstalling** the app removes this data. Disconnecting a service (YouTube, Spotify) deletes the corresponding tokens without uninstalling the app.
+**Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music, Spotify) deletes the corresponding tokens without uninstalling the app.
 
 ## 6. Third-party services
 
 | Service | When | What transits |
 |---------|------|---------------|
 | **Google / YouTube** | If you connect YouTube | Google sign-in; playlist / metadata API requests |
+| **Apple / Apple Music** | If you connect Apple Music | Apple sign-in; playlist metadata |
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
@@ -111,6 +129,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 
 - **Local data** (library, settings, tokens): you control it directly in the app or by uninstalling.
 - **Google / YouTube account**: exercise your rights with Google under their procedures.
+- **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
 - **Spotify account**: exercise your rights with Spotify.
 - **Music server**: no BeatOnStep user account; for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 

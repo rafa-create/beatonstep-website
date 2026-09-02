@@ -21,28 +21,28 @@ SIZES = [
 
 SCREENS = [
     {
-        "file": "screenshot-adaptive.png",
+        "file": os.path.join("assets", "screenshots", "app", "adaptive.png"),
         "name": "01-adaptatif",
         "kicker": "BEATONSTEP",
         "title": "Adaptatif :\nla musique suit",
         "sub": "Le PPM suit ta cadence. Un titre se cale dessus.",
     },
     {
-        "file": "screenshot-fixed.png",
+        "file": os.path.join("assets", "screenshots", "app", "fixed.png"),
         "name": "02-fixe",
         "kicker": "BEATONSTEP",
         "title": "Fixe :\ntu règles le PPM",
         "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
     },
     {
-        "file": "screenshot-settings.png",
+        "file": os.path.join("assets", "screenshots", "app", "settings.png"),
         "name": "03-reglages",
         "kicker": "BEATONSTEP",
         "title": "Réglages\nclairs",
         "sub": "Adaptatif ou Fixe, et quand le titre change.",
     },
     {
-        "file": "screenshot-library.png",
+        "file": os.path.join("assets", "screenshots", "app", "library.png"),
         "name": "04-bibliotheque",
         "kicker": "BEATONSTEP",
         "title": "Tes fichiers,\nau bon BPM",
