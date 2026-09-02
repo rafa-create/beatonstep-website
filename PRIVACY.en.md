@@ -1,12 +1,12 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** August 28, 2026
+**Last updated:** September 2, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
 ## 1. Who we are
 
-BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on **Google Play** (Android) and the **App Store** (iOS).
+BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on **Google Play** (Android, **BeatOnStep**) and the **App Store** (iOS, **BeatOnSteps**).
 
 **Publisher:** Rafael Orset — contact: [BeatOnStep forum](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
@@ -14,7 +14,7 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
 
-Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, BPM analysis) or with technical infrastructure (updates). YouTube, Spotify and Deezer are **not yet available** in the first store version. Details below.
+Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube if connected, BPM analysis) or with technical infrastructure (updates). **Spotify and Deezer are not offered yet.** Details below.
 
 ## 3. Features and data flows
 
@@ -38,24 +38,23 @@ The demo catalogue (181 royalty-free tracks) is hosted on a publisher server (`h
 - No account creation, no advertising cookies, no marketing telemetry.
 - If you send an audio file for **BPM analysis**, it transits through the server for processing; it is not retained permanently or resold.
 
-### 3.4 YouTube Music (not yet available)
+### 3.4 YouTube (optional)
 
-YouTube Music is **not offered** in the first store version. A later reactivation is planned after platform validation (Apple, Google).
+If you connect a Google account to use YouTube in BeatOnStep:
 
-When the feature is active:
+- Feature **initiated by you**; BeatOnStep **does not provide** a YouTube catalogue.
+- Secure Google sign-in; the publisher does **not** receive your Google password.
+- **Access tokens** are stored **locally** on the device and are **never transmitted** to the publisher or resold.
+- The app queries **Google / YouTube APIs** to display **your** playlists and metadata.
+- **Playback** happens in the **YouTube** or **YouTube Music** app (your choice in Settings) — not inside BeatOnStep.
+- You can **disconnect** YouTube in the app at any time: local tokens are deleted.
+- Your Google account remains governed by **Google's** policies.
 
-- The app will use **OAuth 2.0 (PKCE)**; **no client secret** embedded.
-- **Tokens** will be stored **locally** and never sent to the publisher.
-- Playback will go through the YouTube app; BeatOnStep will not receive your Google password.
-- Your Google account will remain governed by **Google's** policies.
+### 3.5 Spotify (not offered yet)
 
-### 3.5 Spotify (not yet available)
+Spotify is **not offered** for now: developer access is very limited (~5 test accounts). Reactivation planned later (invite-only beta), playback in the Spotify app — with no transmission to the publisher.
 
-Spotify is **not offered** in the first store version. A later reactivation is planned (invite-only beta), subject to platform validation and sufficient Spotify developer access.
-
-When the feature is active: OAuth authentication, local token storage, playback in the Spotify app — with no transmission to the publisher.
-
-### 3.6 Deezer (not yet available)
+### 3.6 Deezer (not offered yet)
 
 Deezer is **not offered**: Deezer's developer platform no longer accepts new applications. Reactivation is possible if Deezer reopens access.
 
@@ -87,7 +86,7 @@ On your device, in the app's private storage:
 
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
-- YouTube / Spotify OAuth tokens (when those features return and you connect).
+- YouTube connection tokens (if connected); Spotify (when available).
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Spotify) deletes the corresponding tokens without uninstalling the app.
 
@@ -95,14 +94,14 @@ On your device, in the app's private storage:
 
 | Service | When | What transits |
 |---------|------|---------------|
-| **Google / YouTube** | Not in store v1 yet (later, if you connect) | OAuth authentication; playlist / metadata API requests |
+| **Google / YouTube** | If you connect YouTube | Google sign-in; playlist / metadata API requests |
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
-| **Spotify** | Not in store v1 yet (later, invite beta) | OAuth authentication; playlist metadata |
-| **Deezer** | Not available (developer access closed) | — |
+| **Spotify** | Not offered yet | — |
+| **Deezer** | Not offered yet | — |
 
-No advertising SDK, no marketing audience measurement, no integrated social network beyond the OAuth flow you initiate.
+No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
 
 ## 7. Children
 
@@ -130,13 +129,13 @@ This policy may be updated. The date at the top reflects the latest revision. Th
 
 ## 11. Music credits (demo mix catalogue)
 
-The « Demo mix » catalogue consists exclusively of royalty-free tracks licensed under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
+The "Demo mix" catalogue consists exclusively of royalty-free tracks under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
 
 **Artist (source):**
 
 - **Kevin MacLeod** — [incompetech.com](https://incompetech.com)
 
-BPM values are measured on the server (`librosa.beat.beat_track`, confidence ≥ 0.77).
+BPM values are measured server-side (`librosa.beat.beat_track`, confidence threshold ≥ 0.77). They may differ slightly from author-published BPM values.
 
 **Full track list (required for CC-BY attribution):**  
 [Music credits — Demo mix](https://rafa-create.github.io/beatonstep-website/music-credits.html)

@@ -1,10 +1,10 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 28 août 2026
+**Dernière mise à jour :** 2 septembre 2026
 
 ## 1. Qui sommes-nous
 
-BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible sur **Google Play** (Android) et sur **l'App Store** (iOS).
+BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L'application est disponible sur **Google Play** (Android, **BeatOnStep**) et l'**App Store** (iOS, **BeatOnSteps**).
 
 **Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
@@ -12,7 +12,7 @@ BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au 
 
 BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'intègre **pas d'analytique ou de tracking commercial**. Aucune donnée de cadence (PPM), de parcours, ni de bibliothèque musicale n'est envoyée à l'éditeur à des fins marketing ou de profilage.
 
-Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, analyse BPM) ou avec des infrastructures techniques (mises à jour). YouTube, Spotify et Deezer **ne sont pas encore disponibles** dans la première version store. Le détail figure ci-dessous.
+Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube si connecté, analyse BPM) ou avec des infrastructures techniques (mises à jour). **Spotify et Deezer ne sont pas encore proposés.** Le détail figure ci-dessous.
 
 ## 3. Fonctionnalités et flux de données
 
@@ -36,26 +36,25 @@ Le catalogue de démo (181 morceaux libres de droits) est hébergé sur un serve
 - Pas de création de compte, pas de cookie publicitaire, pas de télémétrie marketing.
 - Si vous envoyez un fichier audio pour **analyse BPM**, ce fichier transite par le serveur pour traitement ; il n'est pas conservé à des fins de stockage permanent ni revendu.
 
-### 3.4 YouTube Music (pas encore disponible)
+### 3.4 YouTube (optionnel)
 
-YouTube Music **n’est pas proposé** dans la première version store. Une réactivation est prévue plus tard, après validation des plateformes (Apple, Google).
+Si vous connectez un compte Google pour utiliser YouTube dans BeatOnStep :
 
-Quand la fonction sera active :
+- Fonction **initiée par vous** ; BeatOnStep **ne fournit pas** de catalogue YouTube.
+- Connexion Google sécurisée ; l'éditeur ne reçoit **pas** votre mot de passe Google.
+- Les **jetons d'accès** sont stockés **localement** sur l'appareil et ne sont **jamais transmis** à l'éditeur ni revendus.
+- L'app interroge les **API Google / YouTube** pour afficher **vos** playlists et métadonnées.
+- La **lecture** s'effectue dans l'app **YouTube** ou **YouTube Music** (au choix dans Réglages) — pas dans BeatOnStep.
+- Vous pouvez **déconnecter** YouTube dans l'app à tout moment : les jetons locaux sont effacés.
+- Le traitement de votre compte Google reste régi par les politiques de **Google**.
 
-- L'app utilisera **OAuth 2.0 (PKCE)** ; **aucun secret client** embarqué.
-- Les **jetons** seront stockés **localement** et ne seront jamais envoyés à l'éditeur.
-- La lecture s'effectuera via l'app YouTube ; BeatOnStep ne recevra pas votre mot de passe Google.
-- Le traitement du compte Google restera régi par les politiques de **Google**.
+### 3.5 Spotify (pas encore proposé)
 
-### 3.5 Spotify (pas encore disponible)
+Spotify **n'est pas proposé** pour l'instant : l'accès développeur est très limité (~5 comptes test). Réactivation prévue plus tard (bêta invitation), lecture dans l'app Spotify — sans transmission à l'éditeur.
 
-Spotify **n’est pas proposé** dans la première version store. Une réactivation est prévue plus tard (bêta invitation), sous réserve de validation des plateformes et d’accès développeur Spotify suffisant.
+### 3.6 Deezer (pas encore proposé)
 
-Quand la fonction sera active : authentification OAuth, stockage local des jetons, lecture dans l’app Spotify — sans transmission à l’éditeur.
-
-### 3.6 Deezer (pas encore disponible)
-
-Deezer **n’est pas proposé** : la plateforme développeur Deezer n’accepte plus de nouvelles applications. Réactivation possible si Deezer rouvre l’accès.
+Deezer **n'est pas proposé** : la plateforme développeur Deezer n'accepte plus de nouvelles applications. Réactivation possible si Deezer rouvre l'accès.
 
 ### 3.7 Mises à jour (Expo OTA)
 
@@ -85,7 +84,7 @@ Sur votre appareil, dans l'espace privé de l'app :
 
 - Bibliothèque importée (chemins, BPM, sources activées).
 - Préférences (mode, plages cibles, réglages, langue).
-- Jetons OAuth YouTube / Spotify (quand ces fonctions reviendront et si vous connectez).
+- Jetons de connexion YouTube (si connecté) ; Spotify (quand disponible).
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Spotify) efface les jetons correspondants sans désinstaller l'app.
 
@@ -93,14 +92,14 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 
 | Service | Quand | Ce qui transite |
 |---------|-------|-----------------|
-| **Google / YouTube** | Pas encore en version store (plus tard, si vous connectez) | Authentification OAuth ; requêtes API playlists / métadonnées |
+| **Google / YouTube** | Si vous connectez YouTube | Connexion Google ; requêtes API playlists / métadonnées |
 | **Apple (App Store)** | Distribution iOS | Gestion par Apple selon ses propres règles |
 | **Expo** | Automatique | Vérification / téléchargement de mises à jour OTA |
 | **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
-| **Spotify** | Pas encore en version store (plus tard, bêta invitation) | Authentification OAuth ; métadonnées playlists |
-| **Deezer** | Non disponible (accès développeur fermé) | — |
+| **Spotify** | Pas encore proposé | — |
+| **Deezer** | Pas encore proposé | — |
 
-Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que le parcours OAuth que vous déclenchez.
+Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.
 
 ## 7. Enfants
 
@@ -136,5 +135,5 @@ Le catalogue « Mix démo » est composé exclusivement de morceaux libres de dr
 
 Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 
-**Liste complète des titres (obligatoire pour l’attribution CC-BY) :**  
+**Liste complète des titres (obligatoire pour l'attribution CC-BY) :**  
 [Crédits musicaux — Mix démo](https://rafa-create.github.io/beatonstep-website/music-credits.html)
