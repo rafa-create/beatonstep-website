@@ -4,8 +4,9 @@ from __future__ import annotations
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
-SITE = os.path.dirname(ROOT)
+APPLE = os.path.dirname(os.path.abspath(__file__))
+SITE = os.path.dirname(os.path.dirname(APPLE))
+OUT_ROOT = os.path.join(APPLE, "conforme")
 
 BG = (10, 10, 8)
 ACCENT = (252, 234, 7)
@@ -182,7 +183,7 @@ def compose_landscape(w: int, h: int, shot: Image.Image, spec: dict) -> Image.Im
 
 def main() -> None:
     for w, h in SIZES:
-        out_dir = os.path.join(ROOT, f"{w}x{h}")
+        out_dir = os.path.join(OUT_ROOT, f"{w}x{h}")
         os.makedirs(out_dir, exist_ok=True)
         portrait = h > w
         for spec in SCREENS:

@@ -15,10 +15,11 @@ Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et
 
 ```
 index.html, site.css, i18n.js   — site
-assets/                         — images (brand, hero, screenshots)
+assets/                         — images du site (brand, hero, screenshots)
 badges/                         — badges store
-screenshots-archive/            — anciennes captures (hors site)
-store-screenshots/              — script composites App Store
+store/apple/                    — captures App Store (voir store/apple/NOTES.md)
+store/google/                   — image de présentation Play (voir store/google/NOTES.md)
+screenshots-archive/            — anciennes captures site (hors stores)
 ```
 
 Éditer **ici**. Un push sur `main` met le site en ligne.

@@ -9,5 +9,6 @@ Images utilisées par le site public. Ne pas empiler de fichiers à la racine du
 | `screenshots/app/` | Captures écrans app (accueil, réglages, bibliothèque) |
 | `screenshots/sources/` | Aperçus sources streaming (YouTube, Apple Music, Spotify) |
 
-Archives et composites store : `screenshots-archive/`, `store-screenshots/`.  
+Stores (hors site) : `store/apple/`, `store/google/`.  
+Anciennes captures site : `screenshots-archive/`.  
 Badges Play / App Store : `badges/`.
