@@ -2,6 +2,9 @@
 
 Ces fichiers **ne sont pas utilisés par le site**. Uploader depuis `conforme/` dans App Store Connect.
 
+**Source :** `screenshots-archive/Brut/` (captures 1179×2556).  
+Régénérer : `python store/generate.py`
+
 ## Contraintes (erreur Connect si une seule image est hors taille)
 
 Au moins une capture doit être exactement :
@@ -13,30 +16,31 @@ Au moins une capture doit être exactement :
 | Portrait | **1284 × 2778** px |
 | Paysage | **2778 × 1284** px |
 
-PNG ou JPEG. Pas de 750×1334, 575×1024, 1024×1536, etc.
+PNG ou JPEG.
 
 ## `conforme/` — à uploader
 
-Composites actuelles aux 4 tailles Apple, générées par `generate.py` à partir des captures du site (`assets/screenshots/app/`).
-
 ```
-conforme/1242x2688/   01-adaptatif … 04-bibliotheque
+conforme/1242x2688/   01-adaptatif  02-fixe  03-reglages  04-bibliotheque
 conforme/1284x2778/
 conforme/2688x1242/
 conforme/2778x1284/
 ```
 
-`conforme/archives-precedentes/` : anciennes composites **aussi aux bonnes tailles**, mais contenu périmé (ne pas uploader).
+| # | Écran | Fichier Brut |
+|---|--------|----------------|
+| 01 | Adaptatif (Mix démo) | `music_mix.PNG` |
+| 02 | Fixe (Apple Music) | `apple_music_fixed_mode.PNG` |
+| 03 | Réglages | `source_mode_param.PNG` |
+| 04 | Bibliothèque (analyse BPM) | `big_analyze_music_tel.PNG` |
 
-Régénérer :
+`conforme/archives-precedentes/` : anciennes composites, dimensions OK, contenu périmé.
 
-```
-python store/apple/generate.py
-```
-
-## `non-conforme/` — ne pas uploader (c’est ça qui fait rejeter)
+## `non-conforme/` — ne pas uploader
 
 | Fichier / dossier | Taille réelle | Pourquoi ça casse |
 |-------------------|---------------|-------------------|
 | `captures-brutes-750x1334/` | 750 × 1334 | Captures iPhone brutes, hors liste Apple |
 | `pub-testflight-1024x1536.png` | 1024 × 1536 | Pub portrait TestFlight, pas une capture store |
+
+Les PNG dans `screenshots-archive/Brut/` (1179×2556) ne sont **pas** uploadables tels quels.

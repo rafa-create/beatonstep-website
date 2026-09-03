@@ -1182,26 +1182,21 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 .sources[data-src] .source-hint {
   display: none;
 }
-.source-preview {
-  margin: 1.25rem 0 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
+.source-gallery {
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 220px));
+  justify-content: center;
+  gap: 1.25rem 1.1rem;
+  margin: 1.25rem auto 0;
+  max-width: 52rem;
+  align-items: start;
 }
-.source-preview[hidden] {
-  display: none !important;
-}
-.source-preview .phone {
-  width: min(100%, 220px);
-}
-.source-preview figcaption {
-  margin: 0;
-  max-width: 22rem;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.4;
+.sources[data-src="mix"] .source-gallery[data-src="mix"],
+.sources[data-src="mp3"] .source-gallery[data-src="mp3"],
+.sources[data-src="ytm"] .source-gallery[data-src="ytm"],
+.sources[data-src="apple-music"] .source-gallery[data-src="apple-music"],
+.sources[data-src="spotify"] .source-gallery[data-src="spotify"] {
+  display: grid;
 }
 .setup-steps {
   display: grid;
@@ -1730,6 +1725,11 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   max-width: 52rem;
   align-items: start;
   justify-items: center;
+}
+.app-preview .shots {
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  justify-content: center;
+  max-width: 32rem;
 }
 .shot {
   margin: 0;

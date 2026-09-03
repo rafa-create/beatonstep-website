@@ -6,9 +6,8 @@ Images utilisées par le site public. Ne pas empiler de fichiers à la racine du
 |---------|---------|
 | `brand/` | Logo (`logo-400.jpg`), Open Graph (`og-image.jpg`) |
 | `hero/` | Coureur fond hero (`hero-runner.webp`, variante claire) |
-| `screenshots/app/` | Captures écrans app (accueil, réglages, bibliothèque) |
-| `screenshots/sources/` | Aperçus sources streaming (YouTube, Apple Music, Spotify) |
+| `screenshots/app/` | Réglages communs (`settings-sources`, `settings-apparence`) |
+| `screenshots/sources/` | Captures par source (`mix/`, `phone/`, `youtube/`, `apple-music/`, `spotify/`) |
 
-Stores (hors site) : `store/apple/`, `store/google/`.  
-Anciennes captures site : `screenshots-archive/`.  
+Source brute : `screenshots-archive/Brut/`. Stores : `store/apple/`, `store/google/`.  
 Badges Play / App Store : `badges/`.

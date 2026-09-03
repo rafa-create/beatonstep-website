@@ -457,15 +457,121 @@
       <p class="source-explain" data-src="spotify" data-en>Not available yet.</p>
       <p class="source-explain" data-src="deezer" data-fr>Pas encore disponible.</p>
       <p class="source-explain" data-src="deezer" data-en>Not available yet.</p>
-      <figure class="source-preview" hidden>
-        <div class="phone">
-          <img src="assets/screenshots/sources/youtube.png" width="575" height="1024" alt="" data-preview-img />
-        </div>
-        <figcaption>
-          <span data-fr data-preview-cap-fr></span>
-          <span data-en data-preview-cap-en></span>
-        </figcaption>
-      </figure>
+
+      <div class="source-gallery" data-src="mix">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/mix/play.png" width="575" height="1247" alt="Accueil : Mix démo, mode Adaptatif" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Mix démo</strong>
+            <strong data-en>Demo mix</strong>
+            <span data-fr>Mode Adaptatif : le PPM suit ta cadence, un titre du mix se cale dessus.</span>
+            <span data-en>Adaptive mode: PPM follows your cadence, a mix track locks to it.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="source-gallery" data-src="mp3">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/phone/play.png" width="575" height="1247" alt="Accueil : musiques téléphone" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Lecture</strong>
+            <strong data-en>Playback</strong>
+            <span data-fr>Tes fichiers, lus dans BeatOnStep, calés sur le PPM.</span>
+            <span data-en>Your files, played in BeatOnStep, locked to your PPM.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/phone/analyze.png" width="575" height="1247" alt="Bibliothèque : analyse BPM musiques téléphone" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Analyse BPM</strong>
+            <strong data-en>BPM analysis</strong>
+            <span data-fr>File d’analyse sur tes musiques téléphone. Ça continue si tu changes d’écran.</span>
+            <span data-en>Queued analysis of your phone tracks. It keeps going if you leave the screen.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/phone/import.png" width="575" height="1247" alt="Bibliothèque : import terminé" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Import</strong>
+            <strong data-en>Import</strong>
+            <span data-fr>Fichiers copiés dans l’app. Ensuite : Analyser BPM.</span>
+            <span data-en>Files copied into the app. Next: Analyze BPM.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="source-gallery" data-src="ytm">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/youtube/play.png" width="575" height="1247" alt="Accueil : lecture YouTube, mode Fixe" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Lecture YouTube</strong>
+            <strong data-en>YouTube playback</strong>
+            <span data-fr>Mode Fixe : la musique joue dans l’app YouTube.</span>
+            <span data-en>Fixed mode: music plays in the YouTube app.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="source-gallery" data-src="apple-music">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/apple-music/play.png" width="575" height="1247" alt="Accueil : lecture Apple Music, mode Fixe" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Lecture</strong>
+            <strong data-en>Playback</strong>
+            <span data-fr>Mode Fixe : la musique joue dans l’app Musique.</span>
+            <span data-en>Fixed mode: music plays in the Music app.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/apple-music/library.png" width="575" height="1247" alt="Bibliothèque : import Apple Music" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Bibliothèque</strong>
+            <strong data-en>Library</strong>
+            <span data-fr>Import des titres Apple Music, analyse BPM en file.</span>
+            <span data-en>Import Apple Music tracks, queued BPM analysis.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="source-gallery" data-src="spotify">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/spotify/play.png" width="575" height="1023" alt="Bibliothèque Spotify — bientôt" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Aperçu</strong>
+            <strong data-en>Preview</strong>
+            <span data-fr>Bibliothèque Spotify — bientôt disponible.</span>
+            <span data-en>Spotify library — coming soon.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/spotify/library.png" width="575" height="1023" alt="Bibliothèque Spotify, thème sombre — bientôt" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Thème sombre</strong>
+            <strong data-en>Dark theme</strong>
+            <span data-fr>Même écran en mode sombre — bientôt.</span>
+            <span data-en>The same screen in dark mode — coming soon.</span>
+          </figcaption>
+        </figure>
+      </div>
+
       <ul class="setup-steps reveal-stagger">
         <li>
           <p data-fr>Réglages → connexion Google (YouTube) ou Apple (Apple Music) si besoin.</p>
@@ -483,55 +589,33 @@
     </section>
 
     <section class="app-preview reveal">
-      <p class="tag" data-fr>Aperçu</p>
-      <p class="tag" data-en>Preview</p>
-      <h2 data-fr>L’app en images</h2>
-      <h2 data-en>The app in screenshots</h2>
-      <p class="section-lead" data-fr>Accueil, réglages et bibliothèque — ce que tu verras sur ton téléphone.</p>
-      <p class="section-lead" data-en>Home, settings and library — what you'll see on your phone.</p>
-      <div class="shots reveal-stagger" aria-label="Aperçu de l’app">
+      <p class="tag" data-fr>Réglages</p>
+      <p class="tag" data-en>Settings</p>
+      <h2 data-fr>Commun à toutes les sources</h2>
+      <h2 data-en>Shared across every source</h2>
+      <p class="section-lead" data-fr>Détection, sources cochées, changement de titre, thème et couleurs.</p>
+      <p class="section-lead" data-en>Detection, ticked sources, when the track changes, theme and colors.</p>
+      <div class="shots reveal-stagger" aria-label="Réglages">
         <figure class="shot">
           <div class="phone">
-            <img src="assets/screenshots/app/adaptive.png" width="575" height="1024" alt="Accueil : mode Adaptatif" loading="lazy" />
+            <img src="assets/screenshots/app/settings-sources.png" width="575" height="1247" alt="Réglages : détection et sources" loading="lazy" />
           </div>
           <figcaption>
-            <strong data-fr>Adaptatif</strong>
-            <strong data-en>Adaptive</strong>
-            <span data-fr>Le rythme suit ta foulée. La musique aussi.</span>
-            <span data-en>Your rhythm drives the app. The music follows.</span>
+            <strong data-fr>Sources</strong>
+            <strong data-en>Sources</strong>
+            <span data-fr>Adaptatif ou Fixe, et les sources cochées.</span>
+            <span data-en>Adaptive or Fixed, and which sources are on.</span>
           </figcaption>
         </figure>
         <figure class="shot">
           <div class="phone">
-            <img src="assets/screenshots/app/fixed.png" width="575" height="1024" alt="Accueil : mode Fixe" loading="lazy" />
+            <img src="assets/screenshots/app/settings-apparence.png" width="575" height="1247" alt="Réglages : changement de titre et apparence" loading="lazy" />
           </div>
           <figcaption>
-            <strong data-fr>Fixe</strong>
-            <strong data-en>Fixed</strong>
-            <span data-fr>Tu choisis le rythme. L’app envoie des titres à cette cadence.</span>
-            <span data-en>You pick the rhythm. The app queues tracks at that pace.</span>
-          </figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="phone">
-            <img src="assets/screenshots/app/settings.png" width="575" height="1024" alt="Réglages : détection et changement de titre" loading="lazy" />
-          </div>
-          <figcaption>
-            <strong data-fr>Réglages</strong>
-            <strong data-en>Settings</strong>
-            <span data-fr>Adaptatif ou Fixe, et quand le titre change (immédiat, 5 s, fin).</span>
-            <span data-en>Adaptive or Fixed, and when the track changes (now, 5 s, end).</span>
-          </figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="phone">
-            <img src="assets/screenshots/app/library.png" width="575" height="1024" alt="Bibliothèque : musiques téléphone et BPM" loading="lazy" />
-          </div>
-          <figcaption>
-            <strong data-fr>Bibliothèque</strong>
-            <strong data-en>Library</strong>
-            <span data-fr>Tes fichiers, prêts pour la prochaine sortie.</span>
-            <span data-en>Your files, ready for the next run.</span>
+            <strong data-fr>Apparence</strong>
+            <strong data-en>Appearance</strong>
+            <span data-fr>Quand le titre change, thème, langue et couleur.</span>
+            <span data-en>When the track changes, theme, language and color.</span>
           </figcaption>
         </figure>
       </div>
@@ -1512,55 +1596,12 @@
         var root = document.querySelector(".sources");
         if (!root) return;
         var cards = root.querySelectorAll(".source-card");
-        var preview = root.querySelector(".source-preview");
-        var previewImg = root.querySelector("[data-preview-img]");
-        var capFr = root.querySelector("[data-preview-cap-fr]");
-        var capEn = root.querySelector("[data-preview-cap-en]");
-        var shots = {
-          mp3: {
-            src: "assets/screenshots/app/library.png",
-            alt: "Bibliothèque : musiques téléphone",
-            fr: "Musiques téléphone — tri BPM, analyse en file.",
-            en: "Phone music — BPM sort, queued analysis."
-          },
-          ytm: {
-            src: "assets/screenshots/sources/youtube.png",
-            alt: "BeatOnStep avec lecture YouTube",
-            fr: "YouTube — tes playlists, lecture dans l’app YouTube ou YT Music.",
-            en: "YouTube — your playlists, playback in the YouTube or YT Music app."
-          },
-          "apple-music": {
-            src: "assets/screenshots/sources/apple-music.png",
-            alt: "BeatOnStep avec Apple Music",
-            fr: "Apple Music — tes playlists, lecture dans l’app Musique.",
-            en: "Apple Music — your playlists, playback in the Music app."
-          },
-          spotify: {
-            src: "assets/screenshots/sources/spotify.png",
-            alt: "BeatOnStep avec lecture Spotify",
-            fr: "Aperçu Spotify — bientôt.",
-            en: "Spotify preview — coming soon."
-          }
-        };
-        function showPreview(key) {
-          if (!preview || !previewImg || !shots[key]) {
-            if (preview) preview.hidden = true;
-            return;
-          }
-          var s = shots[key];
-          previewImg.src = s.src;
-          previewImg.alt = s.alt;
-          if (capFr) capFr.textContent = s.fr;
-          if (capEn) capEn.textContent = s.en;
-          preview.hidden = false;
-        }
         function clear() {
           cards.forEach(function (c) {
             c.setAttribute("aria-pressed", "false");
             if (c.parentElement) c.parentElement.classList.remove("is-on");
           });
           root.removeAttribute("data-src");
-          if (preview) preview.hidden = true;
         }
         cards.forEach(function (btn) {
           btn.addEventListener("click", function () {
@@ -1573,7 +1614,6 @@
             btn.setAttribute("aria-pressed", "true");
             if (btn.parentElement) btn.parentElement.classList.add("is-on");
             if (key) root.setAttribute("data-src", key);
-            showPreview(key);
           });
         });
       })();

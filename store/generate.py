@@ -1,0 +1,270 @@
+"""Build App Store + Play Store images from screenshots-archive/Brut."""
+from __future__ import annotations
+
+import os
+import shutil
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+STORE = os.path.dirname(os.path.abspath(__file__))
+SITE = os.path.dirname(STORE)
+BRUT = os.path.join(SITE, "screenshots-archive", "Brut")
+APPLE_OUT = os.path.join(STORE, "apple", "conforme")
+PLAY_OUT = os.path.join(STORE, "google", "conforme")
+LOGO = os.path.join(SITE, "assets", "brand", "logo-400.jpg")
+
+BG = (10, 10, 8)
+ACCENT = (252, 234, 7)
+INK = (244, 241, 224)
+MUTED = (184, 180, 154)
+YELLOW = (252, 234, 7)
+BLACK = (16, 16, 12)
+
+APPLE_SIZES = [
+    (1242, 2688),
+    (2688, 1242),
+    (1284, 2778),
+    (2778, 1284),
+]
+PLAY_PHONE = (1080, 1920)
+
+APPLE_SCREENS = [
+    {
+        "file": "music_mix.PNG",
+        "name": "01-adaptatif",
+        "kicker": "BEATONSTEP",
+        "title": "Adaptatif :\nla musique suit",
+        "sub": "Le PPM suit ta cadence. Un titre se cale dessus.",
+    },
+    {
+        "file": "apple_music_fixed_mode.PNG",
+        "name": "02-fixe",
+        "kicker": "BEATONSTEP",
+        "title": "Fixe :\ntu règles le PPM",
+        "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
+    },
+    {
+        "file": "source_mode_param.PNG",
+        "name": "03-reglages",
+        "kicker": "BEATONSTEP",
+        "title": "Réglages\nclairs",
+        "sub": "Adaptatif ou Fixe, et tes sources de musique.",
+    },
+    {
+        "file": "big_analyze_music_tel.PNG",
+        "name": "04-bibliotheque",
+        "kicker": "BEATONSTEP",
+        "title": "Tes fichiers,\nau bon BPM",
+        "sub": "Musiques téléphone triées et analysées.",
+    },
+]
+
+PLAY_SCREENS = [
+    APPLE_SCREENS[0],
+    {
+        "file": "yt_music_fixed_mode.PNG",
+        "name": "02-fixe",
+        "kicker": "BEATONSTEP",
+        "title": "Fixe :\ntu règles le PPM",
+        "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
+    },
+    APPLE_SCREENS[2],
+    APPLE_SCREENS[3],
+]
+
+FONT_REG = r"C:\Windows\Fonts\segoeui.ttf"
+FONT_BOLD = r"C:\Windows\Fonts\segoeuib.ttf"
+
+
+def font(path: str, size: int) -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(path, size)
+
+
+def round_corners(im: Image.Image, radius: int) -> Image.Image:
+    im = im.convert("RGBA")
+    mask = Image.new("L", im.size, 0)
+    d = ImageDraw.Draw(mask)
+    d.rounded_rectangle((0, 0, im.width, im.height), radius=radius, fill=255)
+    im.putalpha(mask)
+    return im
+
+
+def shadow(size: tuple[int, int], radius: int, blur: int, pad: int) -> Image.Image:
+    w, h = size
+    layer = Image.new("RGBA", (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    d.rounded_rectangle(
+        (pad, pad + 8, pad + w, pad + h + 8),
+        radius=radius,
+        fill=(0, 0, 0, 160),
+    )
+    return layer.filter(ImageFilter.GaussianBlur(blur))
+
+
+def paint_bg(w: int, h: int) -> Image.Image:
+    canvas = Image.new("RGB", (w, h), BG)
+    glow = Image.new("RGB", (w, h), BG)
+    gd = ImageDraw.Draw(glow)
+    cx, cy = int(w * 0.5), int(h * 0.22 if h > w else h * 0.5)
+    r = int(min(w, h) * 0.55)
+    gd.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(42, 38, 8))
+    glow = glow.filter(ImageFilter.GaussianBlur(int(min(w, h) * 0.18)))
+    return Image.blend(canvas, glow, 0.55)
+
+
+def paste_center(base: Image.Image, overlay: Image.Image, xy: tuple[int, int]) -> None:
+    base.paste(overlay, xy, overlay)
+
+
+def draw_wrapped(draw: ImageDraw.ImageDraw, text: str, fnt, fill, xy, max_w: int, line_h: int) -> int:
+    x, y = xy
+    words = text.split()
+    line = ""
+    for word in words:
+        trial = (line + " " + word).strip()
+        if draw.textlength(trial, font=fnt) <= max_w:
+            line = trial
+        else:
+            draw.text((x, y), line, font=fnt, fill=fill)
+            y += line_h
+            line = word
+    if line:
+        draw.text((x, y), line, font=fnt, fill=fill)
+        y += line_h
+    return y
+
+
+def fit_shot(shot: Image.Image, max_w: int, max_h: int) -> Image.Image:
+    scale = min(max_w / shot.width, max_h / shot.height)
+    nw = max(1, int(shot.width * scale))
+    nh = max(1, int(shot.height * scale))
+    return shot.resize((nw, nh), Image.Resampling.LANCZOS)
+
+
+def open_brut(name: str) -> Image.Image:
+    return Image.open(os.path.join(BRUT, name)).convert("RGB")
+
+
+def compose_portrait(w: int, h: int, shot: Image.Image, spec: dict) -> Image.Image:
+    canvas = paint_bg(w, h).convert("RGBA")
+    draw = ImageDraw.Draw(canvas)
+    pad = int(w * 0.075)
+    kicker_f = font(FONT_BOLD, int(w * 0.028))
+    title_f = font(FONT_BOLD, int(w * 0.078))
+    sub_f = font(FONT_REG, int(w * 0.032))
+
+    y = int(h * 0.055)
+    draw.text((pad, y), spec["kicker"], font=kicker_f, fill=ACCENT)
+    y += int(h * 0.038)
+    for line in spec["title"].split("\n"):
+        draw.text((pad, y), line, font=title_f, fill=INK)
+        y += int(title_f.size * 1.12)
+    y += int(h * 0.012)
+    y = draw_wrapped(draw, spec["sub"], sub_f, MUTED, (pad, y), w - pad * 2, int(sub_f.size * 1.35))
+
+    max_shot_w = w - pad * 2
+    max_shot_h = h - y - int(h * 0.07)
+    fitted = fit_shot(shot, max_shot_w, max_shot_h)
+    radius = max(28, int(fitted.width * 0.08))
+    sh = shadow(fitted.size, radius, blur=max(12, w // 80), pad=max(24, w // 30))
+    rounded = round_corners(fitted, radius)
+    sx = (w - fitted.width) // 2
+    sy = y + int(h * 0.03)
+    paste_center(canvas, sh, (sx - (sh.width - fitted.width) // 2, sy - (sh.height - fitted.height) // 2))
+    paste_center(canvas, rounded, (sx, sy))
+    return canvas.convert("RGB")
+
+
+def compose_landscape(w: int, h: int, shot: Image.Image, spec: dict) -> Image.Image:
+    canvas = paint_bg(w, h).convert("RGBA")
+    draw = ImageDraw.Draw(canvas)
+    pad = int(h * 0.1)
+    col_w = int(w * 0.46)
+    kicker_f = font(FONT_BOLD, int(h * 0.045))
+    title_f = font(FONT_BOLD, int(h * 0.11))
+    sub_f = font(FONT_REG, int(h * 0.042))
+
+    y = int(h * 0.22)
+    draw.text((pad, y), spec["kicker"], font=kicker_f, fill=ACCENT)
+    y += int(h * 0.07)
+    for line in spec["title"].split("\n"):
+        draw.text((pad, y), line, font=title_f, fill=INK)
+        y += int(title_f.size * 1.12)
+    y += int(h * 0.04)
+    draw_wrapped(draw, spec["sub"], sub_f, MUTED, (pad, y), col_w - pad, int(sub_f.size * 1.35))
+
+    max_shot_h = h - pad * 2
+    max_shot_w = w - col_w - pad
+    fitted = fit_shot(shot, max_shot_w, max_shot_h)
+    radius = max(24, int(fitted.width * 0.08))
+    sh = shadow(fitted.size, radius, blur=max(10, h // 70), pad=max(20, h // 28))
+    rounded = round_corners(fitted, radius)
+    sx = col_w + (w - col_w - fitted.width) // 2
+    sy = (h - fitted.height) // 2
+    paste_center(canvas, sh, (sx - (sh.width - fitted.width) // 2, sy - (sh.height - fitted.height) // 2))
+    paste_center(canvas, rounded, (sx, sy))
+    return canvas.convert("RGB")
+
+
+def write_set(out_root: str, sizes: list[tuple[int, int]], screens: list[dict]) -> None:
+    for w, h in sizes:
+        out_dir = os.path.join(out_root, f"{w}x{h}")
+        os.makedirs(out_dir, exist_ok=True)
+        portrait = h > w
+        for spec in screens:
+            shot = open_brut(spec["file"])
+            canvas = compose_portrait(w, h, shot, spec) if portrait else compose_landscape(w, h, shot, spec)
+            path = os.path.join(out_dir, f"{spec['name']}.png")
+            canvas.save(path, "PNG", optimize=True)
+            print(path, canvas.size)
+
+
+def feature_graphic() -> None:
+    w, h = 1024, 500
+    canvas = Image.new("RGB", (w, h), YELLOW)
+    draw = ImageDraw.Draw(canvas)
+
+    logo = Image.open(LOGO).convert("RGB")
+    logo = logo.resize((118, 118), Image.Resampling.LANCZOS)
+    canvas.paste(logo, (48, (h - 118) // 2))
+
+    title_f = font(FONT_BOLD, 52)
+    sub_f = font(FONT_REG, 22)
+    tx = 188
+    draw.text((tx, 168), "BeatOnStep", font=title_f, fill=BLACK)
+    draw.text((tx, 238), "Musique au tempo de vos pas", font=sub_f, fill=BLACK)
+
+    shot = open_brut("music_mix.PNG")
+    fitted = fit_shot(shot, 290, 430)
+    rounded = round_corners(fitted, max(22, fitted.width // 12))
+    sx = w - fitted.width - 36
+    sy = (h - fitted.height) // 2 + 8
+    canvas_rgba = canvas.convert("RGBA")
+    paste_center(canvas_rgba, rounded, (sx, sy))
+    out = os.path.join(PLAY_OUT, "feature-graphic-1024x500.jpg")
+    canvas_rgba.convert("RGB").save(out, "JPEG", quality=92, optimize=True)
+    print(out, (w, h))
+
+
+def archive_old_feature_graphic() -> None:
+    src = os.path.join(PLAY_OUT, "feature-graphic-1024x500.jpg")
+    dest_dir = os.path.join(STORE, "google", "non-conforme")
+    dest = os.path.join(dest_dir, "feature-graphic-bientot-1024x500.jpg")
+    if os.path.isfile(src) and not os.path.isfile(dest):
+        os.makedirs(dest_dir, exist_ok=True)
+        shutil.copy2(src, dest)
+
+
+def main() -> None:
+    for spec in APPLE_SCREENS + PLAY_SCREENS:
+        path = os.path.join(BRUT, spec["file"])
+        if not os.path.isfile(path):
+            raise FileNotFoundError(path)
+
+    archive_old_feature_graphic()
+    write_set(APPLE_OUT, APPLE_SIZES, APPLE_SCREENS)
+    write_set(PLAY_OUT, [PLAY_PHONE], PLAY_SCREENS)
+    feature_graphic()
+
+
+if __name__ == "__main__":
+    main()

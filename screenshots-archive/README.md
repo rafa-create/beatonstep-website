@@ -1,14 +1,13 @@
-# Archives site (hors stores)
-
-Anciennes captures **du site**, pas des visuels App Store / Play Store.
+# Archives captures
 
 | Dossier | Contenu |
 |---------|---------|
-| `previous-site/` | Captures site avant réorg (`home`, `library`, `pace`) — 575×1024 |
+| `Brut/` | **Source de vérité** stores — captures app (privilégier les 1179×2556). Ne pas uploader tels quels. |
+| `previous-site/` | Anciennes captures site (`home`, `library`, `pace`) — 575×1024 |
 
-Stores : `store/apple/`, `store/google/`.  
-Site actuel : `assets/screenshots/app/` et `assets/screenshots/sources/`.
+Stores générés : `store/apple/conforme/`, `store/google/conforme/` via `python store/generate.py`.  
+Site actuel : `assets/screenshots/app/` (réglages) et `assets/screenshots/sources/` (par plateforme).
 
 ## Backlog
 
-- **Fixe sans streaming** : remplacer `assets/screenshots/app/fixed.png` (et la composite store `store/apple/conforme/*/02-fixe`) dès qu’on a une capture **Mode Fixe** avec **Mix démo** et/ou **Musiques téléphone** uniquement — pas Spotify / YouTube.
+- **Fixe Mix démo** : pas encore de capture Mode Fixe avec Mix démo / musiques téléphone seuls. Les stores utilisent Apple Music (Apple) et YouTube (Play).
