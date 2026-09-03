@@ -1161,6 +1161,35 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   color: var(--muted);
   line-height: 1.45;
 }
+.source-matrix {
+  margin: 1.1rem 0 0;
+  max-width: 52rem;
+  overflow-x: auto;
+}
+.source-matrix table {
+  width: 100%;
+  min-width: 32rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.source-matrix th,
+.source-matrix td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+.source-matrix thead th {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.source-matrix tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+}
 .visually-hidden {
   position: absolute;
   width: 1px;

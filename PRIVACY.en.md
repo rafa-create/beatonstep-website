@@ -14,7 +14,7 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
 
-Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, Spotify track links, BPM analysis) or with technical infrastructure (updates). **Deezer is not offered.** Details below.
+Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, pasted Spotify or Deezer links, BPM analysis) or with technical infrastructure (updates). Details below.
 
 ## 3. Features and data flows
 
@@ -71,15 +71,22 @@ If you connect an Apple account to use Apple Music in BeatOnStep:
 
 If you import Spotify tracks into BeatOnStep:
 
-- Feature **initiated by you**: you paste **track** links (`open.spotify.com/track/…` or `spotify:track:…`). BeatOnStep **does not import your Spotify playlists** and **does not sign you into** Spotify in this version.
-- The app may query Spotify’s public **oEmbed** service to display the title. No Spotify password is requested or sent to the publisher.
+- Feature **initiated by you**: you paste **track** links (`open.spotify.com/track/…` or `spotify:track:…`). BeatOnStep **does not import your Spotify playlists** and **does not sign you into** Spotify.
+- The app may query Spotify’s public catalogue to display the title. No Spotify password is requested or sent to the publisher.
 - Track IDs and metadata stay **on the device**.
 - **Playback** happens in the **Spotify** app — not inside BeatOnStep. A Spotify account (and, depending on the tracks, a subscription) may be required by Spotify.
 - BeatOnStep **does not provide** Spotify’s catalogue.
 
-### 3.7 Deezer (not offered yet)
+### 3.7 Deezer (optional — Share links)
 
-Deezer is **not offered**: Deezer's developer platform no longer accepts new applications. Reactivation is possible if Deezer reopens access.
+When you use Deezer in BeatOnStep:
+
+- Feature **initiated by you**: you paste the **Share** link of a **track**, or of a **public playlist**. BeatOnStep **does not sign you into** Deezer.
+- The app may query Deezer’s public catalogue (title, duration, sometimes BPM). No Deezer password is requested or sent to the publisher.
+- IDs and metadata stay **on the device**.
+- **Playback** happens in the **Deezer** app — not inside BeatOnStep. A Deezer account (and, depending on the tracks, a subscription) may be required by Deezer.
+- A **private** playlist cannot be read without an official sign-in, which is not offered to the public for now.
+- BeatOnStep **does not provide** Deezer’s catalogue.
 
 ### 3.8 Updates (Expo OTA)
 
@@ -110,7 +117,8 @@ On your device, in the app's private storage:
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
 - YouTube and Apple Music connection tokens (if connected).
-- Spotify tracks whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token in this version.
+- Spotify tracks whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
+- Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
@@ -123,8 +131,8 @@ On your device, in the app's private storage:
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
-| **Spotify** | If you paste track links | oEmbed request (title); opening the track in the Spotify app. No account sign-in in this version |
-| **Deezer** | Not offered yet | — |
+| **Spotify** | If you paste track links | Public catalogue request (title); opening the track in the Spotify app. No account sign-in |
+| **Deezer** | If you paste a Share link | Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
 
@@ -138,6 +146,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 - **Google / YouTube account**: exercise your rights with Google under their procedures.
 - **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
 - **Spotify**: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.
+- **Deezer**: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.
 - **Music server**: no BeatOnStep user account; for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Changes
