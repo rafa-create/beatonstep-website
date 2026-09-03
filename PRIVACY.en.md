@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** September 2, 2026
+**Last updated:** September 3, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -14,7 +14,7 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
 
-Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, BPM analysis) or with technical infrastructure (updates). **Spotify and Deezer are not offered yet.** Details below.
+Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, Spotify track links, BPM analysis) or with technical infrastructure (updates). **Deezer is not offered.** Details below.
 
 ## 3. Features and data flows
 
@@ -67,9 +67,15 @@ If you connect an Apple account to use Apple Music in BeatOnStep:
 
 **Android:** the Apple Music app ([Google Play](https://play.google.com/store/apps/details?id=com.apple.android.music)) must be installed; BeatOnStep opens the track in that app (no BeatOnStep built-in player).
 
-### 3.6 Spotify (not offered yet)
+### 3.6 Spotify (optional — track links)
 
-Spotify is **not offered** for now: developer access is very limited (~5 test accounts). Reactivation planned later (invite-only beta), playback in the Spotify app — with no transmission to the publisher.
+If you import Spotify tracks into BeatOnStep:
+
+- Feature **initiated by you**: you paste **track** links (`open.spotify.com/track/…` or `spotify:track:…`). BeatOnStep **does not import your Spotify playlists** and **does not sign you into** Spotify in this version.
+- The app may query Spotify’s public **oEmbed** service to display the title. No Spotify password is requested or sent to the publisher.
+- Track IDs and metadata stay **on the device**.
+- **Playback** happens in the **Spotify** app — not inside BeatOnStep. A Spotify account (and, depending on the tracks, a subscription) may be required by Spotify.
+- BeatOnStep **does not provide** Spotify’s catalogue.
 
 ### 3.7 Deezer (not offered yet)
 
@@ -103,9 +109,10 @@ On your device, in the app's private storage:
 
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
-- YouTube and Apple Music connection tokens (if connected); Spotify (when available).
+- YouTube and Apple Music connection tokens (if connected).
+- Spotify tracks whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token in this version.
 
-**Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music, Spotify) deletes the corresponding tokens without uninstalling the app.
+**Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
 ## 6. Third-party services
 
@@ -116,7 +123,7 @@ On your device, in the app's private storage:
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
-| **Spotify** | Not offered yet | — |
+| **Spotify** | If you paste track links | oEmbed request (title); opening the track in the Spotify app. No account sign-in in this version |
 | **Deezer** | Not offered yet | — |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
@@ -130,7 +137,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 - **Local data** (library, settings, tokens): you control it directly in the app or by uninstalling.
 - **Google / YouTube account**: exercise your rights with Google under their procedures.
 - **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
-- **Spotify account**: exercise your rights with Spotify.
+- **Spotify**: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.
 - **Music server**: no BeatOnStep user account; for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Changes
