@@ -30,7 +30,7 @@ Selon les fonctions que **vous** activez, l'application peut échanger des donn�
 
 ### 3.3 Mix démo et serveur musique (optionnel)
 
-Le catalogue de démo (181 morceaux libres de droits) est hébergé sur un serveur de l'éditeur (`https://beatonstep.tail09d8d8.ts.net/music`).
+Le catalogue de démo (278 morceaux libres de droits) est hébergé sur un serveur de l'éditeur (`https://beatonstep.tail09d8d8.ts.net/music`).
 
 - Ce serveur **n'est pas un réseau social** ni un service public : il sert uniquement le catalogue de démo.
 - Pas de création de compte, pas de cookie publicitaire, pas de télémétrie marketing.
@@ -165,9 +165,10 @@ Cette politique peut être mise à jour. La date en haut du document reflète la
 
 Le catalogue « Mix démo » est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (usage commercial autorisé **avec attribution**).
 
-**Artiste (source) :**
+**Artistes (sources) :**
 
 - **Kevin MacLeod** — [incompetech.com](https://incompetech.com)
+- **Scott Buckley** — [scottbuckley.com.au](https://www.scottbuckley.com.au/library/)
 
 Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 

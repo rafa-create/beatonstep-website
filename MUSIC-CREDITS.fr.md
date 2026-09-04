@@ -1,12 +1,12 @@
 # Crédits musicaux — Mix démo BeatOnStep
 
-**Dernière mise à jour :** 2026-08-25
+**Dernière mise à jour :** 2026-09-05
 
 Le catalogue « Mix démo » de BeatOnStep est composé exclusivement de morceaux libres de droits sous licence **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (usage commercial autorisé **avec attribution**).
 
 Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 
-**Total :** 181 titres
+**Total :** 278 titres (Kevin MacLeod 181, Scott Buckley 97)
 
 ## Kevin MacLeod
 
@@ -197,3 +197,111 @@ Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confia
 | Wizardtorium | 117 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Wizardtorium.mp3) |
 | Your Call | 99 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/Your%20Call.mp3) |
 | ZigZag | 161 | [source](https://incompetech.com/music/royalty-free/mp3-royaltyfree/ZigZag.mp3) |
+
+## Scott Buckley
+
+- **Licence :** [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- **Album / source :** Scott Buckley Library (CC-BY 4.0)
+- **Site :** [scottbuckley.com.au](https://www.scottbuckley.com.au/library/)
+- **Attribution type :** « {Titre} » by Scott Buckley — released under CC-BY 4.0. www.scottbuckley.com.au
+
+| Titre | BPM | Lien source |
+|-------|----:|-------------|
+| A New Year | 185 | [source](https://www.scottbuckley.com.au/library/a-new-year/) |
+| Air | 199 | [source](https://www.scottbuckley.com.au/library/air/) |
+| An Unexpected Party | 185 | [source](https://www.scottbuckley.com.au/library/an-unexpected-party/) |
+| Aphelion | 161 | [source](https://www.scottbuckley.com.au/library/aphelion/) |
+| Artemis | 161 | [source](https://www.scottbuckley.com.au/library/artemis/) |
+| Ashes of a Fallen Year | 63 | [source](https://www.scottbuckley.com.au/library/ashes-of-a-fallen-year/) |
+| Ashes of a Fallen Year (2019 Remaster) | 129 | [source](https://www.scottbuckley.com.au/library/ashes-of-a-fallen-year-2019-remaster/) |
+| Awakening | 105 | [source](https://www.scottbuckley.com.au/library/awakening/) |
+| Bring Me The Sky | 137 | [source](https://www.scottbuckley.com.au/library/bring-me-the-sky/) |
+| Castles in the Sky | 199 | [source](https://www.scottbuckley.com.au/library/castles-in-the-sky/) |
+| Catalyst | 152 | [source](https://www.scottbuckley.com.au/library/catalyst/) |
+| Childhood | 86 | [source](https://www.scottbuckley.com.au/library/childhood/) |
+| Clear Skies | 129 | [source](https://www.scottbuckley.com.au/library/clear-skies/) |
+| Convergence | 123 | [source](https://www.scottbuckley.com.au/library/convergence/) |
+| Crusader | 102 | [source](https://www.scottbuckley.com.au/library/crusader/) |
+| Decoherence | 97 | [source](https://www.scottbuckley.com.au/library/decoherence/) |
+| Descent | 108 | [source](https://www.scottbuckley.com.au/library/descent/) |
+| Dreamt of Flying | 69 | [source](https://www.scottbuckley.com.au/library/dreamt-of-flying/) |
+| Drift | 161 | [source](https://www.scottbuckley.com.au/library/drift/) |
+| Edge of Remorse | 115 | [source](https://www.scottbuckley.com.au/library/edge-of-remorse/) |
+| Effervescence | 83 | [source](https://www.scottbuckley.com.au/library/effervescence/) |
+| Electric Dreams | 152 | [source](https://www.scottbuckley.com.au/library/electric-dreams/) |
+| Elementary | 157 | [source](https://www.scottbuckley.com.au/library/elementary/) |
+| Escape Velocity | 161 | [source](https://www.scottbuckley.com.au/library/escape-velocity/) |
+| Extrapolation | 84 | [source](https://www.scottbuckley.com.au/library/extrapolation/) |
+| Firefly | 96 | [source](https://www.scottbuckley.com.au/library/firefly/) |
+| Forever Sky | 103 | [source](https://www.scottbuckley.com.au/library/forever-sky/) |
+| Glow | 80 | [source](https://www.scottbuckley.com.au/library/glow/) |
+| Golden Hour | 118 | [source](https://www.scottbuckley.com.au/library/golden-hour/) |
+| Goliath | 122 | [source](https://www.scottbuckley.com.au/library/goliath/) |
+| Growing Up | 106 | [source](https://www.scottbuckley.com.au/library/growing-up/) |
+| Happiness | 108 | [source](https://www.scottbuckley.com.au/library/happiness/) |
+| High Games | 82 | [source](https://www.scottbuckley.com.au/library/high-games/) |
+| Homeward | 93 | [source](https://www.scottbuckley.com.au/library/homeward/) |
+| Honour Among Thieves | 129 | [source](https://www.scottbuckley.com.au/library/honour-among-thieves/) |
+| Hour Of The Witch | 64 | [source](https://www.scottbuckley.com.au/library/hour-of-the-witch/) |
+| Hymn | 85 | [source](https://www.scottbuckley.com.au/library/hymn/) |
+| Hyperion | 78 | [source](https://www.scottbuckley.com.au/library/hyperion/) |
+| Icarus | 99 | [source](https://www.scottbuckley.com.au/library/icarus/) |
+| Ice Cream | 115 | [source](https://www.scottbuckley.com.au/library/ice-cream/) |
+| Ignis | 124 | [source](https://www.scottbuckley.com.au/library/ignis/) |
+| Intervention | 99 | [source](https://www.scottbuckley.com.au/library/intervention/) |
+| Into The Unknown | 91 | [source](https://www.scottbuckley.com.au/library/into-the-unknown/) |
+| Into The Wilds | 123 | [source](https://www.scottbuckley.com.au/library/into-the-wilds/) |
+| Journeys | 101 | [source](https://www.scottbuckley.com.au/library/journeys/) |
+| Latin Dish Pigs | 99 | [source](https://www.scottbuckley.com.au/library/latin-dish-pigs/) |
+| Life in Silico | 172 | [source](https://www.scottbuckley.com.au/library/life-in-silico/) |
+| Life Is | 99 | [source](https://www.scottbuckley.com.au/library/life-is/) |
+| Machinery of the Stars | 111 | [source](https://www.scottbuckley.com.au/library/machinery-of-the-stars/) |
+| Maleficus | 123 | [source](https://www.scottbuckley.com.au/library/maleficus/) |
+| Midsommar | 110 | [source](https://www.scottbuckley.com.au/library/midsommar/) |
+| Monomyth – The Call | 161 | [source](https://www.scottbuckley.com.au/library/the-call/) |
+| Monomyth – The Endurance | 102 | [source](https://www.scottbuckley.com.au/library/the-endurance/) |
+| Monomyth – The Fury | 117 | [source](https://www.scottbuckley.com.au/library/the-fury/) |
+| Monomyth – The Rise | 70 | [source](https://www.scottbuckley.com.au/library/the-rise/) |
+| Nightfall | 81 | [source](https://www.scottbuckley.com.au/library/nightfall/) |
+| One Falls to the Fire | 111 | [source](https://www.scottbuckley.com.au/library/one-falls-to-the-fire/) |
+| Origami | 101 | [source](https://www.scottbuckley.com.au/library/origami/) |
+| Patagonia | 88 | [source](https://www.scottbuckley.com.au/library/patagonia/) |
+| Prelude to Chemistry | 123 | [source](https://www.scottbuckley.com.au/library/prelude-to-chemistry/) |
+| Pursuit | 93 | [source](https://www.scottbuckley.com.au/library/pursuit/) |
+| Race The Sun | 105 | [source](https://www.scottbuckley.com.au/library/race-the-sun/) |
+| Rainbows | 117 | [source](https://www.scottbuckley.com.au/library/rainbows/) |
+| Reawakening | 99 | [source](https://www.scottbuckley.com.au/library/reawakening/) |
+| Reparateur | 99 | [source](https://www.scottbuckley.com.au/library/reparateur/) |
+| Resolutions | 199 | [source](https://www.scottbuckley.com.au/library/resolutions/) |
+| Rites of Passage | 144 | [source](https://www.scottbuckley.com.au/library/rites-of-passage/) |
+| Sanctum | 92 | [source](https://www.scottbuckley.com.au/library/sanctum/) |
+| She Moved Mountains | 129 | [source](https://www.scottbuckley.com.au/library/she-moved-mountains/) |
+| Simplicity | 99 | [source](https://www.scottbuckley.com.au/library/simplicity/) |
+| Simulacra | 125 | [source](https://www.scottbuckley.com.au/library/simulacra/) |
+| Skyscraper Samba | 136 | [source](https://www.scottbuckley.com.au/library/skyscraper-samba/) |
+| Snowfall | 94 | [source](https://www.scottbuckley.com.au/library/snowfall/) |
+| Solecism | 58 | [source](https://www.scottbuckley.com.au/library/solecism/) |
+| Song Of The Forge | 85 | [source](https://www.scottbuckley.com.au/library/song-of-the-forge/) |
+| Special Ops | 112 | [source](https://www.scottbuckley.com.au/library/special-ops/) |
+| Stars In Her Skies | 129 | [source](https://www.scottbuckley.com.au/library/stars-in-her-skies/) |
+| Sunday Smooth | 99 | [source](https://www.scottbuckley.com.au/library/sunday-smooth/) |
+| Supernova | 109 | [source](https://www.scottbuckley.com.au/library/supernova/) |
+| Tears of a Distant Sun | 102 | [source](https://www.scottbuckley.com.au/library/tears-of-a-distant-sun/) |
+| Terminus | 109 | [source](https://www.scottbuckley.com.au/library/terminus/) |
+| The Black Waltz | 129 | [source](https://www.scottbuckley.com.au/library/the-black-waltz/) |
+| The Climb | 111 | [source](https://www.scottbuckley.com.au/library/the-climb/) |
+| The Legend of Kvothe | 152 | [source](https://www.scottbuckley.com.au/library/the-legend-of-kvothe/) |
+| The Long Way Home | 69 | [source](https://www.scottbuckley.com.au/library/the-long-way-home/) |
+| Theory of Machines | 60 | [source](https://www.scottbuckley.com.au/library/theory-of-machines/) |
+| Three Sheets to the Wind | 117 | [source](https://www.scottbuckley.com.au/library/three-sheets-to-the-wind/) |
+| Titan | 81 | [source](https://www.scottbuckley.com.au/library/titan/) |
+| Tomorrow | 99 | [source](https://www.scottbuckley.com.au/library/tomorrow/) |
+| Vengeance | 71 | [source](https://www.scottbuckley.com.au/library/vengeance/) |
+| Venom | 117 | [source](https://www.scottbuckley.com.au/library/venom/) |
+| Wanderlust | 75 | [source](https://www.scottbuckley.com.au/library/wanderlust/) |
+| Welcome to my Junkyard | 93 | [source](https://www.scottbuckley.com.au/library/welcome-to-my-junkyard/) |
+| White Dawn | 91 | [source](https://www.scottbuckley.com.au/library/white-dawn/) |
+| With These Hands | 152 | [source](https://www.scottbuckley.com.au/library/with-these-hands/) |
+| Wonderful | 71 | [source](https://www.scottbuckley.com.au/library/wonderful/) |
+| Yellow | 161 | [source](https://www.scottbuckley.com.au/library/yellow/) |
+

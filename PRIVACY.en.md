@@ -32,7 +32,7 @@ Depending on the features **you** enable, the app may exchange data with service
 
 ### 3.3 Demo mix and music server (optional)
 
-The demo catalogue (181 royalty-free tracks) is hosted on a publisher server (`https://beatonstep.tail09d8d8.ts.net/music`).
+The demo catalogue (278 royalty-free tracks) is hosted on a publisher server (`https://beatonstep.tail09d8d8.ts.net/music`).
 
 - This server is **not a social network** or public service: it serves only the demo catalogue.
 - No account creation, no advertising cookies, no marketing telemetry.
@@ -167,9 +167,10 @@ This policy may be updated. The date at the top reflects the latest revision. Th
 
 The "Demo mix" catalogue consists exclusively of royalty-free tracks under **Creative Commons Attribution 4.0 International ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))** (commercial use allowed **with attribution**).
 
-**Artist (source):**
+**Artists (sources):**
 
 - **Kevin MacLeod** — [incompetech.com](https://incompetech.com)
+- **Scott Buckley** — [scottbuckley.com.au](https://www.scottbuckley.com.au/library/)
 
 BPM values are measured server-side (`librosa.beat.beat_track`, confidence threshold ≥ 0.77). They may differ slightly from author-published BPM values.
 

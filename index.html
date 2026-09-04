@@ -187,8 +187,8 @@
           </div>
           <h3 data-fr>Musique hors rythme</h3>
           <h3 data-en>Music off the beat</h3>
-          <p data-fr>Ça casse la cadence. Tes jambes fatiguent pendant l’effort.</p>
-          <p data-en>It breaks your cadence. Your legs pay for it.</p>
+          <p data-fr>Ça casse le rythme. Tes jambes fatiguent pendant l’effort.</p>
+          <p data-en>It breaks your rhythm. Your legs pay for it.</p>
         </article>
         <article class="split-card split-good">
           <div class="beat-viz beat-viz-match" data-split-match>
@@ -236,26 +236,12 @@
       <p class="tag" data-en>First run</p>
       <h2 data-fr>Tu peux courir tout de suite</h2>
       <h2 data-en>You can run right away</h2>
-      <p class="section-lead" data-fr>Le mix démo suffit. Tes titres à toi, tu les ajoutes quand tu veux.</p>
-      <p class="section-lead" data-en>The demo mix is enough. Your own tracks, you add when you want.</p>
-      <ul class="setup-steps reveal-stagger">
-        <li>
-          <p data-fr>Ouvre l’app : le mix démo est déjà là. Tu peux courir tout de suite.</p>
-          <p data-en>Open the app: the demo mix is already there. You can run right away.</p>
-        </li>
-        <li>
-          <p data-fr>Tes titres : tu les ajoutes plus tard, source par source. Ce n’est pas obligatoire.</p>
-          <p data-en>Your tracks: add them later, source by source. It’s optional.</p>
-        </li>
-        <li>
-          <p data-fr>Choisis Adaptatif (la musique suit) ou Fixe (tu fixes le rythme).</p>
-          <p data-en>Pick Adaptive (music follows) or Fixed (you lock the rhythm).</p>
-        </li>
-        <li>
-          <p data-fr>Démarre, téléphone dans la poche. Un titre part au rythme de tes pas.</p>
-          <p data-en>Start, phone in your pocket. A track kicks in with your stride.</p>
-        </li>
-      </ul>
+      <div class="first-run-copy">
+        <p data-fr>Le mix démo est déjà dans l’app. Téléphone en poche, un titre part au rythme de tes pas.</p>
+        <p data-en>The demo mix is already in the app. Phone in your pocket, a track kicks in with your stride.</p>
+        <p class="first-run-aside" data-fr>Tes titres, plus tard, si tu veux.</p>
+        <p class="first-run-aside" data-en>Your own tracks later, if you want.</p>
+      </div>
     </section>
 
     <section class="pace-modes reveal">
@@ -367,7 +353,7 @@
       <p class="section-lead" data-en>Mix and files: they play in BeatOnStep. YouTube, Apple Music, Spotify, Deezer: their app plays, BeatOnStep picks the track.</p>
       <div class="source-matrix">
         <table>
-          <caption class="visually-hidden"><span data-fr>Comment ajouter chaque source</span><span data-en>How you add each source</span></caption>
+          <caption class="visually-hidden"><span data-fr>Comment ajouter chaque source — clique une ligne pour le détail</span><span data-en>How you add each source — click a row for details</span></caption>
           <thead>
             <tr>
               <th scope="col"><span data-fr>Source</span><span data-en>Source</span></th>
@@ -376,32 +362,32 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr data-src="mix" tabindex="0" aria-pressed="false">
               <th scope="row">Mix démo</th>
               <td><span data-fr>Déjà dans l’app</span><span data-en>Already in the app</span></td>
               <td><span data-fr>Dans BeatOnStep — écran verrouillé OK</span><span data-en>In BeatOnStep — locked screen OK</span></td>
             </tr>
-            <tr>
+            <tr data-src="mp3" tabindex="0" aria-pressed="false">
               <th scope="row"><span data-fr>Fichiers téléphone</span><span data-en>Phone files</span></th>
               <td><span data-fr>Tes MP3 déjà sur l’appareil</span><span data-en>MP3s already on the device</span></td>
               <td><span data-fr>Dans BeatOnStep — écran verrouillé OK</span><span data-en>In BeatOnStep — locked screen OK</span></td>
             </tr>
-            <tr>
+            <tr data-src="ytm" tabindex="0" aria-pressed="false">
               <th scope="row">YouTube</th>
               <td><span data-fr>Connexion Google, tes playlists</span><span data-en>Google sign-in, your playlists</span></td>
               <td><span data-fr>App YouTube / YouTube Music</span><span data-en>YouTube / YouTube Music app</span></td>
             </tr>
-            <tr>
+            <tr data-src="apple-music" tabindex="0" aria-pressed="false">
               <th scope="row">Apple Music</th>
               <td><span data-fr>Connexion Apple, tes playlists</span><span data-en>Apple sign-in, your playlists</span></td>
               <td><span data-fr>App Musique / Apple Music</span><span data-en>Music / Apple Music app</span></td>
             </tr>
-            <tr>
+            <tr data-src="spotify" tabindex="0" aria-pressed="false">
               <th scope="row">Spotify</th>
               <td><span data-fr>Coller le lien Partager d’un morceau, ou d’une playlist <strong>publique</strong></span><span data-en>Paste a Share link for a track, or a <strong>public</strong> playlist</span></td>
               <td><span data-fr>App Spotify</span><span data-en>Spotify app</span></td>
             </tr>
-            <tr>
+            <tr data-src="deezer" tabindex="0" aria-pressed="false">
               <th scope="row">Deezer</th>
               <td><span data-fr>Coller le lien Partager d’un morceau, ou d’une playlist <strong>publique</strong></span><span data-en>Paste a Share link for a track, or a <strong>public</strong> playlist</span></td>
               <td><span data-fr>App Deezer</span><span data-en>Deezer app</span></td>
@@ -409,6 +395,8 @@
           </tbody>
         </table>
       </div>
+      <p class="source-hint source-hint-click" data-fr>Clique une ligne pour le détail et les captures.</p>
+      <p class="source-hint source-hint-click" data-en>Click a row for details and screenshots.</p>
       <ul class="source-row reveal-stagger">
         <li>
           <button type="button" class="source-card" data-src="mix" aria-pressed="false">
@@ -451,8 +439,8 @@
           </button>
         </li>
       </ul>
-      <p class="source-hint" data-fr>Touche une source pour le détail.</p>
-      <p class="source-hint" data-en>Tap a source for details.</p>
+      <p class="source-hint source-hint-tap" data-fr>Touche une source pour le détail.</p>
+      <p class="source-hint source-hint-tap" data-en>Tap a source for details.</p>
       <p class="source-explain" data-src="mix" data-fr>Déjà dans l’app, pour courir tout de suite. Internet la première fois.</p>
       <p class="source-explain" data-src="mix" data-en>Already in the app, so you can run right away. Internet needed the first time.</p>
       <p class="source-play" data-src="mix" data-fr>Lecture dans BeatOnStep. Téléphone verrouillé : la musique enchaîne.</p>
@@ -520,8 +508,8 @@
           <figcaption>
             <strong data-fr>Mix démo</strong>
             <strong data-en>Demo mix</strong>
-            <span data-fr>Mode Adaptatif : le PPM suit ta cadence, un titre du mix se cale dessus.</span>
-            <span data-en>Adaptive mode: PPM follows your cadence, a mix track locks to it.</span>
+            <span data-fr>Le PPM suit tes pas, un titre du mix se cale dessus.</span>
+            <span data-en>PPM follows your steps, a mix track locks to it.</span>
           </figcaption>
         </figure>
       </div>
@@ -565,13 +553,13 @@
       <div class="source-gallery" data-src="ytm">
         <figure class="shot">
           <div class="phone">
-            <img src="assets/screenshots/sources/youtube/play.png" width="575" height="1247" alt="Accueil : lecture YouTube, mode Fixe" loading="lazy" />
+            <img src="assets/screenshots/sources/youtube/play.png" width="575" height="1247" alt="Accueil : lecture YouTube" loading="lazy" />
           </div>
           <figcaption>
             <strong data-fr>Lecture YouTube</strong>
             <strong data-en>YouTube playback</strong>
-            <span data-fr>Mode Fixe : la musique joue dans l’app YouTube.</span>
-            <span data-en>Fixed mode: music plays in the YouTube app.</span>
+            <span data-fr>La musique joue dans l’app YouTube.</span>
+            <span data-en>Music plays in the YouTube app.</span>
           </figcaption>
         </figure>
         <figure class="shot">
@@ -590,13 +578,13 @@
       <div class="source-gallery" data-src="apple-music">
         <figure class="shot">
           <div class="phone">
-            <img src="assets/screenshots/sources/apple-music/play.png" width="575" height="1247" alt="Accueil : lecture Apple Music, mode Fixe" loading="lazy" />
+            <img src="assets/screenshots/sources/apple-music/play.png" width="575" height="1247" alt="Accueil : lecture Apple Music" loading="lazy" />
           </div>
           <figcaption>
             <strong data-fr>Lecture</strong>
             <strong data-en>Playback</strong>
-            <span data-fr>Mode Fixe : la musique joue dans l’app Musique.</span>
-            <span data-en>Fixed mode: music plays in the Music app.</span>
+            <span data-fr>La musique joue dans l’app Musique.</span>
+            <span data-en>Music plays in the Music app.</span>
           </figcaption>
         </figure>
         <figure class="shot">
@@ -661,21 +649,6 @@
           </figcaption>
         </figure>
       </div>
-
-      <ul class="setup-steps source-recap reveal-stagger">
-        <li>
-          <p data-fr>YouTube / Apple Music : Réglages → connexion, puis tes playlists en Bibliothèque.</p>
-          <p data-en>YouTube / Apple Music: Settings → sign in, then your playlists in Library.</p>
-        </li>
-        <li>
-          <p data-fr>Spotify ou Deezer : Bibliothèque → colle le lien Partager d’un morceau, ou d’une playlist publique.</p>
-          <p data-en>Spotify or Deezer: Library → paste the Share link of a track, or of a public playlist.</p>
-        </li>
-        <li>
-          <p data-fr>Coche les sources en Réglages. En course, l’app pioche parmi elles, au rythme de tes pas.</p>
-          <p data-en>Tick sources in Settings. On a run, the app picks from them, at your stride.</p>
-        </li>
-      </ul>
     </section>
 
     <section class="app-preview reveal">
@@ -860,6 +833,14 @@
             </details>
             <details class="faq-item">
               <summary>
+                <span data-fr>Le − et le + à côté des pas ?</span>
+                <span data-en>The − and + next to my steps?</span>
+              </summary>
+              <p data-fr>En <strong>Adaptatif</strong>, pendant la détection. <strong>−</strong> : l’app compte trop de pas — moins sensible. <strong>+</strong> : elle en rate — plus sensible. Un badge <strong>Sensibilité</strong> s’affiche ; <strong>Reset</strong> revient au défaut. Ça reste d’une sortie à l’autre.</p>
+              <p data-en>In <strong>Adaptive</strong>, while detecting. <strong>−</strong>: the app counts too many steps — less sensitive. <strong>+</strong>: it misses some — more sensitive. A <strong>Sensitivity</strong> badge appears; <strong>Reset</strong> goes back to default. It sticks from run to run.</p>
+            </details>
+            <details class="faq-item">
+              <summary>
                 <span data-fr>Mes données ?</span>
                 <span data-en>My data?</span>
               </summary>
@@ -961,11 +942,12 @@
                     <li><span data-fr>Sources cochées</span><span data-en>Ticked sources</span></li>
                     <li><span data-fr>Tempo connu</span><span data-en>Known tempo</span></li>
                     <li><span data-fr>Écart minimal</span><span data-en>Smallest gap</span></li>
-                    <li><span data-fr>Pas les 5 derniers</span><span data-en>Not last 5</span></li>
+                    <li><span data-fr>Pas les 20 récents</span><span data-en>Not last 20</span></li>
+                    <li><span data-fr>Hystérésis une fois lancé</span><span data-en>Hysteresis once playing</span></li>
                   </ol>
                 </figure>
-                <p data-fr>Parmi les sources cochées, seulement les titres dont le tempo est connu. L’app retient celui dont le tempo est le <strong>plus proche</strong> de ton rythme cible — pas de seuil à franchir. On évite les 5 derniers titres. Si tu forces un morceau, le matching reprend au suivant.</p>
-                <p data-en>From ticked sources, only tracks with a known tempo. The app picks whichever tempo is <strong>closest</strong> to your target rhythm — no cutoff threshold. Avoids the last 5 tracks. If you force a song, matching resumes on the next one.</p>
+                <p data-fr>Parmi les sources cochées, seulement les titres dont le tempo est connu. Pour le choix, l’app retient le tempo le <strong>plus proche</strong> de ton rythme — pas de seuil à franchir. On écarte les <strong>20</strong> titres les plus récents. Une fois lancé, un petit écart de rythme ne suffit pas à changer (hystérésis), pour éviter le yo-yo. Si tu forces un morceau, le matching reprend au suivant.</p>
+                <p data-en>From ticked sources, only tracks with a known tempo. For the pick, the app takes whichever tempo is <strong>closest</strong> to your rhythm — no cutoff threshold. It skips the <strong>20</strong> most recent tracks. Once playing, a small rhythm wobble isn’t enough to switch (hysteresis), to avoid yo-yoing. If you force a song, matching resumes on the next one.</p>
               </details>
               <details class="faq-item">
                 <summary>
@@ -996,25 +978,25 @@
               </details>
               <details class="faq-item">
                 <summary>
-                  <span data-fr>Calibration Sous-estimée / Surestimée</span>
-                  <span data-en>Too fast / too slow calibration</span>
+                  <span data-fr>Sensibilité − / + (compteur de pas)</span>
+                  <span data-en>Sensitivity − / + (step count)</span>
                 </summary>
                 <div class="schema-pair">
                   <div>
-                    <strong data-fr>À l’écran</strong>
-                    <strong data-en>On screen</strong>
-                    <span data-fr>PPM brut inchangé · cible × facteur</span>
-                    <span data-en>Raw PPM unchanged · target × factor</span>
+                    <strong>−</strong>
+                    <span data-fr>Moins de pas détectés</span>
+                    <span data-en>Fewer steps detected</span>
                   </div>
                   <div>
-                    <strong data-fr>Pour le matching</strong>
-                    <strong data-en>For matching</strong>
-                    <span data-fr>PPM effectif = PPM brut / facteur</span>
-                    <span data-en>Effective PPM = raw PPM / factor</span>
+                    <strong>+</strong>
+                    <span data-fr>Plus de pas détectés</span>
+                    <span data-en>More steps detected</span>
                   </div>
                 </div>
-                <p data-fr>Uniquement en Adaptatif, pendant la détection. Chaque tap = ±2 % sur un facteur (borné entre 1/3 et 3). Le PPM envoyé au matching est divisé par ce facteur. Le PPM brut à l’écran ne change pas.</p>
-                <p data-en>Adaptive only, while detecting. Each tap = ±2% on a factor (clamped 1/3 to 3). PPM sent to matching is divided by it. The raw PPM on screen does not change.</p>
+                <p data-fr>Uniquement en Adaptatif, pendant la détection. Les boutons encadrent le compteur de pas. Chaque tap déplace le seuil de l’accéléromètre (échelle interne −999…+999, 0 = défaut). Badge <strong>Sensibilité</strong> + <strong>Reset</strong>. Appui long = plus vite. Persistent.</p>
+                <p data-en>Adaptive only, while detecting. The buttons sit around the step count. Each tap moves the accelerometer threshold (internal scale −999…+999, 0 = default). <strong>Sensitivity</strong> badge + <strong>Reset</strong>. Long-press = faster. Persistent.</p>
+                <p data-fr>« Sous-estimée / Surestimée » : anciens libellés quand l’allure (min/km) était affichée — un facteur ±2 % (bornes 1/3–3) corrigeait l’allure, pas le compteur de pas. Plus dans l’UI.</p>
+                <p data-en>“Too fast / too slow”: old labels from when pace (min/km) was shown — a ±2% factor (clamped 1/3–3) corrected pace, not the step count. No longer in the UI.</p>
               </details>
               <details class="faq-item" id="faq-formule">
                 <summary>
@@ -1677,24 +1659,48 @@
         var root = document.querySelector(".sources");
         if (!root) return;
         var cards = root.querySelectorAll(".source-card");
+        var rows = root.querySelectorAll(".source-matrix tbody tr[data-src]");
         function clear() {
           cards.forEach(function (c) {
             c.setAttribute("aria-pressed", "false");
             if (c.parentElement) c.parentElement.classList.remove("is-on");
           });
+          rows.forEach(function (r) {
+            r.setAttribute("aria-pressed", "false");
+            r.classList.remove("is-on");
+          });
           root.removeAttribute("data-src");
+        }
+        function select(key) {
+          var already = root.getAttribute("data-src") === key;
+          clear();
+          if (already || !key) return;
+          root.setAttribute("data-src", key);
+          cards.forEach(function (c) {
+            if (c.getAttribute("data-src") !== key) return;
+            c.setAttribute("aria-pressed", "true");
+            if (c.parentElement) c.parentElement.classList.add("is-on");
+          });
+          rows.forEach(function (r) {
+            if (r.getAttribute("data-src") !== key) return;
+            r.setAttribute("aria-pressed", "true");
+            r.classList.add("is-on");
+          });
         }
         cards.forEach(function (btn) {
           btn.addEventListener("click", function () {
-            var key = btn.getAttribute("data-src");
-            if (btn.getAttribute("aria-pressed") === "true") {
-              clear();
-              return;
+            select(btn.getAttribute("data-src"));
+          });
+        });
+        rows.forEach(function (row) {
+          row.addEventListener("click", function () {
+            select(row.getAttribute("data-src"));
+          });
+          row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              select(row.getAttribute("data-src"));
             }
-            clear();
-            btn.setAttribute("aria-pressed", "true");
-            if (btn.parentElement) btn.parentElement.classList.add("is-on");
-            if (key) root.setAttribute("data-src", key);
           });
         });
       })();
