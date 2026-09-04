@@ -1105,20 +1105,29 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   line-height: 1.45;
 }
 .source-hint,
-.source-explain {
+.source-explain,
+.source-play {
   margin: 0.85rem 0 0;
   max-width: 38rem;
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.45;
 }
-.source-explain { display: none; }
+.source-explain,
+.source-play { display: none; }
+.source-play { margin-top: 0.4rem; }
 .sources[data-src="mix"] .source-explain[data-src="mix"],
+.sources[data-src="mix"] .source-play[data-src="mix"],
 .sources[data-src="mp3"] .source-explain[data-src="mp3"],
+.sources[data-src="mp3"] .source-play[data-src="mp3"],
 .sources[data-src="ytm"] .source-explain[data-src="ytm"],
+.sources[data-src="ytm"] .source-play[data-src="ytm"],
 .sources[data-src="apple-music"] .source-explain[data-src="apple-music"],
+.sources[data-src="apple-music"] .source-play[data-src="apple-music"],
 .sources[data-src="spotify"] .source-explain[data-src="spotify"],
-.sources[data-src="deezer"] .source-explain[data-src="deezer"] {
+.sources[data-src="spotify"] .source-play[data-src="spotify"],
+.sources[data-src="deezer"] .source-explain[data-src="deezer"],
+.sources[data-src="deezer"] .source-play[data-src="deezer"] {
   display: block;
 }
 .sources[data-src="apple-music"] .source-compare {

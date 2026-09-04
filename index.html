@@ -379,12 +379,12 @@
             <tr>
               <th scope="row">Mix démo</th>
               <td><span data-fr>Déjà dans l’app</span><span data-en>Already in the app</span></td>
-              <td><span data-fr>Dans BeatOnStep (Internet)</span><span data-en>In BeatOnStep (internet)</span></td>
+              <td><span data-fr>Dans BeatOnStep — écran verrouillé OK</span><span data-en>In BeatOnStep — locked screen OK</span></td>
             </tr>
             <tr>
               <th scope="row"><span data-fr>Fichiers téléphone</span><span data-en>Phone files</span></th>
               <td><span data-fr>Tes MP3 déjà sur l’appareil</span><span data-en>MP3s already on the device</span></td>
-              <td><span data-fr>Dans BeatOnStep</span><span data-en>In BeatOnStep</span></td>
+              <td><span data-fr>Dans BeatOnStep — écran verrouillé OK</span><span data-en>In BeatOnStep — locked screen OK</span></td>
             </tr>
             <tr>
               <th scope="row">YouTube</th>
@@ -453,14 +453,22 @@
       </ul>
       <p class="source-hint" data-fr>Touche une source pour le détail.</p>
       <p class="source-hint" data-en>Tap a source for details.</p>
-      <p class="source-explain" data-src="mix" data-fr>Des titres déjà dans l’app pour courir tout de suite. Connexion internet la première fois.</p>
-      <p class="source-explain" data-src="mix" data-en>Tracks already in the app so you can run right away. Internet needed the first time.</p>
-      <p class="source-explain" data-src="mp3" data-fr>Tes MP3 importés, lecture directement dans BeatOnStep.</p>
-      <p class="source-explain" data-src="mp3" data-en>Your imported MP3s, played right inside BeatOnStep.</p>
-      <p class="source-explain" data-src="ytm" data-fr>Réglages → connexion Google, puis tes playlists en Bibliothèque. La musique joue dans YouTube ou YouTube Music — au choix dans Réglages.</p>
-      <p class="source-explain" data-src="ytm" data-en>Settings → Google sign-in, then your playlists in Library. Music plays in YouTube or YouTube Music — your choice in Settings.</p>
-      <p class="source-explain" data-src="apple-music" data-fr>Réglages → connexion Apple, puis tes playlists. La musique joue dans l’app Musique (abonnement Apple Music).</p>
-      <p class="source-explain" data-src="apple-music" data-en>Settings → Apple sign-in, then your playlists. Music plays in the Music app (Apple Music subscription).</p>
+      <p class="source-explain" data-src="mix" data-fr>Déjà dans l’app, pour courir tout de suite. Internet la première fois.</p>
+      <p class="source-explain" data-src="mix" data-en>Already in the app, so you can run right away. Internet needed the first time.</p>
+      <p class="source-play" data-src="mix" data-fr>Lecture dans BeatOnStep. Téléphone verrouillé : la musique enchaîne.</p>
+      <p class="source-play" data-src="mix" data-en>Plays in BeatOnStep. Phone locked: the music keeps going.</p>
+      <p class="source-explain" data-src="mp3" data-fr>Importe tes fichiers dans Bibliothèque.</p>
+      <p class="source-explain" data-src="mp3" data-en>Import your files in Library.</p>
+      <p class="source-play" data-src="mp3" data-fr>Lecture dans BeatOnStep. Téléphone verrouillé : la musique enchaîne.</p>
+      <p class="source-play" data-src="mp3" data-en>Plays in BeatOnStep. Phone locked: the music keeps going.</p>
+      <p class="source-explain" data-src="ytm" data-fr>Réglages → connexion Google, puis tes playlists en Bibliothèque.</p>
+      <p class="source-explain" data-src="ytm" data-en>Settings → Google sign-in, then your playlists in Library.</p>
+      <p class="source-play" data-src="ytm" data-fr>La musique joue dans YouTube ou YouTube Music. Premium : moins de pubs, lecture en arrière-plan plus simple.</p>
+      <p class="source-play" data-src="ytm" data-en>Music plays in YouTube or YouTube Music. Premium: fewer ads, easier background playback.</p>
+      <p class="source-explain" data-src="apple-music" data-fr>Réglages → connexion Apple, puis tes playlists (abonnement Apple Music).</p>
+      <p class="source-explain" data-src="apple-music" data-en>Settings → Apple sign-in, then your playlists (Apple Music subscription).</p>
+      <p class="source-play" data-src="apple-music" data-fr>Sur iPhone, Apple Music s’ouvre en arrière-plan. Garde BeatOnStep ouvert pour la piste suivante. Verrouiller coupe la suivante.</p>
+      <p class="source-play" data-src="apple-music" data-en>On iPhone, Apple Music opens in the background. Keep BeatOnStep open for the next track. Locking the phone cuts the next one.</p>
       <div class="source-compare" data-src="apple-music">
         <table>
           <caption class="visually-hidden"><span data-fr>Apple Music : iPhone vs Android</span><span data-en>Apple Music: iPhone vs Android</span></caption>
@@ -492,13 +500,17 @@
             </tr>
           </tbody>
         </table>
-        <p class="source-compare-note" data-fr>Sur iPhone, la musique continue pendant que tu cours. Sur Android, tu passes par l’app Apple Music.</p>
-        <p class="source-compare-note" data-en>On iPhone, music keeps playing while you run. On Android, playback goes through the Apple Music app.</p>
+        <p class="source-compare-note" data-fr>Sur iPhone, Apple Music joue en arrière-plan. Garde BeatOnStep ouvert pour la piste suivante — verrouiller coupe la suivante. Sur Android, tu passes par l’app Apple Music.</p>
+        <p class="source-compare-note" data-en>On iPhone, Apple Music plays in the background. Keep BeatOnStep open for the next track — locking cuts the next one. On Android, you go through the Apple Music app.</p>
       </div>
-      <p class="source-explain" data-src="spotify" data-fr>Tu colles le lien Partager. Un morceau marche. Une playlist marche si elle est <strong>publique</strong>. Pas de connexion Spotify. Une playlist privée ne peut pas être lue. En course, l’app Spotify s’ouvre. Sans tempo, le titre ne part pas : saisis-le ou appuie sur « Détecter BPM ».</p>
-      <p class="source-explain" data-src="spotify" data-en>You paste the Share link. A track works. A playlist works if it’s <strong>public</strong>. No Spotify sign-in. A private playlist can’t be read. On a run, the Spotify app opens. Without tempo, the track isn’t used: enter it or tap “Detect BPM”.</p>
-      <p class="source-explain" data-src="deezer" data-fr>Tu colles le lien Partager. Un morceau marche. Une playlist marche si elle est <strong>publique</strong>. Pas de connexion Deezer. Une playlist privée ne peut pas être lue. En course, l’app Deezer s’ouvre.</p>
-      <p data-en class="source-explain" data-src="deezer">You paste the Share link. A track works. A playlist works if it’s <strong>public</strong>. No Deezer sign-in. A private playlist can’t be read. On a run, the Deezer app opens.</p>
+      <p class="source-explain" data-src="spotify" data-fr>Bibliothèque → colle le lien Partager d’un morceau, ou d’une playlist <strong>publique</strong>. Pas de connexion Spotify. Une playlist privée ne marche pas. Sans tempo : saisis-le ou « Détecter BPM ».</p>
+      <p class="source-explain" data-src="spotify" data-en>Library → paste the Share link of a track, or of a <strong>public</strong> playlist. No Spotify sign-in. A private playlist won’t work. Without tempo: enter it or tap “Detect BPM”.</p>
+      <p class="source-play" data-src="spotify" data-fr>Spotify lance le titre. Reviens ici, garde BeatOnStep ouvert pour la piste suivante. En course, l’écran ne s’éteint pas tant que BeatOnStep reste ouvert.</p>
+      <p class="source-play" data-src="spotify" data-en>Spotify starts the track. Come back here, keep BeatOnStep open for the next one. On a run, the screen stays on while BeatOnStep is open.</p>
+      <p class="source-explain" data-src="deezer" data-fr>Bibliothèque → colle le lien Partager d’un morceau, ou d’une playlist <strong>publique</strong>. Pas de connexion Deezer. Une playlist privée ne marche pas.</p>
+      <p class="source-explain" data-src="deezer" data-en>Library → paste the Share link of a track, or of a <strong>public</strong> playlist. No Deezer sign-in. A private playlist won’t work.</p>
+      <p class="source-play" data-src="deezer" data-fr>Deezer lance le titre. Reviens ici, garde BeatOnStep ouvert pour la piste suivante. En course, l’écran ne s’éteint pas tant que BeatOnStep reste ouvert.</p>
+      <p class="source-play" data-src="deezer" data-en>Deezer starts the track. Come back here, keep BeatOnStep open for the next one. On a run, the screen stays on while BeatOnStep is open.</p>
 
       <div class="source-gallery" data-src="mix">
         <figure class="shot">
@@ -813,10 +825,14 @@
                 <span data-fr>Où se lit la musique ?</span>
                 <span data-en>Where does music play?</span>
               </summary>
-              <p data-fr><strong>Mix et fichiers</strong> : dans BeatOnStep, même écran verrouillé.</p>
-              <p data-en><strong>Mix and files</strong>: in BeatOnStep, even with the screen locked.</p>
-              <p data-fr><strong>YouTube, Apple Music, Spotify, Deezer</strong> : dans leur app. YouTube : souvent Premium pour l’écran verrouillé. Apple Music : OK sur iPhone. Spotify et Deezer : selon leur app.</p>
-              <p data-en><strong>YouTube, Apple Music, Spotify, Deezer</strong>: in their app. YouTube: Premium is often needed for a locked screen. Apple Music: fine on iPhone. Spotify and Deezer: follow their app’s rules.</p>
+              <p data-fr><strong>Mix et fichiers</strong> : dans BeatOnStep. Téléphone verrouillé : la musique enchaîne.</p>
+              <p data-en><strong>Mix and files</strong>: in BeatOnStep. Phone locked: the music keeps going.</p>
+              <p data-fr><strong>YouTube</strong> : dans YouTube. Premium : moins de pubs, lecture en arrière-plan plus simple.</p>
+              <p data-en><strong>YouTube</strong>: in YouTube. Premium: fewer ads, easier background playback.</p>
+              <p data-fr><strong>Apple Music</strong> : dans l’app Musique. Sur iPhone, en arrière-plan — garde BeatOnStep ouvert ; verrouiller coupe la piste suivante.</p>
+              <p data-en><strong>Apple Music</strong>: in the Music app. On iPhone, in the background — keep BeatOnStep open; locking cuts the next track.</p>
+              <p data-fr><strong>Spotify et Deezer</strong> : leur app lance le titre. Reviens dans BeatOnStep pour la suivante. L’écran reste allumé tant que BeatOnStep est ouvert.</p>
+              <p data-en><strong>Spotify and Deezer</strong>: their app starts the track. Come back to BeatOnStep for the next one. The screen stays on while BeatOnStep is open.</p>
             </details>
             <details class="faq-item">
               <summary>
