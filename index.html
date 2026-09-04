@@ -244,8 +244,8 @@
           <p data-en>Open the app: the demo mix is already there. You can run right away.</p>
         </li>
         <li>
-          <p data-fr>YouTube ou Apple Music : connecte ton compte, puis importe tes playlists. Spotify : colle le lien Partager d’un morceau. Deezer : colle le lien Partager d’un morceau, ou d’une playlist publique.</p>
-          <p data-en>YouTube or Apple Music: sign in, then import your playlists. Spotify: paste a track’s Share link. Deezer: paste the Share link of a track, or of a public playlist.</p>
+          <p data-fr>YouTube ou Apple Music : connecte ton compte, puis importe tes playlists. Spotify ou Deezer : colle le lien Partager d’un morceau, ou d’une playlist publique.</p>
+          <p data-en>YouTube or Apple Music: sign in, then import your playlists. Spotify or Deezer: paste the Share link of a track, or of a public playlist.</p>
         </li>
         <li>
           <p data-fr>Choisis Adaptatif (la musique suit) ou Fixe (tu fixes le rythme).</p>
@@ -365,8 +365,8 @@
       <h2 data-en>Your music sources</h2>
       <p class="section-lead" data-fr>Toutes les plateformes, pas le même geste. Mix et fichiers dans BeatOnStep. YouTube, Apple Music, Spotify, Deezer : BeatOnStep choisit le titre, leur app le joue.</p>
       <p class="section-lead" data-en>Every platform, not the same gesture. Mix and files play in BeatOnStep. YouTube, Apple Music, Spotify, Deezer: BeatOnStep picks the track, their app plays it.</p>
-      <p class="source-note" data-fr>Pas de compte BeatOnStep. YouTube et Apple Music : tu te connectes et tu importes tes playlists. Spotify : tu colles le lien d’un morceau. Deezer : tu colles un lien Partager.</p>
-      <p class="source-note" data-en>No BeatOnStep account. YouTube and Apple Music: you sign in and import your playlists. Spotify: you paste a track link. Deezer: you paste a Share link.</p>
+      <p class="source-note" data-fr>Pas de compte BeatOnStep. YouTube et Apple Music : tu te connectes et tu importes tes playlists. Spotify et Deezer : tu colles un lien Partager.</p>
+      <p class="source-note" data-en>No BeatOnStep account. YouTube and Apple Music: you sign in and import your playlists. Spotify and Deezer: you paste a Share link.</p>
       <div class="source-matrix">
         <table>
           <caption class="visually-hidden"><span data-fr>Comment ajouter chaque source</span><span data-en>How you add each source</span></caption>
@@ -400,7 +400,7 @@
             </tr>
             <tr>
               <th scope="row">Spotify</th>
-              <td><span data-fr>Coller le lien Partager d’un <strong>morceau</strong> (pas une playlist)</span><span data-en>Paste a <strong>track</strong> Share link (not a playlist)</span></td>
+              <td><span data-fr>Coller le lien Partager d’un morceau, ou d’une playlist <strong>publique</strong></span><span data-en>Paste a Share link for a track, or a <strong>public</strong> playlist</span></td>
               <td><span data-fr>App Spotify</span><span data-en>Spotify app</span></td>
             </tr>
             <tr>
@@ -497,8 +497,8 @@
         <p class="source-compare-note" data-fr>Sur iPhone, la musique continue pendant que tu cours. Sur Android, tu passes par l’app Apple Music.</p>
         <p class="source-compare-note" data-en>On iPhone, music keeps playing while you run. On Android, playback goes through the Apple Music app.</p>
       </div>
-      <p class="source-explain" data-src="spotify" data-fr>Tu colles le lien Partager d’un <strong>morceau</strong> — pas une playlist. Pas de connexion Spotify dans BeatOnStep. En course, l’app Spotify s’ouvre. Sans tempo, le titre ne part pas : saisis-le ou appuie sur « Détecter BPM ».</p>
-      <p class="source-explain" data-src="spotify" data-en>You paste a <strong>track</strong> Share link — not a playlist. No Spotify sign-in in BeatOnStep. On a run, the Spotify app opens. Without tempo, the track isn’t used: enter it or tap “Detect BPM”.</p>
+      <p class="source-explain" data-src="spotify" data-fr>Tu colles le lien Partager. Un morceau marche. Une playlist marche si elle est <strong>publique</strong>. Pas de connexion Spotify. Une playlist privée ne peut pas être lue. En course, l’app Spotify s’ouvre. Sans tempo, le titre ne part pas : saisis-le ou appuie sur « Détecter BPM ».</p>
+      <p class="source-explain" data-src="spotify" data-en>You paste the Share link. A track works. A playlist works if it’s <strong>public</strong>. No Spotify sign-in. A private playlist can’t be read. On a run, the Spotify app opens. Without tempo, the track isn’t used: enter it or tap “Detect BPM”.</p>
       <p class="source-explain" data-src="deezer" data-fr>Tu colles le lien Partager. Un morceau marche. Une playlist marche si elle est <strong>publique</strong>. Pas de connexion Deezer. Une playlist privée ne peut pas être lue. En course, l’app Deezer s’ouvre.</p>
       <p data-en class="source-explain" data-src="deezer">You paste the Share link. A track works. A playlist works if it’s <strong>public</strong>. No Deezer sign-in. A private playlist can’t be read. On a run, the Deezer app opens.</p>
 
@@ -602,14 +602,64 @@
         </figure>
       </div>
 
+      <div class="source-gallery" data-src="spotify">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/spotify/play.png" width="575" height="1082" alt="Accueil : lecture dans Spotify" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Lecture</strong>
+            <strong data-en>Playback</strong>
+            <span data-fr>Le titre part dans l’app Spotify. Reviens ici pour la piste suivante.</span>
+            <span data-en>The track plays in the Spotify app. Come back here for the next one.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/spotify/library.png" width="575" height="1089" alt="Bibliothèque : titres Spotify collés" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Bibliothèque</strong>
+            <strong data-en>Library</strong>
+            <span data-fr>Les liens collés, avec le BPM. Pas de compte Spotify dans BeatOnStep.</span>
+            <span data-en>Pasted links, with BPM. No Spotify account inside BeatOnStep.</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="source-gallery" data-src="deezer">
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/deezer/play.png" width="575" height="1089" alt="Accueil : lecture dans Deezer" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Lecture</strong>
+            <strong data-en>Playback</strong>
+            <span data-fr>Le titre part dans l’app Deezer. Reviens ici pour la piste suivante.</span>
+            <span data-en>The track plays in the Deezer app. Come back here for the next one.</span>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="phone">
+            <img src="assets/screenshots/sources/deezer/import.png" width="575" height="1089" alt="Bibliothèque : coller un lien Deezer" loading="lazy" />
+          </div>
+          <figcaption>
+            <strong data-fr>Coller le lien</strong>
+            <strong data-en>Paste the link</strong>
+            <span data-fr>Un morceau, ou une playlist publique. Pas de connexion Deezer.</span>
+            <span data-en>A track, or a public playlist. No Deezer sign-in.</span>
+          </figcaption>
+        </figure>
+      </div>
+
       <ul class="setup-steps reveal-stagger">
         <li>
           <p data-fr>YouTube / Apple Music : Réglages → connexion, puis tes playlists en Bibliothèque.</p>
           <p data-en>YouTube / Apple Music: Settings → sign in, then your playlists in Library.</p>
         </li>
         <li>
-          <p data-fr>Spotify : Bibliothèque → colle le lien Partager d’un morceau. Deezer : Bibliothèque → colle le lien Partager d’un morceau, ou d’une playlist publique.</p>
-          <p data-en>Spotify: Library → paste a track’s Share link. Deezer: Library → paste the Share link of a track, or of a public playlist.</p>
+          <p data-fr>Spotify ou Deezer : Bibliothèque → colle le lien Partager d’un morceau, ou d’une playlist publique.</p>
+          <p data-en>Spotify or Deezer: Library → paste the Share link of a track, or of a public playlist.</p>
         </li>
         <li>
           <p data-fr>Coche les sources en Réglages. En course, l’app pioche parmi elles, au rythme de tes pas.</p>
@@ -628,13 +678,13 @@
       <div class="shots reveal-stagger" aria-label="Réglages">
         <figure class="shot">
           <div class="phone">
-            <img src="assets/screenshots/app/settings-sources.png" width="575" height="1247" alt="Réglages : détection et sources" loading="lazy" />
+            <img src="assets/screenshots/app/settings-sources.png" width="575" height="1074" alt="Réglages : sources cochées" loading="lazy" />
           </div>
           <figcaption>
             <strong data-fr>Sources</strong>
             <strong data-en>Sources</strong>
-            <span data-fr>Adaptatif ou Fixe, et les sources cochées.</span>
-            <span data-en>Adaptive or Fixed, and which sources are on.</span>
+            <span data-fr>Téléphone et Mix dans l’app. Apple Music, YouTube, Spotify, Deezer : l’app musique s’ouvre.</span>
+            <span data-en>Phone and Mix in-app. Apple Music, YouTube, Spotify, Deezer: the music app opens.</span>
           </figcaption>
         </figure>
         <figure class="shot">
@@ -774,8 +824,8 @@
                 <span data-fr>Comment ajouter Spotify ?</span>
                 <span data-en>How do I add Spotify?</span>
               </summary>
-              <p data-fr>Bibliothèque → Spotify → colle le lien Partager d’un <strong>morceau</strong>. Pas le lien d’une playlist. Puis le tempo si besoin (« Détecter BPM »). En course, Spotify s’ouvre. Pas de connexion Spotify dans BeatOnStep.</p>
-              <p data-en>Library → Spotify → paste a <strong>track</strong> Share link. Not a playlist link. Then tempo if needed (“Detect BPM”). On a run, Spotify opens. No Spotify sign-in inside BeatOnStep.</p>
+              <p data-fr>Bibliothèque → Spotify → colle le lien Partager (un morceau, ou une playlist <strong>publique</strong>). Une playlist privée ne peut pas être lue. Puis le tempo si besoin (« Détecter BPM »). En course, Spotify s’ouvre. Pas de connexion Spotify dans BeatOnStep.</p>
+              <p data-en>Library → Spotify → paste the Share link (a track, or a <strong>public</strong> playlist). A private playlist can’t be read. Then tempo if needed (“Detect BPM”). On a run, Spotify opens. No Spotify sign-in inside BeatOnStep.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -790,8 +840,8 @@
                 <span data-fr>Pourquoi Spotify et Deezer ne marchent pas comme YouTube ?</span>
                 <span data-en>Why don’t Spotify and Deezer work like YouTube?</span>
               </summary>
-              <p data-fr>Les plateformes n’offrent pas le même accès. YouTube et Apple Music : tes playlists, après connexion. Spotify : liens de <strong>titres</strong> seulement. Deezer : liens Partager, et playlists déjà <strong>publiques</strong> — sans te connecter à Deezer dans BeatOnStep.</p>
-              <p data-en>Platforms don’t offer the same access. YouTube and Apple Music: your playlists, after you sign in. Spotify: <strong>track</strong> links only. Deezer: Share links, plus playlists that are already <strong>public</strong> — with no Deezer sign-in in BeatOnStep.</p>
+              <p data-fr>Les plateformes n’offrent pas le même accès. YouTube et Apple Music : tes playlists, après connexion. Spotify et Deezer : tu colles un lien Partager — un morceau, ou une playlist déjà <strong>publique</strong> — sans te connecter dans BeatOnStep.</p>
+              <p data-en>Platforms don’t offer the same access. YouTube and Apple Music: your playlists, after you sign in. Spotify and Deezer: you paste a Share link — a track, or a playlist that’s already <strong>public</strong> — with no sign-in in BeatOnStep.</p>
             </details>
             <details class="faq-item">
               <summary>
@@ -909,7 +959,7 @@
                     <li><span data-fr>Musiques téléphone : analyse ~90 s</span><span data-en>Phone music: ~90 s analysis</span></li>
                     <li><span data-fr>YouTube : saisie / détection</span><span data-en>YouTube: enter / detect</span></li>
                     <li><span data-fr>Apple Music : saisie / détection</span><span data-en>Apple Music: enter / detect</span></li>
-                    <li><span data-fr>Spotify : saisie / détection (lien d’un morceau)</span><span data-en>Spotify: enter / detect (track link)</span></li>
+                    <li><span data-fr>Spotify : saisie / détection (lien d’un morceau ou d’une playlist publique)</span><span data-en>Spotify: enter / detect (track or public playlist link)</span></li>
                     <li><span data-fr>Deezer : parfois fourni, sinon saisie / détection</span><span data-en>Deezer: sometimes provided, else enter / detect</span></li>
                     <li><span data-fr>Sans BPM : ignoré</span><span data-en>No BPM: skipped</span></li>
                   </ol>

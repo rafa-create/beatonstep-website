@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 3 septembre 2026
+**Dernière mise à jour :** 5 septembre 2026
 
 ## 1. Qui sommes-nous
 
@@ -12,7 +12,7 @@ BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au 
 
 BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'intègre **pas d'analytique ou de tracking commercial**. Aucune donnée de cadence (PPM), de parcours, ni de bibliothèque musicale n'est envoyée à l'éditeur à des fins marketing ou de profilage.
 
-Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens de titres Spotify, liens Partager Deezer, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
+Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens Spotify ou Deezer collés, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
 
 ## 3. Fonctionnalités et flux de données
 
@@ -65,14 +65,15 @@ Si vous connectez un compte Apple pour utiliser Apple Music dans BeatOnStep :
 
 **Android :** l'app Apple Music ([Google Play](https://play.google.com/store/apps/details?id=com.apple.android.music)) doit être installée ; BeatOnStep ouvre le morceau dans cette app (pas de lecteur intégré BeatOnStep).
 
-### 3.6 Spotify (optionnel — liens de titres)
+### 3.6 Spotify (optionnel — liens Partager)
 
-Si vous importez des titres Spotify dans BeatOnStep :
+Lorsque vous utilisez Spotify dans BeatOnStep :
 
-- Fonction **initiée par vous** : vous collez des liens de **morceaux** (`open.spotify.com/track/…` ou `spotify:track:…`). BeatOnStep **n'importe pas vos playlists** Spotify et **ne se connecte pas** à votre compte Spotify dans cette version.
-- L'app peut interroger le service **oEmbed** public de Spotify pour afficher le titre. Aucun mot de passe Spotify n'est demandé ni transmis à l'éditeur.
-- Les identifiants de titres et métadonnées restent **sur l'appareil**.
+- Fonction **initiée par vous** : vous collez le lien **Partager** d'un **morceau**, ou d'une **playlist publique**. BeatOnStep **ne se connecte pas** à votre compte Spotify.
+- L'app peut interroger le catalogue public de Spotify pour afficher le titre. Aucun mot de passe Spotify n'est demandé ni transmis à l'éditeur.
+- Les identifiants et métadonnées restent **sur l'appareil**.
 - La **lecture** s'effectue dans l'app **Spotify** — pas dans BeatOnStep. Un compte Spotify (et, selon les titres, un abonnement) peut être requis par Spotify.
+- Une playlist **privée** ne peut pas être lue sans connexion officielle, qui n'est pas proposée au public pour l'instant.
 - BeatOnStep **ne fournit pas** le catalogue Spotify.
 
 ### 3.7 Deezer (optionnel — liens Partager)
@@ -115,7 +116,7 @@ Sur votre appareil, dans l'espace privé de l'app :
 - Bibliothèque importée (chemins, BPM, sources activées).
 - Préférences (mode, plages cibles, réglages, langue).
 - Jetons de connexion YouTube et Apple Music (si connectés).
-- Titres Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify dans cette version.
+- Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify.
 - Titres Deezer dont vous avez collé le lien Partager (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Deezer dans cette version.
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l'app.
@@ -129,7 +130,7 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 | **Apple (App Store)** | Distribution iOS | Gestion par Apple selon ses propres règles |
 | **Expo** | Automatique | Vérification / téléchargement de mises à jour OTA |
 | **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
-| **Spotify** | Si vous collez des liens de morceaux | Requête oEmbed (titre) ; ouverture du titre dans l'app Spotify. Pas de connexion compte dans cette version |
+| **Spotify** | Si vous collez un lien Partager | Demande du titre au catalogue public ; ouverture dans l'app Spotify. Pas de connexion compte |
 | **Deezer** | Si vous collez un lien Partager (morceau ou playlist publique) | Requête catalogue public (titre, durée, parfois BPM) ; ouverture du titre dans l'app Deezer. Pas de connexion compte dans cette version |
 
 Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.

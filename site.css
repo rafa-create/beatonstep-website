@@ -1224,7 +1224,8 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 .sources[data-src="mp3"] .source-gallery[data-src="mp3"],
 .sources[data-src="ytm"] .source-gallery[data-src="ytm"],
 .sources[data-src="apple-music"] .source-gallery[data-src="apple-music"],
-.sources[data-src="spotify"] .source-gallery[data-src="spotify"] {
+.sources[data-src="spotify"] .source-gallery[data-src="spotify"],
+.sources[data-src="deezer"] .source-gallery[data-src="deezer"] {
   display: grid;
 }
 .setup-steps {

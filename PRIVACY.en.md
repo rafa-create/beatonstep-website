@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** September 3, 2026
+**Last updated:** September 5, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -67,14 +67,15 @@ If you connect an Apple account to use Apple Music in BeatOnStep:
 
 **Android:** the Apple Music app ([Google Play](https://play.google.com/store/apps/details?id=com.apple.android.music)) must be installed; BeatOnStep opens the track in that app (no BeatOnStep built-in player).
 
-### 3.6 Spotify (optional — track links)
+### 3.6 Spotify (optional — Share links)
 
-If you import Spotify tracks into BeatOnStep:
+When you use Spotify in BeatOnStep:
 
-- Feature **initiated by you**: you paste **track** links (`open.spotify.com/track/…` or `spotify:track:…`). BeatOnStep **does not import your Spotify playlists** and **does not sign you into** Spotify.
+- Feature **initiated by you**: you paste the **Share** link of a **track**, or of a **public playlist**. BeatOnStep **does not sign you into** Spotify.
 - The app may query Spotify’s public catalogue to display the title. No Spotify password is requested or sent to the publisher.
-- Track IDs and metadata stay **on the device**.
+- IDs and metadata stay **on the device**.
 - **Playback** happens in the **Spotify** app — not inside BeatOnStep. A Spotify account (and, depending on the tracks, a subscription) may be required by Spotify.
+- A **private** playlist cannot be read without an official sign-in, which is not offered to the public for now.
 - BeatOnStep **does not provide** Spotify’s catalogue.
 
 ### 3.7 Deezer (optional — Share links)
@@ -117,7 +118,7 @@ On your device, in the app's private storage:
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
 - YouTube and Apple Music connection tokens (if connected).
-- Spotify tracks whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
+- Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
@@ -131,7 +132,7 @@ On your device, in the app's private storage:
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
-| **Spotify** | If you paste track links | Public catalogue request (title); opening the track in the Spotify app. No account sign-in |
+| **Spotify** | If you paste a Share link | Public catalogue request (title); opening in the Spotify app. No account sign-in |
 | **Deezer** | If you paste a Share link | Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.

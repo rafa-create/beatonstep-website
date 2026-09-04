@@ -3,6 +3,7 @@
 | Dossier | Contenu |
 |---------|---------|
 | `Brut/` | **Source de vérité** stores — captures app (privilégier les 1179×2556). Ne pas uploader tels quels. |
+| `Brut/onboarding/` | Wizard première ouverture (langue, promesse, sources, comment ça marche). Pas sur le site ni les stores. |
 | `previous-site/` | Anciennes captures site (`home`, `library`, `pace`) — 575×1024 |
 
 Stores générés : `store/apple/conforme/`, `store/google/conforme/` via `python store/generate.py`.  
