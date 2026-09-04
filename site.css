@@ -1258,6 +1258,20 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   font-size: 0.92rem;
   line-height: 1.45;
 }
+.source-recap {
+  counter-reset: none;
+}
+.source-recap li {
+  counter-increment: none;
+}
+.source-recap li::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  margin: 0.2rem 0 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
 .modes {
   margin: 0 0 var(--section-gap);
 }
