@@ -1276,6 +1276,9 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   border-radius: 50%;
   background: var(--accent);
 }
+@media (min-width: 801px) {
+  .source-recap { display: none; }
+}
 .modes {
   margin: 0 0 var(--section-gap);
 }
