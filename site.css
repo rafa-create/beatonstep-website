@@ -727,10 +727,17 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   letter-spacing: 0.02em;
   line-height: 1.35;
 }
-.beat-legend-section {
-  margin: 0.85rem 0 0;
+.split > .beat-legend-section {
+  display: block;
+  margin: 1rem 0 0;
+  padding: 0;
+  max-width: none;
   text-align: left;
-  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--ink) 42%, var(--muted));
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
 }
 .split-card .beat-col-music p {
   color: var(--music);
