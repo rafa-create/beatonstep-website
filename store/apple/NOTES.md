@@ -44,3 +44,11 @@ conforme/2778x1284/
 | `pub-testflight-1024x1536.png` | 1024 × 1536 | Pub portrait TestFlight, pas une capture store |
 
 Les PNG dans `screenshots-archive/Brut/` (1179×2556) ne sont **pas** uploadables tels quels.
+
+## Maj 2026-09-10 — capture Réglages
+
+- **Brut (choix store)** : `screenshots-archive/Brut/source_mode_param.PNG` = **sources toutes ON** (toggles couleurs marque).
+- **Référence non store** : `screenshots-archive/Brut/source_mode_param_all_off.PNG` = toutes OFF (détail sources).
+- Site : `assets/screenshots/app/settings-sources.png` (ON) · `settings-sources-all-off.png` (OFF).
+- Composites régénérés : `03-reglages.png` (Apple + Play). Anciennes : `conforme/archives-precedentes/2026-09-10-reglages/`.
+- Motif : remplacer l’ancien Réglages sombre / hors sync Path B Spotify·Deezer.
