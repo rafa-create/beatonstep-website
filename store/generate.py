@@ -71,8 +71,27 @@ PLAY_SCREENS = [
     APPLE_SCREENS[3],
 ]
 
-FONT_REG = r"C:\Windows\Fonts\segoeui.ttf"
-FONT_BOLD = r"C:\Windows\Fonts\segoeuib.ttf"
+FONT_CANDIDATES_REG = [
+    r"C:\Windows\Fonts\segoeui.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/System/Library/Fonts/Supplemental/Arial.ttf",
+]
+FONT_CANDIDATES_BOLD = [
+    r"C:\Windows\Fonts\segoeuib.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+]
+
+
+def _first_font(candidates: list[str]) -> str:
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
+    raise FileNotFoundError("No usable font found for store/generate.py")
+
+
+FONT_REG = _first_font(FONT_CANDIDATES_REG)
+FONT_BOLD = _first_font(FONT_CANDIDATES_BOLD)
 
 
 def font(path: str, size: int) -> ImageFont.FreeTypeFont:

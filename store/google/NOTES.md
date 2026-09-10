@@ -43,3 +43,11 @@ Les captures iPhone brutes (1179×2556 ≈ 9:19,5) ne passent pas.
 | `feature-graphic-bientot-1024x500.jpg` | 1024 × 500 | Ancien texte « Bientôt sur Google Play » |
 
 L’original du site reste `assets/brand/og-image.jpg` — ne pas le déplacer.
+
+## Maj 2026-09-10 — capture Réglages
+
+- **Brut (choix store)** : `screenshots-archive/Brut/source_mode_param.PNG` = **sources toutes ON** (toggles couleurs marque).
+- **Référence non store** : `screenshots-archive/Brut/source_mode_param_all_off.PNG` = toutes OFF (détail sources).
+- Site : `assets/screenshots/app/settings-sources.png` (ON) · `settings-sources-all-off.png` (OFF).
+- Composites régénérés : `03-reglages.png` (Apple + Play). Anciennes : `conforme/archives-precedentes/2026-09-10-reglages/`.
+- Motif : remplacer l’ancien Réglages sombre / hors sync Path B Spotify·Deezer.
