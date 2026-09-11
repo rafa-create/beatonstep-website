@@ -1,0 +1,22 @@
+---
+description: Ship straight to production on main — no PRs, no feature branches
+alwaysApply: true
+---
+
+# Déploiement direct sur main (prod)
+
+Ce site est en production via `main`. Ne pas créer de pull request ni de branche parasite.
+
+## Règles
+
+- Travailler et pousser **uniquement sur `main`**.
+- **Pas de pull request** (ne pas ouvrir, mettre à jour, ni proposer de PR).
+- **Pas de branche feature** (`cursor/…`, `fix/…`, etc.).
+- Commit + `git push origin main` suffisent pour livrer.
+- Si une branche ou une PR existe déjà par erreur : merger (ou cherry-pick) sur `main`, pousser `main`, puis **supprimer la branche** et **fermer la PR**.
+
+## Interdit
+
+- `git checkout -b …` pour ce dépôt
+- Ouvrir / maintenir une PR “pour review”
+- Laisser des branches `cursor/*` sur le remote après le travail
