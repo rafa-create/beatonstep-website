@@ -1782,7 +1782,7 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   justify-items: center;
 }
 .app-preview .shots {
-  grid-template-columns: repeat(2, minmax(0, 220px));
+  grid-template-columns: minmax(0, 220px);
   justify-content: center;
   max-width: 32rem;
 }
@@ -1925,6 +1925,11 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   .source-matrix,
   .source-hint-click { display: none; }
   .shots { grid-template-columns: repeat(2, 1fr); max-width: none; gap: 1rem; }
+  .app-preview .shots {
+    grid-template-columns: minmax(0, 180px);
+    justify-content: center;
+    justify-items: center;
+  }
   .shot .phone { width: min(100%, 180px); }
 }
 
