@@ -2,7 +2,7 @@
 
 Ces fichiers **ne sont pas utilisés par le site**. Uploader depuis `conforme/` dans App Store Connect.
 
-**Source :** `screenshots-archive/Brut/` (captures 1179×2556).  
+**Source :** `screenshots-archive/Brut/` (bible thème clair ~472×1024, upscalée).  
 Régénérer : `python store/generate.py`
 
 ## Contraintes (erreur Connect si une seule image est hors taille)
@@ -29,10 +29,10 @@ conforme/2778x1284/
 
 | # | Écran | Fichier Brut |
 |---|--------|----------------|
-| 01 | Adaptatif (Mix démo) | `music_mix.PNG` |
+| 01 | Adaptatif (Apple Music) | `music_mix.PNG` |
 | 02 | Fixe (Apple Music) | `apple_music_fixed_mode.PNG` |
 | 03 | Réglages | `source_mode_param.PNG` |
-| 04 | Bibliothèque (analyse BPM) | `big_analyze_music_tel.PNG` |
+| 04 | Bibliothèque (analyse) | `big_analyze_music_tel.PNG` |
 
 `conforme/archives-precedentes/` : anciennes composites, dimensions OK, contenu périmé.
 

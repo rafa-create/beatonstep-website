@@ -30,10 +30,10 @@ Les captures iPhone brutes (1179×2556 ≈ 9:19,5) ne passent pas.
 | Fichier | Taille |
 |---------|--------|
 | `feature-graphic-1024x500.jpg` | 1024 × 500 |
-| `1080x1920/01-adaptatif.png` | Mix démo, mode Adaptatif (`music_mix.PNG`) |
-| `1080x1920/02-fixe.png` | YouTube, mode Fixe (`yt_music_fixed_mode.PNG`) |
+| `1080x1920/01-adaptatif.png` | Adaptatif Apple Music (`music_mix.PNG`) |
+| `1080x1920/02-fixe.png` | Fixe Apple Music (`apple_music_fixed_mode.PNG`) |
 | `1080x1920/03-reglages.png` | Réglages (`source_mode_param.PNG`) |
-| `1080x1920/04-bibliotheque.png` | Analyse BPM (`big_analyze_music_tel.PNG`) |
+| `1080x1920/04-bibliotheque.png` | Bibliothèque / analyse (`big_analyze_music_tel.PNG`) |
 
 ## `non-conforme/` — ne pas uploader
 

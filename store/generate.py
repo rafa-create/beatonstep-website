@@ -27,19 +27,20 @@ APPLE_SIZES = [
 ]
 PLAY_PHONE = (1080, 1920)
 
+# Bible claire thème clair (mêmes sources Apple + Play).
 APPLE_SCREENS = [
     {
         "file": "music_mix.PNG",
         "name": "01-adaptatif",
         "kicker": "BEATONSTEP",
-        "title": "Adaptatif :\nla musique suit",
-        "sub": "Le PPM suit ta cadence. Un titre se cale dessus.",
+        "title": "La musique\ns'adapte en direct",
+        "sub": "Le tempo suit ton rythme de course (pas par minute).",
     },
     {
         "file": "apple_music_fixed_mode.PNG",
         "name": "02-fixe",
         "kicker": "BEATONSTEP",
-        "title": "Fixe :\ntu règles le PPM",
+        "title": "Fixe :\ntu règles le rythme",
         "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
     },
     {
@@ -53,23 +54,15 @@ APPLE_SCREENS = [
         "file": "big_analyze_music_tel.PNG",
         "name": "04-bibliotheque",
         "kicker": "BEATONSTEP",
-        "title": "Tes fichiers,\nau bon BPM",
-        "sub": "Musiques téléphone triées et analysées.",
+        "title": "Tes musiques,\nau bon tempo",
+        "sub": "Import et analyse — continue même si tu changes d'écran.",
     },
 ]
 
-PLAY_SCREENS = [
-    APPLE_SCREENS[0],
-    {
-        "file": "yt_music_fixed_mode.PNG",
-        "name": "02-fixe",
-        "kicker": "BEATONSTEP",
-        "title": "Fixe :\ntu règles le PPM",
-        "sub": "Tu poses la cible. L'app envoie des titres à ce rythme.",
-    },
-    APPLE_SCREENS[2],
-    APPLE_SCREENS[3],
-]
+PLAY_SCREENS = list(APPLE_SCREENS)
+
+# Légère bande blanche sous la tab bar iOS.
+BOTTOM_CROP_RATIO = 0.022
 
 FONT_CANDIDATES_REG = [
     r"C:\Windows\Fonts\segoeui.ttf",
@@ -160,7 +153,9 @@ def fit_shot(shot: Image.Image, max_w: int, max_h: int) -> Image.Image:
 
 
 def open_brut(name: str) -> Image.Image:
-    return Image.open(os.path.join(BRUT, name)).convert("RGB")
+    shot = Image.open(os.path.join(BRUT, name)).convert("RGB")
+    crop = max(8, int(shot.height * BOTTOM_CROP_RATIO))
+    return shot.crop((0, 0, shot.width, shot.height - crop))
 
 
 def compose_portrait(w: int, h: int, shot: Image.Image, spec: dict) -> Image.Image:
