@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="site.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" crossorigin="anonymous" />
   <script>
     (function () {
       try {
@@ -881,8 +882,8 @@
                     <li><span data-fr>PPM lissé</span><span data-en>Smoothed PPM</span></li>
                   </ol>
                 </figure>
-                <p data-fr>Accéléromètre du téléphone, ~50 Hz. On prend la magnitude √(x²+y²+z²). Environ 1,25 s de calibration, puis un passe-haut (500 ms) et un lissage (100 ms). Les pas sont des pics : fenêtre 480 ms en marche, 360 ms en course. Le PPM est la moyenne tronquée des intervalles entre pas (interne 30–300). Sans pas pendant 3,5 s, le PPM retombe à 0.</p>
-                <p data-en>Phone accelerometer, ~50 Hz. Magnitude √(x²+y²+z²). About 1.25 s of calibration, then a 500 ms high-pass and 100 ms smoothing. Steps are peaks: 480 ms window walking, 360 ms running. PPM is a trimmed mean of inter-step intervals (internal 30–300). No step for 3.5 s → PPM drops to 0.</p>
+                <p data-fr>Accéléromètre du téléphone, ~50 Hz. On prend la magnitude \(\sqrt{x^{2}+y^{2}+z^{2}}\). Environ 1,25 s de calibration, puis un passe-haut (500 ms) et un lissage (100 ms). Les pas sont des pics : fenêtre 480 ms en marche, 360 ms en course. Le PPM est la moyenne tronquée des intervalles entre pas (interne 30–300). Sans pas pendant 3,5 s, le PPM retombe à 0.</p>
+                <p data-en>Phone accelerometer, ~50 Hz. Magnitude \(\sqrt{x^{2}+y^{2}+z^{2}}\). About 1.25 s of calibration, then a 500 ms high-pass and 100 ms smoothing. Steps are peaks: 480 ms window walking, 360 ms running. PPM is a trimmed mean of inter-step intervals (internal 30–300). No step for 3.5 s → PPM drops to 0.</p>
                 <p data-fr>Marche → course est automatique (score toutes les 750 ms, après 5 s d’échauffement). En Adaptatif, la cible est encore lissée : moyenne des 10 derniers relevés, mise à jour si ça bouge de plus de 5 PPM. Il faut 8 pas avant le premier titre.</p>
                 <p data-en>Walk → run is automatic (score every 750 ms, after a 5 s warmup). In Adaptive, the target is smoothed again: average of the last 10 readings, updated if it moves by more than 5 PPM. 8 steps before the first track.</p>
               </details>
@@ -1010,22 +1011,12 @@
                 <p data-fr>L’app n’affiche plus l’allure (min/km) : la conversion PPM + taille est trop approximative. La formule reste documentée ici pour transparence ; une calibration (ex. 100 m + GPS) pourra revenir plus tard.</p>
                 <p data-en>The app no longer shows pace (min/km): converting PPM + height is too approximate. The formula stays documented here for transparency; a calibration (e.g. 100 m + GPS) may come back later.</p>
                 <figure class="schema-eq" data-fr>
-                  <p class="eq-line">
-                    <span class="eq-out">allure</span>
-                    <span class="eq-op">=</span>
-                    <span class="eq-frac">
-                      <span class="eq-num">1000</span>
-                      <span class="eq-den">PPM × k × h</span>
-                    </span>
-                  </p>
-                  <p class="eq-line">
-                    <span class="eq-out">PPM</span>
-                    <span class="eq-op">=</span>
-                    <span class="eq-frac">
-                      <span class="eq-num">1000</span>
-                      <span class="eq-den">allure × k × h</span>
-                    </span>
-                  </p>
+                  <div class="eq-tex">\[
+                    \mathrm{allure}=\dfrac{1000}{\mathrm{PPM}\times k\times h}
+                  \]</div>
+                  <div class="eq-tex">\[
+                    \mathrm{PPM}=\dfrac{1000}{\mathrm{allure}\times k\times h}
+                  \]</div>
                   <dl class="eq-legend">
                     <div><dt>k</dt><dd>0,878 — foulée calibrée</dd></div>
                     <div><dt>h</dt><dd>taille en mètres (défaut 1,70)</dd></div>
@@ -1033,22 +1024,12 @@
                   </dl>
                 </figure>
                 <figure class="schema-eq" data-en>
-                  <p class="eq-line">
-                    <span class="eq-out">pace</span>
-                    <span class="eq-op">=</span>
-                    <span class="eq-frac">
-                      <span class="eq-num">1000</span>
-                      <span class="eq-den">PPM × k × h</span>
-                    </span>
-                  </p>
-                  <p class="eq-line">
-                    <span class="eq-out">PPM</span>
-                    <span class="eq-op">=</span>
-                    <span class="eq-frac">
-                      <span class="eq-num">1000</span>
-                      <span class="eq-den">pace × k × h</span>
-                    </span>
-                  </p>
+                  <div class="eq-tex">\[
+                    \mathrm{pace}=\dfrac{1000}{\mathrm{PPM}\times k\times h}
+                  \]</div>
+                  <div class="eq-tex">\[
+                    \mathrm{PPM}=\dfrac{1000}{\mathrm{pace}\times k\times h}
+                  \]</div>
                   <dl class="eq-legend">
                     <div><dt>k</dt><dd>0.878 — calibrated stride</dd></div>
                     <div><dt>h</dt><dd>height in meters (default 1.70)</dd></div>
@@ -1109,6 +1090,26 @@
       <a class="foot-link" href="https://getsongbpm.com" rel="noopener noreferrer">GetSongBPM</a>
     </footer>
   </div>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      var done = false;
+      function renderBosMath() {
+        if (done || typeof renderMathInElement !== "function") return;
+        done = true;
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+      document.addEventListener("DOMContentLoaded", renderBosMath);
+      window.addEventListener("load", renderBosMath);
+    })();
+  </script>
   <script>
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

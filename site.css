@@ -1579,45 +1579,24 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   border-radius: 10px;
   padding: 0.95rem 0.85rem 0.85rem;
 }
-.eq-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  margin: 0 0 0.75rem;
-  padding: 0;
-  color: var(--ink);
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: none;
-  font-variant-numeric: tabular-nums;
-}
-.eq-line:last-of-type { margin-bottom: 0.9rem; }
-.eq-out { color: var(--accent); }
-.eq-op {
-  color: var(--muted);
-  font-weight: 700;
-}
-.eq-frac {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: stretch;
-  min-width: 8.5rem;
+.eq-tex {
+  margin: 0.35rem 0 0.55rem;
+  overflow-x: auto;
   text-align: center;
 }
-.eq-num {
-  padding: 0 0.35rem 0.22rem;
-  border-bottom: 2px solid var(--accent);
+.eq-tex .katex-display {
+  margin: 0.45rem 0;
 }
-.eq-den {
-  padding: 0.22rem 0.35rem 0;
-  font-size: 0.78em;
-  font-weight: 700;
+.eq-tex .katex {
   color: var(--ink);
+  font-size: 1.18em;
+}
+.faq-item .katex {
+  color: var(--ink);
+  font-size: 1.05em;
 }
 .eq-legend {
-  margin: 0;
+  margin: 0.55rem 0 0;
   display: grid;
   gap: 0.28rem;
   color: var(--muted);
@@ -1698,16 +1677,6 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   width: 0.95rem;
   height: 0.95rem;
 }
-.faq-item .eq-line {
-  color: var(--ink);
-  padding: 0;
-  margin: 0 0 0.75rem;
-  font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.faq-item .eq-line:last-of-type { margin-bottom: 0.9rem; }
 .faq-item .schema-band {
   color: var(--ink);
   padding: 0.7rem 0.75rem;
