@@ -44,6 +44,35 @@ Les captures iPhone brutes (1179×2556 ≈ 9:19,5) ne passent pas.
 
 L’original du site reste `assets/brand/og-image.jpg` — ne pas le déplacer.
 
+## Fiche Play Store (FR, défaut) — à jour 2026-09-11
+
+Publiée / collée dans Play Console. Visuels = `conforme/` (4 captures + feature graphic) + icône 512 + vidéo.
+
+**Nom :** BeatOnStep
+
+**Brève (76/80) :**
+```
+BeatOnStep adapte ta musique à tes pas en temps réel. Sans pub, sans compte.
+```
+
+**Complète (552/4000) :**
+```
+Tu marches ou tu cours. BeatOnStep écoute ton rythme de course et te propose un morceau au bon tempo — plus besoin de zapper parce que c’est trop lent ou trop rapide.
+
+• Mix démo libre de droits pour tester
+• Tes fichiers mp3 déjà sur le téléphone
+• YouTube : tes playlists, lecture dans YouTube / YouTube Music
+• Apple Music : connecte-toi et importe tes playlists
+• Spotify : colle le lien d'un morceau ou d'une playlist publique
+• Deezer : colle le lien d'un morceau ou d'une playlist publique
+
+BeatOnStep aligne la musique sur ton rythme de course.
+```
+
+**Vidéo :** https://youtu.be/5JaID75OP6Y
+
+**Captures téléphone (ordre) :** `01-adaptatif` → `02-fixe` → `03-reglages` → `04-bibliotheque` (`1080x1920/`)
+
 ## Maj 2026-09-10 — capture Réglages
 
 - **Brut (choix store)** : `screenshots-archive/Brut/source_mode_param.PNG` = **sources toutes ON** (toggles couleurs marque).
