@@ -115,16 +115,6 @@ header {
   gap: 0.65rem;
   margin-bottom: 0;
 }
-@media (max-width: 560px) {
-  .brand-row {
-    flex-wrap: wrap;
-  }
-  .chrome {
-    width: 100%;
-    margin-left: 0;
-    justify-content: flex-start;
-  }
-}
 .brand-anchor {
   display: flex;
   align-items: center;
