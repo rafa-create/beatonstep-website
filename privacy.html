@@ -74,12 +74,12 @@
     <main id="content">
       <article data-fr>
       <h1>Politique de confidentialité — BeatOnStep</h1>
-      <p><strong>Dernière mise à jour :</strong> 5 septembre 2026</p>
+      <p><strong>Dernière mise à jour :</strong> 27 septembre 2026</p>
       <h2>1. Qui sommes-nous</h2>
       <p>BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L&#x27;application est disponible sur <strong>Google Play</strong> (Android, <strong>BeatOnStep</strong>) et l&#x27;<strong>App Store</strong> (iOS, <strong>BeatOnSteps</strong>).</p>
       <p><strong>Éditeur :</strong> Rafael Orset — contact : <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum BeatOnStep</a></p>
-      <h2>2. Principe général : pas de collecte éditeur</h2>
-      <p>BeatOnStep <strong>ne crée pas de compte utilisateur</strong>, n&#x27;utilise <strong>pas de publicité</strong> et n&#x27;intègre <strong>pas d&#x27;analytique ou de tracking commercial</strong>. Aucune donnée de cadence (PPM), de parcours, ni de bibliothèque musicale n&#x27;est envoyée à l&#x27;éditeur à des fins marketing ou de profilage.</p>
+      <h2>2. Principe général : collecte minimale, sans tracking commercial</h2>
+      <p>BeatOnStep <strong>ne crée pas de compte utilisateur</strong>, n&#x27;utilise <strong>pas de publicité</strong> et n&#x27;effectue <strong>aucun tracking commercial ni profilage</strong>. Une mesure d&#x27;usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n&#x27;est inclus dans cette mesure.</p>
       <p>Selon les fonctions que <strong>vous</strong> activez, l&#x27;application peut échanger des données avec des services que <strong>vous choisissez</strong> (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens Spotify ou Deezer collés, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.</p>
       <h2>3. Fonctionnalités et flux de données</h2>
       <h3>3.1 Fichiers audio locaux (Musiques téléphone)</h3>
@@ -148,6 +148,16 @@
       </ul>
       <h3>3.8 Mises à jour (Expo OTA)</h3>
       <p>L&#x27;app peut contacter les services <strong>Expo</strong> pour vérifier et télécharger des mises à jour JavaScript liées à votre installation. Il ne s&#x27;agit pas d&#x27;un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n&#x27;est envoyée via ce canal.</p>
+      <h3>3.9 Mesure pseudonyme du nombre de playlists importées</h3>
+      <p>Pour évaluer l&#x27;usage de la fonction d&#x27;import et décider de futures formules Free / Pro, BeatOnStep peut envoyer occasionnellement au serveur de l&#x27;éditeur un <strong>snapshot minimal</strong> comprenant : un identifiant d&#x27;installation aléatoire propre à BeatOnStep, la plateforme (iOS / Android), la version de l&#x27;app et le <strong>nombre</strong> de playlists personnelles encore importées pour Apple Music, YouTube, Spotify et Deezer.</p>
+      <ul>
+      <li>Cette mesure ne contient <strong>aucun nom ni identifiant de playlist</strong>, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (PPM) ou parcours.</li>
+      <li>L&#x27;identifiant est généré par BeatOnStep et n&#x27;est pas l&#x27;identifiant Apple, Google, Android ou d&#x27;un fournisseur musical.</li>
+      <li>Les suppressions sont prises en compte : le snapshot suivant reflète le nombre de playlists encore présentes dans l&#x27;app.</li>
+      <li>L&#x27;envoi est limité : au plus une fois par jour après un changement et, si rien ne change, un rappel au plus une fois tous les 7 jours pour mesurer les installations actives.</li>
+      <li>Le serveur conserve seulement le dernier snapshot par installation et supprime automatiquement les installations non vues depuis plus de <strong>90 jours</strong>. L&#x27;adresse IP peut être traitée techniquement pendant la connexion HTTPS mais n&#x27;est pas enregistrée dans le fichier de mesure.</li>
+      <li>Ces données servent uniquement à des statistiques agrégées de produit ; elles ne sont ni vendues, ni utilisées pour la publicité, ni croisées avec vos comptes musicaux.</li>
+      </ul>
       <h2>4. Permissions demandées</h2>
       <h3>Android</h3>
       <table>
@@ -169,6 +179,7 @@
       <li>Jetons de connexion YouTube et Apple Music (si connectés).</li>
       <li>Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — <strong>pas</strong> de jeton de compte Spotify.</li>
       <li>Titres ou playlists publiques Deezer dont vous avez collé le lien (identifiant, métadonnées, BPM saisi, détecté ou fourni par Deezer) — <strong>pas</strong> de jeton de compte Deezer.</li>
+      <li>Identifiant d&#x27;installation aléatoire BeatOnStep et dernier état d&#x27;envoi de la mesure de playlists (§ 3.9).</li>
       </ul>
       <p>La <strong>désinstallation</strong> de l&#x27;application supprime ces données. La déconnexion d&#x27;un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l&#x27;app.</p>
       <h2>6. Services tiers</h2>
@@ -179,7 +190,7 @@
       <tr><td><strong>Apple / Apple Music</strong></td><td>Si vous connectez Apple Music</td><td>Connexion Apple ; métadonnées playlists</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>Distribution iOS</td><td>Gestion par Apple selon ses propres règles</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatique</td><td>Vérification / téléchargement de mises à jour OTA</td></tr>
-      <tr><td><strong>Serveur mix BeatOnStep</strong></td><td>Si vous utilisez le catalogue ou l&#x27;analyse BPM</td><td>Liste de titres ; éventuel fichier audio pour analyse BPM</td></tr>
+      <tr><td><strong>Serveur BeatOnStep</strong></td><td>Catalogue / analyse BPM et mesure pseudonyme d&#x27;usage</td><td>Liste de titres ; éventuel fichier audio pour analyse BPM ; compteur agrégé de playlists par source + identifiant d&#x27;installation aléatoire (§ 3.9)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>Si vous collez un lien Partager</td><td>Demande du titre au catalogue public ; ouverture dans l&#x27;app Spotify. Pas de connexion compte</td></tr>
       <tr><td><strong>Deezer</strong></td><td>Si vous collez un lien Partager</td><td>Demande titre / durée / parfois BPM au catalogue public ; ouverture dans l&#x27;app Deezer. Pas de connexion compte</td></tr>
       </tbody></table>
@@ -193,7 +204,7 @@
       <li><strong>Compte Apple / Apple Music</strong> : exercez vos droits auprès d&#x27;Apple selon leurs procédures.</li>
       <li><strong>Spotify</strong> : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l&#x27;appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.</li>
       <li><strong>Deezer</strong> : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l&#x27;appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.</li>
-      <li><strong>Serveur musique</strong> : pas de compte utilisateur BeatOnStep ; pour toute question, utilisez le <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
+      <li><strong>Serveur BeatOnStep</strong> : pas de compte utilisateur. La mesure pseudonyme de playlists est automatiquement purgée après 90 jours sans contact ; pour toute question relative à ces données, utilisez le <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
       </ul>
       <h2>9. Modifications</h2>
       <p>Cette politique peut être mise à jour. La date en haut du document reflète la dernière révision. La version en vigueur est disponible à l&#x27;adresse communiquée sur la fiche <strong>Google Play</strong> et dans l&#x27;app (<em>Réglages → À propos</em>) :</p>
@@ -216,13 +227,13 @@
       </article>
       <article data-en>
       <h1>Privacy Policy — BeatOnStep (English)</h1>
-      <p><strong>Last updated:</strong> September 5, 2026</p>
+      <p><strong>Last updated:</strong> September 27, 2026</p>
       <p><em>The French text is the binding version. This English translation is provided for convenience.</em></p>
       <h2>1. Who we are</h2>
       <p>BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on <strong>Google Play</strong> (Android, <strong>BeatOnStep</strong>) and the <strong>App Store</strong> (iOS, <strong>BeatOnSteps</strong>).</p>
       <p><strong>Publisher:</strong> Rafael Orset — contact: <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">BeatOnStep forum</a></p>
-      <h2>2. Core principle: no publisher-side data collection</h2>
-      <p>BeatOnStep <strong>does not create user accounts</strong>, uses <strong>no advertising</strong>, and includes <strong>no commercial analytics or tracking</strong>. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.</p>
+      <h2>2. Core principle: minimal data collection, no commercial tracking</h2>
+      <p>BeatOnStep <strong>does not create user accounts</strong>, uses <strong>no advertising</strong>, and performs <strong>no commercial tracking or profiling</strong>. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count how many personal playlists are imported per source (§ 3.9). No cadence (SPM), route data, playlist name or identifier, track, artist, or music-account identifier is included in this measurement.</p>
       <p>Depending on the features <strong>you</strong> enable, the app may exchange data with services <strong>you choose</strong> (demo mix / music server, YouTube or Apple Music if connected, pasted Spotify or Deezer links, BPM analysis) or with technical infrastructure (updates). Details below.</p>
       <h2>3. Features and data flows</h2>
       <h3>3.1 Local audio files (Phone music)</h3>
@@ -291,6 +302,16 @@
       </ul>
       <h3>3.8 Updates (Expo OTA)</h3>
       <p>The app may contact <strong>Expo</strong> services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.</p>
+      <h3>3.9 Pseudonymous measurement of imported playlist counts</h3>
+      <p>To understand use of playlist imports and inform future Free / Pro plans, BeatOnStep may occasionally send the publisher server a <strong>minimal snapshot</strong> containing: a random BeatOnStep installation identifier, platform (iOS / Android), app version, and the <strong>count</strong> of personal playlists still imported from Apple Music, YouTube, Spotify, and Deezer.</p>
+      <ul>
+      <li>This measurement contains <strong>no playlist name or playlist identifier</strong>, track, artist, OAuth token, music account, audio data, cadence (SPM), or route data.</li>
+      <li>The identifier is generated by BeatOnStep and is not an Apple, Google, Android, or music-provider identifier.</li>
+      <li>Deletions are reflected: the next snapshot reports only playlists still present in the app.</li>
+      <li>Sending is limited: at most once per day after a change and, if nothing changes, a heartbeat at most once every 7 days to measure active installations.</li>
+      <li>The server keeps only the latest snapshot per installation and automatically removes installations not seen for more than <strong>90 days</strong>. The IP address may be processed technically during the HTTPS connection but is not stored in the measurement file.</li>
+      <li>These data are used only for aggregated product statistics; they are not sold, used for advertising, or combined with your music accounts.</li>
+      </ul>
       <h2>4. Permissions</h2>
       <h3>Android</h3>
       <table>
@@ -312,6 +333,7 @@
       <li>YouTube and Apple Music connection tokens (if connected).</li>
       <li>Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — <strong>no</strong> Spotify account token.</li>
       <li>Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — <strong>no</strong> Deezer account token.</li>
+      <li>Random BeatOnStep installation identifier and the last local state used for playlist-count measurement (§ 3.9).</li>
       </ul>
       <p><strong>Uninstalling</strong> the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.</p>
       <h2>6. Third-party services</h2>
@@ -322,7 +344,7 @@
       <tr><td><strong>Apple / Apple Music</strong></td><td>If you connect Apple Music</td><td>Apple sign-in; playlist metadata</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>iOS distribution</td><td>Managed by Apple under their own terms</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatic</td><td>OTA update verification / download</td></tr>
-      <tr><td><strong>BeatOnStep mix server</strong></td><td>If you use the catalogue or BPM analysis</td><td>Track list; optional audio file for BPM analysis</td></tr>
+      <tr><td><strong>BeatOnStep server</strong></td><td>Catalogue / BPM analysis and pseudonymous usage measurement</td><td>Track list; optional audio file for BPM analysis; aggregate playlist counts by source + random installation identifier (§ 3.9)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title); opening in the Spotify app. No account sign-in</td></tr>
       <tr><td><strong>Deezer</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in</td></tr>
       </tbody></table>
@@ -336,7 +358,7 @@
       <li><strong>Apple / Apple Music account</strong>: exercise your rights with Apple under their procedures.</li>
       <li><strong>Spotify</strong>: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.</li>
       <li><strong>Deezer</strong>: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.</li>
-      <li><strong>Music server</strong>: no BeatOnStep user account; for any question, use the <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
+      <li><strong>BeatOnStep server</strong>: no user account. Pseudonymous playlist measurements are automatically purged after 90 days without contact; for any question about these data, use the <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
       </ul>
       <h2>9. Changes</h2>
       <p>This policy may be updated. The date at the top reflects the latest revision. The current version is available at the address listed on <strong>Google Play</strong> and in the app (<em>Settings → About</em>):</p>
