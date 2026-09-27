@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">BeatOnStep — Architecture &amp; flow</title>
+  <desc id="desc">In practice: GitHub stores the code, the VM coordinates, Expo builds and distributes, and the app calls the API and receives updates.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#20201b"/>
+      <stop offset="0.48" stop-color="#0f1110"/>
+      <stop offset="1" stop-color="#050606"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#22231f"/>
+      <stop offset="1" stop-color="#101210"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#ffd74f"/>
+      <stop offset="1" stop-color="#e9a91a"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f7c938"/>
+    </marker>
+    <marker id="arrowWhite" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e8e2d3"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="900" fill="url(#bg)"/>
+  <g opacity=".09" stroke="#f7c938">
+    <path d="M0 120H1500M0 440H1500M0 820H1500"/>
+    <path d="M350 0V900M725 0V900M1100 0V900"/>
+  </g>
+
+  <text x="750" y="58" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="46" font-weight="900" fill="#fff">
+    Beat<tspan fill="#f7c938">On</tspan>Step
+  </text>
+  <text x="750" y="96" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Architecture &amp; flow</text>
+  <text x="750" y="125" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="650" fill="#f2b928">GitHub · VM · Expo · business API · OTA · native builds</text>
+
+  
+    <g>
+      <rect x="35" y="155" width="310" height="250" rx="24" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+      <rect x="53" y="173" width="58" height="58" rx="17" fill="#f7c938"/>
+      <text x="82" y="211" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="900" fill="#111">AI</text>
+      <text x="127" y="198" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" font-weight="850" fill="#fff">ChatGPT</text>
+      <text x="127" y="226" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#c9c2af"><tspan x="127" dy="0">Development assistant</tspan></text>
+      <text x="59" y="273" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="500" fill="#eee7d6"><tspan x="59" dy="0">• generates and improves code</tspan><tspan x="59" dy="26">• documents changes</tspan><tspan x="59" dy="26">• works through the GitHub repository</tspan></text>
+    </g>
+  
+    <g>
+      <rect x="395" y="155" width="310" height="250" rx="24" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+      <rect x="413" y="173" width="58" height="58" rx="17" fill="#f7c938"/>
+      <text x="442" y="211" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="900" fill="#111">GH</text>
+      <text x="487" y="198" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" font-weight="850" fill="#fff">GitHub</text>
+      <text x="487" y="226" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#c9c2af"><tspan x="487" dy="0">Source-code memory</tspan></text>
+      <text x="419" y="273" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="500" fill="#eee7d6"><tspan x="419" dy="0">• code, commits and pull requests</tspan><tspan x="419" dy="26">• webhooks to the VM</tspan><tspan x="419" dy="26">• GitHub Actions workflows</tspan></text>
+    </g>
+  
+    <g>
+      <rect x="755" y="155" width="350" height="250" rx="24" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+      <rect x="773" y="173" width="58" height="58" rx="17" fill="#f7c938"/>
+      <text x="802" y="211" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="900" fill="#111">VM</text>
+      <text x="847" y="198" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" font-weight="850" fill="#fff">BeatOnStep VM</text>
+      <text x="847" y="226" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#c9c2af"><tspan x="847" dy="0">Integration server</tspan></text>
+      <text x="779" y="273" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="500" fill="#eee7d6"><tspan x="779" dy="0">• receives GitHub webhooks</tspan><tspan x="779" dy="26">• orchestrates builds and updates</tspan><tspan x="779" dy="26">• runs scripts and business APIs</tspan></text>
+    </g>
+  
+    <g>
+      <rect x="1155" y="155" width="310" height="250" rx="24" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+      <rect x="1173" y="173" width="58" height="58" rx="17" fill="#f7c938"/>
+      <text x="1202" y="211" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="900" fill="#111">EAS</text>
+      <text x="1247" y="198" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" font-weight="850" fill="#fff">Expo servers</text>
+      <text x="1247" y="226" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#c9c2af"><tspan x="1247" dy="0">EAS infrastructure</tspan></text>
+      <text x="1179" y="273" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="500" fill="#eee7d6"><tspan x="1179" dy="0">• EAS Build for native builds</tspan><tspan x="1179" dy="26">• EAS Update for OTA</tspan><tspan x="1179" dy="26">• hosts and distributes bundles</tspan></text>
+    </g>
+
+  <path d="M345 270 H395" stroke="#f7c938" stroke-width="5" fill="none" marker-end="url(#arrowGold)" filter="url(#glow)"/>
+  <path d="M395 305 H345" stroke="#e8e2d3" stroke-width="2.5" stroke-dasharray="10 8" fill="none" marker-end="url(#arrowWhite)"/>
+  
+    <g>
+      <circle cx="365" cy="238" r="17" fill="#f7c938"/>
+      <text x="365" y="244" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">1</text>
+      <text x="391" y="244" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">code and fixes</text>
+    </g>
+
+  <path d="M705 270 H755" stroke="#f7c938" stroke-width="5" fill="none" marker-end="url(#arrowGold)" filter="url(#glow)"/>
+  
+    <g>
+      <circle cx="720" cy="238" r="17" fill="#f7c938"/>
+      <text x="720" y="244" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">2</text>
+      <text x="746" y="244" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">CI / webhook</text>
+    </g>
+
+  <path d="M1105 270 H1155" stroke="#f7c938" stroke-width="5" stroke-dasharray="12 7" fill="none" marker-end="url(#arrowGold)" filter="url(#glow)"/>
+  
+    <g>
+      <circle cx="1115" cy="238" r="17" fill="#f7c938"/>
+      <text x="1115" y="244" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">3</text>
+      <text x="1141" y="244" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">build / deploy</text>
+    </g>
+
+  <g>
+    <rect x="35" y="505" width="250" height="250" rx="24" fill="url(#panel)" stroke="#554a2a" stroke-width="2"/>
+    <circle cx="92" cy="575" r="28" fill="none" stroke="#f7c938" stroke-width="5"/>
+    <path d="M57 675c8-58 20-78 35-78s28 20 36 78M148 675c8-46 20-64 35-64s27 18 35 64" fill="none" stroke="#f7c938" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="183" cy="592" r="22" fill="none" stroke="#f7c938" stroke-width="5"/>
+    <text x="160" y="706" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25" font-weight="850" fill="#fff">Users</text>
+    <text x="160" y="734" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#c9c2af">athletes · dancers · coaches</text>
+  </g>
+
+  <g>
+    <rect x="335" y="480" width="340" height="300" rx="30" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+    <rect x="430" y="515" width="150" height="230" rx="30" fill="#f8f5ea" stroke="#111" stroke-width="8"/>
+    <rect x="450" y="542" width="110" height="150" rx="16" fill="#fff"/>
+    <text x="505" y="573" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="800" fill="#111">current SPM</text>
+    <text x="505" y="624" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="48" font-weight="900" fill="#111">73</text>
+    <rect x="470" y="650" width="70" height="28" rx="14" fill="#f7c938"/>
+    <text x="505" y="669" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12" font-weight="900" fill="#111">70 BPM</text>
+    <text x="505" y="718" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11" font-weight="750" fill="#111">selected track</text>
+    <text x="505" y="763" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="850" fill="#fff">BeatOnStep app</text>
+  </g>
+
+  <g>
+    <rect x="730" y="480" width="355" height="300" rx="30" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+    <rect x="754" y="505" width="307" height="58" rx="16" fill="#1b1c18" stroke="#61552d"/>
+    <text x="907" y="542" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25" font-weight="850" fill="#fff">API &amp; processing</text>
+    <text x="772" y="603" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="550" fill="#eee7d6"><tspan x="772" dy="0">• BPM analysis</tspan><tspan x="772" dy="29">• generation / calculations</tspan><tspan x="772" dy="29">• server data and responses</tspan></text>
+    <path d="M760 710 H1052" stroke="#f7c938" stroke-width="3" stroke-dasharray="8 7"/>
+    <text x="906" y="744" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#f2b928">Complex processing on the server</text>
+  </g>
+
+  <g>
+    <rect x="1135" y="480" width="330" height="300" rx="30" fill="url(#panel)" stroke="#d6a62a" stroke-width="2"/>
+    <text x="1300" y="525" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="850" fill="#fff">Updates</text>
+    <rect x="1160" y="555" width="280" height="82" rx="18" fill="#191a17" stroke="#f7c938" stroke-width="2"/>
+    <text x="1185" y="590" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="900" fill="#f7c938">OTA</text>
+    <text x="1185" y="617" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="650" fill="#eee7d6">JavaScript / assets · fast</text>
+    <rect x="1160" y="658" width="280" height="82" rx="18" fill="#191a17" stroke="#9d7b29" stroke-width="2"/>
+    <text x="1185" y="693" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="900" fill="#fff">Stores</text>
+    <text x="1185" y="720" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="650" fill="#eee7d6">new native build when needed</text>
+  </g>
+
+  <path d="M285 630 H335" stroke="#f7c938" stroke-width="5" fill="none" marker-end="url(#arrowGold)"/>
+  
+    <g>
+      <circle cx="295" cy="598" r="17" fill="#f7c938"/>
+      <text x="295" y="604" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">7</text>
+      <text x="321" y="604" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">use</text>
+    </g>
+  <path d="M675 605 C705 605 708 605 730 605" stroke="#f7c938" stroke-width="5" fill="none" marker-end="url(#arrowGold)"/>
+  <path d="M730 655 C705 655 702 655 675 655" stroke="#e8e2d3" stroke-width="3" stroke-dasharray="9 7" fill="none" marker-end="url(#arrowWhite)"/>
+  
+    <g>
+      <circle cx="690" cy="575" r="17" fill="#f7c938"/>
+      <text x="690" y="581" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">4</text>
+      <text x="716" y="581" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">API requests</text>
+    </g>
+  
+    <g>
+      <circle cx="690" cy="700" r="17" fill="#f7c938"/>
+      <text x="690" y="706" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">5</text>
+      <text x="716" y="706" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">results</text>
+    </g>
+  <path d="M1300 405 V480" stroke="#f7c938" stroke-width="5" stroke-dasharray="10 7" fill="none" marker-end="url(#arrowGold)"/>
+  <path d="M1135 630 H1085" stroke="#f7c938" stroke-width="5" fill="none" marker-end="url(#arrowGold)"/>
+  
+    <g>
+      <circle cx="1105" cy="598" r="17" fill="#f7c938"/>
+      <text x="1105" y="604" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="900" fill="#111">6</text>
+      <text x="1131" y="604" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="750" fill="#e9dfc7">update</text>
+    </g>
+
+  <rect x="35" y="815" width="1430" height="55" rx="18" fill="#0c0d0c" stroke="#51461f"/>
+  <text x="750" y="849" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="650" fill="#d8d0bd">In practice: GitHub stores the code, the VM coordinates, Expo builds and distributes, and the app calls the API and receives updates.</text>
+</svg>

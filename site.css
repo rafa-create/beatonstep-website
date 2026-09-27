@@ -1506,6 +1506,48 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
   margin: 0 0 1rem;
   padding: 0;
 }
+.faq-architecture-figure {
+  margin: -0.1rem 0 1rem;
+  padding: 0;
+}
+.faq-architecture-link {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 12px;
+  background: #080909;
+  text-decoration: none !important;
+}
+.faq-architecture-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
+}
+.faq-architecture-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.faq-architecture-link img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  object-fit: cover;
+}
+.faq-architecture-zoom {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  padding: 0.38rem 0.62rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 999px;
+  background: rgba(7,8,8,0.82);
+  color: #fff;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
 .schema-flow {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6.4rem, 1fr));
