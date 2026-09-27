@@ -20,15 +20,10 @@
   <link rel="stylesheet" href="site.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" crossorigin="anonymous" />
   <script>
-    (function () {
-      try {
-        var t = localStorage.getItem("bos-theme");
-        if (t !== "light" && t !== "dark") t = "dark";
-        document.documentElement.setAttribute("data-theme", t);
-      } catch (e) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    })();
+    document.documentElement.setAttribute("data-theme", "dark");
+    try {
+      localStorage.removeItem("bos-theme");
+    } catch (e) {}
   </script>
   <script>
     window.BOS_TITLES = {
@@ -78,16 +73,6 @@
           </div>
         </div>
         <div class="chrome">
-          <div class="theme-pills" role="group" aria-label="Apparence">
-            <button type="button" data-theme-set="dark" aria-pressed="true">
-              <span data-fr>Sombre</span>
-              <span data-en>Dark</span>
-            </button>
-            <button type="button" data-theme-set="light" aria-pressed="false">
-              <span data-fr>Clair</span>
-              <span data-en>Light</span>
-            </button>
-          </div>
           <div class="lang" role="group" aria-label="Language">
             <button type="button" data-set="fr">FR</button>
             <button type="button" data-set="en">EN</button>
