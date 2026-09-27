@@ -1532,9 +1532,9 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
 .faq-architecture-link img {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
-  aspect-ratio: 5 / 3;
-  object-fit: cover;
+  object-fit: contain;
 }
 .faq-architecture-zoom {
   position: absolute;
