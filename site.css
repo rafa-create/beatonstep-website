@@ -1509,6 +1509,10 @@ html[lang="en"] [data-faq-group="tech"] > .faq-item summary::before {
 .faq-architecture-figure {
   margin: -0.1rem 0 1rem;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 .faq-architecture-link {
   position: relative;
@@ -1953,4 +1957,43 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
     animation: none;
   }
   .split-pain-slow { color: var(--danger); }
+}
+
+
+/* Safari mobile: keep the architecture diagram inside the FAQ column. */
+.faq-tech,
+.faq-list,
+.faq-item,
+.faq-architecture,
+.faq-architecture-figure,
+.faq-architecture-link {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.faq-architecture {
+  overflow: hidden;
+}
+.faq-architecture-link {
+  width: 100%;
+  overflow: hidden;
+}
+.faq-architecture-link img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 800px) {
+  .faq-shell,
+  .faq-tech,
+  .faq-item {
+    max-width: 100%;
+  }
+  .faq-architecture-zoom {
+    right: 0.45rem;
+    bottom: 0.45rem;
+  }
 }
