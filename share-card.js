@@ -21,6 +21,11 @@
     const chars = Array.from(value);
     return chars.length > limit ? chars.slice(0, limit - 1).join('') + '…' : value;
   }
+  function fit(value, preferred, width) {
+    // Conservative width budget also covers CJK, capitals and emoji.
+    const units = Array.from(value).reduce((sum, c) => sum + (/[il .,'!]/.test(c) ? 0.4 : /[a-z0-9]/.test(c) ? 0.72 : 1.1), 0);
+    return Math.min(preferred, Math.floor(width / Math.max(1, units)));
+  }
   function render(input) {
     const d = normalize(input);
     const en = d.lang === 'en';
@@ -44,8 +49,8 @@
     if (d.title) {
       content += '<rect x="72" y="1190" width="936" height="240" rx="30" fill="#23261f"/>';
       content += text(108, 1250, 26, t('DANS MES OREILLES', 'ON MY PLAYLIST'), '#fcea07', 600);
-      content += text(108, 1320, 46, short(d.title, 31), '#f7f6ed', 700);
-      if (d.artist) content += text(108, 1380, 32, short(d.artist, 42), '#bfc1b5');
+      content += text(108, 1320, fit(short(d.title, 31), 46, 860), short(d.title, 31), '#f7f6ed', 700);
+      if (d.artist) content += text(108, 1380, fit(short(d.artist, 42), 32, 860), short(d.artist, 42), '#bfc1b5');
     }
     return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-label="BeatOnStep">
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#10130f"/><stop offset="1" stop-color="#252a1b"/></linearGradient></defs>

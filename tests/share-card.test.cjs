@@ -1,0 +1,11 @@
+const assert = require('node:assert/strict');
+const card = require('../share-card.js');
+const svg = card.render({v:1,ppm:170,title:'A & B <live> 🎵',artist:'Élodie'});
+assert(svg.includes('A &amp; B &lt;live&gt; 🎵'));
+assert(!svg.includes('<live>'));
+assert(!card.render({v:1,title:'<script>alert(1)</script>'}).includes('<script>'));
+assert.equal(card.normalize({v:1,ppm:'170',steps:Infinity}).ppm,null);
+assert(!card.render({v:2,ppm:170}).includes('>170</text>'));
+assert(card.render({v:1,lang:'en',ppm:170,cadence:'target'}).includes('TARGET CADENCE'));
+assert(card.render({v:1,lang:'fr'}).includes('Chaque pas.'));
+console.log('Story card tests passed');
