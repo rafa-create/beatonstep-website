@@ -64,7 +64,7 @@
     let background = '';
     if (poster) {
       background = '';
-      content = logo(100,200,112) + text(245,272,56,'BeatOnStep',800,ink,'start',735);
+      content = logo(330,200,112) + text(470,272,56,'BeatOnStep',800,ink,'start',560);
       content += text(540,460,32,t('La musique suit tes pas', 'Music follows your steps'),650);
       content += text(540,610,32,d.ppm !== null ? cadence : t('La musique suit tes pas', 'Music follows your steps'),650);
       content += text(540,825,220,d.ppm !== null ? d.ppm : '♪',850,accent);
@@ -73,9 +73,8 @@
       content += music(1180);
       if (d.title && d.trackBpm !== null) content += text(540,1465,56,`${d.trackBpm} BPM · ${t('musique','music')}`,750,accent);
       content += line(1550) + text(540,1650,42,t('La musique suit tes pas', 'Music follows your steps'),700);
-      content += text(540,1740,24,'rafa-create.github.io/beatonstep-website');
     } else if (v.id === 'compact') {
-      content = logo(100,70,80) + text(210,127,48,'BeatOnStep',850,ink,'start',700);
+      content = logo(330,70,80) + text(440,127,48,'BeatOnStep',850,ink,'start',600);
       content += line(210);
       const bits = [];
       if (d.ppm !== null) bits.push(`${d.ppm} ${t('PPM','SPM')}${d.cadence === 'target' ? t(' cible',' target') : ''}`);

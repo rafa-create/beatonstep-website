@@ -28,3 +28,7 @@ assert(card.render(input,'poster').includes('La musique suit tes pas'));
 assert(card.render(input,'rhythm').includes('clip-path="url(#brandLogoClip)"'));
 
 assert(card.render(input,'poster','dark').includes('#11140f'));
+
+assert(!card.render(input,'poster').includes('rafa-create.github.io/beatonstep-website'));
+assert(card.render(input,'poster').includes('x="330" y="200" width="112" height="112"'));
+assert(card.render(input,'compact').includes('x="330" y="70" width="80" height="80"'));
