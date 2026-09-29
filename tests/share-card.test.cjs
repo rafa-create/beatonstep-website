@@ -16,6 +16,11 @@ assert.equal(card.variants.length,4);
 const compactVariant = card.variants.find(v => v.id === 'compact');
 assert.equal(compactVariant.width,1200);
 assert.equal(compactVariant.height,630);
+assert.equal(card.variants.find(v => v.id === 'music').en,'Now playing');
+assert.equal(card.variants.find(v => v.id === 'soundtrack').fr,'Morceau de la course');
+assert.equal(card.variants.find(v => v.id === 'soundtrack').en,'Track of the run');
+assert.equal(card.variants.find(v => v.id === 'rhythm').fr,'Ma cadence');
+assert.equal(card.variants.find(v => v.id === 'rhythm').en,'My cadence');
 
 assert.equal(card.normalize(input).artist,'');
 assert.equal(card.normalize({...input,trackBpm:Infinity}).trackBpm,null);
