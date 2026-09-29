@@ -10,6 +10,7 @@
     }
   } catch { input = {}; invalid = true; }
   history.replaceState(null, '', location.pathname + location.search);
+
   const card = window.BeatOnStepCard;
   const data = card.normalize(input);
   const t = (fr, en) => data.lang === 'en' ? en : fr;
@@ -20,36 +21,42 @@
     'gallery-label': t('4 styles · un même moment', '4 styles · one moment'),
     light: t('Clair', 'Light'),
     dark: t('Sombre', 'Dark'),
-    share: t('Partager le visuel', 'Share design'),
-    copy: t('Copier le lien', 'Copy link'),
+    share: t('Partager', 'Share'),
+    save: t('Enregistrer', 'Save'),
     'selection-label': t('Visuel sélectionné', 'Selected design'),
-    help: t('Le bouton Partager envoie uniquement le SVG vectoriel. La feuille système propose les destinations compatibles ou l’enregistrement dans Fichiers.', 'Share sends only the vector SVG. The system sheet offers compatible destinations or saving to Files.'),
-    privacy: t('Le damier indique la transparence ; il ne sera pas dans le fichier. Tes données restent dans ton navigateur.', 'The checkerboard means transparency; it is not included in the file. Your data stays in your browser.'),
+    'save-help': t('Appui long puis « Enregistrer dans Photos ».', 'Touch and hold, then choose “Save to Photos”.'),
+    'close-save': t('Fermer', 'Close'),
   };
   Object.entries(labels).forEach(([id,value]) => { $(id).textContent = value; });
-  $('link').setAttribute('aria-label',t('Lien de l’app','App link'));
-  document.querySelector('.tones').setAttribute('aria-label',t('Couleur du sticker','Sticker color'));
+  document.querySelector('.tones').setAttribute('aria-label',t('Couleur','Color'));
+
   let toastTimer;
   function status(message, error = false) {
     clearTimeout(toastTimer);
     $('status').textContent = message;
     $('status').dataset.error = String(error);
     $('status').hidden = false;
-    toastTimer = setTimeout(() => { $('status').hidden = true; }, 6500);
+    toastTimer = setTimeout(() => { $('status').hidden = true; }, 4500);
   }
-  function busy(on) {
-    $('share').disabled = on;
-    $('share').textContent = on ? t('Ouverture…','Opening…') : labels.share;
-    $('share').setAttribute('aria-busy',String(on));
+  function setBusy(id, on) {
+    $(id).disabled = on;
+    $(id).textContent = on ? t('Ouverture…','Opening…') : labels[id];
   }
-  let selected = 'rhythm', tone = 'light', assets = null;
+  function canShare(file) {
+    try { return !!(file && navigator.share && navigator.canShare && navigator.canShare({files:[file]})); }
+    catch { return false; }
+  }
+
+  let selected = 'rhythm', tone = 'light', generation = 0, assets = null;
   let previewUrls = [];
   function redrawGallery() {
     const old = previewUrls; previewUrls = [];
     $('gallery').replaceChildren();
     for (const variant of card.variants) {
       const button = document.createElement('button');
-      button.type = 'button'; button.className = 'tile'; button.dataset.variant = variant.id;
+      button.type = 'button';
+      button.className = 'tile';
+      button.dataset.variant = variant.id;
       button.setAttribute('aria-pressed',String(selected === variant.id));
       const name = variant[data.lang];
       button.setAttribute('aria-label',name);
@@ -59,83 +66,118 @@
       previewUrls.push(url); image.src = url; thumb.appendChild(image);
       const check = document.createElement('span'); check.className = 'check'; check.textContent = '✓'; check.setAttribute('aria-hidden','true');
       const label = document.createElement('span'); label.className = 'tile-label'; label.textContent = name;
-      const detail = document.createElement('small'); detail.textContent = t('SVG vectoriel','Vector SVG'); label.appendChild(detail);
       button.append(thumb,check,label);
       button.onclick = () => {
-        if (selected === variant.id) { status(t('Ce visuel est sélectionné.','This design is selected.')); return; }
-        selected = variant.id; prepare(); status(t('Visuel sélectionné : ','Selected: ')+name);
+        if (selected === variant.id) return;
+        selected = variant.id;
+        prepare();
       };
       $('gallery').appendChild(button);
     }
     old.forEach(url=>URL.revokeObjectURL(url));
   }
-  function canShare(file) {
-    try { return !!(file && navigator.share && navigator.canShare && navigator.canShare({files:[file]})); }
-    catch { return false; }
-  }
+
   function prepare() {
+    const currentGeneration = ++generation;
     if (assets?.svgUrl) URL.revokeObjectURL(assets.svgUrl);
+    if (assets?.pngUrl) URL.revokeObjectURL(assets.pngUrl);
+    assets = null;
+    $('share').disabled = true;
+    $('save').disabled = true;
+    $('share').textContent = t('Préparation…','Preparing…');
+    $('save').textContent = t('Préparation…','Preparing…');
     const variant = card.variants.find(v=>v.id===selected);
-    const svg = card.render(data,selected,tone);
-    const svgBlob = new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const name = `BeatOnStep-${selected}-${tone}.svg`;
-    const svgFile = typeof File === 'function' ? new File([svgBlob],name,{type:'image/svg+xml'}) : null;
-    assets = {svgUrl,svgBlob,svgFile,name};
     $('selection-name').textContent = variant[data.lang];
     document.querySelectorAll('.tile').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.variant===selected)));
-    $('share').disabled = false;
-    $('share').textContent = labels.share;
+    const svgBlob = new Blob([card.render(data,selected,tone)],{type:'image/svg+xml;charset=utf-8'});
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const image = new Image();
+    image.onload = () => {
+      if (currentGeneration !== generation) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = variant.width;
+      canvas.height = variant.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { fail(); return; }
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(image,0,0,canvas.width,canvas.height);
+      canvas.toBlob(blob => {
+        if (currentGeneration !== generation || !blob) { fail(); return; }
+        const pngUrl = URL.createObjectURL(blob);
+        const name = `BeatOnStep-${selected}-${tone}.png`;
+        const pngFile = typeof File === 'function' ? new File([blob],name,{type:'image/png'}) : null;
+        assets = {svgUrl,pngUrl,pngBlob:blob,pngFile,name};
+        $('save-preview').src = pngUrl;
+        $('share').disabled = false;
+        $('save').disabled = false;
+        $('share').textContent = labels.share;
+        $('save').textContent = labels.save;
+      },'image/png');
+    };
+    image.onerror = fail;
+    image.src = svgUrl;
+    function fail() {
+      if (currentGeneration !== generation) return;
+      $('share').textContent = labels.share;
+      $('save').textContent = labels.save;
+      status(t('Impossible de préparer le visuel.','Unable to prepare the image.'),true);
+    }
   }
-  function saveSvg(current) {
-    const a = document.createElement('a');
-    a.href = current.svgUrl;
-    a.download = current.name;
-    a.hidden = true;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+
+  function showSaveHelp() {
+    if (!assets?.pngUrl) return;
+    $('save-preview').src = assets.pngUrl;
+    $('save-panel').hidden = false;
   }
-  for (const choice of ['light','dark']) $(choice).onclick=()=>{
-    tone=choice;
-    for(const id of ['light','dark']) $(id).setAttribute('aria-pressed',String(id===tone));
-    redrawGallery(); prepare(); status(t('Couleur sélectionnée : ','Selected color: ')+labels[choice]);
-  };
-  $('share').onclick=async()=>{
-    const current=assets;
-    if (!current) return;
-    if (!canShare(current.svgFile)) {
-      saveSvg(current);
-      status(t('Partage SVG indisponible ici : le fichier vectoriel a été proposé à l’enregistrement.','SVG sharing is unavailable here: the vector file was offered for saving.'));
+  $('close-save').onclick = () => { $('save-panel').hidden = true; };
+
+  for (const choice of ['light','dark']) {
+    $(choice).onclick = () => {
+      tone = choice;
+      for (const id of ['light','dark']) $(id).setAttribute('aria-pressed',String(id===tone));
+      redrawGallery();
+      prepare();
+    };
+  }
+
+  $('share').onclick = async () => {
+    const current = assets;
+    if (!current?.pngBlob) return;
+    if (!canShare(current.pngFile)) {
+      showSaveHelp();
       return;
     }
-    busy(true);
-    status(t('La feuille système affiche les apps compatibles avec ce SVG.','The system sheet shows apps compatible with this SVG.'));
+    setBusy('share',true);
     try {
-      await navigator.share({files:[current.svgFile]});
-      status(t('Feuille de partage refermée.','Share sheet closed.'));
-    } catch(error) {
-      if (error && error.name === 'AbortError') status(t('Partage annulé.','Share cancelled.'));
-      else {
-        saveSvg(current);
-        status(t('Partage indisponible : le SVG a été proposé à l’enregistrement.','Sharing unavailable: the SVG was offered for saving.'),true);
-      }
+      await navigator.share({files:[current.pngFile]});
+    } catch (error) {
+      if (!error || error.name !== 'AbortError') status(t('Partage indisponible.','Sharing unavailable.'),true);
     } finally {
-      busy(false);
+      setBusy('share',false);
+      $('share').disabled = !assets?.pngBlob;
     }
   };
-  $('copy').onclick=async()=>{
-    $('copy').disabled=true;
+
+  $('save').onclick = async () => {
+    const current = assets;
+    if (!current?.pngBlob) return;
+    if (!canShare(current.pngFile)) {
+      showSaveHelp();
+      return;
+    }
+    setBusy('save',true);
+    status(t('Choisis « Enregistrer l’image ».','Choose “Save Image”.'));
     try {
-      await navigator.clipboard.writeText(card.SITE);
-      status(t('Lien copié ✓','Link copied ✓'));
-    } catch {
-      $('link').hidden=false; $('link').value=card.SITE; $('link').focus(); $('link').select();
-      status(t('Copie automatique indisponible : sélectionne et copie le lien.','Automatic copy unavailable: select and copy the link.'),true);
+      await navigator.share({files:[current.pngFile]});
+    } catch (error) {
+      if (!error || error.name !== 'AbortError') showSaveHelp();
     } finally {
-      $('copy').disabled=false;
+      setBusy('save',false);
+      $('save').disabled = !assets?.pngBlob;
     }
   };
-  redrawGallery(); prepare();
-  if(invalid)status(t('Données indisponibles : visuels sans statistiques.','Data unavailable: designs without statistics.'),true);
+
+  redrawGallery();
+  prepare();
+  if (invalid) status(t('Données indisponibles.','Data unavailable.'),true);
 })();
