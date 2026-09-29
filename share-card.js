@@ -7,7 +7,7 @@
     { id: 'rhythm', fr: 'Mon rythme', en: 'My rhythm', width: 1080, height: 1350, transparent: true },
     { id: 'music', fr: 'Ma musique', en: 'My music', width: 1080, height: 1350, transparent: true },
     { id: 'compact', fr: 'Signature', en: 'Signature', width: 1080, height: 650, transparent: true },
-    { id: 'poster', fr: 'Affiche', en: 'Poster', width: 1080, height: 1920, transparent: false },
+    { id: 'poster', fr: 'Affiche', en: 'Poster', width: 1080, height: 1920, transparent: true },
   ];
   function clean(value, max) {
     return typeof value === 'string' ? Array.from(value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim()).slice(0, max).join('') : '';
@@ -45,7 +45,7 @@
     const d = normalize(input);
     const v = variants.find(item => item.id === variantId) || variants[0];
     const poster = v.id === 'poster';
-    const ink = !poster && tone === 'dark' ? '#11140f' : '#ffffff';
+    const ink = tone === 'dark' ? '#11140f' : '#ffffff';
     const accent = poster ? '#fcea07' : ink;
     const t = (fr, en) => d.lang === 'en' ? en : fr;
     const text = (x, y, size, value, weight = 500, color = ink, anchor = 'middle', width = 900) =>
@@ -63,7 +63,7 @@
     let content = '';
     let background = '';
     if (poster) {
-      background = '<rect width="1080" height="1920" fill="#12170e"/><circle cx="1000" cy="250" r="390" fill="none" stroke="#fcea07" stroke-opacity=".12" stroke-width="3"/>';
+      background = '';
       content = logo(100,200,112) + text(245,272,56,'BeatOnStep',800,ink,'start',735);
       content += text(540,460,32,t('La musique suit tes pas', 'Music follows your steps'),650);
       content += text(540,610,32,d.ppm !== null ? cadence : t('La musique suit tes pas', 'Music follows your steps'),650);

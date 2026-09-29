@@ -14,8 +14,8 @@ for(const v of card.variants){
  assert(svg.includes('&amp;'));
  assert(svg.includes('71'));
  assert(svg.includes(`viewBox="0 0 ${v.width} ${v.height}"`));
- if(v.transparent)assert(!svg.includes('<rect'));
- else assert(svg.includes('<rect'));
+ assert(!svg.includes('<rect width="1080" height="1920"'));
+
  assert(!card.render({v:1,title:'<script>alert(1)</script>'},v.id).includes('<script>'));
  assert(!card.render({v:2,ppm:170},v.id).includes('>170</text>'));
  assert(!card.render({v:1,title:'Title'},v.id).includes('null'));
@@ -26,3 +26,5 @@ console.log('4 variants, transparent SVG, BPM vs PPM, empty/invalid data, XML es
 
 assert(card.render(input,'poster').includes('La musique suit tes pas'));
 assert(card.render(input,'rhythm').includes('clip-path="url(#brandLogoClip)"'));
+
+assert(card.render(input,'poster','dark').includes('#11140f'));
