@@ -73,8 +73,16 @@
     const stepText = d.steps === null ? '' : `${d.steps.toLocaleString(d.lang === 'en' ? 'en-US' : 'fr-FR')} ${t('pas détectés', 'detected steps')}`;
     const music = (y, size = 58) => {
       if (!d.title) return '';
-      return titleLines(d.title).map((l,i) => text(540,y+i*76,size,l,750)).join('') +
-        (d.artist ? text(540,y+170,42,short(d.artist,42),550) : '');
+      const lines = titleLines(d.title);
+      const artistY = y + (lines.length - 1) * 76 + 72;
+      return lines.map((l,i) => text(540,y+i*76,size,l,750)).join('') +
+        (d.artist ? text(540,artistY,42,short(d.artist,42),550) : '');
+    };
+    const musicBottomY = (title, artist, y) => {
+      if (!title) return y;
+      const lines = titleLines(title);
+      const lastTitleY = y + (lines.length - 1) * 76;
+      return artist ? lastTitleY + 72 : lastTitleY;
     };
     const hasRunSummary = d.avgPpm !== null || d.avgMusicBpm !== null || !!d.trackOfRunTitle;
     const runnerPpm = d.avgPpm ?? d.ppm;
@@ -100,8 +108,10 @@
     ].filter(Boolean).join(' · ');
     const representativeMusic = (y, size = 58) => {
       if (!representativeTitle) return '';
-      return titleLines(representativeTitle).map((l,i) => text(540,y+i*76,size,l,750)).join('') +
-        (representativeArtist ? text(540,y+170,42,short(representativeArtist,42),550) : '');
+      const lines = titleLines(representativeTitle);
+      const artistY = y + (lines.length - 1) * 76 + 72;
+      return lines.map((l,i) => text(540,y+i*76,size,l,750)).join('') +
+        (representativeArtist ? text(540,artistY,42,short(representativeArtist,42),550) : '');
     };
     let content = '';
     let background = '';
@@ -133,33 +143,50 @@
     } else if (v.id === 'soundtrack') {
       content = logo(330,70,90) + text(455,133,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,300,42,t('MORCEAU DE LA COURSE','TRACK OF THE RUN'),800);
-      if (representativeTitle) content += representativeMusic(405,74);
-      else content += text(540,485,64,t('La musique suit tes pas','Music follows your steps'),800);
-      if (representativeTitle && representativeBpm !== null) {
-        content += text(540,690,34,`${representativeBpm} BPM · ${t('RYTHME DU MORCEAU','TRACK TEMPO')}`,700);
+      let soundtrackDividerY = 690;
+      if (representativeTitle) {
+        const trackTopY = 405;
+        content += representativeMusic(trackTopY,74);
+        const trackBottomY = musicBottomY(representativeTitle, representativeArtist, trackTopY);
+        if (representativeBpm !== null) {
+          content += text(540,trackBottomY + 82,34,`${representativeBpm} BPM`,750);
+          soundtrackDividerY = trackBottomY + 145;
+        } else {
+          soundtrackDividerY = trackBottomY + 105;
+        }
+      } else {
+        content += text(540,485,64,t('La musique suit tes pas','Music follows your steps'),800);
       }
-      content += line(760);
-      content += text(540,840,28,t('STATS COURSE','RUN STATS'),750);
-      if (musicBpm !== null) {
-        content += metric(540,1010,musicBpm,'BPM',150,48);
+      content += line(soundtrackDividerY);
+
+      const showAvgMusic =
+        musicBpm !== null &&
+        !(representativeTitle && representativeBpm !== null && musicBpm === representativeBpm);
+      const statsTitleY = soundtrackDividerY + 80;
+      content += text(540,statsTitleY,28,t('STATS COURSE','RUN STATS'),750);
+
+      let nextStatY = statsTitleY + 110;
+      if (showAvgMusic) {
         content += text(
           540,
-          1080,
-          34,
-          hasRunSummary ? t('BPM MOYENS · MUSIQUE','AVERAGE MUSIC BPM') : t('RYTHME DU MORCEAU','TRACK TEMPO'),
-          650
+          nextStatY,
+          40,
+          `${musicBpm} BPM · ${t('MUSIQUE MOYENNE','AVERAGE MUSIC')}`,
+          700
         );
+        nextStatY += 115;
       }
       if (runnerPpm !== null) {
         content += text(
           540,
-          1190,
+          nextStatY,
           42,
-          `${hasRunSummary ? t('CADENCE MOYENNE','AVERAGE CADENCE') : t('CADENCE','CADENCE')} · ${runnerPpm} ${t('PPM','SPM')}`,
+          `${runnerPpm} ${t('PPM','SPM')} · ${hasRunSummary ? t('CADENCE MOYENNE','AVERAGE CADENCE') : t('CADENCE','CADENCE')}`,
           700
         );
+        nextStatY += 105;
       }
-      if (runMeta) content += text(540,1290,34,runMeta,600);
+      if (runMeta) content += text(540,Math.min(nextStatY,1300),34,runMeta,600);
     } else if (v.id === 'beat-match') {
       content = logo(330,70,90) + text(455,133,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,300,30,'BEAT MATCH',800);
@@ -223,40 +250,50 @@
     } else if (v.id === 'music') {
       content = logo(330,70,90) + text(455,133,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,300,42,t('DANS MES OREILLES','NOW PLAYING'),750);
-      content += d.title ? music(410,72) : text(540,490,66,t('La musique suit tes pas', 'Music follows your steps'),800);
-      content += line(690);
+      let musicDividerY = 650;
+      if (d.title) {
+        const trackTopY = 410;
+        content += music(trackTopY,72);
+        musicDividerY = Math.max(590, musicBottomY(d.title, d.artist, trackTopY) + 105);
+      } else {
+        content += text(540,490,66,t('La musique suit tes pas', 'Music follows your steps'),800);
+      }
+      content += line(musicDividerY);
+
+      let musicMetricY = musicDividerY + 205;
       if (d.title && d.trackBpm !== null) {
-        content += metric(540,900,d.trackBpm,'BPM',190,58);
-        content += text(540,975,36,t('RYTHME DU MORCEAU','TRACK TEMPO'),700);
+        content += metric(540,musicMetricY,d.trackBpm,'BPM',190,58);
+        musicMetricY += 180;
       }
       if (d.ppm !== null) {
-        content += text(540,1130,72,`${d.ppm} ${t('PPM','SPM')}`,800);
         content += text(
           540,
-          1185,
-          32,
-          d.cadence === 'target' ? t('CADENCE CIBLE','TARGET CADENCE') : t('CADENCE ACTUELLE','CURRENT CADENCE'),
-          650
+          musicMetricY,
+          50,
+          `${d.ppm} ${t('PPM','SPM')} · ${d.cadence === 'target' ? t('CADENCE CIBLE','TARGET CADENCE') : t('CADENCE ACTUELLE','CURRENT CADENCE')}`,
+          750
         );
+        musicMetricY += 115;
       }
-      if (stepText) content += text(540,1285,34,stepText,600);
+      if (stepText) content += text(540,Math.min(musicMetricY,1295),34,stepText,600);
     } else {
       content = logo(330,70,90) + text(455,133,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,305,42,cadence,750);
       if (d.ppm !== null) {
         content += metric(540,565,d.ppm,t('PPM','SPM'),210,58);
-        content += text(540,635,34,t('pas / minute','steps / minute'),600);
       } else {
         content += text(540,540,64,t('La musique suit tes pas','Music follows your steps'),800);
       }
       if (stepText) content += text(540,755,38,stepText,600);
       content += line(850);
       if (d.title) {
+        const trackTopY = 1015;
         content += text(540,935,26,t('MORCEAU EN COURS','CURRENT TRACK'),700);
-        content += music(1020,60);
-      }
-      if (d.title && d.trackBpm !== null) {
-        content += text(540,1300,36,`${d.trackBpm} BPM · ${t('RYTHME DU MORCEAU','TRACK TEMPO')}`,700);
+        content += music(trackTopY,60);
+        if (d.trackBpm !== null) {
+          const trackBottomY = musicBottomY(d.title, d.artist, trackTopY);
+          content += text(540,Math.min(trackBottomY + 90,1300),36,`${d.trackBpm} BPM`,700);
+        }
       }
     }
     return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${v.width}" height="${v.height}" viewBox="0 0 ${v.width} ${v.height}" role="img" aria-label="BeatOnStep"><defs><clipPath id="brandLogoClip" clipPathUnits="objectBoundingBox"><rect width="1" height="1" rx=".24" ry=".24"/></clipPath></defs>${background}<g font-family="Arial, Helvetica, sans-serif">${content}</g></svg>`;
