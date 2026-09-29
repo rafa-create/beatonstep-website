@@ -67,9 +67,53 @@ assert(card.render({...input,lang:'fr',cadence:'measured'},'music').includes('CA
 const soundtrack = card.render(run,'soundtrack');
 assert(soundtrack.includes('TRACK OF THE RUN'));
 assert(soundtrack.includes('199 BPM'));
-assert(soundtrack.includes('TRACK TEMPO'));
-assert(soundtrack.includes('AVERAGE MUSIC BPM'));
+assert(soundtrack.includes('AVERAGE MUSIC'));
 assert(soundtrack.includes('AVERAGE CADENCE'));
+
+const shortRun = {
+  v:1,
+  lang:'fr',
+  ppm:108,
+  cadence:'measured',
+  trackBpm:118,
+  steps:13,
+  title:'Alien',
+  artist:'Dennis Lloyd',
+  avgPpm:108,
+  avgMusicBpm:118,
+  runCadence:'measured',
+  trackOfRunTitle:'Alien',
+  trackOfRunArtist:'Dennis Lloyd',
+  trackOfRunBpm:118,
+  sessionSec:60,
+  runSteps:13,
+  trackCount:1
+};
+
+const shortRhythm = card.render(shortRun,'rhythm');
+assert(!shortRhythm.includes('pas / minute'));
+assert(!shortRhythm.includes('RYTHME DU MORCEAU'));
+assert(shortRhythm.includes('>118 BPM</text>'));
+
+const shortMusic = card.render(shortRun,'music');
+assert(!shortMusic.includes('RYTHME DU MORCEAU'));
+assert(shortMusic.includes('108 PPM · CADENCE ACTUELLE'));
+
+const shortSoundtrack = card.render(shortRun,'soundtrack');
+assert.equal((shortSoundtrack.match(/118 BPM/g) || []).length,1);
+assert(!shortSoundtrack.includes('MUSIQUE MOYENNE'));
+assert(!shortSoundtrack.includes('BPM MOYENS'));
+assert(shortSoundtrack.includes('108 PPM · CADENCE MOYENNE'));
+
+const oneLineMusic = card.render(shortRun,'music');
+assert(oneLineMusic.includes('x="540" y="410"'));
+assert(oneLineMusic.includes('x="540" y="482"'));
+
+const twoLineRun = {...shortRun,title:'A very long title that wraps cleanly',artist:'Artist'};
+const twoLineMusic = card.render(twoLineRun,'music');
+assert(twoLineMusic.includes('x="540" y="410"'));
+assert(twoLineMusic.includes('x="540" y="486"'));
+assert(twoLineMusic.includes('x="540" y="558"'));
 
 const compact = card.render(run,'compact');
 assert(compact.includes('TRACK TEMPO'));
