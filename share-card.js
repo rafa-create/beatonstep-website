@@ -50,7 +50,7 @@
     const t = (fr, en) => d.lang === 'en' ? en : fr;
     const text = (x, y, size, value, weight = 500, color = ink, anchor = 'middle', width = 900) =>
       `<text x="${x}" y="${y}" fill="${color}" font-size="${fit(String(value), size, width)}" font-weight="${weight}" text-anchor="${anchor}">${esc(value)}</text>`;
-    const logo = (x,y,size) => `<image x="${x}" y="${y}" width="${size}" height="${size}" xlink:href="data:image/jpeg;base64,${LOGO}"/>`;
+    const logo = (x,y,size) => `<image x="${x}" y="${y}" width="${size}" height="${size}" clip-path="url(#brandLogoClip)" preserveAspectRatio="xMidYMid slice" xlink:href="data:image/jpeg;base64,${LOGO}"/>`;
     const line = (y) => `<path d="M300 ${y}H430l30 -24 40 48 40 -68 40 44h200" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
     const cadence = d.cadence === 'target' ? t('CADENCE CIBLE', 'TARGET CADENCE') : t('MA CADENCE', 'MY CADENCE');
     const musicLabel = t('RYTHME DU MORCEAU', 'TRACK TEMPO');
@@ -65,14 +65,14 @@
     if (poster) {
       background = '<rect width="1080" height="1920" fill="#12170e"/><circle cx="1000" cy="250" r="390" fill="none" stroke="#fcea07" stroke-opacity=".12" stroke-width="3"/>';
       content = logo(100,200,112) + text(245,272,56,'BeatOnStep',800,ink,'start',735);
-      content += text(540,460,32,t('TA MUSIQUE. TON RYTHME.', 'YOUR MUSIC. YOUR RHYTHM.'),650);
-      content += text(540,610,32,d.ppm !== null ? cadence : t('CHAQUE PAS COMPTE', 'EVERY STEP COUNTS'),650);
+      content += text(540,460,32,t('La musique suit tes pas', 'Music follows your steps'),650);
+      content += text(540,610,32,d.ppm !== null ? cadence : t('La musique suit tes pas', 'Music follows your steps'),650);
       content += text(540,825,220,d.ppm !== null ? d.ppm : '♪',850,accent);
       if (d.ppm !== null) content += text(540,890,38,t('pas / minute','steps / minute'));
       if (stepText) content += text(540,1010,46,stepText,650);
       content += music(1180);
       if (d.title && d.trackBpm !== null) content += text(540,1465,56,`${d.trackBpm} BPM · ${t('musique','music')}`,750,accent);
-      content += line(1550) + text(540,1650,42,t('Ta musique au rythme de tes pas.', 'Music that moves with your steps.'),700);
+      content += line(1550) + text(540,1650,42,t('La musique suit tes pas', 'Music follows your steps'),700);
       content += text(540,1740,24,'rafa-create.github.io/beatonstep-website');
     } else if (v.id === 'compact') {
       content = logo(100,70,80) + text(210,127,48,'BeatOnStep',850,ink,'start',700);
@@ -80,14 +80,14 @@
       const bits = [];
       if (d.ppm !== null) bits.push(`${d.ppm} ${t('PPM','SPM')}${d.cadence === 'target' ? t(' cible',' target') : ''}`);
       if (d.title && d.trackBpm !== null) bits.push(`${d.trackBpm} BPM`);
-      content += text(540,335,84,bits.length ? bits.join(' / ') : t('Ma musique. Mon rythme.', 'My music. My rhythm.'),850);
+      content += text(540,335,84,bits.length ? bits.join(' / ') : t('La musique suit tes pas', 'Music follows your steps'),850);
       if (d.title) content += text(540,432,42,short(d.title,40),700);
       if (d.artist) content += text(540,485,28,short(d.artist,46));
       if (stepText) content += text(540,567,36,stepText,650);
     } else if (v.id === 'music') {
       content = logo(330,85,90) + text(455,148,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,335,30,t('DANS MES OREILLES','NOW PLAYING'),650);
-      content += d.title ? music(460,72) : text(540,485,68,t('Ma musique. Mon rythme.', 'My music. My rhythm.'),800);
+      content += d.title ? music(460,72) : text(540,485,68,t('La musique suit tes pas', 'Music follows your steps'),800);
       if (d.title && d.trackBpm !== null) content += text(540,830,188,d.trackBpm,850) + text(540,902,34,musicLabel,650) + text(540,958,36,'BPM');
       else content += line(820);
       if (d.ppm !== null) content += text(540,1120,50,`${d.ppm} ${t('pas/min','steps/min')} · ${d.cadence === 'target' ? t('cible','target') : t('cadence','cadence')}`,700);
@@ -96,13 +96,13 @@
       content = logo(330,70,90) + text(455,133,48,'BeatOnStep',850,ink,'start',535);
       content += text(540,335,32,cadence,650);
       content += text(540,565,220,d.ppm !== null ? d.ppm : '♪',850);
-      content += text(540,635,40,d.ppm !== null ? t('pas / minute','steps / minute') : t('Au rythme de mes pas','To the rhythm of my steps'));
+      content += text(540,635,40,d.ppm !== null ? t('pas / minute','steps / minute') : t('La musique suit tes pas','Music follows your steps'));
       if (stepText) content += text(540,770,54,stepText,750);
       content += line(865);
       content += music(1010,52);
       if (d.title && d.trackBpm !== null) content += text(540,1260,45,`${d.trackBpm} BPM · ${t('musique','music')}`,750);
     }
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${v.width}" height="${v.height}" viewBox="0 0 ${v.width} ${v.height}" role="img" aria-label="BeatOnStep">${background}<g font-family="Arial, Helvetica, sans-serif">${content}</g></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${v.width}" height="${v.height}" viewBox="0 0 ${v.width} ${v.height}" role="img" aria-label="BeatOnStep"><defs><clipPath id="brandLogoClip" clipPathUnits="objectBoundingBox"><rect width="1" height="1" rx=".24" ry=".24"/></clipPath></defs>${background}<g font-family="Arial, Helvetica, sans-serif">${content}</g></svg>`;
   }
   const api = { SITE, variants, normalize, render };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -23,3 +23,6 @@ for(const v of card.variants){
 assert(card.render({...input,lang:'en'},'rhythm').includes('TARGET CADENCE'));
 assert(card.render(input,'rhythm','dark').includes('#11140f'));
 console.log('4 variants, transparent SVG, BPM vs PPM, empty/invalid data, XML escaping: passed');
+
+assert(card.render(input,'poster').includes('La musique suit tes pas'));
+assert(card.render(input,'rhythm').includes('clip-path="url(#brandLogoClip)"'));
