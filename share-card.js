@@ -91,7 +91,7 @@
     const durationText = d.sessionSec === null ? '' : (
       d.sessionSec < 3600
         ? `${Math.max(1, Math.round(d.sessionSec / 60))} min`
-        : `${Math.floor(d.sessionSec / 3600)} h ${String(Math.round((d.sessionSec % 3600) / 60)).padStart(2, '0')}`
+        : `${Math.floor(d.sessionSec / 3600)} h ${String(Math.floor((d.sessionSec % 3600) / 60)).padStart(2, '0')}`
     );
     const runMeta = [
       durationText,
