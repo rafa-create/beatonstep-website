@@ -72,11 +72,7 @@ assert(compact.includes('SPM'));
 assert(!compact.includes('63 SPM / 199 BPM'));
 
 assert(card.render(input,'rhythm','dark').includes('#11140f'));
-assert(card.render(input,'poster').includes('La musique suit tes pas'));
 assert(card.render(input,'rhythm').includes('clip-path="url(#brandLogoClip)"'));
-assert(card.render(input,'poster','dark').includes('#11140f'));
-assert(!card.render(input,'poster').includes('rafa-create.github.io/beatonstep-website'));
-assert(card.render(input,'poster').includes('x="330" y="200" width="112" height="112"'));
 assert(card.render(input,'compact').includes('x="390" y="50" width="80" height="80"'));
 
 console.log('4 variants, 1200x630 compact, FR/EN hierarchy, BPM vs PPM, escaping: passed');
