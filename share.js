@@ -18,7 +18,7 @@
   const labels = {
     heading: t('Partager mon rythme', 'Share my rhythm'),
     intro: t('La musique suit tes pas.', 'Music follows your steps.'),
-    'gallery-label': t('4 styles · un même moment', '4 styles · one moment'),
+    'gallery-label': t('7 styles · une même course', '7 styles · one run'),
     light: t('Clair', 'Light'),
     dark: t('Sombre', 'Dark'),
     share: t('Partager', 'Share'),
@@ -47,7 +47,7 @@
     catch { return false; }
   }
 
-  let selected = 'rhythm', tone = 'light', generation = 0, assets = null;
+  let selected = 'tempo', tone = 'light', generation = 0, assets = null;
   let previewUrls = [];
   function redrawGallery() {
     const old = previewUrls; previewUrls = [];
