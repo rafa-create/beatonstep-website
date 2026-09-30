@@ -7,6 +7,7 @@ Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et
 ## Pages
 
 - Accueil : `/`
+- Connectivité Garmin : `/garmin.html` (FR/EN ; descriptif en préparation pour 1.7.0 ; lien Connect IQ différé)
 - Politique : `/privacy.html` (`PRIVACY.fr.md` / `PRIVACY.en.md`, switch FR/EN)
 - Crédits mix : `/music-credits.html` (`MUSIC-CREDITS.fr.md` / `MUSIC-CREDITS.en.md`)
 - Canonique FR brut : `PRIVACY.md`, `MUSIC-CREDITS.md`
@@ -14,7 +15,7 @@ Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et
 ## Structure
 
 ```
-index.html, site.css, i18n.js   — site
+index.html, garmin.html, site.css, i18n.js   — site
 assets/                         — images du site (brand, hero, screenshots)
 badges/                         — badges store
 store/apple/                    — captures App Store (voir store/apple/NOTES.md)
