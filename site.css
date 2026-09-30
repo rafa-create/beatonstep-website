@@ -1996,3 +1996,61 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
     bottom: 0.45rem;
   }
 }
+
+
+/* Garmin 1.7.0 : annonce volontairement discrète et guide bilingue. */
+.garmin-announcement {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .7rem;
+  border-left: 2px solid var(--line); padding: .3rem .75rem;
+  margin: -2.9rem 0 3.2rem; color: var(--muted);
+  font-size: .79rem; line-height: 1.5;
+}
+.garmin-announcement a, .garmin-teaser-action a {
+  color: var(--ink); text-decoration: underline;
+  text-decoration-color: var(--line); text-underline-offset: .22rem;
+}
+.garmin-announcement a:hover, .garmin-teaser-action a:hover { text-decoration-color: var(--accent); }
+.garmin-announcement a:focus-visible, .garmin-teaser-action a:focus-visible,
+.garmin-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.garmin-teaser {
+  display: grid; grid-template-columns: minmax(0,1fr) auto;
+  align-items: center; gap: 1.25rem 2rem; padding: 1.25rem 1.4rem;
+  margin: 0 0 var(--section-gap);
+  background: color-mix(in srgb, var(--panel) 43%, transparent);
+  border: 1px solid var(--line); border-radius: 12px;
+}
+.garmin-eyebrow { font-size: .75rem; color: var(--muted); font-weight: 700; letter-spacing: .03em; margin: 0 0 .35rem; }
+.garmin-teaser h2 { font-size: clamp(1.05rem, 2.1vw, 1.3rem); line-height: 1.3; letter-spacing: -.015em; margin: 0 0 .35rem; }
+.garmin-teaser-copy > p:last-child { color: var(--muted); max-width: 37rem; margin: 0; font-size: .9rem; line-height: 1.55; }
+.garmin-teaser-action a { display: inline-block; font-size: .83rem; font-weight: 700; white-space: nowrap; }
+.garmin-page { max-width: 52rem; margin: 0 auto; }
+.garmin-page .garmin-back { display: inline-flex; color: var(--muted); text-decoration: none; font-size: .87rem; margin: .25rem 0 1.5rem; }
+.garmin-page .garmin-back:hover { color: var(--ink); }
+.garmin-page h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.14; letter-spacing: -.04em; margin: .25rem 0 .8rem; }
+.garmin-page .garmin-intro { font-size: 1.05rem; color: var(--muted); max-width: 44rem; margin: 0 0 1.2rem; }
+.garmin-page .garmin-status { display: inline-block; font-weight: 700; font-size: .77rem; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: .23rem .7rem; margin: 0 0 .75rem; }
+.garmin-page section { margin: 2.6rem 0; }
+.garmin-page h2 { font-size: 1.35rem; letter-spacing: -.02em; line-height: 1.3; margin: 0 0 .8rem; }
+.garmin-page h3 { font-size: 1rem; line-height: 1.3; margin: 0 0 .55rem; }
+.garmin-page p { line-height: 1.7; }
+.garmin-columns { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .8rem; }
+.garmin-column { padding: 1.1rem 1.15rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--panel) 54%, transparent); }
+.garmin-column p { margin: 0; color: var(--muted); font-size: .9rem; }
+.garmin-page .garmin-list { margin: .4rem 0 0; padding-left: 1.4rem; }
+.garmin-page .garmin-list li { margin: .5rem 0; }
+.garmin-page .garmin-note { padding: .85rem 1.1rem; border-left: 2px solid var(--line); background: color-mix(in srgb, var(--panel) 35%, transparent); color: var(--muted); font-size: .9rem; margin: 1.05rem 0; }
+.garmin-page .garmin-faq details { border-bottom: 1px solid var(--line); padding: .85rem 0; }
+.garmin-page .garmin-faq summary { cursor: pointer; font-weight: 700; }
+.garmin-page .garmin-faq details p { color: var(--muted); margin: .65rem 0 0; }
+.garmin-page a { color: var(--ink); }
+.garmin-page .garmin-footer { border-top: 1px solid var(--line); padding-top: 1.1rem; }
+@media (max-width: 800px) {
+  .garmin-announcement { margin-top: -2rem; }
+  .garmin-teaser { grid-template-columns: 1fr; }
+  .garmin-columns { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .garmin-announcement { margin-top: -2.3rem; }
+  .garmin-teaser { padding: 1.1rem; }
+  .garmin-teaser-action a { white-space: normal; }
+}
