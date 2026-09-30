@@ -6,8 +6,8 @@
   const variants = [
     { id: 'live-rhythm', context: 'live', fr: 'Ma cadence', en: 'My cadence', width: 1080, height: 1350, transparent: true },
     { id: 'live-music', context: 'live', fr: 'Dans mes oreilles', en: 'Now playing', width: 1080, height: 1350, transparent: true },
-    { id: 'recap-rhythm', context: 'recap', fr: 'Ma cadence', en: 'My cadence', width: 1080, height: 1350, transparent: true },
-    { id: 'recap-track', context: 'recap', fr: 'Morceau', en: 'Track', width: 1080, height: 1350, transparent: true },
+    { id: 'recap-rhythm', context: 'recap', fr: 'Ma course', en: 'My run', width: 1080, height: 1350, transparent: true },
+    { id: 'recap-track', context: 'recap', fr: 'Mon morceau', en: 'My track', width: 1080, height: 1350, transparent: true },
   ];
   function clean(value, max) {
     return typeof value === 'string' ? Array.from(value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim()).slice(0, max).join('') : '';
@@ -100,9 +100,9 @@
       trackOfRunBpm: Number.isInteger(d.trackOfRunBpm) && d.trackOfRunBpm > 0 && d.trackOfRunBpm <= 400 ? d.trackOfRunBpm : null,
     };
   }
-  function variantsFor(input) {
-    const d = normalize(input);
-    return variants.filter(item => item.context === d.shareContext);
+  function variantsFor(_input) {
+    // Quatre cartes identiques, qu'on arrive des Réglages ou du récap.
+    return variants;
   }
   const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
   function short(value, max) {
@@ -171,9 +171,17 @@
     );
 
     const liveCadenceLabel =
-      d.cadence === 'target' ? t('CADENCE CIBLE', 'TARGET CADENCE') : t('MA CADENCE', 'MY CADENCE');
+      d.cadence === 'target'
+        ? t('CADENCE CIBLE', 'TARGET CADENCE')
+        : d.shareContext === 'recap'
+          ? t('MOYENNE COURSE', 'RUN AVERAGE')
+          : t('MA CADENCE', 'MY CADENCE');
     const selectedTrack =
       d.selectedTrackIndex === null ? null : d.runTracks[d.selectedTrackIndex] || null;
+    // La sélection est la seule source des champs musicaux sur tous les SVG.
+    const chosenTitle = selectedTrack?.title ?? '';
+    const chosenArtist = selectedTrack?.artist ?? '';
+    const chosenBpm = selectedTrack?.bpm ?? null;
 
     const runMeta = [
       runDuration(d.sessionSec),
@@ -186,38 +194,43 @@
     let content = '';
 
     if (v.id === 'live-rhythm') {
-      content += header(t('EN COURSE', 'IN RUN'));
+      content += header(t('MON RYTHME', 'MY RHYTHM'));
       content += text(540, 325, 58, liveCadenceLabel, 850, ink, 'middle', 940);
       if (d.ppm !== null) {
         content += metric(540, 590, d.ppm, t('PPM', 'SPM'), 215, 60);
+        content += text(
+          540, 670, 45,
+          d.shareContext === 'recap' ? t('MOYENNE COURSE', 'RUN AVERAGE') : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
+          750
+        );
       } else {
         content += text(540, 565, 64, t('Cadence en attente', 'Waiting for cadence'), 800);
       }
-      const liveSteps = stepText(d.steps);
+      const liveSteps = stepText(d.steps ?? d.runSteps);
       if (liveSteps) content += text(540, 755, 48, liveSteps, 720, ink, 'middle', 940);
       content += line(850);
-      content += text(540, 950, 44, t('MORCEAU EN COURS', 'CURRENT TRACK'), 820);
-      if (d.title) {
+      content += text(540, 950, 44, t('MORCEAU CHOISI', 'CHOSEN TRACK'), 820);
+      if (chosenTitle) {
         const trackY = 1040;
-        content += music(d.title, d.artist, trackY, 60);
-        if (d.trackBpm !== null) {
-          const bottom = musicBottomY(d.title, d.artist, trackY, 60);
-          content += text(540, Math.min(bottom + 92, 1300), 46, `${d.trackBpm} BPM · ${t('MORCEAU', 'TRACK')}`, 760);
+        content += music(chosenTitle, chosenArtist, trackY, 60);
+        if (chosenBpm !== null) {
+          const bottom = musicBottomY(chosenTitle, chosenArtist, trackY, 60);
+          content += text(540, Math.min(bottom + 92, 1300), 46, `${chosenBpm} BPM · ${t('MORCEAU', 'TRACK')}`, 760);
         }
       } else {
         content += text(540, 1090, 54, t('La musique suit tes pas', 'Music follows your steps'), 760);
       }
     } else if (v.id === 'live-music') {
-      content += header(t('EN COURSE', 'IN RUN'));
+      content += header(t('MON RYTHME', 'MY RHYTHM'));
       content += text(540, 325, 58, t('DANS MES OREILLES', 'NOW PLAYING'), 850, ink, 'middle', 940);
-      if (d.title) {
-        content += music(d.title, d.artist, 440, 74);
+      if (chosenTitle) {
+        content += music(chosenTitle, chosenArtist, 440, 74);
       } else {
         content += text(540, 535, 62, t('La musique suit tes pas', 'Music follows your steps'), 800);
       }
       content += line(710);
-      if (d.trackBpm !== null) {
-        content += metric(540, 925, d.trackBpm, 'BPM', 190, 58);
+      if (chosenBpm !== null) {
+        content += metric(540, 925, chosenBpm, 'BPM', 190, 58);
         content += text(540, 995, 46, t('MORCEAU', 'TRACK'), 800);
       }
       if (d.ppm !== null) {
@@ -232,11 +245,11 @@
           960
         );
       }
-      const liveSteps = stepText(d.steps);
+      const liveSteps = stepText(d.steps ?? d.runSteps);
       if (liveSteps) content += text(540, 1240, 46, liveSteps, 700, ink, 'middle', 940);
     } else if (v.id === 'recap-rhythm') {
-      content += header(t('RÉCAP DE COURSE', 'RUN RECAP'));
-      content += text(540, 325, 58, t('MA CADENCE', 'MY CADENCE'), 850, ink, 'middle', 940);
+      content += header(t('MON RYTHME', 'MY RHYTHM'));
+      content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
       if (d.avgPpm !== null) {
         content += metric(540, 595, d.avgPpm, t('PPM', 'SPM'), 215, 60);
         content += text(
@@ -251,22 +264,16 @@
       }
       if (runMeta) content += text(540, 820, 44, runMeta, 720, ink, 'middle', 980);
       content += line(925);
-      if (d.avgMusicBpm !== null) {
-        content += text(
-          540,
-          1080,
-          60,
-          `${d.avgMusicBpm} BPM · ${t('MUSIQUE', 'MUSIC')}`,
-          800,
-          ink,
-          'middle',
-          940
-        );
+      content += text(540, 995, 42, t('MORCEAU CHOISI', 'CHOSEN TRACK'), 800);
+      if (chosenTitle) {
+        content += music(chosenTitle, chosenArtist, 1070, 55);
+        if (chosenBpm !== null) content += text(540, 1290, 42, `${chosenBpm} BPM`, 760);
+      } else {
+        content += text(540, 1120, 48, t('CHOISIS UN MORCEAU', 'CHOOSE A TRACK'), 780);
       }
-      content += text(540, 1230, 40, t('LA MUSIQUE SUIT TES PAS', 'MUSIC FOLLOWS YOUR STEPS'), 700);
     } else {
-      content += header(t('RÉCAP DE COURSE', 'RUN RECAP'));
-      content += text(540, 325, 58, t('MORCEAU', 'TRACK'), 850, ink, 'middle', 940);
+      content += header(t('MON RYTHME', 'MY RHYTHM'));
+      content += text(540, 325, 58, t('MON MORCEAU', 'MY TRACK'), 850, ink, 'middle', 940);
       if (!selectedTrack) {
         content += text(540, 585, 58, t('CHOISIS UN MORCEAU', 'CHOOSE A TRACK'), 850);
         content += text(540, 665, 42, t('DANS LE MENU DE PARTAGE', 'IN THE SHARE MENU'), 650);
