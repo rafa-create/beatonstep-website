@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Connectivité Garmin — BeatOnStep</title>
-  <meta name="description" content="Garmin et BeatOnStep : suivi de course sur la montre et cadence connectée à la musique en préparation pour la version 1.7.0.">
+  <meta name="description" content="Garmin et BeatOnStep : course autonome vers Garmin Connect et Strava, musique autonome sur mobile, et PPM Garmin plus précis pour la musique en 1.7.0.">
   <link rel="canonical" href="https://rafa-create.github.io/beatonstep-website/garmin.html">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Connectivité Garmin — BeatOnStep">
-  <meta property="og:description" content="La montre pour la course. BeatOnStep mobile pour la musique. Connexion prévue pour la 1.7.0.">
+  <meta property="og:description" content="Garmin pour enregistrer la course. BeatOnStep mobile pour la musique. Ensemble, un PPM plus précis.">
   <meta property="og:url" content="https://rafa-create.github.io/beatonstep-website/garmin.html">
   <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/assets/brand/og-image.jpg">
   <link rel="icon" href="assets/brand/logo-400.jpg" type="image/jpeg">
@@ -20,8 +20,8 @@
     document.documentElement.setAttribute("data-theme", "dark");
     window.BOS_TITLES = {fr:"Connectivité Garmin — BeatOnStep",en:"Garmin connectivity — BeatOnStep"};
     window.BOS_DESC = {
-      fr:"Garmin et BeatOnStep : suivi de course autonome, connexion cadence et musique en préparation pour la version 1.7.0.",
-      en:"Garmin and BeatOnStep: standalone run tracking, with watch cadence-to-music connection planned for version 1.7.0."
+      fr:"Garmin et BeatOnStep : activité autonome vers Garmin Connect et Strava, musique autonome sur mobile, et cadence Garmin plus précise pour la musique en 1.7.0.",
+      en:"Garmin and BeatOnStep: standalone run recording to Garmin Connect and Strava, standalone mobile music, and more accurate Garmin cadence for music matching in version 1.7.0."
     };
   </script>
   <script src="i18n.js"></script>
@@ -51,68 +51,46 @@
     <main class="garmin-page" id="main">
       <a class="garmin-back" data-fr data-keep-lang data-href="./" href="./">← Retour à l’accueil</a>
       <a class="garmin-back" data-en data-keep-lang data-href="./" href="./">← Back to home</a>
+
       <div class="garmin-intro-block">
-        <p class="garmin-status" data-fr>Application Garmin sur Connect IQ · Connexion mobile prévue en 1.7.0</p>
-        <p class="garmin-status" data-en>Garmin app on Connect IQ · Phone connection planned for 1.7.0</p>
-        <h1 data-fr>Garmin pour la course.<br>BeatOnStep pour la musique.</h1>
-        <h1 data-en>Garmin for your run.<br>BeatOnStep for the music.</h1>
-        <p class="garmin-intro" data-fr>Deux applications complémentaires : la montre enregistre ta sortie, le téléphone s’occupe de la musique. La connexion de la cadence Garmin à BeatOnStep mobile est prévue pour la version 1.7.0.</p>
-        <p class="garmin-intro" data-en>Two complementary apps: the watch tracks your run, while your phone handles the music. Connecting watch cadence to BeatOnStep mobile is planned for version 1.7.0.</p>
+        <p class="garmin-status" data-fr>Application Garmin sur Connect IQ · Liaison PPM au mobile prévue en 1.7.0</p>
+        <p class="garmin-status" data-en>Garmin app on Connect IQ · Watch cadence link planned for 1.7.0</p>
+
+        <h1 data-fr>Garmin enregistre ta course.<br>BeatOnStep gère ta musique.</h1>
+        <h1 data-en>Garmin records your run.<br>BeatOnStep handles your music.</h1>
+
+        <p class="garmin-intro" data-fr>Les deux applications fonctionnent chacune de façon autonome. Sur la Garmin, BeatOnStep enregistre ta sortie dans Garmin Connect, qui peut ensuite la synchroniser vers Strava. Sur le téléphone, BeatOnStep gère la musique sans dépendre de la montre. Quand les deux sont connectés, l’app mobile s’appuie sur la cadence mesurée par la Garmin pour obtenir un PPM plus précis et choisir la musique.</p>
+        <p class="garmin-intro" data-en>Each app works independently. On Garmin, BeatOnStep records your run to Garmin Connect, which can then sync it to Strava. On your phone, BeatOnStep handles music without depending on the watch. When both are connected, the mobile app uses cadence measured by Garmin for a more accurate step rate and better music matching.</p>
+
         <div class="garmin-store-action">
           <a class="btn btn-ghost" data-fr href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">Voir BeatOnStep sur Garmin Connect IQ ↗</a>
           <a class="btn btn-ghost" data-en href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">View BeatOnStep on Garmin Connect IQ ↗</a>
         </div>
       </div>
-      <section aria-label="Garmin et mobile">
+
+      <section aria-label="Garmin et BeatOnStep">
         <div class="garmin-columns">
-          <div class="garmin-column"><h3 data-fr>La montre</h3><h3 data-en>The watch</h3>
-            <p data-fr>Une application de course autonome : démarrage, mesures sportives, pause, reprise et enregistrement.</p>
-            <p data-en>A standalone running app: start, running metrics, pause, resume and saving activities.</p></div>
-          <div class="garmin-column"><h3 data-fr>Le téléphone</h3><h3 data-en>The phone</h3>
-            <p data-fr>BeatOnStep choisit les titres selon la cadence et gère la lecture musicale.</p>
-            <p data-en>BeatOnStep matches tracks to your cadence and manages music playback.</p></div>
-          <div class="garmin-column"><h3 data-fr>Les deux · objectif 1.7.0</h3><h3 data-en>Both · 1.7.0 goal</h3>
-            <p data-fr>La montre pourra fournir le PPM au téléphone, prioritaire tant que le signal est disponible.</p>
-            <p data-en>The watch will supply cadence to the phone, prioritized while a fresh signal is available.</p></div>
+          <div class="garmin-column">
+            <h3 data-fr>Garmin → Garmin Connect → Strava</h3>
+            <h3 data-en>Garmin → Garmin Connect → Strava</h3>
+            <p data-fr><strong>Autonome.</strong> La montre enregistre la sortie avec l’app BeatOnStep, sans avoir besoin de l’app mobile pour sauvegarder l’activité.</p>
+            <p data-en><strong>Standalone.</strong> The watch records the run with the BeatOnStep app, without needing the mobile app to save the activity.</p>
+          </div>
+          <div class="garmin-column">
+            <h3 data-fr>Musique BeatOnStep</h3>
+            <h3 data-en>BeatOnStep music</h3>
+            <p data-fr><strong>Autonome.</strong> L’app BeatOnStep sur le téléphone détecte le rythme et gère la musique même sans Garmin.</p>
+            <p data-en><strong>Standalone.</strong> The BeatOnStep phone app detects your rhythm and handles music even without Garmin.</p>
+          </div>
+          <div class="garmin-column">
+            <h3 data-fr>Ensemble : PPM plus précis</h3>
+            <h3 data-en>Together: more accurate cadence</h3>
+            <p data-fr>Avec la liaison Garmin, l’app mobile utilise en priorité le <strong>PPM mesuré au poignet</strong> pour adapter la musique plus précisément à tes pas.</p>
+            <p data-en>With the Garmin link, the mobile app prioritizes <strong>wrist-measured cadence</strong> to match music more accurately to your steps.</p>
+          </div>
         </div>
       </section>
-      <section>
-        <h2 data-fr>Fonctions prévues sur la Garmin</h2><h2 data-en>Planned Garmin features</h2>
-        <ul class="garmin-list" data-fr>
-          <li>Démarrer une <strong>activité de course</strong> sans dépendre du téléphone.</li>
-          <li>Voir le <strong>temps, la distance, l’allure, la cadence (PPM), la fréquence cardiaque, la vitesse, les calories, l’altitude</strong> et certaines moyennes, selon les données fournies par la montre.</li>
-          <li>Consulter et <strong>personnaliser les écrans de données</strong>, avec navigation tactile et par boutons.</li>
-          <li>Mettre en pause, reprendre, créer un tour, enregistrer ou abandonner la sortie.</li>
-          <li>Sauvegarder une activité au format <strong>FIT Running</strong>, destinée à apparaître dans Garmin Connect après synchronisation.</li>
-        </ul>
-        <ul class="garmin-list" data-en>
-          <li>Start a <strong>running activity</strong> independently of the phone.</li>
-          <li>See <strong>time, distance, pace, cadence, heart rate, speed, calories, elevation</strong> and averages, depending on data available from the watch.</li>
-          <li>Browse and <strong>customize data screens</strong> with touch and button navigation.</li>
-          <li>Pause, resume, mark laps, save or discard a run.</li>
-          <li>Save a <strong>FIT Running</strong> activity intended to appear in Garmin Connect after syncing.</li>
-        </ul>
-        <p class="garmin-note" data-fr>Les fonctions et la navigation sont encore en cours de validation sur montre réelle. L’application ne reproduit pas toutes les fonctions propriétaires de l’activité Course native de Garmin.</p>
-        <p class="garmin-note" data-en>Features and navigation still require real-watch validation. This app does not reproduce every proprietary feature of Garmin’s built-in Running activity.</p>
-      </section>
-      <section>
-        <h2 data-fr>Connexion avec BeatOnStep mobile (objectif 1.7.0)</h2>
-        <h2 data-en>BeatOnStep mobile connection (1.7.0 goal)</h2>
-        <ol class="garmin-list" data-fr>
-          <li>Lancer l’activité BeatOnStep sur la Garmin et BeatOnStep sur le téléphone, dans n’importe quel ordre.</li>
-          <li>Lorsque les deux applications communiquent, BeatOnStep mobile privilégie la <strong>cadence de la montre</strong> pour choisir la musique.</li>
-          <li>Si la liaison se perd, le téléphone reprend sa <strong>propre détection des pas</strong> sans interrompre la musique, puis revient à la Garmin lorsque les mesures reviennent.</li>
-          <li>L’enregistrement de la course sur la montre reste indépendant de cette connexion.</li>
-        </ol>
-        <ol class="garmin-list" data-en>
-          <li>Start BeatOnStep on your Garmin and on your phone in either order.</li>
-          <li>Once connected, BeatOnStep mobile prioritizes <strong>watch cadence</strong> for music matching.</li>
-          <li>If the connection drops, the phone falls back to <strong>its own step detection</strong> without stopping music, then switches back when watch data returns.</li>
-          <li>The activity recorded on the watch remains independent of this connection.</li>
-        </ol>
-        <p class="garmin-note" data-fr>Cette partie n’est pas encore disponible : le lien natif Garmin ↔ téléphone et le basculement automatique nécessitent l’intégration et les tests de la version 1.7.0.</p>
-        <p class="garmin-note" data-en>This part is not available yet: the native Garmin-to-phone link and automatic fallback require integration and testing for version 1.7.0.</p>
-      </section>
+
       <section id="garmin-compatible-devices">
         <h2 data-fr>Montres Garmin compatibles</h2><h2 data-en>Compatible Garmin watches</h2>
         <p data-fr>Le manifeste Connect IQ de BeatOnStep référence actuellement <strong>23 modèles</strong> dans quatre gammes. Voici leur liste exacte, avec les variantes Music, S et Pro :</p>
@@ -165,18 +143,7 @@
         <p class="garmin-note" data-fr><strong>Important :</strong> cette liste correspond aux appareils déclarés dans le manifeste de l’application, pas à une certification de fonctionnement sur chaque montre. La Venu 2 est le premier modèle de référence pour les tests réels. Pour savoir si l’application peut être installée sur ta montre, consulte aussi la <a href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">fiche BeatOnStep sur Garmin Connect IQ</a>.</p>
         <p class="garmin-note" data-en><strong>Important:</strong> this list reflects devices declared in the app manifest, not verified performance on every watch. Venu 2 is the initial real-device test reference. To check whether the app can be installed on your watch, also consult the <a href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">BeatOnStep Garmin Connect IQ listing</a>.</p>
       </section>
-      <section class="garmin-faq">
-        <h2 data-fr>Questions fréquentes</h2><h2 data-en>Frequently asked questions</h2>
-        <details><summary><span data-fr>Faut-il le téléphone pour enregistrer une activité ?</span><span data-en>Do I need my phone to record an activity?</span></summary>
-          <p data-fr>Non. L’application Garmin est conçue pour enregistrer la sortie seule. Le téléphone est nécessaire pour la musique BeatOnStep.</p>
-          <p data-en>No. The Garmin app is designed to record a run on its own. The phone is needed for BeatOnStep music.</p></details>
-        <details><summary><span data-fr>La montre jouera-t-elle la musique ?</span><span data-en>Will the watch play the music?</span></summary>
-          <p data-fr>Non. La musique continue d’être gérée par l’application BeatOnStep sur le téléphone.</p>
-          <p data-en>No. Music remains managed by the BeatOnStep phone app.</p></details>
-        <details><summary><span data-fr>Où télécharger l’application Garmin ?</span><span data-en>Where can I download the Garmin app?</span></summary>
-          <p data-fr>Retrouve <a href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">BeatOnStep sur Garmin Connect IQ</a>. La fiche Connect IQ indique les montres éligibles au téléchargement ; la liaison avec BeatOnStep mobile est encore prévue pour la 1.7.0.</p>
-          <p data-en>Find <a href="https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880" target="_blank" rel="noopener noreferrer">BeatOnStep on Garmin Connect IQ</a>. The Connect IQ listing shows which devices can download it; the BeatOnStep phone connection is still planned for 1.7.0.</p></details>
-      </section>
+
       <section class="garmin-footer">
         <a data-fr data-keep-lang data-href="./" href="./">← Retour à BeatOnStep</a>
         <a data-en data-keep-lang data-href="./" href="./">← Back to BeatOnStep</a>
