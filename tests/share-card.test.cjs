@@ -1,127 +1,141 @@
 const assert = require('node:assert/strict');
 const card = require('../share-card.js');
 
-const input = {
-  v:1,
-  lang:'fr',
-  ppm:71,
-  cadence:'target',
-  trackBpm:142,
-  steps:3245,
-  title:'A & B <live> 🎵',
-  artist:'Unknown Artist'
+const live = {
+  v: 1,
+  lang: 'fr',
+  shareContext: 'live',
+  ppm: 88,
+  cadence: 'measured',
+  trackBpm: 151,
+  steps: 8,
+  title: "It's A Man's Man's Man's World",
+  artist: 'James Brown',
 };
 
-assert.equal(card.variants.length,4);
-const compactVariant = card.variants.find(v => v.id === 'compact');
-assert.equal(compactVariant.width,1200);
-assert.equal(compactVariant.height,630);
-assert.equal(card.variants.find(v => v.id === 'music').en,'Now playing');
-assert.equal(card.variants.find(v => v.id === 'soundtrack').fr,'Morceau de la course');
-assert.equal(card.variants.find(v => v.id === 'soundtrack').en,'Track of the run');
-assert.equal(card.variants.find(v => v.id === 'rhythm').fr,'Ma cadence');
-assert.equal(card.variants.find(v => v.id === 'rhythm').en,'My cadence');
-
-assert.equal(card.normalize(input).artist,'');
-assert.equal(card.normalize({...input,trackBpm:Infinity}).trackBpm,null);
-assert.equal(card.normalize({v:1,ppm:'170',steps:Infinity}).ppm,null);
-assert.equal(card.normalize({...input,trackBpm:401}).trackBpm,null);
-
-for(const v of card.variants){
-  const svg=card.render(input,v.id);
-  assert(svg.includes('142'));
-  assert(!svg.includes('Unknown Artist'));
-  assert(!svg.includes('<live>'));
-  assert(svg.includes('&amp;'));
-  assert(svg.includes('71'));
-  assert(svg.includes(`viewBox="0 0 ${v.width} ${v.height}"`));
-  assert(!svg.includes('<rect width="1080" height="1920"'));
-  assert(svg.includes('#fcea07'));
-
-  assert(!card.render({v:1,title:'<script>alert(1)</script>'},v.id).includes('<script>'));
-  assert(!card.render({v:2,ppm:170},v.id).includes('>170</text>'));
-  assert(!card.render({v:1,title:'Title'},v.id).includes('null'));
-}
-
-const run = {
-  ...input,
-  lang:'en',
-  cadence:'measured',
-  avgPpm:63,
-  avgMusicBpm:173,
-  runCadence:'measured',
-  trackOfRunTitle:'Air',
-  trackOfRunArtist:'Scott Buckley',
-  trackOfRunBpm:199,
-  sessionSec:60,
-  runSteps:21,
-  trackCount:3
+const recap = {
+  v: 1,
+  lang: 'fr',
+  shareContext: 'recap',
+  ppm: 164,
+  cadence: 'measured',
+  avgPpm: 164,
+  avgMusicBpm: 162,
+  sessionSec: 1920,
+  runSteps: 4832,
+  trackCount: 9,
+  runCadence: 'measured',
+  runTracks: [
+    {
+      title: "It's A Man's Man's Man's World",
+      artist: 'James Brown',
+      bpm: 151,
+      listenedSeconds: 181,
+      avgRunnerPpm: 166,
+      stepCount: 498,
+    },
+    {
+      title: 'Second Track',
+      artist: 'Another Artist',
+      bpm: 160,
+      listenedSeconds: 120,
+      avgRunnerPpm: 162,
+      stepCount: 322,
+    },
+  ],
 };
 
-assert(card.render({...input,lang:'en'},'rhythm').includes('TARGET CADENCE'));
-assert(card.render({...input,lang:'en',cadence:'measured'},'rhythm').includes('CURRENT TRACK'));
-assert(card.render({...input,lang:'fr',cadence:'measured'},'rhythm').includes('MORCEAU EN COURS'));
-assert(card.render({...input,lang:'en',cadence:'measured'},'music').includes('CURRENT CADENCE'));
-assert(card.render({...input,lang:'fr',cadence:'measured'},'music').includes('CADENCE ACTUELLE'));
+assert.equal(card.variants.length, 4);
+assert.deepEqual(card.variantsFor(live).map(v => v.id), ['live-rhythm', 'live-music']);
+assert.deepEqual(card.variantsFor(recap).map(v => v.id), ['recap-rhythm', 'recap-track']);
+assert(card.variants.every(v => v.width === 1080 && v.height === 1350));
 
-const soundtrack = card.render(run,'soundtrack');
-assert(soundtrack.includes('TRACK OF THE RUN'));
-assert(soundtrack.includes('199 BPM'));
-assert(soundtrack.includes('AVERAGE MUSIC'));
-assert(soundtrack.includes('AVERAGE CADENCE'));
+const normalizedLive = card.normalize({
+  ...live,
+  artist: 'Unknown Artist',
+  trackBpm: Infinity,
+});
+assert.equal(normalizedLive.artist, '');
+assert.equal(normalizedLive.trackBpm, null);
 
-const shortRun = {
-  v:1,
-  lang:'fr',
-  ppm:108,
-  cadence:'measured',
-  trackBpm:118,
-  steps:13,
-  title:'Alien',
-  artist:'Dennis Lloyd',
-  avgPpm:108,
-  avgMusicBpm:118,
-  runCadence:'measured',
-  trackOfRunTitle:'Alien',
-  trackOfRunArtist:'Dennis Lloyd',
-  trackOfRunBpm:118,
-  sessionSec:60,
-  runSteps:13,
-  trackCount:1
-};
+const liveRhythm = card.render(live, 'live-rhythm');
+assert(liveRhythm.includes('EN COURSE'));
+assert(liveRhythm.includes('MA CADENCE'));
+assert(liveRhythm.includes('88'));
+assert(liveRhythm.includes('8 PAS'));
+assert(liveRhythm.includes('MORCEAU EN COURS'));
+assert(liveRhythm.includes('151 BPM · MORCEAU'));
+assert(!liveRhythm.includes('pas détectés'));
+assert(!liveRhythm.includes('RYTHME DU MORCEAU'));
+assert(!liveRhythm.includes('RÉCAP DE COURSE'));
 
-const shortRhythm = card.render(shortRun,'rhythm');
-assert(!shortRhythm.includes('pas / minute'));
-assert(!shortRhythm.includes('RYTHME DU MORCEAU'));
-assert(shortRhythm.includes('>118 BPM</text>'));
+const liveMusic = card.render(live, 'live-music');
+assert(liveMusic.includes('EN COURSE'));
+assert(liveMusic.includes('DANS MES OREILLES'));
+assert(liveMusic.includes('151'));
+assert(liveMusic.includes('MORCEAU'));
+assert(liveMusic.includes('88 PPM · MA CADENCE'));
+assert(liveMusic.includes('8 PAS'));
+assert(!liveMusic.includes('CADENCE ACTUELLE'));
 
-const shortMusic = card.render(shortRun,'music');
-assert(!shortMusic.includes('RYTHME DU MORCEAU'));
-assert(shortMusic.includes('108 PPM · CADENCE ACTUELLE'));
+const recapRhythm = card.render(recap, 'recap-rhythm');
+assert(recapRhythm.includes('RÉCAP DE COURSE'));
+assert(recapRhythm.includes('MA CADENCE'));
+assert(recapRhythm.includes('164'));
+assert(recapRhythm.includes('MOYENNE'));
+assert(recapRhythm.includes('32 MIN · 9 MORCEAUX · 4 832 PAS'));
+assert(recapRhythm.includes('162 BPM · MUSIQUE'));
+assert(!recapRhythm.includes('EN COURSE'));
 
-const shortSoundtrack = card.render(shortRun,'soundtrack');
-assert.equal((shortSoundtrack.match(/118 BPM/g) || []).length,1);
-assert(!shortSoundtrack.includes('MUSIQUE MOYENNE'));
-assert(!shortSoundtrack.includes('BPM MOYENS'));
-assert(shortSoundtrack.includes('108 PPM · CADENCE MOYENNE'));
+const recapTrackEmpty = card.render(recap, 'recap-track');
+assert(recapTrackEmpty.includes('RÉCAP DE COURSE'));
+assert(recapTrackEmpty.includes('MORCEAU'));
+assert(recapTrackEmpty.includes('CHOISIS UN MORCEAU'));
 
-const oneLineMusic = card.render(shortRun,'music');
-assert(oneLineMusic.includes('x="540" y="410"'));
-assert(oneLineMusic.includes('x="540" y="482"'));
+const recapTrack = card.render({ ...recap, selectedTrackIndex: 0 }, 'recap-track');
+assert(recapTrack.includes('James Brown'));
+assert(recapTrack.includes('151'));
+assert(recapTrack.includes('166 PPM · MA MOYENNE'));
+assert(recapTrack.includes('3 MIN · 498 PAS'));
+assert(!recapTrack.includes('CHOISIS UN MORCEAU'));
 
-const twoLineRun = {...shortRun,title:'A very long title that wraps cleanly',artist:'Artist'};
-const twoLineMusic = card.render(twoLineRun,'music');
-assert(twoLineMusic.includes('x="540" y="410"'));
-assert(twoLineMusic.includes('x="540" y="486"'));
-assert(twoLineMusic.includes('x="540" y="558"'));
+const fixedRecapTrack = card.render({
+  ...recap,
+  runCadence: 'target',
+  selectedTrackIndex: 1,
+}, 'recap-track');
+assert(fixedRecapTrack.includes('162 PPM · CIBLE'));
 
-const compact = card.render(run,'compact');
-assert(compact.includes('TRACK TEMPO'));
-assert(compact.includes('SPM'));
-assert(!compact.includes('63 SPM / 199 BPM'));
+const escaped = card.render({
+  ...live,
+  title: 'A & B <live> 🎵',
+  artist: 'Élodie',
+}, 'live-rhythm');
+assert(escaped.includes('&amp;'));
+assert(!escaped.includes('<live>'));
+assert(!escaped.includes('<script>'));
 
-assert(card.render(input,'rhythm','dark').includes('#11140f'));
-assert(card.render(input,'rhythm').includes('clip-path="url(#brandLogoClip)"'));
-assert(card.render(input,'compact').includes('x="390" y="50" width="80" height="80"'));
+const english = card.render({ ...live, lang: 'en' }, 'live-music');
+assert(english.includes('IN RUN'));
+assert(english.includes('NOW PLAYING'));
+assert(english.includes('88 SPM · MY CADENCE'));
 
-console.log('4 variants, 1200x630 compact, FR/EN hierarchy, BPM vs PPM, escaping: passed');
+assert(card.render(live, 'live-rhythm', 'dark').includes('#11140f'));
+assert(card.render(live, 'live-rhythm').includes('clip-path="url(#brandLogoClip)"'));
+
+const legacyRecap = card.normalize({
+  v: 1,
+  lang: 'fr',
+  avgPpm: 150,
+  sessionSec: 60,
+  runSteps: 100,
+  trackCount: 1,
+  trackOfRunTitle: 'Legacy Track',
+  trackOfRunArtist: 'Legacy Artist',
+  trackOfRunBpm: 149,
+});
+assert.equal(legacyRecap.shareContext, 'recap');
+assert.equal(legacyRecap.runTracks.length, 1);
+assert.equal(legacyRecap.runTracks[0].title, 'Legacy Track');
+
+console.log('4 total variants, 2 per context, recap track picker payload, shortened labels: passed');

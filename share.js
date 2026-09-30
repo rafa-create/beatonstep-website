@@ -3,25 +3,40 @@
   const $ = id => document.getElementById(id);
   let input = {}, invalid = false;
   try {
-    if (location.hash.length > 8000) throw new Error('Too long');
+    if (location.hash.length > 16000) throw new Error('Too long');
     if (location.hash.length > 1) {
       input = JSON.parse(decodeURIComponent(location.hash.slice(1)));
       if (!input || input.v !== 1) throw new Error('Unknown version');
     }
-  } catch { input = {}; invalid = true; }
+  } catch {
+    input = {};
+    invalid = true;
+  }
   history.replaceState(null, '', location.pathname + location.search);
 
   const card = window.BeatOnStepCard;
   const data = card.normalize(input);
   const t = (fr, en) => data.lang === 'en' ? en : fr;
   let labels = {};
+  let variants = card.variantsFor(data);
+  let selected = variants[0]?.id || 'live-rhythm';
+  let tone = 'light';
+  let generation = 0;
+  let assets = null;
+  let previewUrls = [];
+  let toastTimer;
 
   function applyLanguage() {
     document.documentElement.lang = data.lang;
+    const recap = data.shareContext === 'recap';
     labels = {
-      heading: t('Partager mon rythme', 'Share my rhythm'),
-      intro: t('La musique suit tes pas.', 'Music follows your steps.'),
-      'gallery-label': t('4 styles · une même course', '4 styles · one run'),
+      heading: recap ? t('Partager le récap', 'Share run recap') : t('Partager en course', 'Share in run'),
+      intro: recap
+        ? t('Choisis le visuel à partager.', 'Choose the card to share.')
+        : t('Ta cadence et le morceau en cours.', 'Your cadence and current track.'),
+      'gallery-label': recap
+        ? t('2 styles · récap de course', '2 styles · run recap')
+        : t('2 styles · en course', '2 styles · in run'),
       light: t('Clair', 'Light'),
       dark: t('Sombre', 'Dark'),
       share: t('Partager', 'Share'),
@@ -29,8 +44,15 @@
       'selection-label': t('Visuel sélectionné', 'Selected design'),
       'save-help': t('Appui long puis « Enregistrer dans Photos ».', 'Touch and hold, then choose “Save to Photos”.'),
       'close-save': t('Fermer', 'Close'),
+      'track-select-label': t('Morceau du récap', 'Recap track'),
+      'track-help': t('Choisis le morceau à mettre en avant.', 'Choose the track to highlight.'),
+      trackPlaceholder: t('Choisir un morceau…', 'Choose a track…'),
+      noTracks: t('Aucun morceau enregistré', 'No recorded track'),
     };
-    Object.entries(labels).forEach(([id, value]) => { $(id).textContent = value; });
+    Object.entries(labels).forEach(([id, value]) => {
+      const element = $(id);
+      if (element) element.textContent = value;
+    });
     document.querySelector('.tones').setAttribute('aria-label', t('Couleur', 'Color'));
     document.querySelector('.lang').setAttribute('aria-label', t('Langue', 'Language'));
     document.querySelectorAll('.lang button').forEach(button => {
@@ -38,9 +60,6 @@
     });
   }
 
-  applyLanguage();
-
-  let toastTimer;
   function status(message, error = false) {
     clearTimeout(toastTimer);
     $('status').textContent = message;
@@ -48,23 +67,80 @@
     $('status').hidden = false;
     toastTimer = setTimeout(() => { $('status').hidden = true; }, 4500);
   }
+
   function setBusy(id, on) {
     $(id).disabled = on;
     $(id).textContent = on ? t('Ouverture…', 'Opening…') : labels[id];
   }
+
   function canShare(file) {
-    try { return !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); }
-    catch { return false; }
+    try {
+      return !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+    } catch {
+      return false;
+    }
   }
 
-  let selected = 'compact', tone = 'light', generation = 0, assets = null;
-  let previewUrls = [];
+  function formatNumber(value) {
+    return value.toLocaleString(data.lang === 'en' ? 'en-US' : 'fr-FR');
+  }
+
+  function formatDuration(seconds) {
+    if (!Number.isSafeInteger(seconds) || seconds <= 0) return '';
+    if (seconds < 60) return `${seconds} s`;
+    return `${Math.max(1, Math.round(seconds / 60))} min`;
+  }
+
+  function trackOptionLabel(track) {
+    const parts = [
+      track.artist ? `${track.title} — ${track.artist}` : track.title,
+      track.bpm !== null ? `${track.bpm} BPM` : '',
+      formatDuration(track.listenedSeconds),
+      track.stepCount !== null ? `${formatNumber(track.stepCount)} ${t('pas', 'steps')}` : '',
+    ].filter(Boolean);
+    return parts.join(' · ');
+  }
+
+  function populateTrackSelect() {
+    const select = $('track-select');
+    select.replaceChildren();
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = data.runTracks.length > 0 ? labels.trackPlaceholder : labels.noTracks;
+    select.appendChild(placeholder);
+
+    data.runTracks.forEach((track, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = trackOptionLabel(track);
+      select.appendChild(option);
+    });
+
+    select.disabled = data.runTracks.length === 0;
+    select.value =
+      data.selectedTrackIndex !== null && data.selectedTrackIndex < data.runTracks.length
+        ? String(data.selectedTrackIndex)
+        : '';
+  }
+
+  function updateTrackPicker() {
+    const show = data.shareContext === 'recap' && selected === 'recap-track';
+    $('track-picker').hidden = !show;
+  }
+
+  function releaseAssets() {
+    if (assets?.svgUrl) URL.revokeObjectURL(assets.svgUrl);
+    if (assets?.pngUrl) URL.revokeObjectURL(assets.pngUrl);
+    assets = null;
+  }
 
   function redrawGallery() {
     const old = previewUrls;
     previewUrls = [];
     $('gallery').replaceChildren();
-    for (const variant of card.variants) {
+
+    for (const variant of variants) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'tile';
@@ -72,65 +148,98 @@
       button.setAttribute('aria-pressed', String(selected === variant.id));
       const name = variant[data.lang];
       button.setAttribute('aria-label', name);
+
+      const unavailable = variant.id === 'recap-track' && data.runTracks.length === 0;
+      button.disabled = unavailable;
+      if (unavailable) button.setAttribute('aria-disabled', 'true');
+
       const thumb = document.createElement('span');
       thumb.className = 'thumb';
       const image = document.createElement('img');
       image.alt = name;
-      const url = URL.createObjectURL(new Blob([card.render(data, variant.id, tone)], { type: 'image/svg+xml' }));
+      const url = URL.createObjectURL(
+        new Blob([card.render(data, variant.id, tone)], { type: 'image/svg+xml' })
+      );
       previewUrls.push(url);
       image.src = url;
       thumb.appendChild(image);
+
       const check = document.createElement('span');
       check.className = 'check';
       check.textContent = '✓';
       check.setAttribute('aria-hidden', 'true');
+
       const label = document.createElement('span');
       label.className = 'tile-label';
       label.textContent = name;
+
       button.append(thumb, check, label);
       button.onclick = () => {
-        if (selected === variant.id) return;
+        if (selected === variant.id || button.disabled) return;
         selected = variant.id;
         prepare();
       };
       $('gallery').appendChild(button);
     }
+
     old.forEach(url => URL.revokeObjectURL(url));
   }
 
   function prepare() {
     const currentGeneration = ++generation;
-    if (assets?.svgUrl) URL.revokeObjectURL(assets.svgUrl);
-    if (assets?.pngUrl) URL.revokeObjectURL(assets.pngUrl);
-    assets = null;
-    $('share').disabled = true;
-    $('save').disabled = true;
-    $('share').textContent = t('Préparation…', 'Preparing…');
-    $('save').textContent = t('Préparation…', 'Preparing…');
-    const variant = card.variants.find(v => v.id === selected) || card.variants[0];
+    releaseAssets();
+
+    const variant = variants.find(item => item.id === selected) || variants[0];
     if (!variant) return;
     selected = variant.id;
     $('selection-name').textContent = variant[data.lang];
-    document.querySelectorAll('.tile').forEach(el => {
-      el.setAttribute('aria-pressed', String(el.dataset.variant === selected));
+
+    document.querySelectorAll('.tile').forEach(element => {
+      element.setAttribute('aria-pressed', String(element.dataset.variant === selected));
     });
-    const svgBlob = new Blob([card.render(data, selected, tone)], { type: 'image/svg+xml;charset=utf-8' });
+    updateTrackPicker();
+
+    const needsTrack = selected === 'recap-track';
+    const blocked = needsTrack && data.selectedTrackIndex === null;
+
+    $('share').disabled = true;
+    $('save').disabled = true;
+    $('share').textContent = blocked ? labels.share : t('Préparation…', 'Preparing…');
+    $('save').textContent = blocked ? labels.save : t('Préparation…', 'Preparing…');
+
+    if (blocked) return;
+
+    const svgBlob = new Blob(
+      [card.render(data, selected, tone)],
+      { type: 'image/svg+xml;charset=utf-8' }
+    );
     const svgUrl = URL.createObjectURL(svgBlob);
     const image = new Image();
+
     image.onload = () => {
-      if (currentGeneration !== generation) return;
+      if (currentGeneration !== generation) {
+        URL.revokeObjectURL(svgUrl);
+        return;
+      }
       const canvas = document.createElement('canvas');
       canvas.width = variant.width;
       canvas.height = variant.height;
       const ctx = canvas.getContext('2d');
-      if (!ctx) { fail(); return; }
+      if (!ctx) {
+        fail(svgUrl);
+        return;
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       canvas.toBlob(blob => {
-        if (currentGeneration !== generation || !blob) { fail(); return; }
+        if (currentGeneration !== generation || !blob) {
+          fail(svgUrl);
+          return;
+        }
         const pngUrl = URL.createObjectURL(blob);
         const name = `BeatOnStep-${selected}-${tone}.png`;
-        const pngFile = typeof File === 'function' ? new File([blob], name, { type: 'image/png' }) : null;
+        const pngFile =
+          typeof File === 'function' ? new File([blob], name, { type: 'image/png' }) : null;
         assets = { svgUrl, pngUrl, pngBlob: blob, pngFile, name };
         $('save-preview').src = pngUrl;
         $('share').disabled = false;
@@ -139,11 +248,15 @@
         $('save').textContent = labels.save;
       }, 'image/png');
     };
-    image.onerror = fail;
+    image.onerror = () => fail(svgUrl);
     image.src = svgUrl;
 
-    function fail() {
-      if (currentGeneration !== generation) return;
+    function fail(url) {
+      if (currentGeneration !== generation) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      URL.revokeObjectURL(url);
       $('share').textContent = labels.share;
       $('save').textContent = labels.save;
       status(t('Impossible de préparer le visuel.', 'Unable to prepare the image.'), true);
@@ -155,7 +268,17 @@
     $('save-preview').src = assets.pngUrl;
     $('save-panel').hidden = false;
   }
-  $('close-save').onclick = () => { $('save-panel').hidden = true; };
+
+  $('close-save').onclick = () => {
+    $('save-panel').hidden = true;
+  };
+
+  $('track-select').onchange = event => {
+    const value = event.target.value;
+    data.selectedTrackIndex = value === '' ? null : Number(value);
+    redrawGallery();
+    prepare();
+  };
 
   for (const choice of ['light', 'dark']) {
     $(choice).onclick = () => {
@@ -174,6 +297,7 @@
       if (next === data.lang) return;
       data.lang = next;
       applyLanguage();
+      populateTrackSelect();
       redrawGallery();
       prepare();
     };
@@ -190,7 +314,9 @@
     try {
       await navigator.share({ files: [current.pngFile] });
     } catch (error) {
-      if (!error || error.name !== 'AbortError') status(t('Partage indisponible.', 'Sharing unavailable.'), true);
+      if (!error || error.name !== 'AbortError') {
+        status(t('Partage indisponible.', 'Sharing unavailable.'), true);
+      }
     } finally {
       setBusy('share', false);
       $('share').disabled = !assets?.pngBlob;
@@ -216,6 +342,8 @@
     }
   };
 
+  applyLanguage();
+  populateTrackSelect();
   redrawGallery();
   prepare();
   if (invalid) status(t('Données indisponibles.', 'Data unavailable.'), true);
