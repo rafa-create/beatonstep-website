@@ -3,7 +3,7 @@
   const $ = id => document.getElementById(id);
   let input = {}, invalid = false;
   try {
-    if (location.hash.length > 16000) throw new Error('Too long');
+    if (location.hash.length > 65536) throw new Error('Too long');
     if (location.hash.length > 1) {
       input = JSON.parse(decodeURIComponent(location.hash.slice(1)));
       if (!input || input.v !== 1) throw new Error('Unknown version');
@@ -28,15 +28,10 @@
 
   function applyLanguage() {
     document.documentElement.lang = data.lang;
-    const recap = data.shareContext === 'recap';
     labels = {
-      heading: recap ? t('Partager le récap', 'Share run recap') : t('Partager en course', 'Share in run'),
-      intro: recap
-        ? t('Choisis le visuel à partager.', 'Choose the card to share.')
-        : t('Ta cadence et le morceau en cours.', 'Your cadence and current track.'),
-      'gallery-label': recap
-        ? t('2 styles · récap de course', '2 styles · run recap')
-        : t('2 styles · en course', '2 styles · in run'),
+      heading: t('Partager mon rythme', 'Share my rhythm'),
+      intro: t('Choisis un morceau écouté pendant la course et ton visuel.', 'Choose a track listened to during the run and your design.'),
+      'gallery-label': t('4 styles · une même course', '4 styles · one run'),
       light: t('Clair', 'Light'),
       dark: t('Sombre', 'Dark'),
       share: t('Partager', 'Share'),
@@ -44,10 +39,10 @@
       'selection-label': t('Visuel sélectionné', 'Selected design'),
       'save-help': t('Appui long puis « Enregistrer dans Photos ».', 'Touch and hold, then choose “Save to Photos”.'),
       'close-save': t('Fermer', 'Close'),
-      'track-select-label': t('Morceau du récap', 'Recap track'),
-      'track-help': t('Choisis le morceau à mettre en avant.', 'Choose the track to highlight.'),
+      'track-select-label': t('Morceau écouté pendant la course', 'Track played during the run'),
+      'track-help': t('Le choix s’applique aux quatre visuels.', 'The choice applies to all four designs.'),
       trackPlaceholder: t('Choisir un morceau…', 'Choose a track…'),
-      noTracks: t('Aucun morceau enregistré', 'No recorded track'),
+      noTracks: t('Aucun morceau écouté durant cette course', 'No track played during this run'),
     };
     Object.entries(labels).forEach(([id, value]) => {
       const element = $(id);
@@ -125,8 +120,7 @@
   }
 
   function updateTrackPicker() {
-    const show = data.shareContext === 'recap' && selected === 'recap-track';
-    $('track-picker').hidden = !show;
+    $('track-picker').hidden = false;
   }
 
   function releaseAssets() {
@@ -149,7 +143,7 @@
       const name = variant[data.lang];
       button.setAttribute('aria-label', name);
 
-      const unavailable = variant.id === 'recap-track' && data.runTracks.length === 0;
+      const unavailable = data.runTracks.length === 0;
       button.disabled = unavailable;
       if (unavailable) button.setAttribute('aria-disabled', 'true');
 
@@ -199,8 +193,7 @@
     });
     updateTrackPicker();
 
-    const needsTrack = selected === 'recap-track';
-    const blocked = needsTrack && data.selectedTrackIndex === null;
+    const blocked = data.selectedTrackIndex === null || data.runTracks.length === 0;
 
     $('share').disabled = true;
     $('save').disabled = true;
