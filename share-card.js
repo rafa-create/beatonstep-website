@@ -16,7 +16,7 @@
     const artist = clean(value, 100);
     return /^(unknown artist|artiste inconnu|unknown|inconnu)$/i.test(artist) ? '' : artist;
   }
-  function normalizeRunTrack(value) {
+  function normalizeRunTrack(value, allowUnknownDuration = false) {
     if (!value || typeof value !== 'object') return null;
     const title = clean(value.title, 160);
     if (!title) return null;
@@ -24,7 +24,7 @@
       Number.isSafeInteger(value.listenedSeconds) && value.listenedSeconds > 0 && value.listenedSeconds <= 86400 * 7
         ? value.listenedSeconds
         : null;
-    if (listenedSeconds === null) return null;
+    if (listenedSeconds === null && !allowUnknownDuration) return null;
     return {
       title,
       artist: normalizedArtist(value.artist),
@@ -58,12 +58,12 @@
           title: d.trackOfRunTitle,
           artist: d.trackOfRunArtist,
           bpm: d.trackOfRunBpm,
-          listenedSeconds: Number.isSafeInteger(d.trackOfRunListenedSeconds) && d.trackOfRunListenedSeconds > 0
-            ? d.trackOfRunListenedSeconds
-            : Math.max(1, Number.isSafeInteger(d.sessionSec) ? d.sessionSec : 1),
-          avgRunnerPpm: d.avgPpm,
-          stepCount: d.runSteps,
-        })
+          listenedSeconds: d.trackOfRunListenedSeconds,
+          // Ancien payload : statistiques par morceau inconnues, ne jamais
+          // attribuer la moyenne globale ou tous les pas au morceau.
+          avgRunnerPpm: null,
+          stepCount: null,
+        }, true)
       : null;
     if (runTracks.length === 0 && legacyTrack) runTracks = [legacyTrack];
 
