@@ -83,7 +83,7 @@ assert(recapRhythm.includes('RÉCAP DE COURSE'));
 assert(recapRhythm.includes('MA CADENCE'));
 assert(recapRhythm.includes('164'));
 assert(recapRhythm.includes('MOYENNE'));
-assert(recapRhythm.includes('32 MIN · 9 MORCEAUX · 4 832 PAS'));
+assert(recapRhythm.includes('32 MIN · 9 MORCEAUX · 4 832 PAS'));
 assert(recapRhythm.includes('162 BPM · MUSIQUE'));
 assert(!recapRhythm.includes('EN COURSE'));
 
