@@ -2054,3 +2054,8 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   .garmin-teaser { padding: 1.1rem; }
   .garmin-teaser-action a { white-space: normal; }
 }
+
+/* Garmin store link: compact secondary CTA without changing the main download actions. */
+.garmin-teaser-action { display: flex; flex-direction: column; align-items: flex-start; gap: .4rem; }
+.garmin-store-action { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0 0; }
+.garmin-store-action .btn { text-transform: none; font-size: .87rem; padding: .65rem 1rem; }
