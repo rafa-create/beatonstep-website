@@ -2059,3 +2059,42 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 .garmin-teaser-action { display: flex; flex-direction: column; align-items: flex-start; gap: .4rem; }
 .garmin-store-action { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0 0; }
 .garmin-store-action .btn { text-transform: none; font-size: .87rem; padding: .65rem 1rem; }
+
+/* Garmin compatibility: exact product list from garmin-connect-iq/manifest.xml. */
+.garmin-device-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem;
+  margin: 1.2rem 0 1.35rem;
+}
+.garmin-device-group {
+  min-width: 0;
+  padding: 1.05rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 46%, transparent);
+}
+.garmin-device-group h3 {
+  margin: 0 0 .6rem;
+  font-size: 1rem;
+}
+.garmin-device-group h3 span {
+  font-size: .81rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.garmin-device-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  columns: 1;
+}
+.garmin-device-group li {
+  padding: .2rem 0;
+  color: var(--muted);
+  font-size: .89rem;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .garmin-device-grid { grid-template-columns: 1fr; }
+}
