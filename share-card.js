@@ -200,7 +200,11 @@
         content += metric(540, 590, d.ppm, t('PPM', 'SPM'), 215, 60);
         content += text(
           540, 670, 45,
-          d.shareContext === 'recap' ? t('MOYENNE COURSE', 'RUN AVERAGE') : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
+          d.cadence === 'target'
+            ? t('CADENCE CIBLE', 'TARGET CADENCE')
+            : d.shareContext === 'recap'
+              ? t('MOYENNE COURSE', 'RUN AVERAGE')
+              : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
           750
         );
       } else {
