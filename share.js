@@ -3,7 +3,7 @@
   const $ = id => document.getElementById(id);
   let input = {}, invalid = false;
   try {
-    if (location.hash.length > 16000) throw new Error('Too long');
+    if (location.hash.length > 65536) throw new Error('Too long');
     if (location.hash.length > 1) {
       input = JSON.parse(decodeURIComponent(location.hash.slice(1)));
       if (!input || input.v !== 1) throw new Error('Unknown version');
