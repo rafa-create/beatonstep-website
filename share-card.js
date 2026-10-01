@@ -225,15 +225,23 @@
     const chosenArtist = selectedTrack?.artist ?? '';
     const chosenBpm = selectedTrack?.bpm ?? null;
 
-    const runMeta = [
+    const runMetaPrimary = [
       show('duration') ? runDuration(d.sessionSec) : '',
       show('distance') ? runDistance(d.runDistanceMeters) : '',
       show('pace') ? averagePace(d.runAveragePaceSecPerKm) : '',
+    ].filter(Boolean).join(' · ');
+    const runMetaSecondary = [
       show('steps') ? stepText(d.runSteps) : '',
       show('trackCount') && d.trackCount !== null && d.trackCount > 0
         ? `${d.trackCount} ${t(d.trackCount > 1 ? 'MUSIQUES' : 'MUSIQUE', d.trackCount > 1 ? 'TRACKS' : 'TRACK')}`
         : '',
     ].filter(Boolean).join(' · ');
+    const runMetaBlock = (firstY, gap = 58) => {
+      let block = '';
+      if (runMetaPrimary) block += text(540, firstY, 46, runMetaPrimary, 740, ink, 'middle', 980);
+      if (runMetaSecondary) block += text(540, firstY + (runMetaPrimary ? gap : 0), 46, runMetaSecondary, 740, ink, 'middle', 980);
+      return block;
+    };
     const averageMeta = [
       show('avgPpm') && d.avgPpm !== null ? `${d.avgPpm} ${t('PPM', 'SPM')}` : '',
       show('avgMusicBpm') && d.avgMusicBpm !== null ? `${d.avgMusicBpm} BPM` : '',
@@ -251,7 +259,7 @@
       if (d.shareContext === 'recap') {
         content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
         content += averageBlock(455, 575, 88);
-        if (runMeta) content += text(540, 725, 44, runMeta, 720, ink, 'middle', 1000);
+        content += runMetaBlock(710);
         content += line(835);
         if (chosenTitle) {
           content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
@@ -291,7 +299,7 @@
         if (chosenTitle) content += music(chosenTitle, chosenArtist, 430, 74);
         content += line(700);
         content += averageBlock(805, 905, 76);
-        if (runMeta) content += text(540, 1055, 44, runMeta, 720, ink, 'middle', 1000);
+        content += runMetaBlock(1040);
       } else {
         content += text(540, 325, 58, t('DANS MES OREILLES', 'NOW PLAYING'), 850, ink, 'middle', 940);
         if (chosenTitle) {
@@ -314,7 +322,7 @@
       content += header(t('MON RYTHME', 'MY RHYTHM'));
       content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
       content += averageBlock(455, 575, 88);
-      if (runMeta) content += text(540, 725, 44, runMeta, 720, ink, 'middle', 1000);
+      content += runMetaBlock(710);
       content += line(835);
       if (chosenTitle) {
         content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
@@ -326,7 +334,7 @@
       if (chosenTitle) content += music(chosenTitle, chosenArtist, 430, 74);
       content += line(700);
       content += averageBlock(805, 905, 76);
-      if (runMeta) content += text(540, 1055, 44, runMeta, 720, ink, 'middle', 1000);
+      content += runMetaBlock(1040);
     }
 
     return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${v.width}" height="${v.height}" viewBox="0 0 ${v.width} ${v.height}" role="img" aria-label="BeatOnStep"><defs><clipPath id="brandLogoClip" clipPathUnits="objectBoundingBox"><rect width="1" height="1" rx=".24" ry=".24"/></clipPath></defs><g font-family="Arial, Helvetica, sans-serif">${content}</g></svg>`;
