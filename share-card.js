@@ -73,6 +73,18 @@
       d.selectedTrackIndex < runTracks.length
         ? d.selectedTrackIndex
         : null;
+    const runDistanceSource =
+      d.runDistanceSource === 'garmin_mobile_stop' || d.runDistanceSource === 'garmin_watch_saved'
+        ? d.runDistanceSource
+        : null;
+    const runDistanceMeters =
+      runDistanceSource !== null &&
+      typeof d.runDistanceMeters === 'number' &&
+      Number.isFinite(d.runDistanceMeters) &&
+      d.runDistanceMeters >= 0 &&
+      d.runDistanceMeters <= 10000000
+        ? d.runDistanceMeters
+        : null;
 
     return {
       v: 1,
@@ -93,6 +105,8 @@
         : null,
       sessionSec: Number.isSafeInteger(d.sessionSec) && d.sessionSec >= 0 && d.sessionSec <= 86400 * 7 ? d.sessionSec : null,
       runSteps: Number.isSafeInteger(d.runSteps) && d.runSteps > 0 && d.runSteps <= 9999999 ? d.runSteps : null,
+      runDistanceMeters,
+      runDistanceSource,
       trackCount: Number.isSafeInteger(d.trackCount) && d.trackCount >= 0 && d.trackCount <= 9999 ? d.trackCount : null,
       runCadence: d.runCadence === 'target' ? 'target' : d.runCadence === 'measured' ? 'measured' : null,
       trackOfRunTitle: clean(d.trackOfRunTitle, 160),
@@ -149,6 +163,11 @@
       if (seconds < 60) return `${seconds} S`;
       return `${Math.max(1, Math.round(seconds / 60))} ${t('MIN', 'MIN')}`;
     };
+    const runDistance = meters => {
+      if (meters === null) return '';
+      const km = (meters / 1000).toFixed(2);
+      return `${d.lang === 'fr' ? km.replace('.', ',') : km} KM`;
+    };
     const music = (title, artist, y, size = 68) => {
       if (!title) return '';
       const lines = titleLines(title);
@@ -184,6 +203,7 @@
     const chosenBpm = selectedTrack?.bpm ?? null;
 
     const runMeta = [
+      runDistance(d.runDistanceMeters),
       runDuration(d.sessionSec),
       d.trackCount === null
         ? ''
