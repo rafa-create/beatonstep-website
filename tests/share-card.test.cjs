@@ -34,6 +34,7 @@ const run = {
   sessionSec: 1920,
   runSteps: 4832,
   runDistanceMeters: 12345.6,
+  runAveragePaceSecPerKm: 331,
   runDistanceSource: 'garmin_watch_saved',
   trackCount: 2,
   runCadence: 'measured',
@@ -94,7 +95,7 @@ const summary = card.render(first, 'recap-rhythm');
 assert(summary.includes('MA COURSE'));
 assert(summary.includes('164'));
 assert(summary.includes('MOYENNE'));
-assert(summary.includes('12,35 KM · 32 MIN · 2 MORCEAUX'));
+assert(summary.includes('12,35 KM · 5:31 /KM · 32 MIN · 2 MORCEAUX'));
 assert(summary.includes('4 832 PAS'));
 assert(summary.includes('James Brown'));
 
@@ -151,6 +152,7 @@ assert.equal(legacy.runTracks[0].avgRunnerPpm, null);
 assert.equal(legacy.runTracks[0].stepCount, null);
 assert.equal(legacy.runTracks[0].listenedSeconds, null);
 assert.equal(legacy.runDistanceMeters, null);
+assert.equal(legacy.runAveragePaceSecPerKm, null);
 assert.equal(card.normalize({
   ...run,
   runDistanceMeters: 999999,
