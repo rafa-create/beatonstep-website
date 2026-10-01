@@ -33,6 +33,8 @@ const run = {
   avgMusicBpm: 162,
   sessionSec: 1920,
   runSteps: 4832,
+  runDistanceMeters: 12345.6,
+  runDistanceSource: 'garmin_watch_saved',
   trackCount: 2,
   runCadence: 'measured',
   runTracks: playedTracks,
@@ -92,7 +94,7 @@ const summary = card.render(first, 'recap-rhythm');
 assert(summary.includes('MA COURSE'));
 assert(summary.includes('164'));
 assert(summary.includes('MOYENNE'));
-assert(summary.includes('32 MIN · 2 MORCEAUX'));
+assert(summary.includes('12,35 KM · 32 MIN · 2 MORCEAUX'));
 assert(summary.includes('4 832 PAS'));
 assert(summary.includes('James Brown'));
 
@@ -148,5 +150,11 @@ assert.equal(legacy.runTracks[0].title, 'Legacy Track');
 assert.equal(legacy.runTracks[0].avgRunnerPpm, null);
 assert.equal(legacy.runTracks[0].stepCount, null);
 assert.equal(legacy.runTracks[0].listenedSeconds, null);
+assert.equal(legacy.runDistanceMeters, null);
+assert.equal(card.normalize({
+  ...run,
+  runDistanceMeters: 999999,
+  runDistanceSource: 'untrusted',
+}).runDistanceMeters, null);
 
 console.log('Four shared story templates, one played-track selector, session stats and escaping: passed');
