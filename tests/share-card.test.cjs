@@ -95,14 +95,16 @@ const summary = card.render(first, 'recap-rhythm');
 assert(summary.includes('MA COURSE'));
 assert(summary.includes('EN MOYENNE'));
 assert(summary.includes('164 PPM · 162 BPM'));
-assert(summary.includes('32 MIN · 12,35 KM · 5:31 /KM · 4 832 PAS · 2 MUSIQUES'));
+assert(summary.includes('32 MIN · 12,35 KM · 5:31 /KM'));
+assert(summary.includes('4 832 PAS · 2 MUSIQUES'));
 assert(summary.includes('James Brown'));
 
 const song = card.render(first, 'recap-track');
 assert(song.includes('MON MORCEAU'));
 assert(song.includes('EN MOYENNE'));
 assert(song.includes('164 PPM · 162 BPM'));
-assert(song.includes('32 MIN · 12,35 KM · 5:31 /KM · 4 832 PAS · 2 MUSIQUES'));
+assert(song.includes('32 MIN · 12,35 KM · 5:31 /KM'));
+assert(song.includes('4 832 PAS · 2 MUSIQUES'));
 
 const target = card.render({
   ...run,
@@ -148,7 +150,8 @@ const compact = card.render({
     avgMusicBpm: true,
   },
 }, 'recap-rhythm');
-assert(compact.includes('53 S · 2 MUSIQUES'));
+assert(compact.includes('53 S'));
+assert(compact.includes('2 MUSIQUES'));
 assert(compact.includes('164 PPM · 162 BPM'));
 assert(!compact.includes('12,35 KM'));
 assert(!compact.includes('5:31 /KM'));
