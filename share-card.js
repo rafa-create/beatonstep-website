@@ -144,6 +144,11 @@
     return [chars.slice(0, at).join(''), short(chars.slice(at).join('').trim(), 32)];
   }
   function render(input, variantId = 'live-rhythm', tone = 'light') {
+    const visibility =
+      input && typeof input === 'object' && input.visible && typeof input.visible === 'object'
+        ? input.visible
+        : {};
+    const show = key => visibility[key] !== false;
     const d = normalize(input);
     const allowed = variantsFor(d);
     const v = allowed.find(item => item.id === variantId) || allowed[0] || variants[0];
@@ -164,6 +169,7 @@
     const stepText = value => value === null ? '' : `${number(value)} ${t('PAS', 'STEPS')}`;
     const runDuration = seconds => {
       if (seconds === null) return '';
+      if (seconds < 60) return `${seconds} S`;
       if (seconds < 3600) return `${Math.max(1, Math.round(seconds / 60))} ${t('MIN', 'MIN')}`;
       return `${Math.floor(seconds / 3600)} H ${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}`;
     };
@@ -211,139 +217,124 @@
           ? t('MOYENNE COURSE', 'RUN AVERAGE')
           : t('MA CADENCE', 'MY CADENCE');
     const selectedTrack =
-      d.selectedTrackIndex === null ? null : d.runTracks[d.selectedTrackIndex] || null;
+      show('music') && d.selectedTrackIndex !== null
+        ? d.runTracks[d.selectedTrackIndex] || null
+        : null;
     // La sélection est la seule source des champs musicaux sur tous les SVG.
     const chosenTitle = selectedTrack?.title ?? '';
     const chosenArtist = selectedTrack?.artist ?? '';
     const chosenBpm = selectedTrack?.bpm ?? null;
 
-    const runMeta = [
-      runDistance(d.runDistanceMeters),
-      averagePace(d.runAveragePaceSecPerKm),
-      runDuration(d.sessionSec),
-      d.trackCount === null
-        ? ''
-        : `${d.trackCount} ${t(d.trackCount > 1 ? 'MORCEAUX' : 'MORCEAU', d.trackCount > 1 ? 'TRACKS' : 'TRACK')}`,
-      stepText(d.runSteps),
+    const runMetaPrimary = [
+      show('duration') ? runDuration(d.sessionSec) : '',
+      show('distance') ? runDistance(d.runDistanceMeters) : '',
+      show('pace') ? averagePace(d.runAveragePaceSecPerKm) : '',
     ].filter(Boolean).join(' · ');
+    const runMetaSecondary = [
+      show('steps') ? stepText(d.runSteps) : '',
+      show('trackCount') && d.trackCount !== null && d.trackCount > 0
+        ? `${d.trackCount} ${t(d.trackCount > 1 ? 'MUSIQUES' : 'MUSIQUE', d.trackCount > 1 ? 'TRACKS' : 'TRACK')}`
+        : '',
+    ].filter(Boolean).join(' · ');
+    const runMetaBlock = (firstY, gap = 58) => {
+      let block = '';
+      if (runMetaPrimary) block += text(540, firstY, 46, runMetaPrimary, 740, ink, 'middle', 980);
+      if (runMetaSecondary) block += text(540, firstY + (runMetaPrimary ? gap : 0), 46, runMetaSecondary, 740, ink, 'middle', 980);
+      return block;
+    };
+    const averageMeta = [
+      show('avgPpm') && d.avgPpm !== null ? `${d.avgPpm} ${t('PPM', 'SPM')}` : '',
+      show('avgMusicBpm') && d.avgMusicBpm !== null ? `${d.avgMusicBpm} BPM` : '',
+    ].filter(Boolean).join(' · ');
+    const averageBlock = (labelY, valueY, valueSize = 84) =>
+      averageMeta
+        ? text(540, labelY, 42, t('EN MOYENNE', 'AVERAGE'), 850, accent, 'middle', 940) +
+          text(540, valueY, valueSize, averageMeta, 850, ink, 'middle', 980)
+        : '';
 
     let content = '';
 
     if (v.id === 'live-rhythm') {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
-      content += text(540, 325, 58, liveCadenceLabel, 850, ink, 'middle', 940);
-      if (d.ppm !== null) {
-        content += metric(540, 590, d.ppm, t('PPM', 'SPM'), 215, 60);
-        content += text(
-          540, 670, 45,
-          d.cadence === 'target'
-            ? t('CADENCE CIBLE', 'TARGET CADENCE')
-            : d.shareContext === 'recap'
-              ? t('MOYENNE COURSE', 'RUN AVERAGE')
-              : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
-          750
-        );
-      } else {
-        content += text(540, 565, 64, t('Cadence en attente', 'Waiting for cadence'), 800);
-      }
-      const liveSteps = stepText(d.steps ?? d.runSteps);
-      if (liveSteps) content += text(540, 755, 48, liveSteps, 720, ink, 'middle', 940);
-      content += line(850);
-      content += text(540, 950, 44, t('MORCEAU CHOISI', 'CHOSEN TRACK'), 820);
-      if (chosenTitle) {
-        const trackY = 1040;
-        content += music(chosenTitle, chosenArtist, trackY, 60);
-        if (chosenBpm !== null) {
-          const bottom = musicBottomY(chosenTitle, chosenArtist, trackY, 60);
-          content += text(540, Math.min(bottom + 92, 1300), 46, `${chosenBpm} BPM · ${t('MORCEAU', 'TRACK')}`, 760);
+      if (d.shareContext === 'recap') {
+        content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
+        content += averageBlock(455, 575, 88);
+        content += runMetaBlock(710);
+        content += line(835);
+        if (chosenTitle) {
+          content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
+          content += music(chosenTitle, chosenArtist, 1010, 62);
         }
       } else {
-        content += text(540, 1090, 54, t('La musique suit tes pas', 'Music follows your steps'), 760);
+        content += text(540, 325, 58, liveCadenceLabel, 850, ink, 'middle', 940);
+        if (d.ppm !== null) {
+          content += metric(540, 590, d.ppm, t('PPM', 'SPM'), 215, 60);
+          content += text(
+            540, 670, 45,
+            d.cadence === 'target' ? t('CADENCE CIBLE', 'TARGET CADENCE') : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
+            750
+          );
+        } else {
+          content += text(540, 565, 64, t('Cadence en attente', 'Waiting for cadence'), 800);
+        }
+        const liveSteps = show('steps') ? stepText(d.steps ?? d.runSteps) : '';
+        if (liveSteps) content += text(540, 755, 48, liveSteps, 720, ink, 'middle', 940);
+        content += line(850);
+        if (show('music')) {
+          content += text(540, 950, 44, t('MORCEAU CHOISI', 'CHOSEN TRACK'), 820);
+          if (chosenTitle) {
+            const trackY = 1040;
+            content += music(chosenTitle, chosenArtist, trackY, 60);
+            if (chosenBpm !== null) {
+              const bottom = musicBottomY(chosenTitle, chosenArtist, trackY, 60);
+              content += text(540, Math.min(bottom + 92, 1300), 46, `${chosenBpm} BPM · ${t('MORCEAU', 'TRACK')}`, 760);
+            }
+          }
+        }
       }
     } else if (v.id === 'live-music') {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
-      content += text(540, 325, 58, t('DANS MES OREILLES', 'NOW PLAYING'), 850, ink, 'middle', 940);
-      if (chosenTitle) {
-        content += music(chosenTitle, chosenArtist, 440, 74);
+      if (d.shareContext === 'recap') {
+        content += text(540, 325, 58, chosenTitle ? t('DANS MES OREILLES', 'NOW PLAYING') : t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
+        if (chosenTitle) content += music(chosenTitle, chosenArtist, 430, 74);
+        content += line(700);
+        content += averageBlock(805, 905, 76);
+        content += runMetaBlock(1040);
       } else {
-        content += text(540, 535, 62, t('La musique suit tes pas', 'Music follows your steps'), 800);
+        content += text(540, 325, 58, t('DANS MES OREILLES', 'NOW PLAYING'), 850, ink, 'middle', 940);
+        if (chosenTitle) {
+          content += music(chosenTitle, chosenArtist, 440, 74);
+        } else if (show('music')) {
+          content += text(540, 535, 62, t('La musique suit tes pas', 'Music follows your steps'), 800);
+        }
+        content += line(710);
+        if (show('music') && chosenBpm !== null) {
+          content += metric(540, 925, chosenBpm, 'BPM', 190, 58);
+          content += text(540, 995, 46, t('MORCEAU', 'TRACK'), 800);
+        }
+        if (d.ppm !== null) {
+          content += text(540, 1125, 54, `${d.ppm} ${t('PPM', 'SPM')} · ${liveCadenceLabel}`, 780, ink, 'middle', 960);
+        }
+        const liveSteps = show('steps') ? stepText(d.steps ?? d.runSteps) : '';
+        if (liveSteps) content += text(540, 1240, 46, liveSteps, 700, ink, 'middle', 940);
       }
-      content += line(710);
-      if (chosenBpm !== null) {
-        content += metric(540, 925, chosenBpm, 'BPM', 190, 58);
-        content += text(540, 995, 46, t('MORCEAU', 'TRACK'), 800);
-      }
-      if (d.ppm !== null) {
-        content += text(
-          540,
-          1125,
-          54,
-          `${d.ppm} ${t('PPM', 'SPM')} · ${liveCadenceLabel}`,
-          780,
-          ink,
-          'middle',
-          960
-        );
-      }
-      const liveSteps = stepText(d.steps ?? d.runSteps);
-      if (liveSteps) content += text(540, 1240, 46, liveSteps, 700, ink, 'middle', 940);
     } else if (v.id === 'recap-rhythm') {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
       content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
-      if (d.avgPpm !== null) {
-        content += metric(540, 595, d.avgPpm, t('PPM', 'SPM'), 215, 60);
-        content += text(
-          540,
-          680,
-          48,
-          d.runCadence === 'target' ? t('CIBLE', 'TARGET') : t('MOYENNE', 'AVERAGE'),
-          820
-        );
-      } else {
-        content += text(540, 565, 64, t('Cadence indisponible', 'Cadence unavailable'), 800);
-      }
-      if (runMeta) content += text(540, 820, 44, runMeta, 720, ink, 'middle', 980);
-      content += line(925);
-      content += text(540, 995, 42, t('MORCEAU CHOISI', 'CHOSEN TRACK'), 800);
+      content += averageBlock(455, 575, 88);
+      content += runMetaBlock(710);
+      content += line(835);
       if (chosenTitle) {
-        content += music(chosenTitle, chosenArtist, 1070, 55);
-        if (chosenBpm !== null) content += text(540, 1290, 42, `${chosenBpm} BPM`, 760);
-      } else {
-        content += text(540, 1120, 48, t('CHOISIS UN MORCEAU', 'CHOOSE A TRACK'), 780);
+        content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
+        content += music(chosenTitle, chosenArtist, 1010, 62);
       }
     } else {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
-      content += text(540, 325, 58, t('MON MORCEAU', 'MY TRACK'), 850, ink, 'middle', 940);
-      if (!selectedTrack) {
-        content += text(540, 585, 58, t('CHOISIS UN MORCEAU', 'CHOOSE A TRACK'), 850);
-        content += text(540, 665, 42, t('DANS LE MENU DE PARTAGE', 'IN THE SHARE MENU'), 650);
-        content += line(790);
-        content += text(540, 930, 46, t('La carte se mettra à jour', 'The card will update'), 700);
-      } else {
-        content += music(selectedTrack.title, selectedTrack.artist, 440, 74);
-        content += line(710);
-        if (selectedTrack.bpm !== null) {
-          content += metric(540, 900, selectedTrack.bpm, 'BPM', 190, 58);
-          content += text(540, 970, 46, t('MORCEAU', 'TRACK'), 800);
-        }
-        if (selectedTrack.avgRunnerPpm !== null) {
-          content += text(
-            540,
-            1090,
-            52,
-            `${selectedTrack.avgRunnerPpm} ${t('PPM', 'SPM')} · ${d.runCadence === 'target' ? t('CIBLE', 'TARGET') : t('MA MOYENNE', 'MY AVERAGE')}`,
-            780,
-            ink,
-            'middle',
-            960
-          );
-        }
-        const selectedMeta = [
-          trackDuration(selectedTrack.listenedSeconds),
-          stepText(selectedTrack.stepCount),
-        ].filter(Boolean).join(' · ');
-        if (selectedMeta) content += text(540, 1210, 44, selectedMeta, 700, ink, 'middle', 940);
-      }
+      content += text(540, 325, 58, chosenTitle ? t('MON MORCEAU', 'MY TRACK') : t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
+      if (chosenTitle) content += music(chosenTitle, chosenArtist, 430, 74);
+      content += line(700);
+      content += averageBlock(805, 905, 76);
+      content += runMetaBlock(1040);
     }
 
     return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${v.width}" height="${v.height}" viewBox="0 0 ${v.width} ${v.height}" role="img" aria-label="BeatOnStep"><defs><clipPath id="brandLogoClip" clipPathUnits="objectBoundingBox"><rect width="1" height="1" rx=".24" ry=".24"/></clipPath></defs><g font-family="Arial, Helvetica, sans-serif">${content}</g></svg>`;

@@ -93,17 +93,18 @@ assert(music.includes('8 PAS'));
 
 const summary = card.render(first, 'recap-rhythm');
 assert(summary.includes('MA COURSE'));
-assert(summary.includes('164'));
-assert(summary.includes('MOYENNE'));
-assert(summary.includes('12,35 KM · 5:31 /KM · 32 MIN · 2 MORCEAUX'));
-assert(summary.includes('4 832 PAS'));
+assert(summary.includes('EN MOYENNE'));
+assert(summary.includes('164 PPM · 162 BPM'));
+assert(summary.includes('32 MIN · 12,35 KM · 5:31 /KM'));
+assert(summary.includes('4 832 PAS · 2 MUSIQUES'));
 assert(summary.includes('James Brown'));
 
 const song = card.render(first, 'recap-track');
 assert(song.includes('MON MORCEAU'));
-assert(song.includes('166 PPM · MA MOYENNE'));
-assert(song.includes('3 MIN · 498 PAS'));
-assert(!song.includes('4 832 PAS'));
+assert(song.includes('EN MOYENNE'));
+assert(song.includes('164 PPM · 162 BPM'));
+assert(song.includes('32 MIN · 12,35 KM · 5:31 /KM'));
+assert(song.includes('4 832 PAS · 2 MUSIQUES'));
 
 const target = card.render({
   ...run,
@@ -111,7 +112,7 @@ const target = card.render({
   runCadence: 'target',
   selectedTrackIndex: 1,
 }, 'recap-track');
-assert(target.includes('162 PPM · CIBLE'));
+assert(target.includes('164 PPM · 162 BPM'));
 
 const escaped = card.render({
   ...run,
@@ -133,6 +134,29 @@ const english = card.render({ ...first, lang: 'en' }, 'live-music');
 assert(english.includes('MY RHYTHM'));
 assert(english.includes('NOW PLAYING'));
 assert(english.includes('88 SPM · MY CADENCE'));
+
+const compact = card.render({
+  ...first,
+  shareContext: 'recap',
+  sessionSec: 53,
+  visible: {
+    music: false,
+    duration: true,
+    distance: false,
+    pace: false,
+    steps: false,
+    trackCount: true,
+    avgPpm: true,
+    avgMusicBpm: true,
+  },
+}, 'recap-rhythm');
+assert(compact.includes('53 S'));
+assert(compact.includes('2 MUSIQUES'));
+assert(compact.includes('164 PPM · 162 BPM'));
+assert(!compact.includes('12,35 KM'));
+assert(!compact.includes('5:31 /KM'));
+assert(!compact.includes('4 832 PAS'));
+assert(!compact.includes('James Brown'));
 
 assert(card.render(first, 'live-rhythm', 'dark').includes('#11140f'));
 assert(card.render(first, 'live-rhythm').includes('clip-path="url(#brandLogoClip)"'));
@@ -159,4 +183,4 @@ assert.equal(card.normalize({
   runDistanceSource: 'untrusted',
 }).runDistanceMeters, null);
 
-console.log('Four shared story templates, one played-track selector, session stats and escaping: passed');
+console.log('Four shared story templates, selectable recap fields, Garmin session stats and escaping: passed');

@@ -17,6 +17,27 @@
   const card = window.BeatOnStepCard;
   const data = card.normalize(input);
   const t = (fr, en) => data.lang === 'en' ? en : fr;
+
+  const availability = {
+    music: data.runTracks.length > 0,
+    duration: Number.isSafeInteger(data.sessionSec) && data.sessionSec > 0,
+    distance: data.runDistanceMeters !== null,
+    pace: data.runAveragePaceSecPerKm !== null,
+    steps: data.runSteps !== null,
+    trackCount: data.trackCount !== null && data.trackCount > 0,
+    avgPpm: data.avgPpm !== null,
+    avgMusicBpm: data.avgMusicBpm !== null,
+  };
+  if (data.selectedTrackIndex === null && availability.music) {
+    const trackOfRunIndex = data.runTracks.findIndex(track =>
+      track.title === data.trackOfRunTitle &&
+      track.artist === data.trackOfRunArtist
+    );
+    data.selectedTrackIndex = trackOfRunIndex >= 0 ? trackOfRunIndex : 0;
+  }
+  data.visible = Object.fromEntries(
+    Object.entries(availability).map(([key, available]) => [key, !!available])
+  );
   let labels = {};
   let variants = card.variantsFor(data);
   let selected = variants[0]?.id || 'live-rhythm';
@@ -29,8 +50,8 @@
   function applyLanguage() {
     document.documentElement.lang = data.lang;
     labels = {
-      heading: t('Partager mon rythme', 'Share my rhythm'),
-      intro: t('Choisis un morceau écouté pendant la course et ton visuel.', 'Choose a track listened to during the run and your design.'),
+      heading: t('Créer ma story', 'Create my story'),
+      intro: t('Choisis les infos à afficher, puis le morceau et le style.', 'Choose what to show, then the track and design.'),
       'gallery-label': t('4 styles · une même course', '4 styles · one run'),
       light: t('Clair', 'Light'),
       dark: t('Sombre', 'Dark'),
@@ -41,8 +62,17 @@
       'close-save': t('Fermer', 'Close'),
       'track-select-label': t('Morceau écouté pendant la course', 'Track played during the run'),
       'track-help': t('Le choix s’applique aux quatre visuels.', 'The choice applies to all four designs.'),
+      'metric-select-label': t('Infos à afficher', 'Show in story'),
       trackPlaceholder: t('Choisir un morceau…', 'Choose a track…'),
       noTracks: t('Aucun morceau écouté durant cette course', 'No track played during this run'),
+      fieldMusic: t('Musique', 'Music'),
+      fieldDuration: t('Durée', 'Duration'),
+      fieldDistance: t('Distance', 'Distance'),
+      fieldPace: t('Allure', 'Pace'),
+      fieldSteps: t('Pas', 'Steps'),
+      fieldTrackCount: t('Musiques écoutées', 'Tracks played'),
+      fieldAvgPpm: t('PPM moyen', 'Average SPM'),
+      fieldAvgMusicBpm: t('BPM moyen', 'Average BPM'),
     };
     Object.entries(labels).forEach(([id, value]) => {
       const element = $(id);
@@ -119,8 +149,43 @@
         : '';
   }
 
+  function populateMetricOptions() {
+    const container = $('metric-options');
+    container.replaceChildren();
+    const fields = [
+      ['music', labels.fieldMusic],
+      ['duration', labels.fieldDuration],
+      ['distance', labels.fieldDistance],
+      ['pace', labels.fieldPace],
+      ['steps', labels.fieldSteps],
+      ['trackCount', labels.fieldTrackCount],
+      ['avgPpm', labels.fieldAvgPpm],
+      ['avgMusicBpm', labels.fieldAvgMusicBpm],
+    ];
+    for (const [key, labelText] of fields) {
+      if (!availability[key]) continue;
+      const label = document.createElement('label');
+      label.className = 'metric-toggle';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = data.visible[key] !== false;
+      input.dataset.field = key;
+      const span = document.createElement('span');
+      span.textContent = labelText;
+      label.append(input, span);
+      input.onchange = () => {
+        data.visible[key] = input.checked;
+        updateTrackPicker();
+        redrawGallery();
+        prepare();
+      };
+      container.appendChild(label);
+    }
+    $('metric-picker').hidden = container.children.length === 0;
+  }
+
   function updateTrackPicker() {
-    $('track-picker').hidden = false;
+    $('track-picker').hidden = !availability.music || data.visible.music === false;
   }
 
   function releaseAssets() {
@@ -143,9 +208,7 @@
       const name = variant[data.lang];
       button.setAttribute('aria-label', name);
 
-      const unavailable = data.runTracks.length === 0;
-      button.disabled = unavailable;
-      if (unavailable) button.setAttribute('aria-disabled', 'true');
+      button.disabled = false;
 
       const thumb = document.createElement('span');
       thumb.className = 'thumb';
@@ -193,7 +256,9 @@
     });
     updateTrackPicker();
 
-    const blocked = data.selectedTrackIndex === null || data.runTracks.length === 0;
+    const blocked = !Object.entries(availability).some(
+      ([key, available]) => available && data.visible[key] !== false
+    );
 
     $('share').disabled = true;
     $('save').disabled = true;
@@ -290,6 +355,7 @@
       if (next === data.lang) return;
       data.lang = next;
       applyLanguage();
+      populateMetricOptions();
       populateTrackSelect();
       redrawGallery();
       prepare();
@@ -336,6 +402,7 @@
   };
 
   applyLanguage();
+  populateMetricOptions();
   populateTrackSelect();
   redrawGallery();
   prepare();
