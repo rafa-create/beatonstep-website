@@ -74,7 +74,9 @@
         ? d.selectedTrackIndex
         : null;
     const runDistanceSource =
-      d.runDistanceSource === 'garmin_mobile_stop' || d.runDistanceSource === 'garmin_watch_saved'
+      d.runDistanceSource === 'garmin_mobile_stop' ||
+      d.runDistanceSource === 'garmin_watch_saved' ||
+      d.runDistanceSource === 'garmin_live_recap'
         ? d.runDistanceSource
         : null;
     const runDistanceMeters =
