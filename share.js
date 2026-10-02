@@ -27,6 +27,8 @@
     trackCount: data.trackCount !== null && data.trackCount > 0,
     avgPpm: data.avgPpm !== null,
     avgMusicBpm: data.avgMusicBpm !== null,
+    averageHeartRate: data.runAverageHeartRateBpm !== null,
+    maxHeartRate: data.runMaxHeartRateBpm !== null,
   };
   if (data.selectedTrackIndex === null && availability.music) {
     const trackOfRunIndex = data.runTracks.findIndex(track =>
@@ -73,6 +75,8 @@
       fieldTrackCount: t('Musiques écoutées', 'Tracks played'),
       fieldAvgPpm: t('PPM moyen', 'Average SPM'),
       fieldAvgMusicBpm: t('BPM moyen', 'Average BPM'),
+      fieldAverageHeartRate: t('FC moyenne', 'Average HR'),
+      fieldMaxHeartRate: t('FC max', 'Max HR'),
     };
     Object.entries(labels).forEach(([id, value]) => {
       const element = $(id);
@@ -161,6 +165,8 @@
       ['trackCount', labels.fieldTrackCount],
       ['avgPpm', labels.fieldAvgPpm],
       ['avgMusicBpm', labels.fieldAvgMusicBpm],
+      ['averageHeartRate', labels.fieldAverageHeartRate],
+      ['maxHeartRate', labels.fieldMaxHeartRate],
     ];
     for (const [key, labelText] of fields) {
       if (!availability[key]) continue;

@@ -93,6 +93,20 @@
       d.runAveragePaceSecPerKm <= 86400
         ? Math.round(d.runAveragePaceSecPerKm)
         : null;
+    const runAverageHeartRateBpm =
+      typeof d.runAverageHeartRateBpm === 'number' &&
+      Number.isFinite(d.runAverageHeartRateBpm) &&
+      d.runAverageHeartRateBpm >= 20 &&
+      d.runAverageHeartRateBpm <= 300
+        ? Math.round(d.runAverageHeartRateBpm)
+        : null;
+    const runMaxHeartRateBpm =
+      typeof d.runMaxHeartRateBpm === 'number' &&
+      Number.isFinite(d.runMaxHeartRateBpm) &&
+      d.runMaxHeartRateBpm >= 20 &&
+      d.runMaxHeartRateBpm <= 300
+        ? Math.round(d.runMaxHeartRateBpm)
+        : null;
 
     return {
       v: 1,
@@ -115,6 +129,8 @@
       runSteps: Number.isSafeInteger(d.runSteps) && d.runSteps > 0 && d.runSteps <= 9999999 ? d.runSteps : null,
       runDistanceMeters,
       runAveragePaceSecPerKm,
+      runAverageHeartRateBpm,
+      runMaxHeartRateBpm,
       runDistanceSource,
       trackCount: Number.isSafeInteger(d.trackCount) && d.trackCount >= 0 && d.trackCount <= 9999 ? d.trackCount : null,
       runCadence: d.runCadence === 'target' ? 'target' : d.runCadence === 'measured' ? 'measured' : null,
@@ -234,6 +250,12 @@
       show('steps') ? stepText(d.runSteps) : '',
       show('trackCount') && d.trackCount !== null && d.trackCount > 0
         ? `${d.trackCount} ${t(d.trackCount > 1 ? 'MUSIQUES' : 'MUSIQUE', d.trackCount > 1 ? 'TRACKS' : 'TRACK')}`
+        : '',
+      show('averageHeartRate') && d.runAverageHeartRateBpm !== null
+        ? `${d.runAverageHeartRateBpm} BPM ${t('FC MOY', 'AVG HR')}`
+        : '',
+      show('maxHeartRate') && d.runMaxHeartRateBpm !== null
+        ? `${d.runMaxHeartRateBpm} BPM ${t('FC MAX', 'MAX HR')}`
         : '',
     ].filter(Boolean).join(' · ');
     const runMetaBlock = (firstY, gap = 58) => {
