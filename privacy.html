@@ -74,7 +74,7 @@
     <main id="content">
       <article data-fr>
       <h1>Politique de confidentialité — BeatOnStep</h1>
-      <p><strong>Dernière mise à jour :</strong> 27 septembre 2026</p>
+      <p><strong>Dernière mise à jour :</strong> 2 octobre 2026</p>
       <h2>1. Qui sommes-nous</h2>
       <p>BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L&#x27;application est disponible sur <strong>Google Play</strong> (Android, <strong>BeatOnStep</strong>) et l&#x27;<strong>App Store</strong> (iOS, <strong>BeatOnSteps</strong>).</p>
       <p><strong>Éditeur :</strong> Rafael Orset — contact : <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum BeatOnStep</a></p>
@@ -149,14 +149,16 @@
       <h3>3.8 Mises à jour (Expo OTA)</h3>
       <p>L&#x27;app peut contacter les services <strong>Expo</strong> pour vérifier et télécharger des mises à jour JavaScript liées à votre installation. Il ne s&#x27;agit pas d&#x27;un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n&#x27;est envoyée via ce canal.</p>
       <h3>3.9 Mesure pseudonyme du nombre de playlists importées</h3>
-      <p>Pour évaluer l&#x27;usage de la fonction d&#x27;import et décider de futures formules Free / Pro, BeatOnStep peut envoyer occasionnellement au serveur de l&#x27;éditeur un <strong>snapshot minimal</strong> comprenant : un identifiant d&#x27;installation aléatoire propre à BeatOnStep, la plateforme (iOS / Android), la version de l&#x27;app et le <strong>nombre</strong> de playlists personnelles encore importées pour Apple Music, YouTube, Spotify et Deezer.</p>
+      <p>Pour évaluer l&#x27;usage de la fonction d&#x27;import et améliorer le produit, BeatOnStep peut envoyer occasionnellement au serveur de l&#x27;éditeur un <strong>snapshot minimal</strong> comprenant : un identifiant d&#x27;installation aléatoire propre à BeatOnStep, la plateforme (iOS / Android), la version de l&#x27;app et le <strong>nombre</strong> de playlists personnelles encore importées pour Apple Music, YouTube, Spotify et Deezer.</p>
       <ul>
+      <li>Cette mesure correspond à de l&#x27;<strong>analytics produit</strong> : elle sert à comprendre l&#x27;utilisation de la fonction d&#x27;import et à orienter les améliorations de BeatOnStep.</li>
       <li>Cette mesure ne contient <strong>aucun nom ni identifiant de playlist</strong>, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (PPM) ou parcours.</li>
-      <li>L&#x27;identifiant est généré par BeatOnStep et n&#x27;est pas l&#x27;identifiant Apple, Google, Android ou d&#x27;un fournisseur musical.</li>
+      <li>L&#x27;identifiant est généré aléatoirement par BeatOnStep. Il n&#x27;est pas l&#x27;identifiant Apple, Google, Android ou d&#x27;un fournisseur musical et ne contient ni nom, ni adresse e-mail, ni identifiant de compte.</li>
+      <li>Cet identifiant permet uniquement de rattacher les snapshots successifs à une <strong>même installation de BeatOnStep</strong>. Il n&#x27;est pas utilisé pour identifier la personne qui utilise l&#x27;app.</li>
       <li>Les suppressions sont prises en compte : le snapshot suivant reflète le nombre de playlists encore présentes dans l&#x27;app.</li>
       <li>L&#x27;envoi est limité : au plus une fois par jour après un changement et, si rien ne change, un rappel au plus une fois tous les 7 jours pour mesurer les installations actives.</li>
       <li>Le serveur conserve seulement le <strong>dernier snapshot connu par installation</strong> afin de produire des statistiques cumulées depuis le début de cette mesure ; il ne conserve pas l&#x27;historique détaillé de chaque envoi. L&#x27;adresse IP peut être traitée techniquement pendant la connexion HTTPS mais n&#x27;est pas enregistrée dans le fichier de mesure.</li>
-      <li>Ces données servent uniquement à des statistiques agrégées de produit ; elles ne sont ni vendues, ni utilisées pour la publicité, ni croisées avec vos comptes musicaux.</li>
+      <li>Ces données ne sont <strong>ni vendues, ni utilisées pour la publicité, ni utilisées pour le suivi publicitaire (« tracking »), ni croisées avec des données provenant d&#x27;autres entreprises à des fins de profilage</strong>.</li>
       </ul>
       <h2>4. Permissions demandées</h2>
       <h3>Android</h3>
@@ -197,7 +199,9 @@
       <p>Pas de SDK publicitaire, pas de mesure d&#x27;audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.</p>
       <h2>7. Enfants</h2>
       <p>L&#x27;application n&#x27;est pas destinée aux enfants de moins de 13 ans (16 ans dans l&#x27;UE) et ne collecte sciemment aucune donnée les concernant.</p>
-      <h2>8. Vos droits (RGPD / vie privée)</h2>
+      <h2 id="privacy-choices">8. Vos choix et droits (RGPD / vie privée)</h2>
+      <p>BeatOnStep n&#x27;utilise aucun suivi publicitaire et ne propose donc aucun réglage de consentement publicitaire. Vous pouvez gérer les données locales directement dans l&#x27;app, déconnecter les services musicaux concernés ou désinstaller l&#x27;app, ce qui arrête les futurs envois de la mesure pseudonyme décrite au § 3.9.</p>
+      <p>La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant à l&#x27;éditeur de rattacher spontanément un snapshot à votre identité. Pour toute question relative à cette mesure ou à vos droits, utilisez le forum BeatOnStep indiqué ci-dessous.</p>
       <ul>
       <li><strong>Données locales</strong> (bibliothèque, réglages, jetons) : vous les contrôlez directement dans l&#x27;app ou via la désinstallation.</li>
       <li><strong>Compte Google / YouTube</strong> : exercez vos droits auprès de Google selon leurs procédures.</li>
@@ -227,7 +231,7 @@
       </article>
       <article data-en>
       <h1>Privacy Policy — BeatOnStep (English)</h1>
-      <p><strong>Last updated:</strong> September 27, 2026</p>
+      <p><strong>Last updated:</strong> October 2, 2026</p>
       <p><em>The French text is the binding version. This English translation is provided for convenience.</em></p>
       <h2>1. Who we are</h2>
       <p>BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking or running cadence. The app is available on <strong>Google Play</strong> (Android, <strong>BeatOnStep</strong>) and the <strong>App Store</strong> (iOS, <strong>BeatOnSteps</strong>).</p>
@@ -303,14 +307,16 @@
       <h3>3.8 Updates (Expo OTA)</h3>
       <p>The app may contact <strong>Expo</strong> services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.</p>
       <h3>3.9 Pseudonymous measurement of imported playlist counts</h3>
-      <p>To understand use of playlist imports and inform future Free / Pro plans, BeatOnStep may occasionally send the publisher server a <strong>minimal snapshot</strong> containing: a random BeatOnStep installation identifier, platform (iOS / Android), app version, and the <strong>count</strong> of personal playlists still imported from Apple Music, YouTube, Spotify, and Deezer.</p>
+      <p>To understand use of playlist imports and improve the product, BeatOnStep may occasionally send the publisher server a <strong>minimal snapshot</strong> containing: a random BeatOnStep installation identifier, platform (iOS / Android), app version, and the <strong>count</strong> of personal playlists still imported from Apple Music, YouTube, Spotify, and Deezer.</p>
       <ul>
+      <li>This measurement is used for <strong>product analytics</strong>: it helps us understand use of the import feature and guide BeatOnStep improvements.</li>
       <li>This measurement contains <strong>no playlist name or playlist identifier</strong>, track, artist, OAuth token, music account, audio data, cadence (SPM), or route data.</li>
-      <li>The identifier is generated by BeatOnStep and is not an Apple, Google, Android, or music-provider identifier.</li>
-      <li>Deletions are reflected: the next snapshot reports only playlists still present in the app.</li>
-      <li>Sending is limited: at most once per day after a change and, if nothing changes, a heartbeat at most once every 7 days to measure active installations.</li>
-      <li>The server keeps only the <strong>latest known snapshot per installation</strong> to produce cumulative statistics since this measurement began; it does not keep a detailed history of each transmission. The IP address may be processed technically during the HTTPS connection but is not stored in the measurement file.</li>
-      <li>These data are used only for aggregated product statistics; they are not sold, used for advertising, or combined with your music accounts.</li>
+      <li>The identifier is randomly generated by BeatOnStep. It is not an Apple, Google, Android, or music-provider identifier and contains no name, email address, or account identifier.</li>
+      <li>This identifier is used only to associate successive snapshots with the <strong>same BeatOnStep installation</strong>. It is not used to identify the person using the app.</li>
+      <li>Deletions are reflected: the next snapshot contains the number of playlists still present in the app.</li>
+      <li>Sending is limited: at most once per day after a change and, when unchanged, at most once every 7 days to measure active installations.</li>
+      <li>The server stores only the <strong>latest known snapshot per installation</strong> to produce aggregate product statistics; it does not keep a detailed history of each transmission. The IP address may be processed technically during the HTTPS connection but is not recorded in the measurement file.</li>
+      <li>These data are <strong>not sold, not used for advertising, not used for advertising tracking, and not combined with data from other companies for profiling</strong>.</li>
       </ul>
       <h2>4. Permissions</h2>
       <h3>Android</h3>
@@ -351,7 +357,9 @@
       <p>No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.</p>
       <h2>7. Children</h2>
       <p>The app is not directed at children under 13 (16 in the EU) and does not knowingly collect data from them.</p>
-      <h2>8. Your rights (GDPR / privacy)</h2>
+      <h2 id="privacy-choices-en">8. Your privacy choices and rights (GDPR / privacy)</h2>
+      <p>BeatOnStep does not use advertising tracking, so there is no advertising-consent setting to manage. You can manage local data directly in the app, disconnect the relevant music services, or uninstall the app, which stops future transmissions of the pseudonymous measurement described in § 3.9.</p>
+      <p>The server-side measurement contains no name, email address, or BeatOnStep account that would allow the publisher to directly associate a snapshot with your identity. For questions about this measurement or your privacy rights, use the BeatOnStep forum listed below.</p>
       <ul>
       <li><strong>Local data</strong> (library, settings, tokens): you control it directly in the app or by uninstalling.</li>
       <li><strong>Google / YouTube account</strong>: exercise your rights with Google under their procedures.</li>
