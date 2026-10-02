@@ -35,6 +35,8 @@ const run = {
   runSteps: 4832,
   runDistanceMeters: 12345.6,
   runAveragePaceSecPerKm: 331,
+  runAverageHeartRateBpm: 154,
+  runMaxHeartRateBpm: 183,
   runDistanceSource: 'garmin_watch_saved',
   trackCount: 2,
   runCadence: 'measured',
@@ -97,6 +99,7 @@ assert(summary.includes('EN MOYENNE'));
 assert(summary.includes('164 PPM · 162 BPM'));
 assert(summary.includes('32 MIN · 12,35 KM · 5:31 /KM'));
 assert(summary.includes('4 832 PAS · 2 MUSIQUES'));
+assert(summary.includes('154 BPM FC MOY · 183 BPM FC MAX'));
 assert(summary.includes('James Brown'));
 
 const song = card.render(first, 'recap-track');
@@ -105,6 +108,7 @@ assert(song.includes('EN MOYENNE'));
 assert(song.includes('164 PPM · 162 BPM'));
 assert(song.includes('32 MIN · 12,35 KM · 5:31 /KM'));
 assert(song.includes('4 832 PAS · 2 MUSIQUES'));
+assert(song.includes('154 BPM FC MOY · 183 BPM FC MAX'));
 
 const target = card.render({
   ...run,
@@ -148,6 +152,8 @@ const compact = card.render({
     trackCount: true,
     avgPpm: true,
     avgMusicBpm: true,
+    averageHeartRate: false,
+    maxHeartRate: false,
   },
 }, 'recap-rhythm');
 assert(compact.includes('53 S'));
@@ -177,10 +183,14 @@ assert.equal(legacy.runTracks[0].stepCount, null);
 assert.equal(legacy.runTracks[0].listenedSeconds, null);
 assert.equal(legacy.runDistanceMeters, null);
 assert.equal(legacy.runAveragePaceSecPerKm, null);
+assert.equal(legacy.runAverageHeartRateBpm, null);
+assert.equal(legacy.runMaxHeartRateBpm, null);
 assert.equal(card.normalize({
   ...run,
   runDistanceMeters: 999999,
   runDistanceSource: 'untrusted',
 }).runDistanceMeters, null);
+assert.equal(card.normalize({ ...run, runAverageHeartRateBpm: 10 }).runAverageHeartRateBpm, null);
+assert.equal(card.normalize({ ...run, runMaxHeartRateBpm: 350 }).runMaxHeartRateBpm, null);
 
-console.log('Four shared story templates, selectable recap fields, Garmin session stats and escaping: passed');
+console.log('Four shared story templates, selectable recap fields, Garmin session stats, heart rate and escaping: passed');
