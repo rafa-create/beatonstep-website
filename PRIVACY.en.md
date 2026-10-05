@@ -93,6 +93,15 @@ When you use Deezer in BeatOnStep:
 
 The app may contact **Expo** services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.
 
+### 3.9 Garmin and route shape (optional)
+
+If you use a compatible Garmin watch with BeatOnStep:
+
+- the watch uses its GPS as part of the recorded Garmin activity and may temporarily send BeatOnStep the positions needed for the run recap;
+- raw GPS coordinates remain **in memory only during the run**: BeatOnStep does not persist them or send them to the BeatOnStep server;
+- at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, with no latitude or longitude, for the recap and share visuals;
+- if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the share URL.
+
 ## 4. Permissions
 
 ### Android
@@ -109,7 +118,7 @@ BeatOnStep requests access only to **motion sensors** (accelerometer) for cadenc
 
 Access to the **media library** (Phone music) triggers a standard system permission request when you import music from your device.
 
-**No permission** accesses your GPS location, contacts, camera, or microphone.
+The BeatOnStep mobile app requests **no phone GPS location permission**. If you use the BeatOnStep Garmin app, the watch may use its own positioning permission to record the activity and provide the relative route shape described in § 3.9. BeatOnStep does not access your contacts, camera, or microphone.
 
 ## 5. Locally stored data
 
@@ -120,6 +129,7 @@ On your device, in the app's private storage:
 - YouTube and Apple Music connection tokens (if connected).
 - Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
+- Simplified relative shape of the latest Garmin route used for the recap/story, when available (§ 3.9) — **without raw GPS coordinates**.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
@@ -134,6 +144,7 @@ On your device, in the app's private storage:
 | **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
 | **Spotify** | If you paste a Share link | Public catalogue request (title); opening in the Spotify app. No account sign-in |
 | **Deezer** | If you paste a Share link | Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in |
+| **Garmin Connect IQ** | If you pair a Garmin watch and use BeatOnStep during a run | Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.9) |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
 
