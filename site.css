@@ -1998,19 +1998,18 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 }
 
 
-/* Garmin 1.7.0 : annonce volontairement discrète et guide bilingue. */
+/* Montres : annonce volontairement discrète sous le héros. */
 .garmin-announcement {
   display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .7rem;
   border-left: 2px solid var(--line); padding: .3rem .75rem;
   margin: -2.9rem 0 3.2rem; color: var(--muted);
   font-size: .79rem; line-height: 1.5;
 }
-.garmin-announcement a, .garmin-teaser-action a {
-  color: var(--ink); text-decoration: underline;
-  text-decoration-color: var(--line); text-underline-offset: .22rem;
+.garmin-announcement a {
+  color: var(--ink); text-decoration: none; font-weight: 700;
 }
-.garmin-announcement a:hover, .garmin-teaser-action a:hover { text-decoration-color: var(--accent); }
-.garmin-announcement a:focus-visible, .garmin-teaser-action a:focus-visible,
+.garmin-announcement a:hover { color: var(--accent); }
+.garmin-announcement a:focus-visible,
 .garmin-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .garmin-teaser {
   display: grid; grid-template-columns: minmax(0,1fr) auto;
