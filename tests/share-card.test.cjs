@@ -164,6 +164,22 @@ assert(!compact.includes('5:31 /KM'));
 assert(!compact.includes('4 832 PAS'));
 assert(!compact.includes('James Brown'));
 
+const routed = card.render({
+  ...first,
+  shareContext: 'recap',
+  runRoute: [[0, 700], [250, 200], [600, 500], [1000, 100]],
+}, 'recap-rhythm');
+assert(routed.includes('data-route="run"'));
+assert(routed.includes('stroke="#fcea07"'));
+assert.deepEqual(card.normalize({
+  ...run,
+  runRoute: [[0, 700], [1000, 100]],
+}).runRoute, [[0, 700], [1000, 100]]);
+assert.equal(card.normalize({
+  ...run,
+  runRoute: [[43.6, 3.8], [43.7, 3.9]],
+}).runRoute, null, 'raw decimal GPS coordinates are rejected');
+
 assert(card.render(first, 'live-rhythm', 'dark').includes('#11140f'));
 assert(card.render(first, 'live-rhythm').includes('clip-path="url(#brandLogoClip)"'));
 
