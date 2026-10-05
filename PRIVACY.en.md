@@ -116,11 +116,11 @@ If you use a compatible Garmin watch with BeatOnStep:
 
 ### 3.11 Voluntary Bug / feedback diagnostic report
 
-If you use the **Help** button in Settings, BeatOnStep shows a confirmation before anything is sent. If you choose **Send**, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version.
+If you use the **Bug / feedback** button in Settings, BeatOnStep shows a message field and requires an explicit action before anything is sent. If you choose **Send**, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version, together with the message you typed.
 
 The report may include app version/build/runtime, recent diagnostic events, the last few minutes of SPM diagnostics (including accelerometer samples and calculated cadence), technical Garmin / Apple Watch and music-integration states, plus the pseudonymous installation identifier, platform, and app version.
 
-Sending is **strictly user-initiated**: no Help report is transmitted automatically. No password, OAuth token, or music file is included.
+Sending is **strictly user-initiated**: no Bug / feedback report is transmitted automatically. No password, OAuth token, or music file is included.
 
 The report is used only for **technical support and incident diagnosis**. Small reports may be included directly in the support email body; larger reports may be attached as a text file. The private support recipient email address is configured only on the server and is not exposed in the app.
 
