@@ -160,6 +160,13 @@
       <li>Le serveur conserve seulement le <strong>dernier snapshot connu par installation</strong> afin de produire des statistiques cumulées depuis le début de cette mesure ; il ne conserve pas l&#x27;historique détaillé de chaque envoi. L&#x27;adresse IP peut être traitée techniquement pendant la connexion HTTPS mais n&#x27;est pas enregistrée dans le fichier de mesure.</li>
       <li>Ces données ne sont <strong>ni vendues, ni utilisées pour la publicité, ni utilisées pour le suivi publicitaire (« tracking »), ni croisées avec des données provenant d&#x27;autres entreprises à des fins de profilage</strong>.</li>
       </ul>
+      <h3>3.10 Garmin et forme du parcours (optionnel)</h3>
+      <ul>
+      <li>La montre Garmin utilise son GPS dans le cadre de l'activité enregistrée et peut transmettre temporairement à BeatOnStep les positions nécessaires au récapitulatif.</li>
+      <li>Les coordonnées GPS brutes restent <strong>uniquement en mémoire pendant la course</strong> : elles ne sont pas persistées et ne sont pas envoyées au serveur BeatOnStep.</li>
+      <li>BeatOnStep peut conserver localement une <strong>forme relative simplifiée</strong> du parcours, sans latitude ni longitude, pour le récapitulatif et les visuels de partage.</li>
+      <li>Seule cette forme relative non géographique peut être incluse dans une story ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.</li>
+      </ul>
       <h2>4. Permissions demandées</h2>
       <h3>Android</h3>
       <table>
@@ -172,7 +179,7 @@
       <h3>iOS (App Store)</h3>
       <p>BeatOnStep demande uniquement l&#x27;accès aux <strong>capteurs de mouvement</strong> (accéléromètre) pour la détection de cadence. Sur iOS, cet accès est géré par le framework natif sans permission explicite demandée à l&#x27;utilisateur.</p>
       <p>L&#x27;accès à la <strong>médiathèque</strong> (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.</p>
-      <p><strong>Aucune permission</strong> n&#x27;accède à votre position GPS, vos contacts, votre appareil photo ou votre microphone.</p>
+      <p>L&#x27;app mobile BeatOnStep ne demande <strong>aucune permission de localisation GPS du téléphone</strong>. Si vous utilisez l&#x27;app Garmin BeatOnStep, la montre peut utiliser sa propre permission de positionnement pour enregistrer l&#x27;activité et fournir le tracé relatif décrit au § 3.10. BeatOnStep n&#x27;accède pas à vos contacts, votre appareil photo ou votre microphone.</p>
       <h2>5. Données stockées localement</h2>
       <p>Sur votre appareil, dans l&#x27;espace privé de l&#x27;app :</p>
       <ul>
@@ -182,6 +189,7 @@
       <li>Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — <strong>pas</strong> de jeton de compte Spotify.</li>
       <li>Titres ou playlists publiques Deezer dont vous avez collé le lien (identifiant, métadonnées, BPM saisi, détecté ou fourni par Deezer) — <strong>pas</strong> de jeton de compte Deezer.</li>
       <li>Identifiant d&#x27;installation aléatoire BeatOnStep et dernier état d&#x27;envoi de la mesure de playlists (§ 3.9).</li>
+      <li>Forme relative simplifiée du dernier parcours Garmin utilisée pour le récapitulatif/story, lorsqu&#x27;elle est disponible (§ 3.10) — <strong>sans coordonnées GPS brutes</strong>.</li>
       </ul>
       <p>La <strong>désinstallation</strong> de l&#x27;application supprime ces données. La déconnexion d&#x27;un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l&#x27;app.</p>
       <h2>6. Services tiers</h2>
@@ -195,6 +203,7 @@
       <tr><td><strong>Serveur BeatOnStep</strong></td><td>Catalogue / analyse BPM et mesure pseudonyme d&#x27;usage</td><td>Liste de titres ; éventuel fichier audio pour analyse BPM ; compteur agrégé de playlists par source + identifiant d&#x27;installation aléatoire (§ 3.9)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>Si vous collez un lien Partager</td><td>Demande du titre au catalogue public ; ouverture dans l&#x27;app Spotify. Pas de connexion compte</td></tr>
       <tr><td><strong>Deezer</strong></td><td>Si vous collez un lien Partager</td><td>Demande titre / durée / parfois BPM au catalogue public ; ouverture dans l&#x27;app Deezer. Pas de connexion compte</td></tr>
+      <tr><td><strong>Garmin Connect IQ</strong></td><td>Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course</td><td>Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.10)</td></tr>
       </tbody></table>
       <p>Pas de SDK publicitaire, pas de mesure d&#x27;audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.</p>
       <h2>7. Enfants</h2>
@@ -318,6 +327,13 @@
       <li>The server stores only the <strong>latest known snapshot per installation</strong> to produce aggregate product statistics; it does not keep a detailed history of each transmission. The IP address may be processed technically during the HTTPS connection but is not recorded in the measurement file.</li>
       <li>These data are <strong>not sold, not used for advertising, not used for advertising tracking, and not combined with data from other companies for profiling</strong>.</li>
       </ul>
+      <h3>3.10 Garmin and route shape (optional)</h3>
+      <ul>
+      <li>The Garmin watch uses its GPS as part of the recorded activity and may temporarily send BeatOnStep the positions needed for the run recap.</li>
+      <li>Raw GPS coordinates remain <strong>in memory only during the run</strong>: they are not persisted and are not sent to the BeatOnStep server.</li>
+      <li>BeatOnStep may locally keep a <strong>simplified relative route shape</strong>, with no latitude or longitude, for the recap and share visuals.</li>
+      <li>Only this non-geographic relative shape may be included in a story; raw GPS coordinates are never included in the share URL.</li>
+      </ul>
       <h2>4. Permissions</h2>
       <h3>Android</h3>
       <table>
@@ -330,7 +346,7 @@
       <h3>iOS (App Store)</h3>
       <p>BeatOnStep requests access only to <strong>motion sensors</strong> (accelerometer) for cadence detection. On iOS, this is handled by the native framework without an explicit user-facing permission prompt.</p>
       <p>Access to the <strong>media library</strong> (Phone music) triggers a standard system permission request when you import music from your device.</p>
-      <p><strong>No permission</strong> accesses your GPS location, contacts, camera, or microphone.</p>
+      <p>The BeatOnStep mobile app requests <strong>no phone GPS location permission</strong>. If you use the BeatOnStep Garmin app, the watch may use its own positioning permission to record the activity and provide the relative route shape described in § 3.10. BeatOnStep does not access your contacts, camera, or microphone.</p>
       <h2>5. Locally stored data</h2>
       <p>On your device, in the app&#x27;s private storage:</p>
       <ul>
@@ -340,6 +356,7 @@
       <li>Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — <strong>no</strong> Spotify account token.</li>
       <li>Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — <strong>no</strong> Deezer account token.</li>
       <li>Random BeatOnStep installation identifier and the last local state used for playlist-count measurement (§ 3.9).</li>
+      <li>Simplified relative shape of the latest Garmin route used for the recap/story, when available (§ 3.10) — <strong>without raw GPS coordinates</strong>.</li>
       </ul>
       <p><strong>Uninstalling</strong> the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.</p>
       <h2>6. Third-party services</h2>
@@ -353,6 +370,7 @@
       <tr><td><strong>BeatOnStep server</strong></td><td>Catalogue / BPM analysis and pseudonymous usage measurement</td><td>Track list; optional audio file for BPM analysis; aggregate playlist counts by source + random installation identifier (§ 3.9)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title); opening in the Spotify app. No account sign-in</td></tr>
       <tr><td><strong>Deezer</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in</td></tr>
+      <tr><td><strong>Garmin Connect IQ</strong></td><td>If you pair a Garmin watch and use BeatOnStep during a run</td><td>Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.10)</td></tr>
       </tbody></table>
       <p>No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.</p>
       <h2>7. Children</h2>
