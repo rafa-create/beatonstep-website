@@ -27,7 +27,7 @@ Depending on the features **you** enable, the app may exchange data with service
 ### 3.2 Cadence detection (SPM)
 
 - The accelerometer is read **on-device** to estimate your step cadence.
-- These readings stay **on-device by default** and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose **Help → Send** (§ 3.11).
+- These readings stay **on-device by default** and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose **Bug / feedback → Send** (§ 3.11).
 - They are used solely for real-time app operation (selecting and playing music matched to your pace).
 
 ### 3.3 Demo mix and music server (optional)
@@ -114,7 +114,7 @@ If you use a compatible Garmin watch with BeatOnStep:
 - at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, with no latitude or longitude, for the recap and share visuals;
 - if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the share URL.
 
-### 3.11 Voluntary Help / diagnostic report
+### 3.11 Voluntary Bug / feedback diagnostic report
 
 If you use the **Help** button in Settings, BeatOnStep shows a confirmation before anything is sent. If you choose **Send**, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version.
 
