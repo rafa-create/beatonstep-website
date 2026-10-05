@@ -91,7 +91,7 @@
       <h3>3.2 Détection de cadence (PPM)</h3>
       <ul>
       <li>L&#x27;accéléromètre est lu <strong>sur l&#x27;appareil</strong> pour estimer votre cadence de pas.</li>
-      <li>Ces mesures restent <strong>sur l’appareil par défaut</strong> et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement <strong>Help → Envoyer</strong> (§ 3.11).</li>
+      <li>Ces mesures restent <strong>sur l’appareil par défaut</strong> et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement <strong>Bug / remarque → Envoyer</strong> (§ 3.11).</li>
       <li>Elles servent uniquement au fonctionnement temps réel de l&#x27;app (sélection et lecture de musique adaptée à votre rythme).</li>
       </ul>
       <h3>3.3 Mix démo et serveur musique (optionnel)</h3>
@@ -167,10 +167,10 @@
       <li>BeatOnStep peut conserver localement une <strong>forme relative simplifiée</strong> du parcours, sans latitude ni longitude, pour le récapitulatif et les visuels de partage.</li>
       <li>Seule cette forme relative non géographique peut être incluse dans une story ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.</li>
       </ul>
-      <h3>3.11 Rapport Help / diagnostic volontaire</h3>
-      <p>Si vous utilisez le bouton <strong>Help</strong> dans Réglages, BeatOnStep affiche une confirmation avant tout envoi. Si vous choisissez <strong>Envoyer</strong>, l&#x27;app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l&#x27;application.</p>
+      <h3>3.11 Rapport Bug / remarque / diagnostic volontaire</h3>
+      <p>Si vous utilisez le bouton <strong>Bug / remarque</strong> dans Réglages, BeatOnStep affiche un champ de message et demande une action explicite avant tout envoi. Si vous choisissez <strong>Envoyer</strong>, l&#x27;app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l&#x27;application, avec le message que vous avez saisi.</p>
       <p>Ce rapport peut inclure la version/build/runtime, des événements de diagnostic récents, le diagnostic PPM des dernières minutes (y compris des échantillons d&#x27;accéléromètre et la cadence calculée), les états techniques Garmin / Apple Watch et des intégrations musicales, ainsi que l&#x27;identifiant d&#x27;installation pseudonyme, la plateforme et la version de l&#x27;app.</p>
-      <p>L&#x27;envoi est <strong>strictement déclenché par l&#x27;utilisateur</strong> : aucun rapport Help n&#x27;est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n&#x27;est inclus.</p>
+      <p>L&#x27;envoi est <strong>strictement déclenché par l&#x27;utilisateur</strong> : aucun rapport Bug / remarque n&#x27;est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n&#x27;est inclus.</p>
       <p>Le rapport sert uniquement au <strong>support technique et au diagnostic d&#x27;incidents</strong>. Les petits rapports peuvent être inclus dans le corps de l&#x27;e-mail ; les plus volumineux peuvent être joints sous forme de fichier texte. L&#x27;adresse e-mail privée du support reste configurée côté serveur et n&#x27;est pas exposée dans l&#x27;app.</p>
       <h2>4. Permissions demandées</h2>
       <h3>Android</h3>
@@ -263,7 +263,7 @@
       <h3>3.2 Cadence detection (SPM)</h3>
       <ul>
       <li>The accelerometer is read <strong>on-device</strong> to estimate your step cadence.</li>
-      <li>These readings stay <strong>on-device by default</strong> and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose <strong>Help → Send</strong> (§ 3.11).</li>
+      <li>These readings stay <strong>on-device by default</strong> and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose <strong>Bug / feedback → Send</strong> (§ 3.11).</li>
       <li>They are used solely for real-time app operation (selecting and playing music matched to your pace).</li>
       </ul>
       <h3>3.3 Demo mix and music server (optional)</h3>
@@ -339,10 +339,10 @@
       <li>BeatOnStep may locally keep a <strong>simplified relative route shape</strong>, with no latitude or longitude, for the recap and share visuals.</li>
       <li>Only this non-geographic relative shape may be included in a story; raw GPS coordinates are never included in the share URL.</li>
       </ul>
-      <h3>3.11 Voluntary Help / diagnostic report</h3>
-      <p>If you use the <strong>Help</strong> button in Settings, BeatOnStep shows a confirmation before anything is sent. If you choose <strong>Send</strong>, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version.</p>
+      <h3>3.11 Voluntary Bug / feedback diagnostic report</h3>
+      <p>If you use the <strong>Bug / feedback</strong> button in Settings, BeatOnStep shows a message field and requires an explicit action before anything is sent. If you choose <strong>Send</strong>, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version, together with the message you typed.</p>
       <p>This report may include app version/build/runtime, recent diagnostic events, the last few minutes of SPM diagnostics (including accelerometer samples and calculated cadence), technical Garmin / Apple Watch and music-integration states, plus the pseudonymous installation identifier, platform, and app version.</p>
-      <p>Sending is <strong>strictly user-initiated</strong>: no Help report is transmitted automatically. No password, OAuth token, or music file is included.</p>
+      <p>Sending is <strong>strictly user-initiated</strong>: no Bug / feedback report is transmitted automatically. No password, OAuth token, or music file is included.</p>
       <p>The report is used only for <strong>technical support and incident diagnosis</strong>. Small reports may be placed directly in the email body; larger reports may be attached as a text file. The private support recipient email address is configured only on the server and is not exposed in the app.</p>
       <h2>4. Permissions</h2>
       <h3>Android</h3>
