@@ -12,7 +12,7 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 ## 2. Core principle: minimal collection, no commercial tracking
 
-BeatOnStep **does not create user accounts**, uses **no advertising**, and performs **no commercial tracking or profiling**. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count personal playlists imported per source (§ 3.10). That measurement contains no cadence (SPM), route data, playlist name or ID, track, artist, or music-account information.
+BeatOnStep **does not create user accounts**, uses **no advertising**, and performs **no commercial tracking or profiling**. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count personal playlists imported per source (§ 3.9). That measurement contains no cadence (SPM), route data, playlist name or ID, track, artist, or music-account information.
 
 Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, pasted Spotify or Deezer links, BPM analysis) or with technical infrastructure (updates). Details below.
 
