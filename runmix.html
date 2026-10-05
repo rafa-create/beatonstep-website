@@ -192,6 +192,8 @@
 
       <p class="error" id="error-fr">Ce lien Run Mix est invalide ou incomplet.</p>
       <p class="error" id="error-en">This Run Mix link is invalid or incomplete.</p>
+      <p class="error" id="open-error-fr">Impossible d’ouvrir BeatOnStep pour le moment. Réessayez.</p>
+      <p class="error" id="open-error-en">Could not open BeatOnStep right now. Please try again.</p>
 
       <div class="stores" aria-label="Télécharger BeatOnStep">
         <a href="https://apps.apple.com/app/beatonstep/id6803512375">
@@ -254,6 +256,20 @@
         document.getElementById(language === "fr" ? "error-fr" : "error-en").style.display = "block";
       }
 
+      function showOpenError() {
+        document.getElementById("open-error-fr").style.display = language === "fr" ? "block" : "none";
+        document.getElementById("open-error-en").style.display = language === "en" ? "block" : "none";
+      }
+
+      function setOpenBusy(busy) {
+        var button = document.getElementById("open-app");
+        button.disabled = busy;
+        var fr = button.querySelector('[data-lang="fr"]');
+        var en = button.querySelector('[data-lang="en"]');
+        if (fr) fr.textContent = busy ? "Ouverture…" : "Ouvrir le Run Mix dans BeatOnStep";
+        if (en) en.textContent = busy ? "Opening…" : "Open the Run Mix in BeatOnStep";
+      }
+
       setLanguage(language);
       document.getElementById("lang-fr").addEventListener("click", function () { setLanguage("fr"); });
       document.getElementById("lang-en").addEventListener("click", function () { setLanguage("en"); });
@@ -277,8 +293,27 @@
         document.getElementById("duration").textContent = formatDuration(raw.d);
         document.getElementById("source").textContent = sourceLabel(raw.s);
 
-        document.getElementById("open-app").addEventListener("click", function () {
-          location.href = "beatonstep://runmix?data=" + encodeURIComponent(payload);
+        document.getElementById("open-app").addEventListener("click", async function () {
+          document.getElementById("open-error-fr").style.display = "none";
+          document.getElementById("open-error-en").style.display = "none";
+          setOpenBusy(true);
+          try {
+            var response = await fetch("https://beatonstep.tail09d8d8.ts.net/api/runmix", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ payload: payload })
+            });
+            if (!response.ok) throw new Error("register_failed_" + response.status);
+            var result = await response.json();
+            if (!result || typeof result.id !== "string" || !/^[0-9a-f]{24}$/i.test(result.id)) {
+              throw new Error("invalid_short_id");
+            }
+            location.href = "beatonstep://runmix?id=" + encodeURIComponent(result.id);
+          } catch (error) {
+            console.error("[RunMix] open app", error);
+            setOpenBusy(false);
+            showOpenError();
+          }
         });
       } catch (error) {
         showError();
