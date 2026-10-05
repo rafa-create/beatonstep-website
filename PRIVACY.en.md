@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** September 5, 2026
+**Last updated:** October 6, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -10,9 +10,9 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 **Publisher:** Rafael Orset — contact: [BeatOnStep forum](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
-## 2. Core principle: no publisher-side data collection
+## 2. Core principle: minimal data collection, no commercial tracking
 
-BeatOnStep **does not create user accounts**, uses **no advertising**, and includes **no commercial analytics or tracking**. No cadence data (SPM), route data, or music library data is sent to the publisher for marketing or profiling purposes.
+BeatOnStep **does not create user accounts**, uses **no advertising**, and performs **no commercial tracking or profiling**. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count how many personal playlists are imported per source (§ 3.9). No cadence (SPM), route data, playlist name or identifier, track, artist, or music-account identifier is included in this measurement.
 
 Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, pasted Spotify or Deezer links, BPM analysis) or with technical infrastructure (updates). Details below.
 
@@ -27,7 +27,7 @@ Depending on the features **you** enable, the app may exchange data with service
 ### 3.2 Cadence detection (SPM)
 
 - The accelerometer is read **on-device** to estimate your step cadence.
-- These readings are **not transmitted** to the publisher or any BeatOnStep server.
+- These readings stay **on-device by default** and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose **Help → Send** (§ 3.11).
 - They are used solely for real-time app operation (selecting and playing music matched to your pace).
 
 ### 3.3 Demo mix and music server (optional)
@@ -93,7 +93,19 @@ When you use Deezer in BeatOnStep:
 
 The app may contact **Expo** services to check for and download JavaScript updates linked to your installation. This is not an advertising SDK; no cadence or music library data is sent through this channel.
 
-### 3.9 Garmin and route shape (optional)
+### 3.9 Pseudonymous measurement of imported playlist counts
+
+To understand use of the import feature and improve the product, BeatOnStep may occasionally send the publisher's server a **minimal snapshot** containing:
+
+- a random BeatOnStep installation identifier;
+- platform (iOS / Android) and app version;
+- the **number** of personal playlists still imported for Apple Music, YouTube, Spotify, and Deezer.
+
+This is **product analytics** used to understand the import feature and guide improvements. It contains **no playlist name or identifier**, track, artist, OAuth token, music account, audio data, cadence (SPM), or route. The random installation identifier is not an Apple, Google, Android, or music-provider identifier and contains no name or email address.
+
+Sending is limited to at most once per day after a change and, if unchanged, at most once every 7 days to measure active installations. The server keeps only the **latest known snapshot per installation** and does not keep a detailed history of each transmission. These data are not sold, used for advertising, or used for advertising tracking or cross-company profiling.
+
+### 3.10 Garmin and route shape (optional)
 
 If you use a compatible Garmin watch with BeatOnStep:
 
@@ -101,6 +113,16 @@ If you use a compatible Garmin watch with BeatOnStep:
 - raw GPS coordinates remain **in memory only during the run**: BeatOnStep does not persist them or send them to the BeatOnStep server;
 - at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, with no latitude or longitude, for the recap and share visuals;
 - if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the share URL.
+
+### 3.11 Voluntary Help / diagnostic report
+
+If you use the **Help** button in Settings, BeatOnStep shows a confirmation before anything is sent. If you choose **Send**, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version.
+
+The report may include app version/build/runtime, recent diagnostic events, the last few minutes of SPM diagnostics (including accelerometer samples and calculated cadence), technical Garmin / Apple Watch and music-integration states, plus the pseudonymous installation identifier, platform, and app version.
+
+Sending is **strictly user-initiated**: no Help report is transmitted automatically. No password, OAuth token, or music file is included.
+
+The report is used only for **technical support and incident diagnosis**. Small reports may be included directly in the support email body; larger reports may be attached as a text file. The private support recipient email address is configured only on the server and is not exposed in the app.
 
 ## 4. Permissions
 
@@ -129,7 +151,8 @@ On your device, in the app's private storage:
 - YouTube and Apple Music connection tokens (if connected).
 - Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
-- Simplified relative shape of the latest Garmin route used for the recap/story, when available (§ 3.9) — **without raw GPS coordinates**.
+- Random BeatOnStep installation identifier and latest local playlist-measurement state (§ 3.9).
+- Simplified relative shape of the latest Garmin route used for the recap/story, when available (§ 3.10) — **without raw GPS coordinates**.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
@@ -141,10 +164,10 @@ On your device, in the app's private storage:
 | **Apple / Apple Music** | If you connect Apple Music | Apple sign-in; playlist metadata |
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
-| **BeatOnStep mix server** | If you use the catalogue or BPM analysis | Track list; optional audio file for BPM analysis |
+| **BeatOnStep server** | Catalogue / BPM analysis, pseudonymous usage measurement and voluntary support | Track list; optional audio file for BPM analysis; playlist counts + random installation identifier (§ 3.9); Help technical report only after explicit confirmation (§ 3.11) |
 | **Spotify** | If you paste a Share link | Public catalogue request (title); opening in the Spotify app. No account sign-in |
 | **Deezer** | If you paste a Share link | Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in |
-| **Garmin Connect IQ** | If you pair a Garmin watch and use BeatOnStep during a run | Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.9) |
+| **Garmin Connect IQ** | If you pair a Garmin watch and use BeatOnStep during a run | Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.10) |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
 
@@ -159,7 +182,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 - **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
 - **Spotify**: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.
 - **Deezer**: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.
-- **Music server**: no BeatOnStep user account; for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **BeatOnStep server**: no BeatOnStep user account. Pseudonymous measurement keeps only the latest state per installation; Help reports are sent only when you explicitly request support (§ 3.11). For any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Changes
 
