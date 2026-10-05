@@ -7,7 +7,7 @@ Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et
 ## Pages
 
 - Accueil : `/`
-- Connectivité Garmin : `/garmin.html` (FR/EN ; accès Garmin Connect IQ : https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880 ; connexion mobile prévue en 1.7.0)
+- Garmin et Apple Watch : `/garmin.html` (FR/EN ; Garmin Connect IQ : https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880 ; Apple Watch bêta via l’App Store : https://apps.apple.com/fr/app/beatonstep/id6803512375)
 - Politique : `/privacy.html` (`PRIVACY.fr.md` / `PRIVACY.en.md`, switch FR/EN)
 - Crédits mix : `/music-credits.html` (`MUSIC-CREDITS.fr.md` / `MUSIC-CREDITS.en.md`)
 - Canonique FR brut : `PRIVACY.md`, `MUSIC-CREDITS.md`
