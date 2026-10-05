@@ -40,6 +40,26 @@
           : null,
     };
   }
+  function normalizeRunRoute(value) {
+    if (!Array.isArray(value) || value.length < 2 || value.length > 100) return null;
+    const points = [];
+    for (const item of value) {
+      if (
+        !Array.isArray(item) ||
+        item.length !== 2 ||
+        !Number.isInteger(item[0]) ||
+        !Number.isInteger(item[1]) ||
+        item[0] < 0 ||
+        item[0] > 1000 ||
+        item[1] < 0 ||
+        item[1] > 1000
+      ) {
+        return null;
+      }
+      points.push([item[0], item[1]]);
+    }
+    return points;
+  }
   function normalize(input) {
     const d = input && typeof input === 'object' && input.v === 1 ? input : {};
     const legacyRecap =
@@ -73,6 +93,7 @@
       d.selectedTrackIndex < runTracks.length
         ? d.selectedTrackIndex
         : null;
+    const runRoute = normalizeRunRoute(d.runRoute);
     const runDistanceSource =
       d.runDistanceSource === 'garmin_mobile_stop' ||
       d.runDistanceSource === 'garmin_watch_saved' ||
@@ -134,6 +155,7 @@
       runAverageHeartRateBpm,
       runMaxHeartRateBpm,
       runDistanceSource,
+      runRoute,
       trackCount: Number.isSafeInteger(d.trackCount) && d.trackCount >= 0 && d.trackCount <= 9999 ? d.trackCount : null,
       runCadence: d.runCadence === 'target' ? 'target' : d.runCadence === 'measured' ? 'measured' : null,
       trackOfRunTitle: clean(d.trackOfRunTitle, 160),
@@ -182,6 +204,17 @@
       `<image x="${x}" y="${y}" width="${size}" height="${size}" clip-path="url(#brandLogoClip)" preserveAspectRatio="xMidYMid slice" xlink:href="data:image/jpeg;base64,${LOGO}"/>`;
     const line = y =>
       `<path d="M${cx - 240} ${y}H${cx - 110}l30 -24 40 48 40 -68 40 44h200" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const routeDrawing = (points, x, y, width, height) => {
+      if (!points || points.length < 2) return '';
+      const scaled = points.map(([px, py]) => [
+        Math.round(x + (px / 1000) * width),
+        Math.round(y + (py / 1000) * height),
+      ]);
+      const path = scaled.map(([px, py], index) => `${index === 0 ? 'M' : 'L'}${px} ${py}`).join(' ');
+      const [startX, startY] = scaled[0];
+      const [endX, endY] = scaled[scaled.length - 1];
+      return `<g data-route="run"><path d="${path}" fill="none" stroke="${accent}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${startX}" cy="${startY}" r="10" fill="${ink}" stroke="${accent}" stroke-width="5"/><circle cx="${endX}" cy="${endY}" r="10" fill="${accent}" stroke="${ink}" stroke-width="5"/></g>`;
+    };
 
     const number = value => value.toLocaleString(d.lang === 'en' ? 'en-US' : 'fr-FR');
     const stepText = value => value === null ? '' : `${number(value)} ${t('PAS', 'STEPS')}`;
@@ -282,12 +315,23 @@
       content += header(t('MON RYTHME', 'MY RHYTHM'));
       if (d.shareContext === 'recap') {
         content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
-        content += averageBlock(455, 575, 88);
-        content += runMetaBlock(710);
-        content += line(835);
-        if (chosenTitle) {
-          content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
-          content += music(chosenTitle, chosenArtist, 1010, 62);
+        if (d.runRoute) {
+          content += averageBlock(430, 535, 82);
+          content += routeDrawing(d.runRoute, 340, 600, 400, 150);
+          content += runMetaBlock(825, 54);
+          content += line(945);
+          if (chosenTitle) {
+            content += text(540, 1035, 38, t('MUSIQUE', 'MUSIC'), 820, accent);
+            content += music(chosenTitle, chosenArtist, 1115, 56);
+          }
+        } else {
+          content += averageBlock(455, 575, 88);
+          content += runMetaBlock(710);
+          content += line(835);
+          if (chosenTitle) {
+            content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
+            content += music(chosenTitle, chosenArtist, 1010, 62);
+          }
         }
       } else {
         content += text(540, 325, 58, liveCadenceLabel, 850, ink, 'middle', 940);
@@ -345,12 +389,23 @@
     } else if (v.id === 'recap-rhythm') {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
       content += text(540, 325, 58, t('MA COURSE', 'MY RUN'), 850, ink, 'middle', 940);
-      content += averageBlock(455, 575, 88);
-      content += runMetaBlock(710);
-      content += line(835);
-      if (chosenTitle) {
-        content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
-        content += music(chosenTitle, chosenArtist, 1010, 62);
+      if (d.runRoute) {
+        content += averageBlock(430, 535, 82);
+        content += routeDrawing(d.runRoute, 340, 600, 400, 150);
+        content += runMetaBlock(825, 54);
+        content += line(945);
+        if (chosenTitle) {
+          content += text(540, 1035, 38, t('MUSIQUE', 'MUSIC'), 820, accent);
+          content += music(chosenTitle, chosenArtist, 1115, 56);
+        }
+      } else {
+        content += averageBlock(455, 575, 88);
+        content += runMetaBlock(710);
+        content += line(835);
+        if (chosenTitle) {
+          content += text(540, 925, 40, t('MUSIQUE', 'MUSIC'), 820, accent);
+          content += music(chosenTitle, chosenArtist, 1010, 62);
+        }
       }
     } else {
       content += header(t('MON RYTHME', 'MY RHYTHM'));
