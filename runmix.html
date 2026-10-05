@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>Run Mix — BeatOnStep</title>
+  <meta name="description" content="Un Run Mix BeatOnStep partagé : le rythme et la musique d'une course." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Run Mix — BeatOnStep" />
+  <meta property="og:description" content="Découvre ce Run Mix dans BeatOnStep et cours avec la même sélection musicale." />
+  <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/assets/brand/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="assets/brand/logo-400.jpg" type="image/jpeg" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a08;
+      --card: #151510;
+      --ink: #f4f1e0;
+      --muted: #a8a596;
+      --line: rgba(244,241,224,.14);
+      --accent: #fcea07;
+      --on-accent: #17160a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 50% 10%, rgba(252,234,7,.09), transparent 36rem),
+        var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main { width: min(100%, 520px); }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .brand img { width: 42px; height: 42px; border-radius: 10px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(21,21,16,.92);
+      padding: 28px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.28);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 8vw, 46px);
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .meta {
+      margin: 22px 0 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .metric {
+      min-width: 0;
+      padding: 15px 8px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+    .metric:last-child { border-right: 0; }
+    .metric strong { display: block; font-size: 18px; }
+    .metric span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .source {
+      margin: 18px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+    .privacy {
+      margin: 18px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .open {
+      margin-top: 24px;
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font: inherit;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .open:disabled { opacity: .5; cursor: default; }
+    .stores {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .stores img { display: block; height: 40px; width: auto; }
+    .error {
+      display: none;
+      margin: 18px 0 0;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.45;
+    }
+    .lang {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .lang button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lang button.active { color: var(--ink); }
+    [data-lang] { display: none; }
+    html[data-language="fr"] [data-lang="fr"],
+    html[data-language="en"] [data-lang="en"] { display: initial; }
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card { padding: 22px 18px; border-radius: 20px; }
+      .metric strong { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="brand" href="./">
+      <img src="assets/brand/logo-400.jpg" alt="" />
+      <span>BeatOnStep</span>
+    </a>
+
+    <section class="card">
+      <p class="eyebrow">Run Mix</p>
+      <h1 id="mix-name">Run Mix</h1>
+
+      <div class="meta" id="meta">
+        <div class="metric">
+          <strong id="bpm">—</strong>
+          <span>BPM</span>
+        </div>
+        <div class="metric">
+          <strong id="tracks">—</strong>
+          <span data-lang="fr">titres</span><span data-lang="en">tracks</span>
+        </div>
+        <div class="metric">
+          <strong id="duration">—</strong>
+          <span data-lang="fr">durée</span><span data-lang="en">duration</span>
+        </div>
+      </div>
+
+      <p class="source"><span id="source">—</span></p>
+      <p class="privacy" data-lang="fr">La liste des titres est disponible dans BeatOnStep.</p>
+      <p class="privacy" data-lang="en">The track list is available in BeatOnStep.</p>
+
+      <button class="open" id="open-app" type="button">
+        <span data-lang="fr">Ouvrir le Run Mix dans BeatOnStep</span>
+        <span data-lang="en">Open the Run Mix in BeatOnStep</span>
+      </button>
+
+      <p class="error" id="error-fr">Ce lien Run Mix est invalide ou incomplet.</p>
+      <p class="error" id="error-en">This Run Mix link is invalid or incomplete.</p>
+
+      <div class="stores" aria-label="Télécharger BeatOnStep">
+        <a href="https://apps.apple.com/app/beatonstep/id6803512375">
+          <img id="appstore-fr" src="badges/app-store-fr.svg" alt="Télécharger dans l’App Store" />
+          <img id="appstore-en" src="badges/app-store-en.svg" alt="Download on the App Store" />
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share">
+          <img id="play-fr" src="badges/google-play-fr.svg" alt="Disponible sur Google Play" />
+          <img id="play-en" src="badges/google-play-en.png" alt="Get it on Google Play" />
+        </a>
+      </div>
+
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-fr">FR</button>
+        <button type="button" id="lang-en">EN</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var language = (navigator.language || "fr").toLowerCase().startsWith("fr") ? "fr" : "en";
+      var payload = location.hash.length > 1 ? location.hash.slice(1) : "";
+
+      function setLanguage(next) {
+        language = next === "en" ? "en" : "fr";
+        document.documentElement.setAttribute("data-language", language);
+        document.documentElement.lang = language;
+        document.getElementById("lang-fr").classList.toggle("active", language === "fr");
+        document.getElementById("lang-en").classList.toggle("active", language === "en");
+        document.getElementById("appstore-fr").style.display = language === "fr" ? "block" : "none";
+        document.getElementById("appstore-en").style.display = language === "en" ? "block" : "none";
+        document.getElementById("play-fr").style.display = language === "fr" ? "block" : "none";
+        document.getElementById("play-en").style.display = language === "en" ? "block" : "none";
+      }
+
+      function clean(value) {
+        return typeof value === "string" ? value.trim() : "";
+      }
+
+      function formatDuration(seconds) {
+        if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return "—";
+        var total = Math.round(seconds);
+        var hours = Math.floor(total / 3600);
+        var minutes = Math.floor((total % 3600) / 60);
+        if (hours > 0) return hours + " h " + String(minutes).padStart(2, "0");
+        return Math.max(1, minutes) + " min";
+      }
+
+      function sourceLabel(source) {
+        if (source === "spotify") return "Spotify";
+        if (source === "deezer") return "Deezer";
+        if (source === "youtube") return "YouTube Music";
+        if (source === "apple") return "Apple Music";
+        return "—";
+      }
+
+      function showError() {
+        document.getElementById("open-app").disabled = true;
+        document.getElementById(language === "fr" ? "error-fr" : "error-en").style.display = "block";
+      }
+
+      setLanguage(language);
+      document.getElementById("lang-fr").addEventListener("click", function () { setLanguage("fr"); });
+      document.getElementById("lang-en").addEventListener("click", function () { setLanguage("en"); });
+
+      try {
+        var raw = JSON.parse(decodeURIComponent(payload));
+        if (
+          raw.v !== 1 ||
+          typeof raw.i !== "string" ||
+          !Array.isArray(raw.t) ||
+          raw.t.length < 1 ||
+          !["spotify", "deezer", "youtube", "apple"].includes(raw.s)
+        ) {
+          throw new Error("invalid");
+        }
+
+        document.getElementById("mix-name").textContent = clean(raw.n) || "Run Mix";
+        document.getElementById("bpm").textContent =
+          typeof raw.b === "number" && Number.isFinite(raw.b) && raw.b > 0 ? Math.round(raw.b) : "—";
+        document.getElementById("tracks").textContent = String(raw.t.length);
+        document.getElementById("duration").textContent = formatDuration(raw.d);
+        document.getElementById("source").textContent = sourceLabel(raw.s);
+
+        document.getElementById("open-app").addEventListener("click", function () {
+          location.href = "beatonstep://runmix?data=" + encodeURIComponent(payload);
+        });
+      } catch (error) {
+        showError();
+      }
+    })();
+  </script>
+</body>
+</html>
