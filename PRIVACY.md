@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 5 septembre 2026
+**Dernière mise à jour :** 6 octobre 2026
 
 ## 1. Qui sommes-nous
 
@@ -8,11 +8,11 @@ BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au 
 
 **Éditeur :** Rafael Orset — contact : [forum BeatOnStep](https://github.com/rafa-create/beatonstep-website/discussions/1)
 
-## 2. Principe général : pas de collecte éditeur
+## 2. Principe général : collecte minimale, sans tracking commercial
 
-BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'intègre **pas d'analytique ou de tracking commercial**. Aucune donnée de cadence (PPM), de parcours, ni de bibliothèque musicale n'est envoyée à l'éditeur à des fins marketing ou de profilage.
+BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'effectue **aucun tracking commercial ni profilage**. Une mesure d'usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n'est inclus dans cette mesure.
 
-Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens Spotify ou Deezer collés, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
+Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens de titres Spotify, liens Partager Deezer, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
 
 ## 3. Fonctionnalités et flux de données
 
@@ -25,7 +25,7 @@ Selon les fonctions que **vous** activez, l'application peut échanger des donn�
 ### 3.2 Détection de cadence (PPM)
 
 - L'accéléromètre est lu **sur l'appareil** pour estimer votre cadence de pas.
-- Ces mesures **ne sont pas transmises** à l'éditeur ni à un serveur BeatOnStep.
+- Ces mesures restent **sur l’appareil par défaut** et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement **Help → Envoyer** (§ 3.11).
 - Elles servent uniquement au fonctionnement temps réel de l'app (sélection et lecture de musique adaptée à votre rythme).
 
 ### 3.3 Mix démo et serveur musique (optionnel)
@@ -65,15 +65,16 @@ Si vous connectez un compte Apple pour utiliser Apple Music dans BeatOnStep :
 
 **Android :** l'app Apple Music ([Google Play](https://play.google.com/store/apps/details?id=com.apple.android.music)) doit être installée ; BeatOnStep ouvre le morceau dans cette app (pas de lecteur intégré BeatOnStep).
 
-### 3.6 Spotify (optionnel — liens Partager)
+### 3.6 Spotify (optionnel — liens de titres / playlists publiques)
 
-Lorsque vous utilisez Spotify dans BeatOnStep :
+Si vous importez des titres Spotify dans BeatOnStep :
 
-- Fonction **initiée par vous** : vous collez le lien **Partager** d'un **morceau**, ou d'une **playlist publique**. BeatOnStep **ne se connecte pas** à votre compte Spotify.
-- L'app peut interroger le catalogue public de Spotify pour afficher le titre. Aucun mot de passe Spotify n'est demandé ni transmis à l'éditeur.
-- Les identifiants et métadonnées restent **sur l'appareil**.
-- La **lecture** s'effectue dans l'app **Spotify** — pas dans BeatOnStep. Un compte Spotify (et, selon les titres, un abonnement) peut être requis par Spotify.
-- Une playlist **privée** ne peut pas être lue sans connexion officielle, qui n'est pas proposée au public pour l'instant.
+- Fonction **initiée par vous** : vous collez des liens de **morceaux** (`open.spotify.com/track/…` ou `spotify:track:…`) et/ou une URL de **playlist publique** (`open.spotify.com/playlist/…`). BeatOnStep **ne se connecte pas** à votre compte Spotify dans cette version (pas d’OAuth).
+- Pour une playlist publique, l’app peut lire la liste des titres exposée par la **page embed publique** Spotify (identifiants de morceaux, titre, artiste, durée). Aucun mot de passe Spotify n’est demandé ni transmis à l’éditeur.
+- Une playlist **privée** ne peut pas être lue. BeatOnStep **n’importe pas** vos playlists privées.
+- Pour un morceau seul, l’app peut interroger le service **oEmbed** public de Spotify pour afficher le titre.
+- Les identifiants de titres et métadonnées restent **sur l’appareil**.
+- La **lecture** s’effectue dans l’app **Spotify** — pas dans BeatOnStep. Un compte Spotify (et, selon les titres, un abonnement) peut être requis par Spotify.
 - BeatOnStep **ne fournit pas** le catalogue Spotify.
 
 ### 3.7 Deezer (optionnel — liens Partager)
@@ -91,14 +92,50 @@ Si vous importez des titres Deezer dans BeatOnStep :
 
 L'app peut contacter les services **Expo** pour vérifier et télécharger des mises à jour JavaScript liées à votre installation. Il ne s'agit pas d'un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n'est envoyée via ce canal.
 
-### 3.9 Garmin et forme du parcours (optionnel)
+### 3.9 Mesure pseudonyme du nombre de playlists importées
+
+Pour évaluer l'usage de la fonction d'import et améliorer le produit, BeatOnStep peut envoyer occasionnellement au serveur de l'éditeur un **snapshot minimal** comprenant :
+
+- un identifiant d'installation aléatoire propre à BeatOnStep ;
+- la plateforme (iOS / Android) et la version de l'app ;
+- le **nombre** de playlists personnelles encore importées pour Apple Music, YouTube, Spotify et Deezer.
+
+Cette mesure correspond à de l'**analytics produit** : elle sert à comprendre l'utilisation de la fonction d'import et à orienter les améliorations de BeatOnStep.
+
+Cette mesure ne contient **aucun nom ni identifiant de playlist**, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (PPM) ou parcours. Les imports manuels de morceaux et les playlists/albums curatés fournis par BeatOnStep sont exclus du compteur.
+
+L'identifiant est généré aléatoirement par BeatOnStep. Il n'est pas l'identifiant Apple, Google, Android ou d'un fournisseur musical et ne contient ni nom, ni adresse e-mail, ni identifiant de compte. Il permet uniquement de rattacher les snapshots successifs à une **même installation de BeatOnStep** et n'est pas utilisé pour identifier la personne qui utilise l'app.
+
+Les suppressions sont prises en compte : le snapshot suivant reflète le nombre de playlists encore présentes dans l'app. L'envoi est limité à au plus une fois par jour après un changement et, si rien ne change, à un rappel au plus une fois tous les 7 jours pour mesurer les installations actives.
+
+Le serveur conserve seulement le **dernier snapshot connu par installation** afin de produire des statistiques cumulées depuis le début de cette mesure ; il ne conserve pas l'historique détaillé de chaque envoi. L'adresse IP peut être traitée techniquement pendant la connexion HTTPS mais n'est pas enregistrée dans le fichier de mesure.
+
+Ces données ne sont **ni vendues, ni utilisées pour la publicité, ni utilisées pour le suivi publicitaire (« tracking »), ni croisées avec des données provenant d'autres entreprises à des fins de profilage**.
+
+### 3.10 Garmin et forme du parcours (optionnel)
 
 Si vous utilisez une montre Garmin compatible avec BeatOnStep :
 
 - la montre utilise son GPS dans le cadre de l'activité Garmin enregistrée et peut transmettre temporairement à l'app BeatOnStep les positions nécessaires au récapitulatif ;
-- les coordonnées GPS brutes restent **uniquement en mémoire pendant la course** : BeatOnStep ne les persiste pas et ne les envoie pas au serveur BeatOnStep ;
-- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours, sans latitude ni longitude, pour le récapitulatif et les visuels de partage ;
-- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.
+- les coordonnées GPS brutes restent **uniquement en mémoire pendant la course** : BeatOnStep ne les persiste pas dans son stockage local et ne les envoie pas au serveur BeatOnStep ;
+- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours (un petit tracé sans latitude, longitude ni fond de carte) pour le récapitulatif et les visuels de partage ;
+- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse dans le visuel ou son brouillon ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.
+
+### 3.11 Rapport Help / diagnostic volontaire
+
+Si vous utilisez le bouton **Help** dans Réglages, BeatOnStep affiche une confirmation avant tout envoi. Si vous choisissez **Envoyer**, l'app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l'application.
+
+Ce rapport peut inclure :
+
+- version, build, runtime et informations techniques de l'application ;
+- événements de diagnostic récents liés au fonctionnement de BeatOnStep ;
+- diagnostic PPM des dernières minutes, pouvant contenir des échantillons d'accéléromètre et la cadence calculée ;
+- états techniques Garmin / Apple Watch et des intégrations musicales (par exemple disponibilité, états de lecture, erreurs et identifiants techniques de titres ou d'appareils lorsqu'ils figurent déjà dans le diagnostic) ;
+- l'identifiant d'installation pseudonyme BeatOnStep, la plateforme et la version de l'app.
+
+L'envoi est **strictement déclenché par l'utilisateur** : aucun rapport Help n'est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n'est inclus.
+
+Le serveur utilise ce rapport uniquement pour le **support technique et le diagnostic d'incidents**. Les petits rapports peuvent être inclus directement dans l'e-mail de support ; les rapports plus volumineux peuvent être joints sous forme de fichier texte. L'adresse e-mail privée du destinataire du support reste configurée côté serveur et n'est pas exposée dans l'app.
 
 ## 4. Permissions demandées
 
@@ -116,7 +153,7 @@ BeatOnStep demande uniquement l'accès aux **capteurs de mouvement** (accéléro
 
 L'accès à la **médiathèque** (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.
 
-L'app mobile BeatOnStep ne demande **aucune permission de localisation GPS du téléphone**. Si vous utilisez l'app Garmin BeatOnStep, la montre peut utiliser sa propre permission de positionnement pour enregistrer l'activité et fournir le tracé relatif décrit au § 3.9. BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
+L'app mobile BeatOnStep ne demande **aucune permission de localisation GPS du téléphone**. Si vous utilisez l'app Garmin BeatOnStep, la montre peut utiliser sa propre permission de positionnement pour enregistrer l'activité et fournir le tracé relatif décrit au § 3.10. BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
 
 ## 5. Données stockées localement
 
@@ -125,9 +162,10 @@ Sur votre appareil, dans l'espace privé de l'app :
 - Bibliothèque importée (chemins, BPM, sources activées).
 - Préférences (mode, plages cibles, réglages, langue).
 - Jetons de connexion YouTube et Apple Music (si connectés).
-- Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify.
+- Titres Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify dans cette version.
 - Titres Deezer dont vous avez collé le lien Partager (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Deezer dans cette version.
-- Forme relative simplifiée du dernier parcours Garmin utilisée pour le récapitulatif/story, lorsqu'elle est disponible (§ 3.9) — **sans coordonnées GPS brutes**.
+- Identifiant d'installation aléatoire BeatOnStep et dernier état local de la mesure de playlists (§ 3.9).
+- Forme relative simplifiée du dernier parcours Garmin utilisée pour le récapitulatif/story, lorsqu'elle est disponible (§ 3.10) — **sans coordonnées GPS brutes**.
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l'app.
 
@@ -139,10 +177,10 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 | **Apple / Apple Music** | Si vous connectez Apple Music | Connexion Apple ; métadonnées playlists |
 | **Apple (App Store)** | Distribution iOS | Gestion par Apple selon ses propres règles |
 | **Expo** | Automatique | Vérification / téléchargement de mises à jour OTA |
-| **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
-| **Spotify** | Si vous collez un lien Partager | Demande du titre au catalogue public ; ouverture dans l'app Spotify. Pas de connexion compte |
+| **Serveur BeatOnStep** | Catalogue / analyse BPM, mesure pseudonyme d'usage et support volontaire | Liste de titres ; éventuel fichier audio pour analyse BPM ; compteurs de playlists par source + identifiant d'installation aléatoire (§ 3.9) ; rapport technique Help uniquement après confirmation explicite (§ 3.11) |
+| **Spotify** | Si vous collez des liens de morceaux | Requête oEmbed (titre) ; ouverture du titre dans l'app Spotify. Pas de connexion compte dans cette version |
 | **Deezer** | Si vous collez un lien Partager (morceau ou playlist publique) | Requête catalogue public (titre, durée, parfois BPM) ; ouverture du titre dans l'app Deezer. Pas de connexion compte dans cette version |
-| **Garmin Connect IQ** | Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course | Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.9) |
+| **Garmin Connect IQ** | Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course | Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.10) |
 
 Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.
 
@@ -150,14 +188,18 @@ Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau soci
 
 L'application n'est pas destinée aux enfants de moins de 13 ans (16 ans dans l'UE) et ne collecte sciemment aucune donnée les concernant.
 
-## 8. Vos droits (RGPD / vie privée)
+## 8. Vos choix et droits (RGPD / vie privée)
+
+BeatOnStep n'utilise aucun suivi publicitaire et ne propose donc aucun réglage de consentement publicitaire. Vous pouvez gérer les données locales directement dans l'app, déconnecter les services musicaux concernés ou désinstaller l'app, ce qui arrête les futurs envois de la mesure pseudonyme décrite au § 3.9.
+
+La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant à l'éditeur de rattacher spontanément un snapshot à votre identité. Pour toute question relative à cette mesure ou à vos droits, utilisez le forum BeatOnStep indiqué ci-dessous.
 
 - **Données locales** (bibliothèque, réglages, jetons) : vous les contrôlez directement dans l'app ou via la désinstallation.
 - **Compte Google / YouTube** : exercez vos droits auprès de Google selon leurs procédures.
 - **Compte Apple / Apple Music** : exercez vos droits auprès d'Apple selon leurs procédures.
 - **Spotify** : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l'appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.
 - **Deezer** : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l'appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.
-- **Serveur musique** : pas de compte utilisateur BeatOnStep ; pour toute question, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **Serveur BeatOnStep** : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Help sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
 
