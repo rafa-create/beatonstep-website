@@ -91,6 +91,15 @@ Lorsque vous utilisez Deezer dans BeatOnStep :
 
 L'app peut contacter les services **Expo** pour vérifier et télécharger des mises à jour JavaScript liées à votre installation. Il ne s'agit pas d'un SDK publicitaire ; aucune donnée de cadence ni de bibliothèque musicale n'est envoyée via ce canal.
 
+### 3.9 Garmin et forme du parcours (optionnel)
+
+Si vous utilisez une montre Garmin compatible avec BeatOnStep :
+
+- la montre utilise son GPS dans le cadre de l'activité Garmin enregistrée et peut transmettre temporairement à l'app BeatOnStep les positions nécessaires au récapitulatif ;
+- les coordonnées GPS brutes restent **uniquement en mémoire pendant la course** : BeatOnStep ne les persiste pas et ne les envoie pas au serveur BeatOnStep ;
+- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours, sans latitude ni longitude, pour le récapitulatif et les visuels de partage ;
+- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.
+
 ## 4. Permissions demandées
 
 ### Android
@@ -107,7 +116,7 @@ BeatOnStep demande uniquement l'accès aux **capteurs de mouvement** (accéléro
 
 L'accès à la **médiathèque** (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.
 
-**Aucune permission** n'accède à votre position GPS, vos contacts, votre appareil photo ou votre microphone.
+L'app mobile BeatOnStep ne demande **aucune permission de localisation GPS du téléphone**. Si vous utilisez l'app Garmin BeatOnStep, la montre peut utiliser sa propre permission de positionnement pour enregistrer l'activité et fournir le tracé relatif décrit au § 3.9. BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
 
 ## 5. Données stockées localement
 
@@ -118,6 +127,7 @@ Sur votre appareil, dans l'espace privé de l'app :
 - Jetons de connexion YouTube et Apple Music (si connectés).
 - Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify.
 - Titres ou playlists publiques Deezer dont vous avez collé le lien (identifiant, métadonnées, BPM saisi, détecté ou fourni par Deezer) — **pas** de jeton de compte Deezer.
+- Forme relative simplifiée du dernier parcours Garmin utilisée pour le récapitulatif/story, lorsqu'elle est disponible (§ 3.9) — **sans coordonnées GPS brutes**.
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l'app.
 
@@ -132,6 +142,7 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 | **Serveur mix BeatOnStep** | Si vous utilisez le catalogue ou l'analyse BPM | Liste de titres ; éventuel fichier audio pour analyse BPM |
 | **Spotify** | Si vous collez un lien Partager | Demande du titre au catalogue public ; ouverture dans l'app Spotify. Pas de connexion compte |
 | **Deezer** | Si vous collez un lien Partager | Demande titre / durée / parfois BPM au catalogue public ; ouverture dans l'app Deezer. Pas de connexion compte |
+| **Garmin Connect IQ** | Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course | Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.9) |
 
 Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.
 
