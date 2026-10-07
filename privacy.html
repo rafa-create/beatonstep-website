@@ -91,7 +91,7 @@
       <h3>3.2 Détection de cadence (PPM)</h3>
       <ul>
       <li>L&#x27;accéléromètre est lu <strong>sur l&#x27;appareil</strong> pour estimer votre cadence de pas.</li>
-      <li>Ces mesures restent <strong>sur l’appareil par défaut</strong> et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement <strong>Bug / remarque → Envoyer</strong> (§ 3.11).</li>
+      <li>Ces mesures restent <strong>sur l&#x27;appareil par défaut</strong> et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement <strong>Bug / remarque → Envoyer</strong> (§ 3.11).</li>
       <li>Elles servent uniquement au fonctionnement temps réel de l&#x27;app (sélection et lecture de musique adaptée à votre rythme).</li>
       </ul>
       <h3>3.3 Mix démo et serveur musique (optionnel)</h3>
@@ -167,11 +167,18 @@
       <li>BeatOnStep peut conserver localement une <strong>forme relative simplifiée</strong> du parcours, sans latitude ni longitude, pour le récapitulatif et les visuels de partage.</li>
       <li>Seule cette forme relative non géographique peut être incluse dans une story ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.</li>
       </ul>
-      <h3>3.11 Rapport Bug / remarque / diagnostic volontaire</h3>
-      <p>Si vous utilisez le bouton <strong>Bug / remarque</strong> dans Réglages, BeatOnStep affiche un champ de message et demande une action explicite avant tout envoi. Si vous choisissez <strong>Envoyer</strong>, l&#x27;app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l&#x27;application, avec le message que vous avez saisi.</p>
-      <p>Ce rapport peut inclure la version/build/runtime, des événements de diagnostic récents, le diagnostic PPM des dernières minutes (y compris des échantillons d&#x27;accéléromètre et la cadence calculée), les états techniques Garmin / Apple Watch et des intégrations musicales, ainsi que l&#x27;identifiant d&#x27;installation pseudonyme, la plateforme et la version de l&#x27;app.</p>
+      <h3>3.11 Rapport Bug / remarque volontaire</h3>
+      <p>Si vous utilisez le bouton <strong>Bug / remarque</strong> dans Réglages, BeatOnStep affiche un champ de message et demande une action explicite avant tout envoi. Si vous choisissez <strong>Envoyer</strong>, l&#x27;app transmet le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l&#x27;application, avec le message que vous avez saisi.</p>
+      <p>Ce rapport peut inclure :</p>
+      <ul>
+      <li>la version, le build, le runtime et les informations techniques de livraison de l&#x27;application ;</li>
+      <li>des événements de diagnostic récents liés au fonctionnement de BeatOnStep ;</li>
+      <li>le diagnostic PPM récent, pouvant contenir des échantillons d&#x27;accéléromètre et la cadence calculée ;</li>
+      <li>des états techniques Garmin / Apple Watch et des intégrations musicales, par exemple disponibilité, états de lecture, erreurs et identifiants techniques de titres ou d&#x27;appareils lorsqu&#x27;ils figurent déjà dans le diagnostic ;</li>
+      <li>l&#x27;identifiant d&#x27;installation pseudonyme BeatOnStep, la plateforme et la version de l&#x27;app.</li>
+      </ul>
       <p>L&#x27;envoi est <strong>strictement déclenché par l&#x27;utilisateur</strong> : aucun rapport Bug / remarque n&#x27;est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n&#x27;est inclus.</p>
-      <p>Le rapport sert uniquement au <strong>support technique et au diagnostic d&#x27;incidents</strong>. Les petits rapports peuvent être inclus dans le corps de l&#x27;e-mail ; les plus volumineux peuvent être joints sous forme de fichier texte. L&#x27;adresse e-mail privée du support reste configurée côté serveur et n&#x27;est pas exposée dans l&#x27;app.</p>
+      <p>Le serveur utilise ce rapport uniquement pour le <strong>support technique et le diagnostic d&#x27;incidents</strong>. Les petits rapports peuvent être inclus directement dans l&#x27;e-mail de support ; les rapports plus volumineux peuvent être joints sous forme de fichier texte. L&#x27;adresse e-mail privée du destinataire du support reste configurée côté serveur et n&#x27;est pas exposée dans l&#x27;app.</p>
       <h2>4. Permissions demandées</h2>
       <h3>Android</h3>
       <table>
@@ -205,7 +212,7 @@
       <tr><td><strong>Apple / Apple Music</strong></td><td>Si vous connectez Apple Music</td><td>Connexion Apple ; métadonnées playlists</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>Distribution iOS</td><td>Gestion par Apple selon ses propres règles</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatique</td><td>Vérification / téléchargement de mises à jour OTA</td></tr>
-      <tr><td><strong>Serveur BeatOnStep</strong></td><td>Catalogue / analyse BPM, mesure pseudonyme d&#x27;usage et support volontaire</td><td>Liste de titres ; éventuel fichier audio pour analyse BPM ; compteur agrégé de playlists par source + identifiant d&#x27;installation aléatoire (§ 3.9) ; rapport technique Help uniquement après confirmation explicite (§ 3.11)</td></tr>
+      <tr><td><strong>Serveur BeatOnStep</strong></td><td>Catalogue / analyse BPM, mesure pseudonyme d&#x27;usage et support volontaire</td><td>Liste de titres ; éventuel fichier audio pour analyse BPM ; compteur agrégé de playlists par source + identifiant d&#x27;installation aléatoire (§ 3.9) ; rapport technique Bug / remarque uniquement après action explicite (§ 3.11)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>Si vous collez un lien Partager</td><td>Demande du titre au catalogue public ; ouverture dans l&#x27;app Spotify. Pas de connexion compte</td></tr>
       <tr><td><strong>Deezer</strong></td><td>Si vous collez un lien Partager</td><td>Demande titre / durée / parfois BPM au catalogue public ; ouverture dans l&#x27;app Deezer. Pas de connexion compte</td></tr>
       <tr><td><strong>Garmin Connect IQ</strong></td><td>Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course</td><td>Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.10)</td></tr>
@@ -222,7 +229,7 @@
       <li><strong>Compte Apple / Apple Music</strong> : exercez vos droits auprès d&#x27;Apple selon leurs procédures.</li>
       <li><strong>Spotify</strong> : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l&#x27;appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.</li>
       <li><strong>Deezer</strong> : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l&#x27;appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.</li>
-      <li><strong>Serveur BeatOnStep</strong> : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois ; pour toute question relative à ces données, utilisez le <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
+      <li><strong>Serveur BeatOnStep</strong> : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Bug / remarque sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
       </ul>
       <h2>9. Modifications</h2>
       <p>Cette politique peut être mise à jour. La date en haut du document reflète la dernière révision. La version en vigueur est disponible à l&#x27;adresse communiquée sur la fiche <strong>Google Play</strong> et dans l&#x27;app (<em>Réglages → À propos</em>) :</p>
@@ -263,7 +270,7 @@
       <h3>3.2 Cadence detection (SPM)</h3>
       <ul>
       <li>The accelerometer is read <strong>on-device</strong> to estimate your step cadence.</li>
-      <li>These readings stay <strong>on-device by default</strong> and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose <strong>Bug / feedback → Send</strong> (§ 3.11).</li>
+      <li>These readings stay <strong>on the device by default</strong> and are not sent automatically. They may only be included in a diagnostic report if you explicitly choose <strong>Bug / feedback → Send</strong> (§ 3.11).</li>
       <li>They are used solely for real-time app operation (selecting and playing music matched to your pace).</li>
       </ul>
       <h3>3.3 Demo mix and music server (optional)</h3>
@@ -340,10 +347,17 @@
       <li>Only this non-geographic relative shape may be included in a story; raw GPS coordinates are never included in the share URL.</li>
       </ul>
       <h3>3.11 Voluntary Bug / feedback diagnostic report</h3>
-      <p>If you use the <strong>Bug / feedback</strong> button in Settings, BeatOnStep shows a message field and requires an explicit action before anything is sent. If you choose <strong>Send</strong>, the app sends the BeatOnStep server the same technical report that you can manually share by tapping the app version, together with the message you typed.</p>
-      <p>This report may include app version/build/runtime, recent diagnostic events, the last few minutes of SPM diagnostics (including accelerometer samples and calculated cadence), technical Garmin / Apple Watch and music-integration states, plus the pseudonymous installation identifier, platform, and app version.</p>
-      <p>Sending is <strong>strictly user-initiated</strong>: no Bug / feedback report is transmitted automatically. No password, OAuth token, or music file is included.</p>
-      <p>The report is used only for <strong>technical support and incident diagnosis</strong>. Small reports may be placed directly in the email body; larger reports may be attached as a text file. The private support recipient email address is configured only on the server and is not exposed in the app.</p>
+      <p>If you use the <strong>Bug / feedback</strong> button in Settings, BeatOnStep shows a message field and requires an explicit action before any transmission. If you choose <strong>Send</strong>, the app sends the same technical report that you can manually share by tapping the app version, together with the message you typed.</p>
+      <p>This report may include:</p>
+      <ul>
+      <li>app version, build, runtime and technical delivery information;</li>
+      <li>recent diagnostic events related to BeatOnStep operation;</li>
+      <li>recent SPM diagnostics, which may contain accelerometer samples and calculated cadence;</li>
+      <li>technical states for Garmin / Apple Watch and music integrations, for example availability, playback states, errors, and technical track or device identifiers when already present in the diagnostic;</li>
+      <li>the pseudonymous BeatOnStep installation identifier, platform and app version.</li>
+      </ul>
+      <p>Sending is <strong>strictly user-initiated</strong>: no Bug / feedback diagnostic report is transmitted automatically. No password, OAuth token, or music file is included.</p>
+      <p>The server uses the report only for <strong>technical support and incident diagnosis</strong>. Small reports may be included directly in the support email; larger reports may be attached as a text file. The private support recipient email address is configured only on the server and is not exposed in the app.</p>
       <h2>4. Permissions</h2>
       <h3>Android</h3>
       <table>
@@ -377,7 +391,7 @@
       <tr><td><strong>Apple / Apple Music</strong></td><td>If you connect Apple Music</td><td>Apple sign-in; playlist metadata</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>iOS distribution</td><td>Managed by Apple under their own terms</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatic</td><td>OTA update verification / download</td></tr>
-      <tr><td><strong>BeatOnStep server</strong></td><td>Catalogue / BPM analysis, pseudonymous usage measurement and voluntary support</td><td>Track list; optional audio file for BPM analysis; aggregate playlist counts by source + random installation identifier (§ 3.9); Help technical report only after explicit confirmation (§ 3.11)</td></tr>
+      <tr><td><strong>BeatOnStep server</strong></td><td>Catalogue / BPM analysis, pseudonymous usage measurement, and voluntary support</td><td>Track list; optional audio file for BPM analysis; aggregate playlist counts by source + random installation identifier (§ 3.9); technical Bug / feedback report only after explicit action (§ 3.11)</td></tr>
       <tr><td><strong>Spotify</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title); opening in the Spotify app. No account sign-in</td></tr>
       <tr><td><strong>Deezer</strong></td><td>If you paste a Share link</td><td>Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in</td></tr>
       <tr><td><strong>Garmin Connect IQ</strong></td><td>If you pair a Garmin watch and use BeatOnStep during a run</td><td>Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.10)</td></tr>
@@ -394,7 +408,7 @@
       <li><strong>Apple / Apple Music account</strong>: exercise your rights with Apple under their procedures.</li>
       <li><strong>Spotify</strong>: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.</li>
       <li><strong>Deezer</strong>: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.</li>
-      <li><strong>BeatOnStep server</strong>: no user account. The pseudonymous playlist measurement keeps only the latest known state per installation, with no detailed transmission history; for any question about these data, use the <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
+      <li><strong>BeatOnStep server</strong>: no user account. The pseudonymous playlist measurement keeps only the latest known state per installation, with no detailed transmission history. Bug / feedback reports are sent only at your request for technical support (§ 3.11); for any question about these data, use the <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum</a>.</li>
       </ul>
       <h2>9. Changes</h2>
       <p>This policy may be updated. The date at the top reflects the latest revision. The current version is available at the address listed on <strong>Google Play</strong> and in the app (<em>Settings → About</em>):</p>

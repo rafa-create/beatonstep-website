@@ -25,7 +25,7 @@ Selon les fonctions que **vous** activez, l'application peut échanger des donn�
 ### 3.2 Détection de cadence (PPM)
 
 - L'accéléromètre est lu **sur l'appareil** pour estimer votre cadence de pas.
-- Ces mesures restent **sur l’appareil par défaut** et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement **Bug / remarque → Envoyer** (§ 3.11).
+- Ces mesures restent **sur l’appareil par défaut** et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement **Help → Envoyer** (§ 3.11).
 - Elles servent uniquement au fonctionnement temps réel de l'app (sélection et lecture de musique adaptée à votre rythme).
 
 ### 3.3 Mix démo et serveur musique (optionnel)
@@ -121,9 +121,9 @@ Si vous utilisez une montre Garmin compatible avec BeatOnStep :
 - à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours (un petit tracé sans latitude, longitude ni fond de carte) pour le récapitulatif et les visuels de partage ;
 - si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse dans le visuel ou son brouillon ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.
 
-### 3.11 Rapport Bug / remarque / diagnostic volontaire
+### 3.11 Rapport Help / diagnostic volontaire
 
-Si vous utilisez le bouton **Bug / remarque** dans Réglages, BeatOnStep affiche un champ de message et demande une action explicite avant tout envoi. Si vous choisissez **Envoyer**, l'app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l'application, avec le message que vous avez saisi.
+Si vous utilisez le bouton **Help** dans Réglages, BeatOnStep affiche une confirmation avant tout envoi. Si vous choisissez **Envoyer**, l'app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l'application.
 
 Ce rapport peut inclure :
 
@@ -133,7 +133,7 @@ Ce rapport peut inclure :
 - états techniques Garmin / Apple Watch et des intégrations musicales (par exemple disponibilité, états de lecture, erreurs et identifiants techniques de titres ou d'appareils lorsqu'ils figurent déjà dans le diagnostic) ;
 - l'identifiant d'installation pseudonyme BeatOnStep, la plateforme et la version de l'app.
 
-L'envoi est **strictement déclenché par l'utilisateur** : aucun rapport Bug / remarque n'est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n'est inclus.
+L'envoi est **strictement déclenché par l'utilisateur** : aucun rapport Help n'est transmis automatiquement. Aucun mot de passe, token OAuth ni fichier musical n'est inclus.
 
 Le serveur utilise ce rapport uniquement pour le **support technique et le diagnostic d'incidents**. Les petits rapports peuvent être inclus directement dans l'e-mail de support ; les rapports plus volumineux peuvent être joints sous forme de fichier texte. L'adresse e-mail privée du destinataire du support reste configurée côté serveur et n'est pas exposée dans l'app.
 
@@ -199,7 +199,7 @@ La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant
 - **Compte Apple / Apple Music** : exercez vos droits auprès d'Apple selon leurs procédures.
 - **Spotify** : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l'appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.
 - **Deezer** : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l'appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.
-- **Serveur BeatOnStep** : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Bug / remarque sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **Serveur BeatOnStep** : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Help sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
 
