@@ -63,19 +63,6 @@
       </div>
     </div>
   </div>
-  <aside class="version-banner" data-version-banner hidden aria-live="polite">
-    <div class="version-banner-inner">
-      <span class="version-banner-label" data-fr>Dernières versions</span>
-      <span class="version-banner-label" data-en>Latest versions</span>
-      <a href="https://apps.apple.com/app/beatonstep/id6803512375" aria-label="BeatOnStep on the App Store">
-        iOS <strong data-version-ios>—</strong>
-      </a>
-      <span class="version-banner-separator" aria-hidden="true">·</span>
-      <a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep" aria-label="BeatOnStep on Google Play">
-        Android <strong data-version-android>—</strong>
-      </a>
-    </div>
-  </aside>
   <div class="wrap">
     <header>
       <div class="brand-row">
@@ -140,8 +127,8 @@
             <img src="badges/app-store-en.svg" width="120" height="40" alt="Download on the App Store" />
           </a>
         </nav>
-        <p class="hero-note" data-fr>Disponible sur Google Play et l’App Store.</p>
-        <p class="hero-note" data-en>Available on Google Play and the App Store.</p>
+        <p class="hero-note" data-fr>Disponible sur Google Play et l’App Store<span data-version-note-fr></span></p>
+        <p class="hero-note" data-en>Available on Google Play and the App Store<span data-version-note-en></span></p>
       </div>
     </section>
 
@@ -1736,11 +1723,10 @@
     })();
   </script>
   <script>
-    (function storeVersionBanner() {
-      var banner = document.querySelector("[data-version-banner]");
-      var ios = document.querySelector("[data-version-ios]");
-      var android = document.querySelector("[data-version-android]");
-      if (!banner || !ios || !android) return;
+    (function storeVersionNote() {
+      var fr = document.querySelector("[data-version-note-fr]");
+      var en = document.querySelector("[data-version-note-en]");
+      if (!fr || !en) return;
 
       fetch("app-update.json", { cache: "no-store", headers: { Accept: "application/json" } })
         .then(function (response) {
@@ -1748,7 +1734,7 @@
           return response.json();
         })
         .then(function (manifest) {
-          var versionPattern = /^\d+(?:\.\d+)*$/;
+          var versionPattern = /^\\d+(?:\\.\\d+)*$/;
           var iosVersion = manifest && manifest.ios && manifest.ios.latestVersion;
           var androidVersion = manifest && manifest.android && manifest.android.latestVersion;
           if (
@@ -1761,12 +1747,17 @@
           ) {
             return;
           }
-          ios.textContent = iosVersion;
-          android.textContent = androidVersion;
-          banner.hidden = false;
+
+          if (iosVersion === androidVersion) {
+            fr.textContent = " · version " + iosVersion;
+            en.textContent = " · version " + iosVersion;
+          } else {
+            fr.textContent = " · iOS " + iosVersion + " · Android " + androidVersion;
+            en.textContent = " · iOS " + iosVersion + " · Android " + androidVersion;
+          }
         })
         .catch(function () {
-          // Le bandeau est informatif : en cas de panne, le site reste inchangé.
+          // La version est informative : si le manifeste est indisponible, le texte de base reste affiché.
         });
     })();
   </script>
