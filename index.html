@@ -63,6 +63,19 @@
       </div>
     </div>
   </div>
+  <aside class="version-banner" data-version-banner hidden aria-live="polite">
+    <div class="version-banner-inner">
+      <span class="version-banner-label" data-fr>Dernières versions</span>
+      <span class="version-banner-label" data-en>Latest versions</span>
+      <a href="https://apps.apple.com/app/beatonstep/id6803512375" aria-label="BeatOnStep on the App Store">
+        iOS <strong data-version-ios>—</strong>
+      </a>
+      <span class="version-banner-separator" aria-hidden="true">·</span>
+      <a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep" aria-label="BeatOnStep on Google Play">
+        Android <strong data-version-android>—</strong>
+      </a>
+    </div>
+  </aside>
   <div class="wrap">
     <header>
       <div class="brand-row">
@@ -1698,6 +1711,41 @@
       document.querySelectorAll(".reveal, .reveal-stagger").forEach(function (el) {
         io.observe(el);
       });
+    })();
+  </script>
+  <script>
+    (function storeVersionBanner() {
+      var banner = document.querySelector("[data-version-banner]");
+      var ios = document.querySelector("[data-version-ios]");
+      var android = document.querySelector("[data-version-android]");
+      if (!banner || !ios || !android) return;
+
+      fetch("app-update.json", { cache: "no-store", headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("manifest unavailable");
+          return response.json();
+        })
+        .then(function (manifest) {
+          var versionPattern = /^\d+(?:\.\d+)*$/;
+          var iosVersion = manifest && manifest.ios && manifest.ios.latestVersion;
+          var androidVersion = manifest && manifest.android && manifest.android.latestVersion;
+          if (
+            !manifest ||
+            manifest.schemaVersion !== 1 ||
+            typeof iosVersion !== "string" ||
+            typeof androidVersion !== "string" ||
+            !versionPattern.test(iosVersion) ||
+            !versionPattern.test(androidVersion)
+          ) {
+            return;
+          }
+          ios.textContent = iosVersion;
+          android.textContent = androidVersion;
+          banner.hidden = false;
+        })
+        .catch(function () {
+          // Le bandeau est informatif : en cas de panne, le site reste inchangé.
+        });
     })();
   </script>
 </body>
