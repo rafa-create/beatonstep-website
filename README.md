@@ -24,3 +24,14 @@ screenshots-archive/            — anciennes captures site (hors stores)
 ```
 
 Éditer **ici**. Un push sur `main` met le site en ligne.
+
+
+## Manifeste versions Store
+
+`/app-update.json` est la source de vérité publique des versions BeatOnStep disponibles sur l’App Store et Google Play.
+
+Il est consommé par :
+- l’app mobile pour décider si une mise à jour native est recommandée ou obligatoire ;
+- le bandeau de l’accueil pour afficher automatiquement les versions iOS et Android.
+
+Le manifeste ne contient aucun secret ni URL de redirection Store. Les liens App Store / Google Play restent figés dans les clients. Lors d’une publication Store, mettre à jour `latestVersion` uniquement quand la nouvelle version est réellement publique.
