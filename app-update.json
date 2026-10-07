@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "ios": {
     "enabled": true,
-    "latestVersion": "1.7.0",
+    "latestVersion": "1.7.1",
     "minimumVersion": "1.0.0",
     "latestBuild": null,
     "minimumBuild": null
