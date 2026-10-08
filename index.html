@@ -1743,7 +1743,7 @@
           return response.json();
         })
         .then(function (manifest) {
-          var versionPattern = /^\\d+(?:\\.\\d+)*$/;
+          var versionPattern = /^\d+(?:\.\d+)*$/;
           var iosVersion = manifest && manifest.ios && manifest.ios.latestVersion;
           var androidVersion = manifest && manifest.android && manifest.android.latestVersion;
           if (
