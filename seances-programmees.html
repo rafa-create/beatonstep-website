@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Séances programmées — BeatOnStep</title>
-  <meta name="description" content="Prépare tes sorties musicales par phases : durée, BPM cible et morceaux sélectionnés pour chaque moment de ta course." />
+  <meta name="description" content="Crée automatiquement tes playlists de course par phases, avec une sélection de titres adaptée au BPM cible et à la durée de chaque effort." />
   <link rel="canonical" href="https://rafa-create.github.io/beatonstep-website/seances-programmees.html" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Séances programmées — BeatOnStep" />
-  <meta property="og:description" content="Ta séance, ta musique, ton rythme. Compose une sortie par phases et choisis le tempo de chaque moment." />
+  <meta property="og:description" content="Des playlists adaptées à chaque phase de ta course : sélection intelligente, BPM et progression musicale." />
   <meta property="og:url" content="https://rafa-create.github.io/beatonstep-website/seances-programmees.html" />
   <meta property="og:image" content="https://rafa-create.github.io/beatonstep-website/assets/brand/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -24,8 +24,8 @@
       en: "Planned workouts — BeatOnStep"
     };
     window.BOS_DESC = {
-      fr: "Prépare tes sorties musicales par phases : durée, BPM cible et morceaux sélectionnés pour chaque moment de ta course.",
-      en: "Plan your running soundtrack in phases, each with its own duration, target BPM and selected tracks."
+      fr: "Crée automatiquement tes playlists de course par phases, avec une sélection de titres adaptée au BPM cible et à la durée de chaque effort.",
+      en: "Automatically build running playlists for every workout phase with music matched to your target tempo."
     };
   </script>
   <script src="i18n.js"></script>
@@ -61,78 +61,87 @@
     <main class="workouts-page" id="main">
       <a class="workouts-back" data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à l’accueil</a>
       <a class="workouts-back" data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to home</a>
-      <div class="workouts-intro-block">
-        <p class="tag" data-fr>Déjà prêt</p>
-        <p class="tag" data-en>Available now</p>
-        <h1 data-fr>Ta séance, ta musique, ton rythme</h1>
-        <h1 data-en>Your workout, your music, your rhythm</h1>
-        <p class="workouts-intro" data-fr>Et si ta musique suivait aussi le programme de ta sortie ? Prépare un parcours musical par phases, avec une durée et un BPM cible pour chacune.</p>
-        <p class="workouts-intro" data-en>What if your music followed your training plan too? Build a soundtrack in phases, each with its own duration and target BPM.</p>
+      <div class="workouts-intro-block workouts-new-intro">
+        <p class="tag" data-fr>Nouveau · Playlists de séance</p>
+        <p class="tag" data-en>New · Workout playlists</p>
+        <h1 data-fr>Chaque phase a son rythme. <span>Sa playlist aussi.</span></h1>
+        <h1 data-en>Every phase has a rhythm. <span>Now it has a playlist.</span></h1>
+        <p class="workouts-intro" data-fr>Échauffement, progression, effort, retour au calme : BeatOnStep compose ta séance musicale à partir de tes morceaux et du BPM de chaque phase. Tu ajustes, tu lances, tu cours.</p>
+        <p class="workouts-intro" data-en>Warm-up, build-up, effort, cool-down: BeatOnStep puts together a workout soundtrack from your music and each phase’s target tempo. Fine-tune it, press play and run.</p>
       </div>
 
-      <section>
-        <h2 id="workouts-create-fr" data-fr>Deux façons de préparer ta sortie</h2>
-        <h2 data-en>Two ways to plan your run</h2>
-        <div class="planned-playlists-grid">
-          <article class="planned-playlists-card">
-            <p class="planned-playlists-kicker" data-fr>Création manuelle</p>
-            <p class="planned-playlists-kicker" data-en>Build it yourself</p>
-            <h3 data-fr>Compose ta séance, phase par phase</h3>
-            <h3 data-en>Build your workout, phase by phase</h3>
-            <p data-fr>Crée ton échauffement, ton effort, ta récupération et ton retour au calme. Règle la durée et le BPM cible de chaque phase, puis ajoute ou remplace les morceaux que tu souhaites écouter.</p>
-            <p data-en>Create your warm-up, effort, recovery and cool-down phases. Set each phase's duration and target BPM, then add or replace the tracks you want to hear.</p>
+      <figure class="workouts-main-visual">
+        <img src="assets/workouts/playlists-sur-mesure.webp" width="1400" height="900" alt="Création de playlists BeatOnStep avec une coureuse, des phases musicales et une interface sombre aux accents jaunes" loading="eager" fetchpriority="high" />
+        <figcaption data-fr>Montage illustratif de la fonctionnalité, inspiré des captures de l’application.</figcaption>
+        <figcaption data-en>Illustrative artwork inspired by real app screenshots.</figcaption>
+      </figure>
+
+      <section class="workouts-benefits">
+        <h2 data-fr>La bonne musique, au bon moment</h2>
+        <h2 data-en>The right music at the right moment</h2>
+        <div class="workouts-benefit-grid">
+          <article class="workouts-benefit"><span class="workouts-number">01</span>
+            <h3 data-fr>Choisis ta course</h3><h3 data-en>Choose your run</h3>
+            <p data-fr>Endurance, course progressive, fractionné ou séance personnalisée : définis tes phases et leur BPM cible.</p>
+            <p data-en>Endurance, progressive, intervals or a custom session: set up phases and their target BPM.</p>
           </article>
-          <article class="planned-playlists-card">
-            <p class="planned-playlists-kicker" data-fr>Création guidée</p>
-            <p class="planned-playlists-kicker" data-en>Guided setup</p>
-            <h3 data-fr>Choisis une séance, BeatOnStep te guide</h3>
-            <h3 data-en>Choose a workout, BeatOnStep guides you</h3>
-            <p data-fr>Endurance fondamentale, progressive, intensive ou pyramide : choisis un modèle, une durée et un BPM de référence. BeatOnStep prépare les phases et une sélection musicale adaptée, que tu peux ensuite modifier.</p>
-            <p data-en>Easy endurance, progression, intensive or pyramid: choose a template, duration and reference BPM. BeatOnStep prepares the phases and a matching music selection you can then edit.</p>
+          <article class="workouts-benefit"><span class="workouts-number">02</span>
+            <h3 data-fr>La playlist se crée</h3><h3 data-en>Your playlist comes together</h3>
+            <p data-fr>BeatOnStep pioche dans les titres disponibles de ta source musicale et privilégie les BPM proches de chaque phase, sans répéter inutilement les morceaux.</p>
+            <p data-en>BeatOnStep draws from tracks in your chosen music source, prioritizes the nearest BPM for each phase and avoids unnecessary repeats.</p>
+          </article>
+          <article class="workouts-benefit"><span class="workouts-number">03</span>
+            <h3 data-fr>Personnalise le résultat</h3><h3 data-en>Make it yours</h3>
+            <p data-fr>Consulte les titres, remplace-les, change leur ordre et adapte la structure. Ta sélection est enregistrée avec ta séance.</p>
+            <p data-en>Preview, replace and reorder tracks, or adjust the structure. Your selection is saved with your workout.</p>
+          </article>
+          <article class="workouts-benefit"><span class="workouts-number">04</span>
+            <h3 data-fr>Lance et suis ta progression</h3><h3 data-en>Run with your plan</h3>
+            <p data-fr>Retrouve la phase en cours, les barres de progression, le tempo visé et ta cadence réelle pendant la course.</p>
+            <p data-en>Follow the current phase, progress bars, target tempo and your real cadence while running.</p>
           </article>
         </div>
       </section>
 
-      <section>
-        <h2 id="workouts-example-fr" data-fr>À quoi ressemble une séance ?</h2>
-        <h2 data-en>What does a workout look like?</h2>
-        <div class="session-example">
-          <p class="session-example-title" data-fr>Exemple de séance progressive · 45 min</p>
-          <p class="session-example-title" data-en>Progression run example · 45 min</p>
-          <ol class="session-timeline">
-            <li style="--phase-grow: 10">
-              <strong data-fr>Échauffement</strong><strong data-en>Warm-up</strong>
-              <span>10 min · 120 BPM</span>
-            </li>
-            <li style="--phase-grow: 25">
-              <strong data-fr>Progression</strong><strong data-en>Build-up</strong>
-              <span>25 min · 140 BPM</span>
-            </li>
-            <li style="--phase-grow: 10">
-              <strong data-fr>Retour au calme</strong><strong data-en>Cool-down</strong>
-              <span>10 min · 115 BPM</span>
-            </li>
+      <section class="workouts-showcase">
+        <div class="workouts-showcase-copy">
+          <p class="tag" data-fr>Une séance, plusieurs ambiances</p>
+          <p class="tag" data-en>One workout, multiple moods</p>
+          <h2 data-fr>Du premier pas au retour au calme.</h2>
+          <h2 data-en>From the first step to the cool-down.</h2>
+          <p data-fr>Une séance progressive peut enchaîner quatre playlists de phase : la musique accompagne l’effort à mesure que l’intensité évolue.</p>
+          <p data-en>A progression run can combine four phase playlists, with music evolving as your effort builds.</p>
+          <ol class="workouts-phase-stack">
+            <li><span data-fr>Échauffement</span><span data-en>Warm-up</span><strong>120 <small>BPM</small></strong></li>
+            <li><span data-fr>Progression</span><span data-en>Build-up</span><strong>136 <small>BPM</small></strong></li>
+            <li><span data-fr>Intensité cible</span><span data-en>Target intensity</span><strong>154 <small>BPM</small></strong></li>
+            <li><span data-fr>Retour au calme</span><span data-en>Cool-down</span><strong>119 <small>BPM</small></strong></li>
           </ol>
-          <p class="session-example-note" data-fr>Exemple illustratif : ta sélection réelle dépend des titres disponibles dans ta bibliothèque.</p>
-          <p class="session-example-note" data-en>Illustrative example: your actual track selection depends on what's available in your library.</p>
+          <p class="workouts-illustration-note" data-fr>Exemple basé sur une séance réelle. Le nombre de titres et la durée musicale varient selon la bibliothèque.</p>
+          <p class="workouts-illustration-note" data-en>Based on a real workout example. Track count and actual playback time depend on your library.</p>
         </div>
+        <figure class="workouts-poster">
+          <img src="assets/workouts/course-en-musique.webp" width="900" height="1320" loading="lazy" alt="Illustration BeatOnStep : course à pied et interfaces de séance programmée sur iPhone" />
+          <figcaption data-fr>Montage illustratif inspiré des captures de la version 1.7.1.</figcaption>
+          <figcaption data-en>Illustrative composition inspired by version 1.7.1 screenshots.</figcaption>
+        </figure>
       </section>
 
       <section class="workouts-steps">
-        <h2 data-fr>Comment ça marche ?</h2>
+        <h2 data-fr>Concrètement, comment ça marche ?</h2>
         <h2 data-en>How does it work?</h2>
         <ol>
-          <li data-fr>Dans BeatOnStep, choisis une source musicale activée pour ta séance.</li>
-          <li data-en>In BeatOnStep, choose an enabled music source for your workout.</li>
-          <li data-fr>Crée ta séance manuellement ou avec un modèle guidé, puis ajuste les phases, durées et BPM.</li>
-          <li data-en>Build your workout manually or from a guided template, then adjust the phases, durations and BPM.</li>
-          <li data-fr>Consulte les titres proposés pour chaque phase et modifie la sélection à ton goût.</li>
-          <li data-en>Review the suggested tracks for each phase and customize the selection to your taste.</li>
-          <li data-fr>Enregistre ton programme et lance ta course avec sa progression musicale.</li>
-          <li data-en>Save your plan and start running with its musical progression.</li>
+          <li data-fr>Depuis ton profil, crée une séance et choisis un modèle ou tes propres phases.</li>
+          <li data-en>From your profile, create a workout from a template or your own phases.</li>
+          <li data-fr>Sélectionne une source musicale activée, puis règle les durées et les BPM des phases.</li>
+          <li data-en>Select an enabled music source, then set each phase's duration and tempo.</li>
+          <li data-fr>Prépare la playlist proposée, remplace ou réorganise les titres à ton goût.</li>
+          <li data-en>Generate your playlist, then replace or reorder tracks to suit your taste.</li>
+          <li data-fr>Lance ta course : tu vois la progression de la séance et de la phase en cours.</li>
+          <li data-en>Start running and track both your workout and current phase progress.</li>
         </ol>
-        <p class="workouts-note" data-fr>Une source musicale par séance. Pour composer une sélection adaptée, BeatOnStep a besoin de titres avec des informations de BPM et de durée.</p>
-        <p class="workouts-note" data-en>One music source per workout. BeatOnStep needs tracks with BPM and duration information to build a suitable selection.</p>
+        <p class="workouts-note" data-fr>La sélection dépend des titres disponibles dans la source choisie et de leurs durées. Les BPM connus sont privilégiés. Les morceaux sont lus en entier : la durée musicale réelle peut différer du découpage prévu.</p>
+        <p class="workouts-note" data-en>Selection depends on tracks available from your chosen source and their durations. Known BPM values are preferred. Full tracks are played, so actual playback time may differ from planned phase durations.</p>
       </section>
 
       <section class="workouts-cta">
