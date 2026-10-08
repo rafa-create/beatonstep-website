@@ -606,7 +606,6 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 }
 .split h2,
 .sources h2,
-.first-run h2,
 .pace-modes h2,
 .section-head h2 {
   font-family: "DM Sans", system-ui, sans-serif;
@@ -1167,23 +1166,6 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   max-width: 38rem;
   color: var(--muted);
   font-size: 1rem;
-}
-.first-run {
-  margin: 0 0 var(--section-gap);
-}
-.first-run-copy {
-  max-width: 32rem;
-}
-.first-run-copy p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.5;
-}
-.first-run-copy .first-run-aside {
-  margin-top: 0.55rem;
-  font-size: 0.92rem;
-  opacity: 0.85;
 }
 .sources {
   margin: 0 0 var(--section-gap);
@@ -2263,7 +2245,7 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 .workouts-new-intro h1 span { color: var(--accent); }
 .workouts-page { max-width: 69rem; }
 .workouts-main-visual { margin: 1.5rem 0 2rem; }
-.workouts-main-visual img, .workouts-poster img, .workouts-home-art img {
+.workouts-main-visual img, .workouts-poster img {
   display: block; width: 100%; height: auto; border-radius: 19px;
 }
 .workouts-main-visual img { border: 1px solid var(--line); }
@@ -2282,13 +2264,9 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 .workouts-illustration-note { font-size: .85rem; }
 .workouts-poster { margin: 0; max-width: 440px; }
 .workouts-poster img { border: 1px solid var(--line); }
-.workouts-home-teaser { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); align-items: center; gap: 2rem; }
-.workouts-home-art { display: block; transition: transform .2s ease; }
-.workouts-home-art:hover { transform: translateY(-4px); }
-.workouts-home-art img { border: 1px solid var(--line); }
 @media (max-width: 700px) {
   .workouts-benefit-grid { grid-template-columns: 1fr; }
-  .workouts-showcase, .workouts-home-teaser { grid-template-columns: 1fr; gap: 1.2rem; }
+  .workouts-showcase { grid-template-columns: 1fr; gap: 1.2rem; }
   .workouts-poster { max-width: 360px; margin: 0 auto; }
   .workouts-main-visual { margin: 1.1rem 0; }
 }
