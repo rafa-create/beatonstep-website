@@ -344,8 +344,8 @@
     <section class="planned-playlists reveal" id="seances-programmees">
       <div class="workouts-home-teaser">
         <div>
-          <p class="tag" data-fr>Nouveau · Playlists de séance</p>
-          <p class="tag" data-en>New · Workout playlists</p>
+          <p class="tag" data-fr>Playlists de séance</p>
+          <p class="tag" data-en>Workout playlists</p>
           <h2 data-fr>Une playlist pour chaque phase de ta course.</h2>
           <h2 data-en>A playlist for every phase of your run.</h2>
           <p class="section-lead" data-fr>Échauffement, effort, retour au calme : BeatOnStep sélectionne les morceaux de ta bibliothèque les plus adaptés au tempo de chaque étape. Ajuste les titres et cours à ton rythme.</p>
@@ -635,14 +635,14 @@
       </div>
     </section>
 
-    <section class="app-preview reveal">
+    <section class="app-preview" id="source-settings" hidden>
       <p class="tag" data-fr>Réglages</p>
       <p class="tag" data-en>Settings</p>
       <h2 data-fr>Commun à toutes les sources</h2>
       <h2 data-en>Shared across every source</h2>
       <p class="section-lead" data-fr>Détection, sources cochées, changement de titre.</p>
       <p class="section-lead" data-en>Detection, ticked sources, when the track changes.</p>
-      <div class="shots reveal-stagger" aria-label="Réglages">
+      <div class="shots" aria-label="Réglages">
         <figure class="shot">
           <div class="phone">
             <img src="assets/screenshots/app/settings-sources.png" width="575" height="1074" alt="Réglages : sources cochées" loading="lazy" />
@@ -1651,6 +1651,7 @@
         if (!root) return;
         var cards = root.querySelectorAll(".source-card");
         var rows = root.querySelectorAll(".source-matrix tbody tr[data-src]");
+        var sharedSettings = document.getElementById("source-settings");
         function clear() {
           cards.forEach(function (c) {
             c.setAttribute("aria-pressed", "false");
@@ -1661,12 +1662,14 @@
             r.classList.remove("is-on");
           });
           root.removeAttribute("data-src");
+          if (sharedSettings) sharedSettings.hidden = true;
         }
         function select(key) {
           var already = root.getAttribute("data-src") === key;
           clear();
           if (already || !key) return;
           root.setAttribute("data-src", key);
+          if (sharedSettings) sharedSettings.hidden = false;
           cards.forEach(function (c) {
             if (c.getAttribute("data-src") !== key) return;
             c.setAttribute("aria-pressed", "true");
