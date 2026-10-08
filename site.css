@@ -1248,7 +1248,8 @@ html[data-theme="light"] .hero-runner-light { display: block; }
 .sources[data-src="spotify"] .source-explain[data-src="spotify"],
 .sources[data-src="spotify"] .source-play[data-src="spotify"],
 .sources[data-src="deezer"] .source-explain[data-src="deezer"],
-.sources[data-src="deezer"] .source-play[data-src="deezer"] {
+.sources[data-src="deezer"] .source-play[data-src="deezer"],
+.sources[data-src="qqmusic"] .source-explain[data-src="qqmusic"] {
   display: block;
 }
 .sources[data-src="apple-music"] .source-compare {

@@ -5,8 +5,15 @@ const vm = require('node:vm');
 
 const home = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const workouts = fs.readFileSync(path.join(__dirname, '..', 'seances-programmees.html'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '..', 'site.css'), 'utf8');
 
 assert.match(home, /<section class="app-preview" id="source-settings" hidden>/, 'Settings initially hidden');
+assert(home.includes('QQ Music · Chine uniquement'), 'Desktop and mobile QQ source labeled China only');
+assert(home.includes('QQ Music · China only'), 'English QQ source labeled China only');
+assert(home.includes('<strong>Disponible uniquement en Chine continentale.</strong>'), 'Explicit QQ regional availability after selection (FR)');
+assert(home.includes('<strong>Available only in mainland China.</strong>'), 'Explicit QQ regional availability after selection (EN)');
+assert(css.includes('.source-explain,\n.source-play { display: none; }'), 'Source descriptions default hidden');
+assert(css.includes('.sources[data-src="qqmusic"] .source-explain[data-src="qqmusic"] {'), 'QQ detail revealed on source selection');
 assert(home.includes('Commun à toutes les sources'), 'Settings copy preserved');
 assert(home.includes('Shared across every source'), 'Settings translation preserved');
 for (const page of [home, workouts]) {
