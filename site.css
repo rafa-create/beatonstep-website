@@ -869,7 +869,7 @@ html[data-theme="light"] .hero-runner-light { display: block; }
   border: 1px solid var(--accent);
 }
 .split-good h3 { color: var(--accent); }
-/* Upcoming workout playlists: two creation paths and a phase preview. */
+/* Planned workouts: short homepage teaser and dedicated detail page. */
 .planned-playlists {
   margin: 0 0 var(--section-gap);
 }
@@ -2210,4 +2210,48 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 }
 @media (max-width: 600px) {
   .garmin-device-grid { grid-template-columns: 1fr; }
+}
+
+
+/* Planned workouts detail page; reuses the existing card and phase timeline styles. */
+.planned-playlists-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.12rem;
+}
+.planned-playlists-link:hover { color: var(--ink); }
+.planned-playlists-link:focus-visible,
+.workouts-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.workouts-page { max-width: 52rem; margin: 0 auto; }
+.workouts-back { display: inline-flex; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin: 0.25rem 0 1.65rem; }
+.workouts-back:hover { color: var(--accent); }
+.workouts-intro-block { max-width: 48rem; }
+.workouts-page h1 {
+  font-size: clamp(2.1rem, 5vw, 3.3rem);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  margin: 0.6rem 0 1rem;
+}
+.workouts-intro { color: var(--muted); font-size: 1.08rem; max-width: 42rem; margin: 0; }
+.workouts-page section { margin: 3rem 0; }
+.workouts-page section h2 { font-size: clamp(1.3rem, 2.6vw, 1.6rem); line-height: 1.3; margin: 0 0 1.05rem; letter-spacing: -0.025em; }
+.workouts-steps ol { margin: 0; padding: 0 0 0 1.5rem; }
+.workouts-steps li { padding-left: 0.35rem; margin-bottom: 0.7rem; }
+.workouts-steps li::marker { color: var(--accent); font-weight: 800; }
+.workouts-note { color: var(--muted); font-size: 0.9rem; margin-top: 1rem; }
+.workouts-cta { background: var(--fill); padding: 1.6rem; border: 1px solid var(--line); border-radius: 14px; }
+.workouts-cta p { color: var(--muted); margin: 0 0 1rem; }
+.workouts-stores { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem 1rem; }
+.workouts-footer { border-top: 1px solid var(--line); padding: 1.2rem 0 2rem; margin-top: 2rem; }
+.workouts-footer a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+.workouts-footer a:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  .workouts-page section { margin: 2.25rem 0; }
+  .workouts-cta { padding: 1.2rem; }
 }
