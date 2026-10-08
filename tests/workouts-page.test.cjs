@@ -8,18 +8,20 @@ const page = read('seances-programmees.html');
 const css = read('site.css');
 
 assert(home.includes('id="seances-programmees"'), 'Homepage workout section');
-assert(home.includes('Une playlist pour chaque phase de ta course.'), 'Homepage updated copy');
-assert(home.includes('A playlist for every phase of your run.'), 'Homepage English translation');
+assert(home.includes('Trois façons de courir en musique'), 'Three experience paths on home');
+assert(home.includes('Three ways to run with music'), 'English experience title');
+assert(home.includes('Tu programmes l’effort, la musique suit chaque phase'), 'Planned workout on the home mode choices');
+assert(home.includes('You plan the effort, music follows each phase'), 'Third choice translated');
 
 assert(!home.includes('class="first-run'), 'Remove redundant first-run block from homepage');
 assert(!home.includes('Tu peux courir tout de suite'), 'Remove redundant FR first-run heading');
 assert(!home.includes('You can run right away'), 'Remove redundant EN first-run heading');
 
-const teaser = home.split('<section class="planned-playlists reveal" id="seances-programmees">')[1]?.split('</section>')[0];
-assert(teaser, 'Find homepage workout teaser');
+const teaser = home.split('<article class="split-card pace-workout-card" id="seances-programmees">')[1]?.split('</article>')[0];
+assert(teaser, 'Find third running mode on homepage');
 assert(teaser.includes('data-href="seances-programmees.html"'), 'Keep dedicated workout page link');
-assert(!teaser.includes('<img'), 'Homepage workout section must stay legible without a promo image');
-assert(!teaser.includes('workouts-home-art'), 'No image-only link remains');
+assert(!teaser.includes('<img'), 'Planned workout mode must stay legible without a promo image');
+assert(teaser.includes('120 <small>BPM</small>'), 'Readable phase tempo example');
 assert(!css.includes('.workouts-home-teaser'), 'Remove orphaned teaser layout');
 assert(!css.includes('.first-run'), 'Remove obsolete first-run styling');
 

@@ -2271,3 +2271,51 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   .workouts-poster { max-width: 360px; margin: 0 auto; }
   .workouts-main-visual { margin: 1.1rem 0; }
 }
+
+/* Group the three running experiences without a third dense illustration. */
+.pace-modes .pace-workout-card {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr);
+  align-items: center;
+  gap: 1.2rem;
+  border: 1px solid var(--line);
+}
+.pace-workout-card h3 {
+  color: var(--ink);
+  border: 0;
+  font-size: 1.2rem;
+  margin: .4rem 0 .7rem;
+}
+.pace-workout-card .pace-workout-copy > p:not(.pace-kicker) {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+.pace-workout-phases {
+  list-style: none;
+  display: grid;
+  gap: .35rem;
+  padding: 0;
+  margin: 0;
+}
+.pace-workout-phases li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .55rem .7rem;
+  font-size: .83rem;
+}
+.pace-workout-phases strong { color: var(--accent); white-space: nowrap; }
+.pace-workout-phases small { font-size: .65rem; }
+@media (max-width: 700px) {
+  .pace-modes .pace-workout-card { grid-template-columns: 1fr; }
+  .pace-workout-phases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pace-workout-phases li { font-size: .75rem; }
+}
+@media (max-width: 365px) {
+  .pace-workout-phases { grid-template-columns: 1fr; }
+}

@@ -19,8 +19,16 @@ assert(home.includes('Shared across every source'), 'Settings translation preser
 for (const page of [home, workouts]) {
   assert(!page.includes('Nouveau · Playlists de séance'), 'Avoid new-flag in FR');
   assert(!page.includes('New · Workout playlists'), 'Avoid new-flag in EN');
-  assert.match(page, /<p class="tag" data-fr>Playlists de séance<\/p>/);
-  assert.match(page, /<p class="tag" data-en>Workout playlists<\/p>/);
+  assert(
+    page.includes('<p class="tag" data-fr>Playlists de séance</p>') ||
+    page.includes('<p class="pace-kicker" data-fr>Séance programmée</p>'),
+    'Workouts labeled in FR'
+  );
+  assert(
+    page.includes('<p class="tag" data-en>Workout playlists</p>') ||
+    page.includes('<p class="pace-kicker" data-en>Planned workout</p>'),
+    'Workouts labeled in EN'
+  );
 }
 
 const ids = ['spotify', 'apple-music', 'ytm', 'amazon-music', 'deezer', 'mp3', 'mix', 'qqmusic'];
