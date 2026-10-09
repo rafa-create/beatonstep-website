@@ -127,8 +127,8 @@
             <img src="badges/app-store-en.svg" width="120" height="40" alt="Download on the App Store" />
           </a>
         </nav>
-        <p class="hero-note" data-fr>Disponible sur Google Play et l’App Store<span data-version-note-fr></span></p>
-        <p class="hero-note" data-en>Available on Google Play and the App Store<span data-version-note-en></span></p>
+        <p class="hero-note" data-fr><span data-version-note-fr></span></p>
+        <p class="hero-note" data-en><span data-version-note-en></span></p>
       </div>
     </section>
 
@@ -1757,13 +1757,8 @@
             return;
           }
 
-          if (iosVersion === androidVersion) {
-            fr.textContent = " · version " + iosVersion;
-            en.textContent = " · version " + iosVersion;
-          } else {
-            fr.textContent = " · iOS " + iosVersion + " · Android " + androidVersion;
-            en.textContent = " · iOS " + iosVersion + " · Android " + androidVersion;
-          }
+          fr.textContent = "iOS " + iosVersion + " · Android " + androidVersion;
+          en.textContent = "iOS " + iosVersion + " · Android " + androidVersion;
         })
         .catch(function () {
           // La version est informative : si le manifeste est indisponible, le texte de base reste affiché.
