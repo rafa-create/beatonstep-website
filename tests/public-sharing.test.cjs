@@ -9,6 +9,15 @@ assert.match(read('runmix.html'), /partages.html\?kind=runmix/);
 assert.match(page, /data-kind="workout"/);
 assert.match(page, /data-kind="runmix"/);
 assert.match(page, /data-sort="popular"/);
+for (const src of ['spotify','apple','deezer','youtube','amazon']) {
+  assert.match(page, new RegExp('option value="' + src + '"'));
+}
+assert.doesNotMatch(page, /option value="(?:local|server)"/);
+assert.match(page, /source=\x27\s*\+/);
+assert.match(page, /makeAccordion\(item,\x27phases\x27/);
+assert.match(page, /makeAccordion\(item,\x27tracks\x27/);
+assert.match(page, /getDetail\(item.id\)/);
+assert.match(page, /el\(\x27details\x27,\x27accordion\x27\)/);
 assert.match(page, /imports/);
 assert.match(page, /beatonstep:\/\/shared\?id=/);
 assert.match(page, /item\.payload\.p/);
