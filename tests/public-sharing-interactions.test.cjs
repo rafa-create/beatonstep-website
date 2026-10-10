@@ -74,6 +74,8 @@ function setup(search,data=example){
   // phase branches; only the songs from the selected phase become visible.
   const detail=setup('?id=1');
   await flush();
+  assert.equal(detail.elements.back.href,'partages.html');
+  assert.equal(detail.elements.back.textContent,'← Catalogue');
   assert.equal(detail.elements.detail.hidden,false);
   const card=detail.elements.detail.children[0];
   const roots=walk(card,x=>x.tagName==='details');
@@ -113,12 +115,20 @@ function setup(search,data=example){
   assert.equal(detail.apiCalls.filter(url=>url.endsWith('/view')).length,1);
   detail.elements.en.onclick();
   await flush();
+  assert.equal(detail.elements.back.href,'partages.html');
+  assert.equal(detail.elements.back.textContent,'← Catalog');
   assert.equal(detail.apiCalls.filter(url=>url.endsWith('/view')).length,1,
     'changing language must not increment views');
 
   // The catalog only fetches compact records until the workout itself expands.
   const catalog=setup('');
   await flush();
+  assert.equal(catalog.elements.back.href,'seances-programmees.html');
+  assert.equal(catalog.elements.back.textContent,'← Séances programmées');
+  catalog.elements.en.onclick();
+  await flush();
+  assert.equal(catalog.elements.back.href,'seances-programmees.html');
+  assert.equal(catalog.elements.back.textContent,'← Programmed workouts');
   assert.match(catalog.apiCalls[0],/source=all/);
   const catalogCard=catalog.elements.results.children[0];
   const catalogRoot=walk(catalogCard,x=>x.tagName==='details');

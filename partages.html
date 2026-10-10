@@ -75,7 +75,7 @@
     <a class="brand" href="./"><img src="assets/brand/logo-400.jpg" alt="">BeatOnStep</a>
     <div class="lang"><button type="button" id="fr" aria-pressed="true">FR</button><button type="button" id="en" aria-pressed="false">EN</button></div>
   </header>
-  <a class="back" href="seances-programmees.html" id="back">← Séances programmées</a>
+  <a class="back" href="partages.html" id="back">← Catalogue</a>
   <h1 id="title">Séances et playlists partagées</h1>
   <p class="sub" id="intro">Découvrez les partages anonymes de la communauté BeatOnStep.</p>
   <div id="catalog">
@@ -356,7 +356,10 @@
     document.documentElement.lang=lang;
     $('fr').setAttribute('aria-pressed',String(lang==='fr'));
     $('en').setAttribute('aria-pressed',String(lang==='en'));
-    $('back').textContent=fr('← Séances programmées','← Programmed workouts');
+    $('back').href=id?'partages.html':'seances-programmees.html';
+    $('back').textContent=id
+      ?fr('← Catalogue','← Catalog')
+      :fr('← Séances programmées','← Programmed workouts');
     $('title').textContent=fr('Séances et playlists partagées','Shared workouts and playlists');
     $('intro').textContent=fr('Découvrez les partages anonymes de la communauté BeatOnStep.','Discover anonymous shares from the BeatOnStep community.');
     $('notice').textContent=fr('Les partages sont publics et anonymes. Un maximum de 1 000 partages est conservé, avec les 200 plus importés protégés de la suppression. Les fichiers musicaux ne sont pas transférés.','Shares are public and anonymous. Up to 1,000 shares are kept, with the 200 most imported protected from deletion. Audio files are not transferred.');
