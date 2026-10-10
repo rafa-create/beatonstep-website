@@ -14,10 +14,10 @@ for (const src of ['spotify','apple','deezer','youtube','amazon']) {
 }
 assert.doesNotMatch(page, /option value="(?:local|server)"/);
 assert.match(page, /source=\x27\s*\+/);
-assert.match(page, /makeAccordion\(item,\x27phases\x27/);
-assert.match(page, /makeAccordion\(item,\x27tracks\x27/);
+assert.match(page, /phaseTree\(content,full\)/);
+assert.match(page, /songRows\(content,full\)/);
 assert.match(page, /getDetail\(item.id\)/);
-assert.match(page, /el\(\x27details\x27,\x27accordion\x27\)/);
+assert.match(page, /el\(\x27details\x27,\x27share-tree\x27\)/);
 assert.match(page, /imports/);
 assert.match(page, /beatonstep:\/\/shared\?id=/);
 assert.match(page, /item\.payload\.p/);

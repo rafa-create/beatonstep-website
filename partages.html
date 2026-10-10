@@ -29,39 +29,44 @@
     .toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0}
     .filters,.sort,.pagination,.details-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .sort{font-size:13px} .sort button{font-size:13px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:22px;margin:12px 0}
-    .card h2{font-size:21px;margin:12px 0;font-weight:750}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;margin:12px 0;overflow:hidden}
+    .card h2{font-size:20px;margin:9px 0;font-weight:750}
     .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .card-head{color:var(--muted);font-size:13px} .card-stats{justify-content:flex-start;color:var(--muted);font-size:13px;gap:16px}
-    .card-title{display:block;text-decoration:none}.card-title:hover{color:var(--yellow)}
-    .card h2{margin:10px 0}.card-stats{margin-bottom:6px}
-    .accordions{margin-top:15px;border-top:1px solid var(--border)}
-    details.accordion{border-bottom:1px solid var(--border)}
-    details.accordion:last-child{border-bottom:0}
-    details.accordion summary{list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:13px 0;font-weight:650;font-size:14px;gap:10px}
-    details.accordion summary::-webkit-details-marker{display:none}
-    details.accordion summary::after{content:'+';color:var(--yellow);font-size:20px;font-weight:400;line-height:1}
-    details.accordion[open] summary::after{content:'−'}
-    .accordion-body{padding:0 0 10px}
-    .accordion-body .phase:first-child,.accordion-body .track:first-child{padding-top:0}
-    .accordion .phase{font-size:14px}.accordion .track{font-size:14px}
-    .song-group{font-size:13px;color:var(--yellow);margin:15px 0 10px}
-    .accordion-hint{font-weight:400;color:var(--muted);font-size:12px}
-    .primary{margin-top:18px}
-    .icon{color:var(--yellow)}
+    .card-head{color:var(--muted);font-size:13px}
+    .card-stats{justify-content:flex-start;color:var(--muted);font-size:13px;gap:14px}
+    details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
+    details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
+    .share-summary{padding:20px 48px 20px 22px;position:relative}
+    .share-summary::after,.phase-branch>summary::after{content:'›';position:absolute;right:20px;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:26px;font-weight:400}
+    .share-tree[open]>.share-summary::after,.phase-branch[open]>summary::after{content:'⌄';font-size:24px}
+    .share-summary h2{line-height:1.35}
+    .tree-content{padding:0 22px 17px;border-top:1px solid var(--border)}
+    .phase-branch{border-bottom:1px solid var(--border);margin:0}
+    .phase-branch:last-child{border-bottom:0}
+    .phase-branch>summary{padding:15px 36px 15px 12px;position:relative}
+    .phase-branch>summary::after{right:10px;font-size:23px}
+    .phase-name{font-size:15px;font-weight:650}
+    .phase-meta{margin-top:6px;color:var(--muted);font-size:13px;display:flex;gap:6px 12px;flex-wrap:wrap}
+    .phase-meta .phase-bpm{color:var(--yellow)}
+    .phase-songs{padding:2px 12px 12px 28px;border-left:2px solid var(--border);margin-left:13px}
+    .track{padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+    .track:last-child{border:0}
+    .track small{display:block;color:var(--muted);margin-top:4px}
+    .track-play{color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:550}
+    .track-play::before{content:'▶';font-size:10px;color:var(--yellow)}
+    .track-play:hover{text-decoration:underline;color:var(--yellow)}
+    .tree-link{display:inline-block;color:var(--yellow);font-size:13px;font-weight:650;text-decoration:none;margin-top:15px}
+    .tree-link:hover{text-decoration:underline}
+    .card-actions{padding:0 22px 20px}
+    summary:focus-visible,.tree-link:focus-visible,.track-play:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
     .badge{font-size:12px;color:var(--yellow);letter-spacing:.05em;text-transform:uppercase}
     .primary{display:inline-block;border:0;background:var(--yellow);color:#17160a;border-radius:30px;padding:15px 22px;font-weight:800;text-decoration:none;cursor:pointer}
     .back{display:inline-block;margin:8px 0 18px;color:var(--muted)}
-    .phase{padding:13px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:center}
-    .phase:last-child{border:0}
-    .phase small,.track small{display:block;color:var(--muted);margin-top:4px}
-    .phase strong{color:var(--yellow);white-space:nowrap;text-align:right}
-    .track{padding:8px 0;border-bottom:1px solid var(--border)}.track:last-child{border:0}
     .notice{color:var(--muted);font-size:13px;line-height:1.5;margin:20px 0}
     .pagination{justify-content:center;margin-top:24px}
     button:disabled{opacity:.4;cursor:default}
     .error{padding:20px;border:1px solid var(--border);border-radius:16px;color:var(--muted)}
-    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}.card{padding:17px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}}
+    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}.share-summary{padding:16px 39px 16px 16px}.share-summary::after{right:11px}.tree-content{padding:0 16px 14px}.card-actions{padding:0 16px 16px}}
   </style>
 </head>
 <body>
@@ -150,103 +155,138 @@
     }
     return cache.get(id);
   }
-  function phaseRows(body,item){
-    const phases=item.payload && item.payload.p;
-    if(!Array.isArray(phases))throw Error('invalid_phases');
-    phases.forEach((p,i)=>{
-      const row=el('div','phase'),label=el('div','');
-      label.append(el('span','',(i+1)+'. '+p[0]),
-        el('small','',duration(p[1])+' · '+fr('Cible','Target')+' '+p[2]+' PPM'));
-      const tempo=el('strong','',p[3]?p[3]+' BPM':'— BPM');
-      tempo.title=fr('BPM moyen des musiques','Average music BPM');
-      row.append(label,tempo);
-      body.append(row);
-    });
+  function musicLink(song,source){
+    const title=String(song.n||'').trim();
+    const artist=String(song.a||'').trim();
+    const id=String(song.i||'').trim();
+    const query=encodeURIComponent([title,artist].filter(Boolean).join(' '));
+    // Provider-hosted URLs only. Never build a playable audio stream or trust
+    // arbitrary user-supplied URLs from a public share's JSON payload.
+    if(source==='spotify' && /^[a-zA-Z0-9]{22}$/.test(id))
+      return {url:'https://open.spotify.com/track/'+id,direct:true};
+    if(source==='deezer' && /^[0-9]{1,20}$/.test(id))
+      return {url:'https://www.deezer.com/track/'+id,direct:true};
+    if(source==='youtube' && /^[a-zA-Z0-9_-]{11}$/.test(id))
+      return {url:'https://music.youtube.com/watch?v='+id,direct:true};
+    if(source==='apple'){
+      const trusted=String(song.url||'').trim();
+      if(/^https:\/\/music\.apple\.com\/[^\s]*$/i.test(trusted))
+        return {url:trusted,direct:true};
+      // Apple catalog IDs without storefront: ask Apple Music to resolve them
+      // through search instead of assuming a valid region-specific song URL.
+      return {url:'https://music.apple.com/search?term='+query,direct:false};
+    }
+    const searches={
+      spotify:'https://open.spotify.com/search/',
+      deezer:'https://www.deezer.com/search/',
+      youtube:'https://music.youtube.com/search?q=',
+      amazon:'https://music.amazon.com/search/',
+    };
+    if(searches[source])return {url:searches[source]+query,direct:false};
+    return null;
   }
-  function trackRows(body,item){
-    const tracks=item.payload && item.payload.t;
+  function songRows(body,item,phaseIndex){
+    const tracks=item.payload&&item.payload.t;
     if(!Array.isArray(tracks))throw Error('invalid_tracks');
-    if(!tracks.length){
-      body.append(el('p','sub',fr('Sélection musicale automatique','Automatic music selection')));
+    const songs=item.kind==='workout'
+      ?tracks.filter(song=>song.p===phaseIndex):tracks;
+    if(!songs.length){
+      body.append(el('p','sub',fr('Aucune musique sélectionnée','No selected tracks')));
       return;
     }
-    let counter=0;
-    function appendSong(song){
-      counter++;
+    songs.forEach((raw,index)=>{
+      const song=item.kind==='workout'
+        ?raw:{n:raw[1],a:raw[2],b:raw[4],i:raw[0],url:raw[7]};
       const row=el('div','track');
-      row.append(el('span','',counter+'. '+song.n));
-      const caption=[song.a,song.b?Math.round(song.b)+' BPM':''].filter(Boolean).join(' · ');
+      const link=musicLink(song,item.source);
+      if(link){
+        const a=el('a','track-play',song.n);
+        a.href=link.url;
+        a.target='_blank';
+        a.rel='noopener noreferrer';
+        a.title=link.direct
+          ?fr('Ouvrir et écouter sur ','Open and listen on ')+source(item.source)
+          :fr('Rechercher sur ','Search on ')+source(item.source);
+        a.setAttribute('aria-label',a.title+' : '+song.n);
+        row.append(a);
+      }else row.append(el('span','',song.n));
+      const caption=[song.a,song.b?Math.round(song.b)+' BPM':'',
+        link&&!link.direct?fr('Recherche','Search'):null].filter(Boolean).join(' · ');
       if(caption)row.append(el('small','',caption));
       body.append(row);
-    }
-    if(item.kind==='workout'){
-      const phases=item.payload.p||[];
-      phases.forEach((phase,i)=>{
-        const group=tracks.filter(t=>t.p===i);
-        if(!group.length)return;
-        body.append(el('h4','song-group',(i+1)+'. '+phase[0]));
-        group.forEach(t=>appendSong(t));
-      });
-    }else{
-      tracks.forEach(t=>appendSong({n:t[1],a:t[2],b:t[4]}));
-    }
-  }
-  function makeAccordion(item,section,known){
-    const details=el('details','accordion');
-    const label=section==='phases'
-      ?fr('Phases','Phases')+' ('+item.phases+')'
-      :fr('Musiques','Tracks')+' ('+item.tracks+')';
-    const summary=el('summary','',label);
-    const content=el('div','accordion-body');
-    details.append(summary,content);
-    details.addEventListener('toggle',async()=>{
-      if(!details.open || details.dataset.loaded==='yes' || details.dataset.loaded==='loading')return;
-      details.dataset.loaded='loading';
-      content.textContent=fr('Chargement…','Loading…');
-      try{
-        const full=known || await getDetail(item.id);
-        empty(content);
-        if(section==='phases')phaseRows(content,full);
-        else trackRows(content,full);
-        details.dataset.loaded='yes';
-      }catch(_){
-        details.dataset.loaded='no';
-        content.textContent=fr('Détails indisponibles. Refermez puis réessayez.','Details unavailable. Close and try again.');
-      }
     });
-    return details;
+  }
+  function phaseTree(body,item){
+    const phases=item.payload&&item.payload.p;
+    if(!Array.isArray(phases))throw Error('invalid_phases');
+    phases.forEach((phase,index)=>{
+      const branch=el('details','phase-branch');
+      const summary=el('summary','');
+      summary.append(el('div','phase-name',(index+1)+'. '+phase[0]));
+      const stats=el('div','phase-meta');
+      stats.append(el('span','',duration(phase[1])),
+        el('span','',fr('Cible','Target')+' '+phase[2]+' PPM'),
+        el('span','phase-bpm',fr('BPM moy. ','Avg BPM ')+(phase[3]||'—')));
+      const count=item.payload.t.filter(song=>song.p===index).length;
+      stats.append(el('span','',number(count)+' '+fr('titres','tracks')));
+      summary.append(stats);
+      const content=el('div','phase-songs');
+      branch.append(summary,content);
+      branch.addEventListener('toggle',()=>{
+        if(!branch.open||branch.dataset.loaded==='yes')return;
+        songRows(content,item,index);
+        branch.dataset.loaded='yes';
+      });
+      body.append(branch);
+    });
   }
   function createCard(item,detailed){
     const card=el('article','card');
+    const tree=el('details','share-tree');
+    const summary=el('summary','share-summary');
     const head=el('div','card-head');
     head.append(el('span','badge',item.kind==='workout'
-      ?fr('Séance','Workout'):'Run Mix'),el('span','',source(item.source)+' · #'+item.id));
-    const title=el('h2','');
-    if(detailed)title.textContent=item.name;
-    else{
-      const link=el('a','card-title',item.name);
-      link.href='partages.html?id='+item.id;
-      link.setAttribute('aria-label',fr('Voir la fiche de ','Open details for ')+item.name);
-      title.append(link);
-    }
+      ?fr('Séance','Workout'):fr('Playlist','Playlist')),
+      el('span','',source(item.source)+' · #'+item.id));
+    const title=el('h2','',item.name);
     const stats=el('div','card-stats');
     [duration(item.durationSec),number(item.tracks)+' '+fr('titres','tracks'),
       number(item.imports)+' '+fr('imports','imports'),
       number(item.views)+' '+fr('vues','views')].forEach(x=>stats.append(el('span','',x)));
-    card.append(head,title,stats);
-    const accordionGroup=el('div','accordions');
-    if(item.kind==='workout')accordionGroup.append(makeAccordion(item,'phases',detailed?item:null));
-    accordionGroup.append(makeAccordion(item,'tracks',detailed?item:null));
-    card.append(accordionGroup);
+    summary.append(head,title,stats);
+    const content=el('div','tree-content');
+    tree.append(summary,content);
+    tree.addEventListener('toggle',async()=>{
+      if(!tree.open||['yes','loading'].includes(tree.dataset.loaded))return;
+      tree.dataset.loaded='loading';
+      content.textContent=fr('Chargement…','Loading…');
+      try{
+        const full=detailed?item:await getDetail(item.id);
+        empty(content);
+        if(item.kind==='workout')phaseTree(content,full);
+        else songRows(content,full);
+        if(!detailed){
+          const link=el('a','tree-link',fr('Voir la fiche et importer →','View details and import →'));
+          link.href='partages.html?id='+item.id;
+          content.append(link);
+        }
+        tree.dataset.loaded='yes';
+      }catch(_){
+        tree.dataset.loaded='no';
+        content.textContent=fr('Détails indisponibles. Refermez puis réessayez.','Details unavailable. Close and try again.');
+      }
+    });
+    card.append(tree);
     if(detailed){
+      const footer=el('div','card-actions');
       const actions=el('div','details-actions');
       const open=el('a','primary',fr('Importer dans BeatOnStep','Import into BeatOnStep'));
       open.href='beatonstep://shared?id='+item.id;
       actions.append(open);
-      card.append(actions);
-      card.append(el('p','notice',fr(
-        'Pour importer ce partage, ouvrez BeatOnStep. Si nécessaire, installez l’application depuis les boutiques.',
-        'Open BeatOnStep to import this share. Install the app from a store if needed.')));
+      footer.append(actions);
+      footer.append(el('p','notice',fr(
+        'Pour importer ce partage, ouvrez BeatOnStep. La lecture des titres dépend du service musical.',
+        'Open BeatOnStep to import this share. Song playback depends on your music service.')));
       const stores=el('div','details-actions');
       [['App Store','https://apps.apple.com/app/beatonsteps/id6803512375'],
         ['Google Play','https://play.google.com/store/apps/details?id=com.patrick.beatonstep']].forEach(([name,url])=>{
@@ -254,7 +294,8 @@
         a.href=url;
         stores.append(a);
       });
-      card.append(stores);
+      footer.append(stores);
+      card.append(footer);
     }
     return card;
   }
