@@ -34,11 +34,16 @@
     .card h2{font-size:clamp(19px,4.8vw,22px);margin:13px 0 10px;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
     .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
     .card-head{color:var(--muted);font-size:11px;letter-spacing:.09em;text-transform:uppercase}
-    .share-source{color:#c7c2ad}
+    .card-head-right{display:inline-flex;align-items:center;gap:9px;flex-shrink:0}
+    .share-source-logo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:none}
+    .source-logo{display:block;width:22px;height:22px;object-fit:contain}
+    .source-logo-fallback{color:var(--muted);font-size:12px;font-weight:750}
     .card-stats{justify-content:flex-start;color:var(--muted);font-size:14px;gap:16px}
     .card-stats span{display:inline-flex;align-items:center;gap:6px}
     .stat-duration::before{content:'◷';font-size:18px;line-height:1}
     .stat-tracks::before{content:'♫';font-size:18px;line-height:1}
+    .card-stats .stat-imports{color:#c0bbaa;gap:4px;font-variant-numeric:tabular-nums}
+    .card-stats .stat-imports-icon{font-size:16px;line-height:1;color:#a8a396;transform:translateY(-1px)}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
     details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
     .share-summary{background:linear-gradient(145deg,#242319,#1c1c17 62%);border:1px solid #60583a;border-radius:14px;padding:16px 44px 16px 16px;position:relative;transition:background-color .2s,border-color .2s,box-shadow .2s}
@@ -98,12 +103,11 @@
     .track-play{color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:550}
     .track-play::before{content:'▶';font-size:10px;color:var(--yellow)}
     .track-play:hover{text-decoration:underline;color:var(--yellow)}
-    .card-actions{padding:14px 0 0}
+    .card-actions{display:flex;justify-content:flex-end;padding:10px 0 0}
     summary:focus-visible,.track-play:focus-visible,.primary:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
-    .badge{font-size:12px;color:var(--yellow);letter-spacing:.05em;text-transform:uppercase}
-    .primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;max-width:100%;border:0;background:var(--yellow);color:#17160a;border-radius:999px;padding:15px 22px;font:inherit;font-weight:800;text-decoration:none;cursor:pointer;text-align:center}
+    .primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;max-width:100%;border:0;background:var(--yellow);color:#17160a;border-radius:999px;padding:9px 15px;font:inherit;font-size:13px;font-weight:750;text-decoration:none;cursor:pointer;text-align:center}
     .primary:hover{background:#fff34a;color:#17160a}
-    .import-icon{font-size:21px;font-weight:600;line-height:1}
+    .import-icon{font-size:19px;font-weight:600;line-height:1}
     .back{display:inline-block;margin:0 0 13px;color:var(--muted);font-size:14px;text-decoration:none}
     .back:hover{text-decoration:underline}
     .site-footer{display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px;margin-top:38px;padding:18px 0;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
@@ -131,7 +135,7 @@
       .collection-art{height:74px}
       .collection-glyph{font-size:56px}
       .tree-content{padding:12px 4px 0}
-      .primary{width:100%}
+      .primary{width:auto}
       .site-footer{justify-content:center;gap:18px 22px}
       .site-footer .foot-label{display:none}
       .site-footer .ico{width:19px;height:19px}
@@ -469,8 +473,22 @@
     const identity=el('span','collection-identity');
     identity.append(el('span','collection-brand','BeatOnStep'),
       el('span','collection-number','#'+String(item.id).padStart(4,'0')));
-    head.append(identity,el('span','badge',item.kind==='workout'
+    const headRight=el('span','card-head-right');
+    headRight.append(el('span','badge',item.kind==='workout'
       ?fr('Séance','Workout'):fr('Playlist','Playlist')));
+    const provider=el('span','share-source-logo');
+    provider.setAttribute('role','img');
+    provider.setAttribute('aria-label',source(item.source));
+    provider.title=source(item.source);
+    if(['spotify','apple','deezer','youtube','amazon'].includes(item.source)){
+      const logo=el('img','source-logo');
+      logo.src='assets/music-services/'+item.source+'.svg';
+      logo.alt='';
+      logo.width=22;logo.height=22;
+      provider.append(logo);
+    }else provider.append(el('span','source-logo-fallback','♫'));
+    headRight.append(provider);
+    head.append(identity,headRight);
     const art=el('div',item.kind==='workout'?'collection-art':'collection-art collection-art--music');
     art.setAttribute('aria-hidden','true');
     art.append(el('span','collection-glyph',item.kind==='workout'?'↗':'♫'),
@@ -479,9 +497,15 @@
     drawEffortProfile(art,item);
     const title=el('h2','',item.name);
     const stats=el('div','card-stats');
+    const imports=el('span','stat-imports');
+    const importCount=number(item.imports);
+    imports.setAttribute('aria-label',fr(importCount+' importations',importCount+' imports'));
+    imports.title=fr(importCount+' importations',importCount+' imports');
+    const importGlyph=el('span','stat-imports-icon','⇩');
+    importGlyph.setAttribute('aria-hidden','true');
+    imports.append(importGlyph,el('span','',importCount));
     stats.append(el('span','stat-duration',duration(item.durationSec)),
-      el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),
-      el('span','share-source',source(item.source)));
+      el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),imports);
     summary.append(head,art,title,stats);
     const content=el('div','tree-content');
     tree.append(summary,content);
@@ -504,11 +528,9 @@
     card.append(tree);
     const footer=el('div','card-actions');
     const open=el('a','primary');
-    const icon=el('span','import-icon','↓');
+    const icon=el('span','import-icon','+');
     icon.setAttribute('aria-hidden','true');
-    open.append(icon,el('span','',item.kind==='workout'
-      ?fr('Importer la séance','Import workout')
-      :fr('Importer la playlist','Import playlist')));
+    open.append(icon,el('span','',fr('Importer','Import')));
     open.href='beatonstep://shared?id='+item.id;
     open.setAttribute('aria-label',fr('Importer '+item.name+' dans BeatOnStep','Import '+item.name+' into BeatOnStep'));
     footer.append(open);
