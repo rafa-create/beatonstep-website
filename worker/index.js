@@ -1,6 +1,9 @@
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
 const LEGACY_API = 'https://beatonstep.tail09d8d8.ts.net';
+// New D1 links use a separate numeric range so old VM links never open a wrong card.
+// Both the mobile deep link and website support 15-digit numeric identifiers.
+const D1_ID_OFFSET = 1_000_000_000_000;
 const PUBLIC_SOURCES = ['spotify', 'deezer', 'youtube', 'apple', 'amazon'];
 const json = (body, status = 200, extra = {}) => new Response(JSON.stringify(body), {
   status,
@@ -49,7 +52,7 @@ function validate(kind, payload) {
 
 function publicRow(row) {
   return {
-    id: row.id, kind: row.kind, source: row.source, name: row.name,
+    id: row.id + D1_ID_OFFSET, kind: row.kind, source: row.source, name: row.name,
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
     phases: row.phases, ...(row.profile_json ? { profile: JSON.parse(row.profile_json) } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
@@ -126,12 +129,20 @@ async function d1Request(request, env, url) {
       meta.phases, meta.profile ? JSON.stringify(meta.profile) : null,
       JSON.stringify(input.payload), createdAt).run();
     const id = result.meta?.last_row_id;
-    if (!Number.isSafeInteger(id) || id < 1) throw Error('missing_insert_id');
-    return json({ id, url: 'https://beatonstep.app/partages.html?id=' + id }, 201);
+    const publicId = id + D1_ID_OFFSET;
+    if (!Number.isSafeInteger(id) || id < 1 || publicId > 999_999_999_999_999) {
+      throw Error('missing_insert_id');
+    }
+    return json({ id: publicId, url: 'https://beatonstep.app/partages.html?id=' + publicId }, 201);
   }
   const match = /^\/api\/shared\/([1-9][0-9]{0,14})(?:\/(view|import))?$/.exec(path);
   if (!match) return json({ error: 'not_found' }, 404);
-  const id = Number(match[1]);
+  const publicId = Number(match[1]);
+  // Legacy numeric URLs must expire, never silently resolve to another D1 item.
+  if (!Number.isSafeInteger(publicId) || publicId <= D1_ID_OFFSET) {
+    return json({ error: 'expired_share' }, 404);
+  }
+  const id = publicId - D1_ID_OFFSET;
   const action = match[2];
   if (!action && request.method === 'GET') {
     const row = await db.prepare('SELECT * FROM shared_items WHERE id = ?').bind(id).first();

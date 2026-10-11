@@ -11,7 +11,7 @@
     ]
   },
   "vars": {
-    "CATALOG_BACKEND": "legacy"
+    "CATALOG_BACKEND": "d1"
   },
   "observability": {
     "enabled": true

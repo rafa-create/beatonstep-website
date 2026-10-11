@@ -32,6 +32,7 @@ test('static site assets are served without backend dependencies', async () => {
 test('wrangler routes API first and excludes private sources from static output', async () => {
   const config = JSON.parse(readFileSync('wrangler.jsonc', 'utf8'));
   assert.equal(config.name, 'beatonstep-website');
+  assert.equal(config.vars.CATALOG_BACKEND, 'd1');
   assert.deepEqual(config.assets.run_worker_first, ['/api/*']);
   assert.ok(!existsSync('dist/worker/index.js'));
   assert.ok(!existsSync('dist/migrations/0001_shared_catalog.sql'));
@@ -76,4 +77,81 @@ test('D1 health checks both database tables and the publishing secret', async ()
   assert.equal(data.schemaReady, true);
   assert.equal(data.publishingConfigured, true);
   assert.equal(prepared.length, 2);
+});
+
+test('D1 publishes separate numeric IDs and old VM IDs never resolve to new cards', async () => {
+  const publicId = 1_000_000_000_007;
+  const row = {
+    id: 7, kind: 'runmix', source: 'spotify', name: 'D1 playlist',
+    duration_sec: 300, bpm: 128, tracks: 1, phases: 0, profile_json: null,
+    payload_json: JSON.stringify({ v: 1, i: 'a'.repeat(32), s: 'spotify',
+      n: 'D1 playlist', t: [['Track']] }),
+    created_at: 100, views: 0, imports: 0,
+  };
+  const boundIds = [];
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...args) {
+          if (sql.startsWith('INSERT INTO publish_quotas')) {
+            return { first: async () => ({ uses: 1 }) };
+          }
+          if (sql.startsWith('INSERT INTO shared_items')) {
+            return { run: async () => ({ meta: { last_row_id: 7 } }) };
+          }
+          if (sql.startsWith('SELECT COUNT(*)')) {
+            return { first: async () => ({ total: 1 }) };
+          }
+          if (sql.startsWith('SELECT id,kind,source,name')) {
+            return { all: async () => ({ results: [row] }) };
+          }
+          if (sql.startsWith('SELECT * FROM shared_items')) {
+            boundIds.push(args[0]);
+            return { first: async () => row };
+          }
+          if (sql.startsWith('SELECT id FROM shared_items')) {
+            boundIds.push(args[0]);
+            return { first: async () => ({ id: 7 }) };
+          }
+          if (sql.startsWith('UPDATE shared_items')) {
+            boundIds.push(args[0]);
+            return { run: async () => ({}) };
+          }
+          throw Error('Unexpected query in test: ' + sql);
+        }
+      };
+    },
+  };
+  const env = {
+    CATALOG_BACKEND: 'd1', CATALOG_RATE_SALT: 'unit-test-only',
+    DB: db, ASSETS: { fetch: () => new Response('STATIC') },
+  };
+  const payload = JSON.parse(row.payload_json);
+  const published = await worker.fetch(new Request('https://beatonstep.app/api/shared', {
+    method: 'POST', headers: {
+      'content-type': 'application/json', 'cf-connecting-ip': '192.0.2.4'
+    }, body: JSON.stringify({ kind: 'runmix', payload })
+  }), env);
+  assert.equal(published.status, 201);
+  assert.deepEqual(await published.json(), {
+    id: publicId,
+    url: 'https://beatonstep.app/partages.html?id=' + publicId,
+  });
+  const legacy = await worker.fetch(new Request('https://beatonstep.app/api/shared/7'), env);
+  assert.equal(legacy.status, 404);
+  assert.equal((await legacy.json()).error, 'expired_share');
+  const list = await worker.fetch(new Request('https://beatonstep.app/api/shared'), env);
+  assert.equal(list.status, 200);
+  assert.equal((await list.json()).items[0].id, publicId);
+  const detail = await worker.fetch(new Request(
+    'https://beatonstep.app/api/shared/' + publicId), env);
+  assert.equal(detail.status, 200);
+  assert.equal((await detail.json()).id, publicId);
+  const view = await worker.fetch(new Request(
+    'https://beatonstep.app/api/shared/' + publicId + '/view', {
+      method: 'POST', headers: { 'cf-connecting-ip': '192.0.2.4' },
+    }), env);
+  assert.equal(view.status, 200);
+  assert.equal((await view.json()).counted, true);
+  assert.deepEqual(boundIds, [7, 7, 7]);
 });

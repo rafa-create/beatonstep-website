@@ -1,3 +1,22 @@
+## D1 cutover (11 October 2026)
+
+- Production Wrangler configuration: `CATALOG_BACKEND=d1`. The website and
+  mobile application talk to `https://beatonstep.app/api/shared`.
+- The new, empty D1 catalogue deliberately does not migrate historic VM cards.
+  To prevent an old numeric URL from accidentally displaying an unrelated new
+  card, D1 public share IDs use an offset of `1_000_000_000_000`.
+  D1 internal row IDs stay ordinary autoincrement integers. Both APIs and the
+  public page use the public IDs; all read/counter operations translate them.
+- Old low-valued share URLs return HTTP 404 in D1 mode. The legacy VM remains
+  available for old mobile versions, but those historic items are not visible
+  in the new catalogue.
+- The Worker secret `CATALOG_RATE_SALT` and DB binding `DB` must remain
+  configured in **Production**. Verify `/api/health` has `catalog=d1`,
+  `database=true`, `schemaReady=true`, `publishingConfigured=true`.
+- Verify a real publish/list/detail/view/import loop. If there is a problem,
+  revert the versioned `CATALOG_BACKEND` to `legacy`; old share IDs and
+  counters persist in D1 but disappear from listings while on legacy.
+
 # Cloudflare Workers — BeatOnStep website
 
 The website is intentionally a plain static site. Cloudflare Workers Builds deploys
