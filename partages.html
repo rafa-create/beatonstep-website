@@ -29,22 +29,38 @@
     .toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0}
     .filters,.sort,.pagination,.details-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .sort{font-size:13px} .sort button{font-size:13px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:20px;margin:12px 0;padding:14px}
-    .card h2{font-size:clamp(19px,4.8vw,22px);margin:10px 0;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
+    .card{background:radial-gradient(ellipse at 100% 0%,#292618 0%,#171711 55%);border:1px solid #403b2c;border-radius:20px;margin:12px 0;padding:14px;box-shadow:0 8px 28px #00000024}
+    .card h2{font-size:clamp(19px,4.8vw,22px);margin:13px 0 10px;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
     .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .card-head{color:var(--muted);font-size:13px}
-    .share-source{color:var(--muted)}
+    .card-head{color:var(--muted);font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+    .share-source{color:#c7c2ad}
     .card-stats{justify-content:flex-start;color:var(--muted);font-size:14px;gap:16px}
     .card-stats span{display:inline-flex;align-items:center;gap:6px}
     .stat-duration::before{content:'◷';font-size:18px;line-height:1}
     .stat-tracks::before{content:'♫';font-size:18px;line-height:1}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
     details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
-    .share-summary{background:#202019;border:1px solid #454335;border-radius:14px;padding:16px 48px 16px 16px;position:relative;transition:background-color .2s,border-color .2s}
-    .share-summary:hover{background:#29291f;border-color:#77735a}
+    .share-summary{background:linear-gradient(145deg,#242319,#1c1c17 62%);border:1px solid #60583a;border-radius:14px;padding:16px 44px 16px 16px;position:relative;transition:background-color .2s,border-color .2s,box-shadow .2s}
+    .share-summary:hover{border-color:#d2c14a;box-shadow:inset 0 0 0 1px #615823}
     .share-summary::after{content:'';position:absolute;right:23px;top:50%;width:10px;height:10px;border-right:2px solid var(--yellow);border-bottom:2px solid var(--yellow);transform:translateY(-65%) rotate(45deg);transition:transform .2s}
-    .share-tree[open]>.share-summary{background:#25251c;border-color:var(--yellow)}
+    .share-tree[open]>.share-summary{border-color:var(--yellow);box-shadow:inset 0 0 0 1px #645a23}
     .share-tree[open]>.share-summary::after{transform:translateY(-25%) rotate(225deg)}
+    /* Collectible visual language: no account, rarity or ownership claims. */
+    .collection-identity{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .collection-brand{color:#e3ddbb;font-weight:750;letter-spacing:.13em}
+    .collection-number{color:#b0a887;font-variant-numeric:tabular-nums}
+    .badge{border:1px solid #786f3c;border-radius:999px;padding:5px 10px;color:var(--yellow);font-size:10px;font-weight:750;letter-spacing:.11em}
+    .collection-art{height:82px;margin-top:12px;position:relative;overflow:hidden;border:1px solid #46402a;border-radius:11px;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 52% 100%,#48422080,transparent 58%),linear-gradient(120deg,#272517,#151610 60%,#1e1d14)}
+    .collection-art::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 24px,#fcea0714 25px,#fcea0714 26px,transparent 27px),linear-gradient(transparent 70%,#fcea070b);pointer-events:none}
+    .collection-art--music{background:radial-gradient(ellipse at 48% 100%,#283d4c91,transparent 62%),linear-gradient(120deg,#19232b,#141510 65%,#1b2020);border-color:#384b4d}
+    .collection-glyph{font-weight:800;font-size:64px;line-height:1;transform:translateY(-2px);color:#fcea07;text-shadow:0 0 35px #fcea0740}
+    .collection-art--music .collection-glyph{color:#9ad4eb;text-shadow:0 0 35px #83c3db70}
+    .collection-art-label{position:absolute;bottom:7px;left:12px;color:#c8c09a;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+    .collection-art--music .collection-art-label{color:#b6cdd6}
+    .effort-graph{position:absolute;left:17px;right:17px;top:11px;bottom:21px;display:flex;align-items:flex-end;gap:3px}
+    .effort-graph::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0,transparent 32%,#e5d7691c calc(32% + 1px),transparent calc(32% + 2px));pointer-events:none}
+    .effort-segment{position:relative;z-index:1;flex-basis:0;min-width:3px;max-height:100%;background:linear-gradient(180deg,#fcea07,#a68d25);border-radius:3px 3px 0 0;box-shadow:0 0 14px #fcea071d}
+    .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
     .phase-branch{border-bottom:1px solid var(--border);margin:0}
     .phase-branch:last-child{border-bottom:0}
@@ -72,7 +88,7 @@
     .pagination{justify-content:center;margin-top:24px}
     button:disabled{opacity:.4;cursor:default}
     .error{padding:20px;border:1px solid var(--border);border-radius:16px;color:var(--muted)}
-    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}.card{padding:12px}.share-summary{padding:15px 42px 15px 14px}.share-summary::after{right:18px}.tree-content{padding:12px 4px 0}.primary{width:100%}}
+    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}.card{padding:12px}.share-summary{padding:14px 40px 15px 14px}.share-summary::after{right:17px}.collection-art{height:74px}.collection-glyph{font-size:56px}.tree-content{padding:12px 4px 0}.primary{width:100%}}
   </style>
 </head>
 <body>
@@ -246,20 +262,55 @@
       body.append(branch);
     });
   }
+  // Only draw the effort profile when its actual phase targets are available.
+  // Compact catalog rows intentionally contain no phase list: don't invent a shape.
+  function drawEffortProfile(art,item){
+    if(item.kind!=='workout')return;
+    const phases=item.payload&&item.payload.p;
+    if(!Array.isArray(phases)||!phases.length||phases.length>32)return;
+    const data=[];
+    for(const phase of phases){
+      if(!Array.isArray(phase))return;
+      const seconds=Number(phase[1]),target=Number(phase[2]);
+      if(!Number.isFinite(seconds)||seconds<=0||!Number.isFinite(target)||target<=0)return;
+      data.push({seconds,target});
+    }
+    const targets=data.map(x=>x.target);
+    const baseline=Math.max(0,Math.min(...targets)-25);
+    const ceiling=Math.max(...targets)+12;
+    const graph=el('div','effort-graph');
+    for(const phase of data){
+      const bar=el('span','effort-segment');
+      const height=Math.max(20,Math.min(95,Math.round(22+73*(phase.target-baseline)/(ceiling-baseline))));
+      bar.setAttribute('style','height:'+height+'%;flex-grow:'+Math.min(86400,Math.round(phase.seconds)));
+      graph.append(bar);
+    }
+    art.replaceChildren(graph,el('span','collection-art-label',fr("Profil d'effort",'Effort profile')));
+    art.className='collection-art collection-art--effort';
+  }
   function createCard(item,detailed){
     const card=el('article','card');
     const tree=el('details','share-tree');
     const summary=el('summary','share-summary');
     summary.title=fr('Afficher ou masquer le déroulé','Show or hide details');
     const head=el('div','card-head');
-    head.append(el('span','badge',item.kind==='workout'
-      ?fr('Séance','Workout'):fr('Playlist','Playlist')),
-      el('span','share-source',source(item.source)));
+    const identity=el('span','collection-identity');
+    identity.append(el('span','collection-brand','BeatOnStep'),
+      el('span','collection-number','#'+String(item.id).padStart(4,'0')));
+    head.append(identity,el('span','badge',item.kind==='workout'
+      ?fr('Séance','Workout'):fr('Playlist','Playlist')));
+    const art=el('div',item.kind==='workout'?'collection-art':'collection-art collection-art--music');
+    art.setAttribute('aria-hidden','true');
+    art.append(el('span','collection-glyph',item.kind==='workout'?'↗':'♫'),
+      el('span','collection-art-label',item.kind==='workout'
+        ?fr('Course & musique','Run & music'):fr('Playlist musicale','Music playlist')));
+    drawEffortProfile(art,item);
     const title=el('h2','',item.name);
     const stats=el('div','card-stats');
     stats.append(el('span','stat-duration',duration(item.durationSec)),
-      el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')));
-    summary.append(head,title,stats);
+      el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),
+      el('span','share-source',source(item.source)));
+    summary.append(head,art,title,stats);
     const content=el('div','tree-content');
     tree.append(summary,content);
     tree.addEventListener('toggle',async()=>{
@@ -271,6 +322,7 @@
         empty(content);
         if(item.kind==='workout')phaseTree(content,full);
         else songRows(content,full);
+        drawEffortProfile(art,full);
         tree.dataset.loaded='yes';
       }catch(_){
         tree.dataset.loaded='no';
