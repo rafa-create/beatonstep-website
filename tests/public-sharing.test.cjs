@@ -24,7 +24,16 @@ assert.match(page, /collection-number/);
 assert.match(page, /drawEffortProfile\(art,full\)/);
 assert.match(page, /collection-art--music/);
 assert.doesNotMatch(page, /Créer un compte|Create an account/);
-assert.doesNotMatch(page, /number\(item\.imports\)/);
+assert.match(page, /number\(item\.imports\)/);
+assert.match(page, /stat-imports/);
+assert.match(page, /share-source-logo/);
+assert.match(page, /assets\/music-services\//);
+assert.match(page, /\.primary\{width:auto\}/);
+for (const icon of ['spotify','apple','deezer','youtube','amazon']) {
+  const svg=read('assets/music-services/'+icon+'.svg');
+  assert.match(svg, /<svg /,icon+' must be a local SVG asset');
+  assert.match(svg, /viewBox="0 0 24 24"/,icon+' must be a usable icon');
+}
 assert.doesNotMatch(page, /Voir la fiche et importer/);
 assert.match(page, /beatonstep:\/\/shared\?id=/);
 assert.match(page, /item\.payload\.p/);
