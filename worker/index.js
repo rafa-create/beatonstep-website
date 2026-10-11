@@ -176,8 +176,19 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/api/health' && request.method === 'GET') {
+      let schemaReady = false;
+      if (env.DB) {
+        try {
+          await env.DB.prepare('SELECT id FROM shared_items LIMIT 1').first();
+          await env.DB.prepare('SELECT bucket FROM publish_quotas LIMIT 1').first();
+          schemaReady = true;
+        } catch (error) {
+          console.warn('D1 catalogue schema is not ready');
+        }
+      }
       return json({ status: 'ok', catalog: env.CATALOG_BACKEND === 'd1' ? 'd1' : 'legacy',
-        database: Boolean(env.DB) });
+        database: Boolean(env.DB), schemaReady,
+        publishingConfigured: Boolean(env.CATALOG_RATE_SALT) });
     }
     if (url.pathname.startsWith('/api/')) {
       if (request.method === 'OPTIONS') return new Response(null, {

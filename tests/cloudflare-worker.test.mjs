@@ -59,3 +59,21 @@ test('D1 publish fails closed without the publishing salt', async () => {
   assert.equal(response.status, 503);
   assert.equal((await response.json()).error, 'catalog_write_not_configured');
 });
+
+test('D1 health checks both database tables and the publishing secret', async () => {
+  const prepared = [];
+  const response = await worker.fetch(new Request('https://beatonstep.app/api/health'), {
+    CATALOG_BACKEND: 'legacy',
+    CATALOG_RATE_SALT: 'test-only-secret',
+    DB: { prepare: sql => {
+      prepared.push(sql);
+      return { first: async () => null };
+    } },
+    ASSETS: { fetch: () => new Response('STATIC') }
+  });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.schemaReady, true);
+  assert.equal(data.publishingConfigured, true);
+  assert.equal(prepared.length, 2);
+});

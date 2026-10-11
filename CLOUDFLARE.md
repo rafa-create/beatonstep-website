@@ -4,6 +4,28 @@ The website is intentionally a plain static site. Cloudflare Workers Builds depl
 it directly from the `main` branch: **no GitHub Actions, no GitHub secrets,
 no framework adapter and no build server on the music VM**.
 
+## State on 2026-10-11
+
+- The official domain is served by `beatonstep-website` on Cloudflare Workers.
+- D1 `beatonstep-catalog-prod` uses binding `DB` and has its new schema
+  installed; no old JSON data is needed.
+- `partages.html` now uses same-origin `/api/shared`; in `legacy` mode
+  the Worker transparently forwards those requests to the prior VM.
+- The BeatOnStep mobile public sharing client was updated to use
+  `https://beatonstep.app/api/shared` (commit `15d1b4c`);
+  **the code commit alone is not proof that an OTA was installed**.
+- `GET /api/health` reports `schemaReady` and `publishingConfigured`,
+  making the remaining cutover prerequisites explicit.
+- Before switching `CATALOG_BACKEND` to `d1`, create the secret
+  `CATALOG_RATE_SALT` in the Worker settings and verify:
+  `schemaReady: true` and `publishingConfigured: true`.
+- Confirm the iOS/Android OTA delivery before changing `CATALOG_BACKEND`.
+  Devices running older JavaScript bundles still use the VM; those historic
+  clients may continue creating legacy items until they update. We explicitly
+  accept losing those items during this early-stage reset.
+- The VM keeps music and BPM APIs. The new D1 catalogue stores no private
+  audio files, user credentials or running activity.
+
 ## Connect the existing Cloudflare project
 
 Cloudflare → Workers & Pages → `beatonstep-website` → Settings → Builds:
