@@ -16,9 +16,9 @@ email = input("E-mail administrateur : ").strip().lower()
 if len(email) > 254 or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
     raise SystemExit("Adresse e-mail invalide.")
 
-password = getpass.getpass("Nouveau mot de passe (16 à 128 caractères) : ")
-if not 16 <= len(password) <= 128:
-    raise SystemExit("Mot de passe invalide ; utiliser au moins 16 caractères.")
+password = getpass.getpass("Nouveau mot de passe (8 à 128 caractères) : ")
+if not 8 <= len(password) <= 128:
+    raise SystemExit("Mot de passe invalide ; utiliser au moins 8 caractères.")
 if getpass.getpass("Confirmer le mot de passe : ") != password:
     raise SystemExit("Les mots de passe diffèrent.")
 

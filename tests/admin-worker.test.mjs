@@ -6,7 +6,7 @@ import worker from '../worker/index.js';
 const OFFSET = 1_000_000_000_000;
 const URL_ROOT = 'https://beatonstep.app';
 const EMAIL = 'owner@example.test';
-const PASSWORD = 'correct horse battery staple 2026';
+const PASSWORD = 'X7!qm29R';
 const SALT = 'a7'.repeat(16);
 
 function mockDatabase(hash) {

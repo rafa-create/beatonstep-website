@@ -145,7 +145,7 @@ URLs, API calls and mobile deep links to avoid collision with old VM cards.
    after verifying its binding and the target). The migration is additive:
    existing shares, URLs, view counts and import counters remain intact.
 3. On a computer with Python 3, run `python3 scripts/provision-admin-sql.py`.
-   Provide the owner's e-mail and a unique password of **at least 16 characters**.
+   Provide the owner's e-mail and a unique password of **at least 8 characters**.
    The helper computes PBKDF2-SHA256 with a cryptographic salt, and prints
    one SQL `INSERT`. Only paste it into the verified D1 SQL console.
    The script does not send the password anywhere or write it into a file.

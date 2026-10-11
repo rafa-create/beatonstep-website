@@ -131,7 +131,7 @@ async function login(db, env, request) {
   const email = typeof input?.email === 'string' ? input.email.trim().toLowerCase() : '';
   const password = input?.password;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 ||
-    typeof password !== 'string' || password.length < 12 || password.length > 128) {
+    typeof password !== 'string' || password.length < 8 || password.length > 128) {
     return respond({ error: 'invalid_credentials' }, 401);
   }
   if (!(await permitLogin(db, env, request))) return respond({ error: 'retry_later' }, 429);
