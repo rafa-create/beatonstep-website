@@ -111,7 +111,17 @@ function setup(search,data=example){
     'import button stays visible while tree is collapsed');
   assert.equal(walk(card,x=>x.className==='primary').length,1,
     'the card has exactly one separate import action');
-  assert.match(walk(card,x=>x.className==='primary')[0].textContent,/Importer la séance/);
+  assert.equal(walk(card,x=>x.className==='primary')[0].textContent,'+Importer',
+    'the single compact action is titled Importer');
+  assert.equal(walk(card,x=>x.className==='primary')[0].attributes['aria-label'],
+    'Importer Course progressive 40 min dans BeatOnStep');
+  assert.equal(walk(detailedSummary,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/spotify.svg');
+  assert.equal(walk(detailedSummary,x=>x.className==='share-source-logo')[0].attributes['aria-label'],
+    'Spotify','source icon keeps an accessible provider name');
+  assert.equal(walk(detailedSummary,x=>x.className==='stat-imports')[0].textContent,'⇩3');
+  assert.equal(walk(detailedSummary,x=>x.className==='stat-imports')[0].attributes['aria-label'],
+    '3 importations');
   assert.equal(walk(card,x=>x.className==='notice').length,0,
     'no explanatory paragraph is shown inside each card');
   roots[0].open=true;
@@ -208,7 +218,10 @@ function setup(search,data=example){
     'no redundant navigation button inside the expanded card');
   assert.equal(walk(catalogCard,x=>x.href==='beatonstep://shared?id=1').length,1,
     'catalog entries can be imported directly without expanding');
-  assert.match(walk(catalogCard,x=>x.className==='primary')[0].textContent,/Import workout/);
+  assert.equal(walk(catalogCard,x=>x.className==='primary')[0].textContent,'+Import');
+  assert.equal(walk(catalogCard,x=>x.className==='stat-imports')[0].attributes['aria-label'],'3 imports');
+  assert.equal(walk(catalogCard,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/spotify.svg');
   catalog.elements['source-filter'].value='spotify';
   catalog.elements['source-filter'].onchange();
   await flush();
@@ -253,7 +266,10 @@ function setup(search,data=example){
   const playlist=setup('?id=2',youtube);
   await flush();
   const playlistCard=playlist.elements.detail.children[0];
-  assert.match(walk(playlistCard,x=>x.className==='primary')[0].textContent,/Importer la playlist/);
+  assert.equal(walk(playlistCard,x=>x.className==='primary')[0].textContent,'+Importer');
+  assert.equal(walk(playlistCard,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/youtube.svg');
+  assert.equal(walk(playlistCard,x=>x.className==='stat-imports')[0].textContent,'⇩2');
   assert.equal(walk(playlistCard,x=>x.className==='effort-segment').length,0,
     'music playlists must not show a fictional sports effort profile');
   assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Playlist musicale/);
@@ -274,6 +290,8 @@ function setup(search,data=example){
   };
   const appleView=setup('?id=3',apple);
   await flush();
+  assert.equal(walk(appleView.elements.detail,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/apple.svg');
   const appleRoot=walk(appleView.elements.detail,x=>x.tagName==='details')[0];
   appleRoot.open=true;appleRoot.events.toggle();await flush();
   const applePhases=walk(appleView.elements.detail,x=>x.className==='phase-branch');
@@ -289,6 +307,8 @@ function setup(search,data=example){
   const amazon={...example,id:4,source:'amazon'};
   const amazonView=setup('?id=4',amazon);
   await flush();
+  assert.equal(walk(amazonView.elements.detail,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/amazon.svg');
   const amazonRoot=walk(amazonView.elements.detail,x=>x.tagName==='details')[0];
   amazonRoot.open=true;amazonRoot.events.toggle();await flush();
   const amazonPhase=walk(amazonView.elements.detail,x=>x.className==='phase-branch')[0];
@@ -301,6 +321,8 @@ function setup(search,data=example){
     t:[['123456789','Track Deezer','Singer','Album',150,200,'','']]}};
   const deezerView=setup('?id=5',deezer);
   await flush();
+  assert.equal(walk(deezerView.elements.detail,x=>x.className==='source-logo')[0].src,
+    'assets/music-services/deezer.svg');
   const deezerRoot=walk(deezerView.elements.detail,x=>x.tagName==='details')[0];
   deezerRoot.open=true;deezerRoot.events.toggle();await flush();
   const deezerLink=walk(deezerView.elements.detail,x=>x.className==='track-play')[0];
