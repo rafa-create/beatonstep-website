@@ -20,7 +20,7 @@
     {
       "binding": "DB",
       "database_name": "beatonstep-catalog-prod",
-      "database_id": "8ebb0348-c3b6-41f1-a2e9-54c88643fdd1",
+      "database_id": "278e152c-3338-4e0d-adfd-673eac7c60cb",
       "migrations_dir": "migrations"
     }
   ]
