@@ -8,6 +8,7 @@ const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const example={
   id:1,kind:'workout',source:'spotify',name:'Course progressive 40 min',
   durationSec:2400,tracks:2,phases:2,imports:3,views:4,
+  profile:[[600,130],[1800,160]],
   payload:{v:1,n:'Course progressive 40 min',s:'spotify',
     p:[['Échauffement',600,130,128],['Course',1800,160,157]],
     t:[{p:0,n:'Music A',a:'Artist A',b:128,i:'1Hv1VTm8zeOeybub15mA2R'},
@@ -18,6 +19,10 @@ class Node {
     this.tagName=tag;this.children=[];this.attributes={};this.events={};
     this.dataset={};this.open=false;this.hidden=false;this.value='all';
     this._text='';this.className='';this.onclick=null;this.onchange=null;
+    this.classList={
+      remove:(...names)=>{this.className=this.className.split(' ').filter(x=>!names.includes(x)).join(' ')},
+      add:(name)=>{this.className=[...new Set([...this.className.split(' ').filter(Boolean),name])].join(' ')},
+    };
   }
   set textContent(value){this._text=String(value);this.children=[];}
   get textContent(){return this._text+this.children.map(c=>c.textContent).join('');}
@@ -25,10 +30,20 @@ class Node {
   replaceChildren(...nodes){this.children=[...nodes];this._text=''}
   setAttribute(name,value){this.attributes[name]=value}
   addEventListener(name,fn){this.events[name]=fn}
+  querySelector(selector){
+    if(selector==='details.share-tree')return walk(this,x=>x.tagName==='details'&&x.className==='share-tree')[0];
+    if(selector.startsWith('.'))return walk(this,x=>x.className.split(' ').includes(selector.slice(1)))[0];
+    throw Error('unknown querySelector '+selector);
+  }
+  focus(){this.focused=true}
+  showModal(){this.open=true}
+  close(){this.open=false;if(this.events.close)this.events.close()}
+  removeAttribute(name){delete this.attributes[name]}
 }
 const walk=(n,predicate)=>[...(predicate(n)?[n]:[]),...n.children.flatMap(c=>walk(c,predicate))];
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(search,data=example){
+  const items=Array.isArray(data)?data:[data];
   const elements={};
   for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter','footer-privacy','footer-privacy-label'])
     elements[name]=new Node(name);
@@ -39,9 +54,10 @@ function setup(search,data=example){
     const n=new Node('button');n.dataset.sort=k;return n;
   });
   const selectAll=new Node('option');
+  const body=new Node('body');
   const apiCalls=[];
   const document={
-    hidden:false,documentElement:{lang:'fr'},
+    hidden:false,documentElement:{lang:'fr'},body,
     createElement(tag){return new Node(tag)},
     getElementById(name){return elements[name]},
     querySelectorAll(selector){
@@ -59,15 +75,16 @@ function setup(search,data=example){
   const fetch=async(url)=>{
     apiCalls.push(url);
     if(url.endsWith('/view'))return {ok:true,json:async()=>({counted:true})};
-    if(url.includes('?'))return {ok:true,json:async()=>({total:1,page:1,pageSize:20,
-      items:[Object.fromEntries(Object.entries(data).filter(([k])=>k!=='payload'))]})};
-    if(url.endsWith('/'+data.id))return {ok:true,json:async()=>data};
+    if(url.includes('?'))return {ok:true,json:async()=>({total:items.length,page:1,pageSize:20,
+      items:items.map(item=>Object.fromEntries(Object.entries(item).filter(([k])=>k!=='payload')) )})};
+    const found=items.find(item=>url.endsWith('/'+item.id));
+    if(found)return {ok:true,json:async()=>found};
     throw Error('unexpected fetch '+url);
   };
   const location={search};
   vm.runInNewContext(script,{document,navigator:{language:'fr-FR'},location,
     URLSearchParams,fetch,console});
-  return {elements,kinds,sorts,apiCalls};
+  return {elements,kinds,sorts,apiCalls,body};
 }
 (async()=>{
   // Individual workout: one collapsed workout, then independently expandable
@@ -158,9 +175,9 @@ function setup(search,data=example){
   assert.equal(catalogRoot.length,1);
   assert(!catalogRoot[0].open);
   assert.equal(catalog.apiCalls.filter(url=>url.endsWith('/1')).length,0);
-  assert.equal(walk(catalogCard,x=>x.className==='effort-segment').length,0,
-    'compact catalog entries must not fabricate an effort profile');
-  assert.equal(walk(catalogCard,x=>x.className==='collection-glyph').length,1);
+  assert.equal(walk(catalogCard,x=>x.className==='effort-segment').length,2,
+    'catalog cards immediately show the real profile from compact API metadata');
+  assert.equal(walk(catalogCard,x=>x.className==='collection-glyph').length,0);
   catalogRoot[0].open=true;
   catalogRoot[0].events.toggle();
   await flush();
@@ -200,6 +217,33 @@ function setup(search,data=example){
   await flush();
   assert.match(catalog.apiCalls.at(-1),/kind=runmix&source=spotify/);
 
+  // Catalog summaries open the focus viewer, navigating only matching types.
+  const gallery=setup('',[example,{...example,id:9,name:'Other workout'}]);
+  await flush();
+  const firstSummary=walk(gallery.elements.results.children[0],x=>x.className==='share-summary')[0];
+  let prevented=false;
+  firstSummary.events.click({preventDefault(){prevented=true}});
+  assert(prevented,'focus replaces inline expansion when tapping catalog card');
+  const dialog=walk(gallery.body,x=>x.tagName==='dialog')[0];
+  assert(dialog.open,'the focused card is presented in a native dialog');
+  const stage=walk(dialog,x=>x.className.split(' ').includes('focus-stage'))[0];
+  assert.equal(walk(stage,x=>x.className==='card').length,1);
+  assert.match(stage.textContent,/Course progressive/);
+  const forward=walk(dialog,x=>x.tagName==='button'&&x.textContent==='→')[0];
+  const back=walk(dialog,x=>x.tagName==='button'&&x.textContent==='←')[0];
+  assert.equal(back.disabled,true);
+  assert.equal(forward.disabled,false);
+  forward.onclick();
+  assert.match(stage.textContent,/Other workout/);
+  assert.equal(forward.disabled,true);
+  stage.events.touchstart({touches:[{clientX:40,clientY:110}]});
+  let cancelledClick=false;
+  stage.events.touchend({changedTouches:[{clientX:150,clientY:125}],preventDefault(){cancelledClick=true}});
+  assert(cancelledClick,'horizontal swipe changes focused card');
+  assert.match(stage.textContent,/Course progressive/);
+  assert.equal(back.disabled,true);
+  dialog.close();
+  assert.equal(dialog.open,false);
   // Run Mix uses two levels only: playlist -> tracks, and direct YouTube links.
   const youtube={
     id:2,kind:'runmix',source:'youtube',name:'Run Mix',durationSec:1800,
