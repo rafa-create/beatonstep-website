@@ -1,4 +1,5 @@
 import { adminRequest } from './admin.js';
+import { sharePageResponse } from './share-preview.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -227,6 +228,9 @@ export default {
         console.error('shared catalog request failed', String(error?.message || error).slice(0, 100));
         return json({ error: 'share_unavailable' }, 503);
       }
+    }
+    if (url.pathname === '/partages.html') {
+      return sharePageResponse(request, env, url);
     }
     return env.ASSETS.fetch(request);
   },

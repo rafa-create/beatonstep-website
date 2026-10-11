@@ -177,3 +177,28 @@ URLs, API calls and mobile deep links to avoid collision with old VM cards.
   are ever needed, the product decision in BeatOnStep issue #422 still defers
   them until demand is established.
 - Never invoke OTA or redeploy the music/BPM VM for website moderation.
+
+
+## Link previews with dynamic metadata (2026-10-11)
+
+The Cloudflare Worker now handles `/partages.html` before static assets.
+For GET requests with a valid **D1 public ID**, it reads only the card's
+public summary from `shared_items` and returns per-card HTML metadata:
+`title`, `description`, `og:title`, `og:description`, `og:url`,
+`og:image`, Twitter Card tags and canonical URL. The social image remains
+the existing generic BeatOnStep logo; making custom 1200×630 images is a
+**separate enhancement**, not part of this deployment.
+
+The existing URL `/partages.html?id=1000000000001` and mobile deep-link
+`beatonstep://shared?id=1000000000001` stay unchanged. Static HTML/JS and
+all API endpoints are unmodified. Invalid, legacy, deleted and missing cards
+receive the original generic preview. D1 read failures also fall back to
+static HTML, keeping the public page available. No accounts, migrations,
+secrets, mobile OTA or VM changes are needed.
+
+Dynamic successful responses use `Cache-Control: no-store` so deleting a card
+is reflected in the next origin response. WhatsApp/iMessage and other services
+may cache old previews independently; cannot invalidate their caches from D1.
+Validate the raw HTML for a real share URL and test social previews on actual
+receiving apps before declaring every platform verified. Tests:
+`node --test tests/share-social-preview.test.mjs`.
