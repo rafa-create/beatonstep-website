@@ -113,6 +113,7 @@ async function d1Request(request, env, url) {
     try { input = JSON.parse(raw); } catch { return json({ error: 'invalid_share' }, 400); }
     const meta = validate(input?.kind, input?.payload);
     if (!meta) return json({ error: 'invalid_share' }, 400);
+    if (!env.CATALOG_RATE_SALT) return json({ error: 'catalog_write_not_configured' }, 503);
     if (!(await rateLimit(request, env, 'publish', 86400000, 20))) {
       return json({ error: 'retry_later' }, 429);
     }

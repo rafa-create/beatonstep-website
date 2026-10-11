@@ -204,7 +204,7 @@
 <script>
 (function(){
   'use strict';
-  const API='https://beatonstep.tail09d8d8.ts.net/api/shared';
+  const API='/api/shared';
   const params=new URLSearchParams(location.search);
   const parsedId=params.get('id');
   const id=parsedId && /^[1-9]\d{0,14}$/.test(parsedId) ? Number(parsedId) : null;

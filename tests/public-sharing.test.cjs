@@ -4,6 +4,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname,'..');
 const read = name => fs.readFileSync(path.join(root,name),'utf8');
 const page = read('partages.html');
+assert.match(page, /const API='\/api\/shared';/, 'catalog must use the same-origin Worker');
 assert.match(read('seances-programmees.html'), /href="partages.html"/);
 assert.match(read('runmix.html'), /partages.html\?kind=runmix/);
 assert.match(page, /data-kind="workout"/);

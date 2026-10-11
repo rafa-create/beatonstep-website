@@ -37,3 +37,25 @@ test('wrangler routes API first and excludes private sources from static output'
   assert.ok(!existsSync('dist/migrations/0001_shared_catalog.sql'));
   assert.ok(existsSync('dist/partages.html'));
 });
+
+test('public share page uses same-origin API, never a VM hostname', async () => {
+  const page = readFileSync('partages.html', 'utf8');
+  assert.match(page, /const API='\/api\/shared';/);
+  assert.doesNotMatch(page, /beatonstep\.tail09d8d8\.ts\.net/);
+});
+
+test('D1 publish fails closed without the publishing salt', async () => {
+  const response = await worker.fetch(new Request('https://beatonstep.app/api/shared', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ kind: 'runmix', payload: {
+      v: 1, i: '0123456789abcdef', s: 'spotify', t: [['Song A']], n: 'Test'
+    } }),
+  }), {
+    CATALOG_BACKEND: 'd1',
+    DB: { prepare: () => { throw Error('A write was attempted'); } },
+    ASSETS: { fetch: () => new Response('STATIC') }
+  });
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, 'catalog_write_not_configured');
+});
