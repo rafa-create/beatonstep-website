@@ -84,6 +84,11 @@ function setup(search,data=example){
   assert.equal(walk(card,x=>x.className==='track').length,0);
   assert(walk(card,x=>x.href==='beatonstep://shared?id=1').length===1,
     'import button stays visible while tree is collapsed');
+  assert.equal(walk(card,x=>x.className==='primary').length,1,
+    'the card has exactly one separate import action');
+  assert.match(walk(card,x=>x.className==='primary')[0].textContent,/Importer la séance/);
+  assert.equal(walk(card,x=>x.className==='notice').length,0,
+    'no explanatory paragraph is shown inside each card');
   roots[0].open=true;
   roots[0].events.toggle();
   await flush();
@@ -155,8 +160,15 @@ function setup(search,data=example){
   await flush();
   assert.equal(catalog.apiCalls.filter(url=>url.endsWith('/1')).length,1,
     'reopening does not refetch details');
-  assert(walk(catalogCard,x=>x.href==='partages.html?id=1').length===1,
-    'catalog entry retains navigation to its own detail page');
+  const catalogSummary=walk(catalogCard,x=>x.className==='share-summary')[0];
+  assert.match(catalogSummary.textContent,/40 min/);
+  assert.match(catalogSummary.textContent,/2 tracks/);
+  assert.doesNotMatch(catalogSummary.textContent,/imports|views/);
+  assert.equal(walk(catalogCard,x=>x.href==='partages.html?id=1').length,0,
+    'no redundant navigation button inside the expanded card');
+  assert.equal(walk(catalogCard,x=>x.href==='beatonstep://shared?id=1').length,1,
+    'catalog entries can be imported directly without expanding');
+  assert.match(walk(catalogCard,x=>x.className==='primary')[0].textContent,/Import workout/);
   catalog.elements['source-filter'].value='spotify';
   catalog.elements['source-filter'].onchange();
   await flush();
@@ -174,6 +186,7 @@ function setup(search,data=example){
   const playlist=setup('?id=2',youtube);
   await flush();
   const playlistCard=playlist.elements.detail.children[0];
+  assert.match(walk(playlistCard,x=>x.className==='primary')[0].textContent,/Importer la playlist/);
   const playlistRoot=walk(playlistCard,x=>x.tagName==='details');
   assert.equal(playlistRoot.length,1);
   playlistRoot[0].open=true;
