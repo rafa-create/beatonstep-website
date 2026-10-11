@@ -7,8 +7,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node scripts/build-static.mjs && node --test tests/cloudflare-worker.test.mjs",
-    "check": "node --check worker/index.js && npm run build",
+    "build": "node scripts/build-static.mjs && node --test tests/cloudflare-worker.test.mjs tests/admin-worker.test.mjs && node tests/public-sharing-interactions.test.cjs",
+    "check": "node --check worker/index.js && node --check worker/admin.js && npm run build",
     "deploy": "npm run build && wrangler deploy",
     "dev": "npm run build && wrangler dev"
   },

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Administration du catalogue — BeatOnStep</title>
+  <meta name="theme-color" content="#151a1f">
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, sans-serif; background:#12171b; color:#f4f6f6; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; }
+    a { color:#d6e8ee; }
+    header { border-bottom:1px solid #39454a; }
+    header .shell { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .shell { width:min(850px, calc(100% - 32px)); margin:0 auto; }
+    .brand { color:#fff; font-weight:750; font-size:1.12rem; text-decoration:none; padding:1rem 0; }
+    main { padding:2rem 0 4rem; }
+    h1 { font-size:clamp(1.5rem, 5vw, 2.15rem); margin:0 0 .5rem; }
+    h2 { margin:0; font-size:1rem; }
+    .muted, .meta { color:#b4c0c4; }
+    .intro { margin:0 0 1.5rem; line-height:1.55; }
+    .panel { border:1px solid #39454a; border-radius:16px; padding:clamp(1rem,4vw,1.6rem); background:#1b2328; }
+    form { display:grid; gap:1rem; max-width:420px; }
+    label { display:grid; gap:.4rem; font-weight:600; }
+    input { min-height:46px; background:#10181b; color:#fff; border:1px solid #73868c; border-radius:9px; padding:.75rem; font:inherit; }
+    button { border:1px solid #8b999b; border-radius:9px; padding:.7rem 1rem; color:#fff; background:#313e43; font:inherit; cursor:pointer; min-height:44px; }
+    button:hover { background:#44575d; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline:3px solid #ffe55e; outline-offset:3px; }
+    button:disabled { opacity:.6; cursor:wait; }
+    button.primary { border-color:#ffe55e; color:#121717; background:#ffe55e; font-weight:700; }
+    button.danger { border-color:#f88c8c; color:#ffbcbc; background:#3f2428; }
+    button.danger:hover { background:#6b2c33; }
+    .top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }
+    .items { display:grid; gap:.75rem; padding:0; list-style:none; }
+    .item { border:1px solid #39454a; border-radius:12px; padding:1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .item h2 { margin:.3rem 0 .4rem; font-size:1rem; overflow-wrap:anywhere; }
+    .item .actions { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+    .item a { display:inline-block; padding:.5rem; }
+    .pagination { display:flex; justify-content:center; gap:1rem; margin-top:1.2rem; align-items:center; }
+    .notice { margin:.7rem 0; padding:.75rem 1rem; border-left:3px solid #ffe55e; background:#242e32; }
+    [hidden] { display:none !important; }
+    @media(max-width:560px) { .item { align-items:flex-start; flex-direction:column; } .item .actions { width:100%; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell"><a class="brand" href="/">BEATONSTEP</a><a href="/partages.html">← Catalogue public</a></div></header>
+  <main class="shell">
+    <h1>Administration du catalogue</h1>
+    <p class="muted intro">Espace privé réservé à l'administrateur. La suppression d'une carte est définitive et rend son lien public indisponible.</p>
+    <p class="notice" id="message" role="status" aria-live="polite">Vérification de la session…</p>
+    <section class="panel" id="login-panel" hidden aria-labelledby="login-title">
+      <h2 id="login-title">Se connecter</h2>
+      <p class="muted">Aucune inscription publique n'est proposée.</p>
+      <form id="login-form">
+        <label>Adresse e-mail <input id="email" type="email" autocomplete="username" required maxlength="254"></label>
+        <label>Mot de passe <input id="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
+        <button class="primary" id="login-button" type="submit">Connexion</button>
+      </form>
+    </section>
+    <section id="admin-panel" hidden aria-labelledby="cards-title">
+      <div class="top">
+        <div><h2 id="cards-title">Cartes publiées</h2><p class="muted" id="account"></p></div>
+        <button type="button" id="logout">Déconnexion</button>
+      </div>
+      <ul class="items" id="items"></ul>
+      <div class="pagination">
+        <button type="button" id="previous">← Précédent</button>
+        <span id="position" aria-live="polite"></span>
+        <button type="button" id="next">Suivant →</button>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    const byId = id => document.getElementById(id);
+    const OFFSET = 1_000_000_000_000;
+    let page = 1;
+    function labelId(id) {
+      return '#' + String(id > OFFSET ? id - OFFSET : id).padStart(4, '0');
+    }
+    function status(text) { byId('message').textContent = text; }
+    async function api(path, options = {}) {
+      const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', ...options });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 401) throw Error('Connexion requise ou session expirée.');
+        if (response.status === 429) throw Error('Trop de tentatives. Réessaie dans 15 minutes.');
+        throw Error(body.error === 'admin_unavailable'
+          ? 'Administration indisponible : vérifier les tables D1.'
+          : 'Opération impossible (HTTP ' + response.status + ').');
+      }
+      return body;
+    }
+    function showAdmin(admin) {
+      byId('login-panel').hidden = Boolean(admin);
+      byId('admin-panel').hidden = !admin;
+      if (admin) byId('account').textContent = admin.email;
+    }
+    async function loadItems() {
+      const data = await api('/api/shared?sort=recent&page=' + page);
+      const list = byId('items');
+      list.replaceChildren();
+      if (!data.items.length) {
+        const li = document.createElement('li');
+        li.textContent = 'Aucune carte sur cette page.';
+        list.append(li);
+      }
+      for (const item of data.items) {
+        const li = document.createElement('li');
+        li.className = 'item';
+        const info = document.createElement('div');
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = labelId(item.id) + ' · ' +
+          (item.kind === 'workout' ? 'Séance' : 'Run Mix') + ' · ' + item.source;
+        const name = document.createElement('h2');
+        name.textContent = item.name;
+        info.append(meta, name);
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const link = document.createElement('a');
+        link.href = '/partages.html?id=' + encodeURIComponent(item.id);
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Voir la carte';
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'danger';
+        remove.textContent = 'Supprimer';
+        remove.setAttribute('aria-label', 'Supprimer ' + item.name);
+        remove.addEventListener('click', async () => {
+          if (!confirm('Supprimer définitivement « ' + item.name + ' » (' + labelId(item.id) + ') ?\nSon lien et son import ne fonctionneront plus.')) return;
+          remove.disabled = true;
+          try {
+            await api('/api/admin/shared/' + encodeURIComponent(item.id), {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            status('Carte supprimée : ' + item.name);
+            await loadItems();
+          } catch (error) {
+            status(error.message);
+            remove.disabled = false;
+          }
+        });
+        actions.append(link, remove);
+        li.append(info, actions);
+        list.append(li);
+      }
+      const last = Math.max(1, Math.ceil(data.total / data.pageSize));
+      byId('position').textContent = 'Page ' + page + ' / ' + last + ' · ' + data.total + ' cartes';
+      byId('previous').disabled = page <= 1;
+      byId('next').disabled = page >= last;
+    }
+    byId('login-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = byId('login-button');
+      button.disabled = true;
+      try {
+        const admin = await api('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: byId('email').value, password: byId('password').value }),
+        });
+        byId('login-form').reset();
+        showAdmin(admin);
+        page = 1;
+        await loadItems();
+        status('Connecté. Suppressions réservées à l’administrateur.');
+      } catch (error) { status(error.message); }
+      finally { button.disabled = false; }
+    });
+    byId('logout').addEventListener('click', async () => {
+      try {
+        await api('/api/admin/logout', { method: 'POST' });
+        showAdmin(null);
+        status('Déconnecté.');
+      } catch (error) { status(error.message); }
+    });
+    byId('previous').addEventListener('click', () => {
+      if (page > 1) { page--; loadItems().catch(e => status(e.message)); }
+    });
+    byId('next').addEventListener('click', () => {
+      page++; loadItems().catch(e => status(e.message));
+    });
+    (async () => {
+      try {
+        const current = await api('/api/admin/me');
+        showAdmin(current.authenticated ? current : null);
+        if (current.authenticated) {
+          await loadItems();
+          status('Session administrateur active.');
+        } else status('Connexion administrateur requise.');
+      } catch (error) { showAdmin(null); status(error.message); }
+    })();
+  </script>
+</body>
+</html>

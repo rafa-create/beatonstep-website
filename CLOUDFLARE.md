@@ -123,3 +123,57 @@ Add Cloudflare WAF rate limiting before opening public write traffic at scale.
 - Secrets and the D1 UUID are not bundled in static assets.
 - At the initial rollout the catalogue remains in legacy mode intentionally,
   so the old site and installed apps keep working.
+
+
+## Private catalogue moderation (optional, owner-only)
+
+The public catalogue stays anonymous and does not require an account. No signup
+endpoint, no community profiles and no mobile login are enabled.
+
+The private entry point is `https://beatonstep.app/admin.html`.
+It provides owner login, a list of D1 public cards, and irreversible deletion of
+a selected card (after confirmation). The visible number `#0001` is only a
+shortened display: the public ID `1000000000001` must be retained in public
+URLs, API calls and mobile deep links to avoid collision with old VM cards.
+
+### Before first use
+
+1. Check the *Production* D1 binding `DB` is **beatonstep-catalog-prod**,
+   UUID `278e152c-3338-4e0d-adfd-673eac7c60cb`. Do not touch another D1 DB.
+2. Apply `migrations/0002_catalog_admin.sql` **once** in that database's
+   Cloudflare D1 SQL console (or via `wrangler d1 migrations apply ... --remote`
+   after verifying its binding and the target). The migration is additive:
+   existing shares, URLs, view counts and import counters remain intact.
+3. On a computer with Python 3, run `python3 scripts/provision-admin-sql.py`.
+   Provide the owner's e-mail and a unique password of **at least 16 characters**.
+   The helper computes PBKDF2-SHA256 with a cryptographic salt, and prints
+   one SQL `INSERT`. Only paste it into the verified D1 SQL console.
+   The script does not send the password anywhere or write it into a file.
+   **Never commit or share the generated SQL**, since it includes the password hash.
+   Do not add credentials or real e-mail addresses to this repository.
+4. Visit `/admin.html` over HTTPS and log in. The administrator is created
+   exclusively by the SQL insert: public sign-up is impossible.
+5. Verify the admin can list the public items; delete only a **disposable test**
+   publication with explicit consent, then verify its URL is 404 and other
+   cards still import normally. If testing on an important existing card, do
+   not delete it; there is no undo/backups in this workflow yet.
+
+### Security controls
+
+- No registration route and no admin credentials in Worker vars or GitHub.
+- PBKDF2-SHA256 (100k iterations) with per-user random salt, stored in private
+  D1 `admin_users`. Session tokens are random 256-bit values; only SHA-256
+  hashes are stored in `admin_sessions`. Seven-day
+  `__Host-` Secure/HttpOnly/SameSite=Strict cookies.
+- Mutating admin API requests require an exact same-origin `Origin` header.
+  Deletion checks both an authenticated session and the D1 public ID range,
+  so a legacy VM share ID cannot delete a D1 row by mistake.
+- D1-backed per-IP login throttling uses `CATALOG_RATE_SALT`; without it,
+  login fails closed. Consider mandatory Cloudflare Turnstile if abuse grows.
+- `/api/health` keeps checking the original two public tables; new admin
+  tables are optional and do not affect public availability.
+- Uninitialized moderation returns 503; public shares remain available.
+- The admin is separate from future community accounts. If public accounts
+  are ever needed, the product decision in BeatOnStep issue #422 still defers
+  them until demand is established.
+- Never invoke OTA or redeploy the music/BPM VM for website moderation.

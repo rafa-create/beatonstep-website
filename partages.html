@@ -472,7 +472,8 @@
     const head=el('div','card-head');
     const identity=el('span','collection-identity');
     identity.append(el('span','collection-brand','BeatOnStep'),
-      el('span','collection-number','#'+String(item.id).padStart(4,'0')));
+      el('span','collection-number','#'+String(item.id>1_000_000_000_000
+        ?item.id-1_000_000_000_000:item.id).padStart(4,'0')));
     const headRight=el('span','card-head-right');
     headRight.append(el('span','badge',item.kind==='workout'
       ?fr('Séance','Workout'):fr('Playlist','Playlist')));

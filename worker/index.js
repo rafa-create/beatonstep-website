@@ -1,3 +1,5 @@
+import { adminRequest } from './admin.js';
+
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
 const LEGACY_API = 'https://beatonstep.tail09d8d8.ts.net';
@@ -202,6 +204,10 @@ export default {
         publishingConfigured: Boolean(env.CATALOG_RATE_SALT) });
     }
     if (url.pathname.startsWith('/api/')) {
+      // Private moderation is isolated from the CORS-enabled public share API.
+      if (url.pathname === '/api/admin' || url.pathname.startsWith('/api/admin/')) {
+        return adminRequest(request, env, url);
+      }
       if (request.method === 'OPTIONS') return new Response(null, {
         status: 204, headers: {
           'access-control-allow-origin': '*',

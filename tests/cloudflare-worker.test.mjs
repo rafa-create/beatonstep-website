@@ -37,6 +37,10 @@ test('wrangler routes API first and excludes private sources from static output'
   assert.ok(!existsSync('dist/worker/index.js'));
   assert.ok(!existsSync('dist/migrations/0001_shared_catalog.sql'));
   assert.ok(existsSync('dist/partages.html'));
+  assert.ok(existsSync('dist/admin.html'));
+  assert.ok(!existsSync('dist/scripts/provision-admin-sql.py'));
+  assert.ok(!existsSync('dist/worker/admin.js'));
+  assert.ok(!existsSync('dist/migrations/0002_catalog_admin.sql'));
 });
 
 test('public share page uses same-origin API, never a VM hostname', async () => {

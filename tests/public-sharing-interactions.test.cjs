@@ -104,6 +104,15 @@ function setup(search,data=example){
   assert.equal(walk(card,x=>x.className==='track').length,0);
   const detailedSummary=walk(card,x=>x.className==='share-summary')[0];
   assert.match(detailedSummary.textContent,/#0001/,'share ID is visible on its card');
+  const d1Id = 1_000_000_000_001;
+  const d1Detail = setup('?id=' + d1Id, {...example, id:d1Id});
+  await flush();
+  const d1Card = d1Detail.elements.detail.children[0];
+  const d1Summary = walk(d1Card,x=>x.className==='share-summary')[0];
+  assert.match(d1Summary.textContent,/#0001/,'D1 share IDs have short visual card numbers');
+  assert.doesNotMatch(d1Summary.textContent,/#1000000000001/,'raw D1 offset is not shown');
+  assert(walk(d1Card,x=>x.href==='beatonstep://shared?id='+d1Id).length===1,
+    'full D1 ID remains unchanged in the mobile import deep link');
   assert.equal(walk(detailedSummary,x=>x.className==='effort-segment').length,2,
     'the individual card uses its two real effort phases');
   assert.match(detailedSummary.textContent,/Profil d'effort/);
