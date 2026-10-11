@@ -63,6 +63,26 @@
     .effort-segment{position:relative;z-index:1;flex-basis:0;min-width:3px;max-height:100%;background:linear-gradient(180deg,#fcea07,#a68d25);border-radius:3px 3px 0 0;box-shadow:0 0 14px #fcea071d}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
+    .share-tree[open]>.tree-content{animation:details-in 190ms cubic-bezier(.2,.8,.2,1) both}
+    @keyframes details-in{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+    .focus-dialog{width:min(620px,calc(100vw - 18px));max-height:min(92dvh,920px);box-sizing:border-box;overflow:auto;overscroll-behavior:contain;padding:12px;background:#11110e;border:1px solid #625b39;border-radius:22px;color:var(--text);box-shadow:0 25px 85px #000b}
+    .focus-dialog::backdrop{background:rgba(0,0,0,.83);backdrop-filter:blur(5px)}
+    .focus-toolbar{display:flex;align-items:center;justify-content:center;gap:10px;position:sticky;top:-12px;z-index:5;background:#11110ef2;padding:8px 3px 12px}
+    .focus-toolbar button{display:grid;place-items:center;flex:none;width:42px;height:42px;background:#232219;border:1px solid #5a5336;border-radius:50%;color:#fcea07;font-size:23px;cursor:pointer}
+    .focus-toolbar button:disabled{opacity:.3;cursor:default}
+    .focus-toolbar button:not(:disabled):hover{background:#37321d}
+    .focus-toolbar button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .focus-position{color:var(--muted);font-size:13px;min-width:68px;text-align:center;font-variant-numeric:tabular-nums}
+    .focus-close{margin-left:auto!important}
+    .focus-stage{touch-action:pan-y}
+    .focus-stage .card{margin:0}
+    .focus-stage.focus-enter{animation:focus-enter 200ms cubic-bezier(.2,.8,.2,1) both}
+    .focus-stage.focus-from-left{animation:focus-from-left 185ms cubic-bezier(.2,.8,.2,1) both}
+    .focus-stage.focus-from-right{animation:focus-from-right 185ms cubic-bezier(.2,.8,.2,1) both}
+    @keyframes focus-enter{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+    @keyframes focus-from-left{from{opacity:.3;transform:translateX(-22px)}to{opacity:1;transform:none}}
+    @keyframes focus-from-right{from{opacity:.3;transform:translateX(22px)}to{opacity:1;transform:none}}
+    @media(prefers-reduced-motion:reduce){.share-tree[open]>.tree-content,.focus-stage.focus-enter,.focus-stage.focus-from-left,.focus-stage.focus-from-right{animation:none}}
     .phase-branch{border-bottom:1px solid var(--border);margin:0}
     .phase-branch:last-child{border-bottom:0}
     .phase-branch>summary{padding:15px 36px 15px 12px;position:relative}
@@ -314,7 +334,7 @@
   // Compact catalog rows intentionally contain no phase list: don't invent a shape.
   function drawEffortProfile(art,item){
     if(item.kind!=='workout')return;
-    const phases=item.payload&&item.payload.p;
+    const phases=Array.isArray(item.profile)?item.profile:(item.payload&&item.payload.p);
     if(!Array.isArray(phases)||!phases.length||phases.length>32)return;
     const data=[];
     for(const phase of phases){
@@ -336,11 +356,113 @@
     art.replaceChildren(graph,el('span','collection-art-label',fr("Profil d'effort",'Effort profile')));
     art.className='collection-art collection-art--effort';
   }
-  function createCard(item,detailed){
+  let catalogItems=[];
+  let focusDialog=null,focusStage=null,focusPrevious=null,focusNext=null,focusPosition=null;
+  let focusItems=[],focusIndex=0,focusReturn=null,swipeStart=null;
+  function closeFocus(){
+    if(!focusDialog)return;
+    if(typeof focusDialog.close==='function')focusDialog.close();
+    else focusDialog.removeAttribute('open');
+  }
+  function setupFocus(){
+    if(focusDialog)return;
+    focusDialog=el('dialog','focus-dialog');
+    focusDialog.setAttribute('aria-modal','true');
+    const toolbar=el('div','focus-toolbar');
+    focusPrevious=el('button','', '←');
+    focusNext=el('button','', '→');
+    focusPosition=el('span','focus-position');
+    const close=el('button','focus-close','×');
+    for(const button of [focusPrevious,focusNext,close])button.type='button';
+    toolbar.append(focusPrevious,focusPosition,focusNext,close);
+    focusStage=el('div','focus-stage');
+    focusDialog.append(toolbar,focusStage);
+    document.body.append(focusDialog);
+    focusPrevious.onclick=()=>changeFocus(-1);
+    focusNext.onclick=()=>changeFocus(1);
+    close.onclick=closeFocus;
+    focusDialog.addEventListener('click',e=>{
+      if(e.target===focusDialog)closeFocus();
+    });
+    focusDialog.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+        e.preventDefault();
+        changeFocus(e.key==='ArrowLeft'?-1:1);
+      }
+    });
+    focusDialog.addEventListener('close',()=>{
+      if(focusReturn&&typeof focusReturn.focus==='function')focusReturn.focus();
+    });
+    focusStage.addEventListener('touchstart',e=>{
+      if(e.touches.length!==1)return;
+      swipeStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    },{passive:true});
+    focusStage.addEventListener('touchend',e=>{
+      if(!swipeStart||!e.changedTouches.length)return;
+      const dx=e.changedTouches[0].clientX-swipeStart.x;
+      const dy=e.changedTouches[0].clientY-swipeStart.y;
+      swipeStart=null;
+      if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35){
+        if((dx<0&&focusIndex<focusItems.length-1)||(dx>0&&focusIndex>0)){
+          e.preventDefault();
+          changeFocus(dx<0?1:-1);
+        }
+      }
+    },{passive:false});
+    focusStage.addEventListener('touchcancel',()=>{swipeStart=null});
+  }
+  function renderFocus(direction=0){
+    if(!focusStage||!focusItems.length)return;
+    const item=focusItems[focusIndex];
+    focusPosition.textContent=(focusIndex+1)+' / '+focusItems.length;
+    focusPrevious.disabled=focusIndex===0;
+    focusNext.disabled=focusIndex===focusItems.length-1;
+    focusPrevious.setAttribute('aria-label',fr('Carte précédente','Previous card'));
+    focusNext.setAttribute('aria-label',fr('Carte suivante','Next card'));
+    focusDialog.querySelector('.focus-close').setAttribute('aria-label',fr('Fermer','Close'));
+    focusDialog.setAttribute('aria-label',item.name);
+    const card=createCard(item,false,true);
+    focusStage.replaceChildren(card);
+    const tree=card.querySelector('details.share-tree');
+    if(tree)tree.open=true;
+    focusStage.classList.remove('focus-enter','focus-from-left','focus-from-right');
+    // Restart the fast transition for each card without animating the page scroll.
+    void focusStage.offsetWidth;
+    focusStage.classList.add(direction<0?'focus-from-left':direction>0?'focus-from-right':'focus-enter');
+    focusDialog.scrollTop=0;
+  }
+  function changeFocus(direction){
+    const next=focusIndex+direction;
+    if(next<0||next>=focusItems.length)return;
+    focusIndex=next;
+    renderFocus(direction);
+  }
+  function openFocus(itemId,origin){
+    const item=catalogItems.find(row=>row.id===itemId);
+    if(!item)return;
+    // A collection stays coherent: workout cards navigate other workouts,
+    // playlist cards navigate other playlists in the current filtered page.
+    focusItems=catalogItems.filter(row=>row.kind===item.kind);
+    focusIndex=focusItems.findIndex(row=>row.id===itemId);
+    focusReturn=origin;
+    setupFocus();
+    renderFocus();
+    if(typeof focusDialog.showModal==='function')focusDialog.showModal();
+    else focusDialog.setAttribute('open','');
+    const close=focusDialog.querySelector('.focus-close');
+    if(close&&typeof close.focus==='function')close.focus();
+  }
+  function createCard(item,detailed,inFocus=false){
     const card=el('article','card');
     const tree=el('details','share-tree');
     const summary=el('summary','share-summary');
     summary.title=fr('Afficher ou masquer le déroulé','Show or hide details');
+    if(!detailed&&!inFocus){
+      summary.addEventListener('click',event=>{
+        event.preventDefault();
+        openFocus(item.id,summary);
+      });
+    }
     const head=el('div','card-head');
     const identity=el('span','collection-identity');
     identity.append(el('span','collection-brand','BeatOnStep'),
@@ -396,6 +518,7 @@
     const result=$('results'),paging=$('pages');
     empty(result);
     empty(paging);
+    catalogItems=[];
     result.append(el('p','sub',fr('Chargement…','Loading…')));
     document.querySelectorAll('[data-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.kind===kind)));
     document.querySelectorAll('[data-sort]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.sort===sort)));
@@ -405,6 +528,7 @@
         encodeURIComponent(musicSource)+'&sort='+sort+'&page='+page);
       if(request!==listTicket)return;
       empty(result);
+      catalogItems=data.items;
       if(!data.items.length)result.append(el('p','error',fr('Aucun partage pour le moment.','No shares yet.')));
       data.items.forEach(x=>result.append(createCard(x,false)));
       if(data.total>20){
