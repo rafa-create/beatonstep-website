@@ -82,6 +82,11 @@ function setup(search,data=example){
   assert.equal(roots.length,1,'individual workout starts with only one root');
   assert(!roots[0].open);
   assert.equal(walk(card,x=>x.className==='track').length,0);
+  const detailedSummary=walk(card,x=>x.className==='share-summary')[0];
+  assert.match(detailedSummary.textContent,/#0001/,'share ID is visible on its card');
+  assert.equal(walk(detailedSummary,x=>x.className==='effort-segment').length,2,
+    'the individual card uses its two real effort phases');
+  assert.match(detailedSummary.textContent,/Profil d'effort/);
   assert(walk(card,x=>x.href==='beatonstep://shared?id=1').length===1,
     'import button stays visible while tree is collapsed');
   assert.equal(walk(card,x=>x.className==='primary').length,1,
@@ -140,6 +145,9 @@ function setup(search,data=example){
   assert.equal(catalogRoot.length,1);
   assert(!catalogRoot[0].open);
   assert.equal(catalog.apiCalls.filter(url=>url.endsWith('/1')).length,0);
+  assert.equal(walk(catalogCard,x=>x.className==='effort-segment').length,0,
+    'compact catalog entries must not fabricate an effort profile');
+  assert.equal(walk(catalogCard,x=>x.className==='collection-glyph').length,1);
   catalogRoot[0].open=true;
   catalogRoot[0].events.toggle();
   await flush();
@@ -147,6 +155,8 @@ function setup(search,data=example){
     'first opening retrieves full details lazily');
   const catalogPhases=walk(catalogCard,x=>x.tagName==='details'&&x.className==='phase-branch');
   assert.equal(catalogPhases.length,2);
+  assert.equal(walk(catalogCard,x=>x.className==='effort-segment').length,2,
+    'the visual changes to real phase targets when details load');
   assert(catalogPhases.every(x=>!x.open));
   catalogPhases[1].open=true;
   catalogPhases[1].events.toggle();
@@ -187,6 +197,9 @@ function setup(search,data=example){
   await flush();
   const playlistCard=playlist.elements.detail.children[0];
   assert.match(walk(playlistCard,x=>x.className==='primary')[0].textContent,/Importer la playlist/);
+  assert.equal(walk(playlistCard,x=>x.className==='effort-segment').length,0,
+    'music playlists must not show a fictional sports effort profile');
+  assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Playlist musicale/);
   const playlistRoot=walk(playlistCard,x=>x.tagName==='details');
   assert.equal(playlistRoot.length,1);
   playlistRoot[0].open=true;
