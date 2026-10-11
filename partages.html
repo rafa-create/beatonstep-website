@@ -339,7 +339,9 @@
     const data=[];
     for(const phase of phases){
       if(!Array.isArray(phase))return;
-      const seconds=Number(phase[1]),target=Number(phase[2]);
+      // Catalog metadata uses [duration,target]; full shares use [name,duration,target,bpm].
+      const seconds=Number(phase.length===2?phase[0]:phase[1]);
+      const target=Number(phase.length===2?phase[1]:phase[2]);
       if(!Number.isFinite(seconds)||seconds<=0||!Number.isFinite(target)||target<=0)return;
       data.push({seconds,target});
     }
