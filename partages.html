@@ -29,22 +29,28 @@
     .toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0}
     .filters,.sort,.pagination,.details-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .sort{font-size:13px} .sort button{font-size:13px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;margin:12px 0;overflow:hidden}
-    .card h2{font-size:20px;margin:9px 0;font-weight:750}
-    .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:20px;margin:12px 0;padding:14px}
+    .card h2{font-size:clamp(19px,4.8vw,22px);margin:10px 0;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
+    .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
     .card-head{color:var(--muted);font-size:13px}
-    .card-stats{justify-content:flex-start;color:var(--muted);font-size:13px;gap:14px}
+    .share-source{color:var(--muted)}
+    .card-stats{justify-content:flex-start;color:var(--muted);font-size:14px;gap:16px}
+    .card-stats span{display:inline-flex;align-items:center;gap:6px}
+    .stat-duration::before{content:'◷';font-size:18px;line-height:1}
+    .stat-tracks::before{content:'♫';font-size:18px;line-height:1}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
     details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
-    .share-summary{padding:20px 48px 20px 22px;position:relative}
-    .share-summary::after,.phase-branch>summary::after{content:'›';position:absolute;right:20px;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:26px;font-weight:400}
-    .share-tree[open]>.share-summary::after,.phase-branch[open]>summary::after{content:'⌄';font-size:24px}
-    .share-summary h2{line-height:1.35}
-    .tree-content{padding:0 22px 17px;border-top:1px solid var(--border)}
+    .share-summary{background:#202019;border:1px solid #454335;border-radius:14px;padding:16px 48px 16px 16px;position:relative;transition:background-color .2s,border-color .2s}
+    .share-summary:hover{background:#29291f;border-color:#77735a}
+    .share-summary::after{content:'';position:absolute;right:23px;top:50%;width:10px;height:10px;border-right:2px solid var(--yellow);border-bottom:2px solid var(--yellow);transform:translateY(-65%) rotate(45deg);transition:transform .2s}
+    .share-tree[open]>.share-summary{background:#25251c;border-color:var(--yellow)}
+    .share-tree[open]>.share-summary::after{transform:translateY(-25%) rotate(225deg)}
+    .tree-content{padding:12px 5px 0}
     .phase-branch{border-bottom:1px solid var(--border);margin:0}
     .phase-branch:last-child{border-bottom:0}
     .phase-branch>summary{padding:15px 36px 15px 12px;position:relative}
-    .phase-branch>summary::after{right:10px;font-size:23px}
+    .phase-branch>summary::after{content:'›';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:23px}
+    .phase-branch[open]>summary::after{content:'⌄'}
     .phase-name{font-size:15px;font-weight:650}
     .phase-meta{margin-top:6px;color:var(--muted);font-size:13px;display:flex;gap:6px 12px;flex-wrap:wrap}
     .phase-meta .phase-bpm{color:var(--yellow)}
@@ -55,18 +61,18 @@
     .track-play{color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:550}
     .track-play::before{content:'▶';font-size:10px;color:var(--yellow)}
     .track-play:hover{text-decoration:underline;color:var(--yellow)}
-    .tree-link{display:inline-block;color:var(--yellow);font-size:13px;font-weight:650;text-decoration:none;margin-top:15px}
-    .tree-link:hover{text-decoration:underline}
-    .card-actions{padding:0 22px 20px}
-    summary:focus-visible,.tree-link:focus-visible,.track-play:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+    .card-actions{padding:14px 0 0}
+    summary:focus-visible,.track-play:focus-visible,.primary:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .badge{font-size:12px;color:var(--yellow);letter-spacing:.05em;text-transform:uppercase}
-    .primary{display:inline-block;border:0;background:var(--yellow);color:#17160a;border-radius:30px;padding:15px 22px;font-weight:800;text-decoration:none;cursor:pointer}
+    .primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;max-width:100%;border:0;background:var(--yellow);color:#17160a;border-radius:999px;padding:15px 22px;font:inherit;font-weight:800;text-decoration:none;cursor:pointer;text-align:center}
+    .primary:hover{background:#fff34a;color:#17160a}
+    .import-icon{font-size:21px;font-weight:600;line-height:1}
     .back{display:inline-block;margin:8px 0 18px;color:var(--muted)}
     .notice{color:var(--muted);font-size:13px;line-height:1.5;margin:20px 0}
     .pagination{justify-content:center;margin-top:24px}
     button:disabled{opacity:.4;cursor:default}
     .error{padding:20px;border:1px solid var(--border);border-radius:16px;color:var(--muted)}
-    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}.share-summary{padding:16px 39px 16px 16px}.share-summary::after{right:11px}.tree-content{padding:0 16px 14px}.card-actions{padding:0 16px 16px}}
+    @media(max-width:480px){.lang button,.filters button{padding:8px 10px;font-size:13px}header{margin-bottom:22px}.toolbar{align-items:stretch}.source-picker{width:100%;justify-content:flex-start}.card{padding:12px}.share-summary{padding:15px 42px 15px 14px}.share-summary::after{right:18px}.tree-content{padding:12px 4px 0}.primary{width:100%}}
   </style>
 </head>
 <body>
@@ -244,15 +250,15 @@
     const card=el('article','card');
     const tree=el('details','share-tree');
     const summary=el('summary','share-summary');
+    summary.title=fr('Afficher ou masquer le déroulé','Show or hide details');
     const head=el('div','card-head');
     head.append(el('span','badge',item.kind==='workout'
       ?fr('Séance','Workout'):fr('Playlist','Playlist')),
-      el('span','',source(item.source)+' · #'+item.id));
+      el('span','share-source',source(item.source)));
     const title=el('h2','',item.name);
     const stats=el('div','card-stats');
-    [duration(item.durationSec),number(item.tracks)+' '+fr('titres','tracks'),
-      number(item.imports)+' '+fr('imports','imports'),
-      number(item.views)+' '+fr('vues','views')].forEach(x=>stats.append(el('span','',x)));
+    stats.append(el('span','stat-duration',duration(item.durationSec)),
+      el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')));
     summary.append(head,title,stats);
     const content=el('div','tree-content');
     tree.append(summary,content);
@@ -265,11 +271,6 @@
         empty(content);
         if(item.kind==='workout')phaseTree(content,full);
         else songRows(content,full);
-        if(!detailed){
-          const link=el('a','tree-link',fr('Voir la fiche et importer →','View details and import →'));
-          link.href='partages.html?id='+item.id;
-          content.append(link);
-        }
         tree.dataset.loaded='yes';
       }catch(_){
         tree.dataset.loaded='no';
@@ -277,26 +278,17 @@
       }
     });
     card.append(tree);
-    if(detailed){
-      const footer=el('div','card-actions');
-      const actions=el('div','details-actions');
-      const open=el('a','primary',fr('Importer dans BeatOnStep','Import into BeatOnStep'));
-      open.href='beatonstep://shared?id='+item.id;
-      actions.append(open);
-      footer.append(actions);
-      footer.append(el('p','notice',fr(
-        'Pour importer ce partage, ouvrez BeatOnStep. La lecture des titres dépend du service musical.',
-        'Open BeatOnStep to import this share. Song playback depends on your music service.')));
-      const stores=el('div','details-actions');
-      [['App Store','https://apps.apple.com/app/beatonsteps/id6803512375'],
-        ['Google Play','https://play.google.com/store/apps/details?id=com.patrick.beatonstep']].forEach(([name,url])=>{
-        const a=el('a','',name);
-        a.href=url;
-        stores.append(a);
-      });
-      footer.append(stores);
-      card.append(footer);
-    }
+    const footer=el('div','card-actions');
+    const open=el('a','primary');
+    const icon=el('span','import-icon','↓');
+    icon.setAttribute('aria-hidden','true');
+    open.append(icon,el('span','',item.kind==='workout'
+      ?fr('Importer la séance','Import workout')
+      :fr('Importer la playlist','Import playlist')));
+    open.href='beatonstep://shared?id='+item.id;
+    open.setAttribute('aria-label',fr('Importer '+item.name+' dans BeatOnStep','Import '+item.name+' into BeatOnStep'));
+    footer.append(open);
+    card.append(footer);
     return card;
   }
   async function showList(){
