@@ -30,7 +30,7 @@ const walk=(n,predicate)=>[...(predicate(n)?[n]:[]),...n.children.flatMap(c=>wal
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(search,data=example){
   const elements={};
-  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter'])
+  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter','footer-privacy','footer-privacy-label'])
     elements[name]=new Node(name);
   const kinds=['all','workout','runmix'].map(k=>{
     const n=new Node('button');n.dataset.kind=k;return n;
@@ -76,6 +76,9 @@ function setup(search,data=example){
   await flush();
   assert.equal(detail.elements.back.href,'partages.html');
   assert.equal(detail.elements.back.textContent,'← Catalogue');
+  assert.equal(detail.elements.title.textContent,'Partage BeatOnStep');
+  assert.equal(detail.elements.intro.hidden,true);
+  assert.equal(detail.elements['footer-privacy-label'].textContent,'Confidentialité');
   assert.equal(detail.elements.detail.hidden,false);
   const card=detail.elements.detail.children[0];
   const roots=walk(card,x=>x.tagName==='details');
@@ -127,6 +130,8 @@ function setup(search,data=example){
   await flush();
   assert.equal(detail.elements.back.href,'partages.html');
   assert.equal(detail.elements.back.textContent,'← Catalog');
+  assert.equal(detail.elements.title.textContent,'BeatOnStep share');
+  assert.equal(detail.elements['footer-privacy-label'].textContent,'Privacy');
   assert.equal(detail.apiCalls.filter(url=>url.endsWith('/view')).length,1,
     'changing language must not increment views');
 
@@ -135,10 +140,18 @@ function setup(search,data=example){
   await flush();
   assert.equal(catalog.elements.back.href,'seances-programmees.html');
   assert.equal(catalog.elements.back.textContent,'← Séances programmées');
+  assert.equal(catalog.elements.title.textContent,'Catalogue');
+  assert.equal(catalog.elements.intro.textContent,'Séances et playlists de la communauté.');
+  assert.equal(catalog.elements.intro.hidden,false);
+  assert.equal(catalog.elements['footer-privacy-label'].textContent,'Confidentialité');
   catalog.elements.en.onclick();
   await flush();
   assert.equal(catalog.elements.back.href,'seances-programmees.html');
   assert.equal(catalog.elements.back.textContent,'← Programmed workouts');
+  assert.equal(catalog.elements.title.textContent,'Catalog');
+  assert.equal(catalog.elements.intro.textContent,'Workouts and playlists from the community.');
+  assert.equal(catalog.elements['footer-privacy-label'].textContent,'Privacy');
+  assert.equal(catalog.elements['footer-privacy'].attributes['aria-label'],'Privacy');
   assert.match(catalog.apiCalls[0],/source=all/);
   const catalogCard=catalog.elements.results.children[0];
   const catalogRoot=walk(catalogCard,x=>x.tagName==='details');
