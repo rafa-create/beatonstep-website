@@ -56,7 +56,7 @@ main{max-width:1000px;margin:0 auto;padding:6px 18px 52px;display:grid;grid-temp
       <a id="open-session" class="button tertiary" href="#">Voir / importer la séance dans l’application</a>
       <a id="view-site" class="button tertiary" href="#">Voir le détail de la séance sur le site</a>
     </div>
-    <div id="pending" class="actions" hidden><a href="/partages.html" class="button tertiary">Découvrir le catalogue</a></div>
+    <div id="pending" class="actions" hidden><button type="button" id="gift-retry" class="button secondary">Réessayer la vérification</button><a href="/partages.html" class="button tertiary">Découvrir le catalogue</a></div>
     <p class="note">Le cadeau est valable sept jours, et la carte change de propriétaire seulement lorsque tu acceptes le transfert. Consulter ou importer la séance ne transfère pas sa propriété.</p>
   </section>
 </main>
@@ -82,13 +82,20 @@ main{max-width:1000px;margin:0 auto;padding:6px 18px 52px;display:grid;grid-temp
     }
   };
   const start=async()=>{
-    if(!/^[a-f0-9]{64}$/.test(token)){status('Ce lien de cadeau est invalide.');$('pending').hidden=false;return;}
+    if(!/^[a-f0-9]{64}$/.test(token)){
+      status('Ce lien de cadeau est invalide.');
+      $('gift-retry').hidden=true;
+      $('pending').hidden=false;
+      return;
+    }
+    $('gift-retry').hidden=false;
+    status('Vérification de ton cadeau…');
     try{
       const response=await fetch('/api/account/gift/preview',{
         method:'POST',credentials:'same-origin',cache:'no-store',
         headers:{'content-type':'application/json'},body:JSON.stringify({code:token})
       });
-      if(!response.ok)throw Error('invalid');
+      if(!response.ok)throw Error([400,404,409].includes(response.status)?'invalid':'network');
       const result=await response.json();
       if(!result.available||!result.card)throw Error('invalid');
       const card=result.card;
@@ -99,13 +106,18 @@ main{max-width:1000px;margin:0 auto;padding:6px 18px 52px;display:grid;grid-temp
       $('account').href='/compte.html#gift='+token;
       $('open-session').href='beatonstep://shared?id='+encodeURIComponent(card.id)+'&auto=1';
       $('view-site').href='/partages.html?id='+encodeURIComponent(card.id);
+      $('pending').hidden=true;
       $('offer').hidden=false;
       status('Ton cadeau est prêt. Ouvre-le dans l’application pour l’accepter.');
-    }catch{
-      status('Ce cadeau a expiré, a déjà été accepté ou n’est plus disponible.');
+    }catch(error){
+      $('offer').hidden=true;
+      status(error instanceof Error&&error.message==='invalid'
+        ?'Ce cadeau a expiré, a déjà été accepté ou n’est plus disponible.'
+        :'La vérification est momentanément indisponible. Réessaie avec Internet.');
       $('pending').hidden=false;
     }
   };
+  $('gift-retry').onclick=()=>{void start()};
   void start();
 })();
 </script></body></html>
