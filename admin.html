@@ -63,6 +63,12 @@
         <div><h2 id="cards-title">Cartes publiées</h2><p class="muted" id="account"></p></div>
         <button type="button" id="logout">Déconnexion</button>
       </div>
+      <div class="panel" style="margin:16px 0"><h2>Collection de séances</h2>
+        <p class="muted">Après la migration SQL 0004, préparer les cartes historiques avant d'activer la collection. Les anciens liens sont conservés.</p>
+        <button type="button" id="backfill">Réconcilier les séances historiques</button>
+        <p class="meta" id="backfill-info" aria-live="polite"></p>
+        <p class="meta" id="gift-link" aria-live="polite"></p>
+      </div>
       <ul class="items" id="items"></ul>
       <div class="pagination">
         <button type="button" id="previous">← Précédent</button>
@@ -143,6 +149,24 @@
             remove.disabled = false;
           }
         });
+        if (item.kind === 'workout') {
+          const gift = document.createElement('button');
+          gift.type='button';gift.textContent='Créer un lien de don';
+          gift.addEventListener('click',async()=>{
+            gift.disabled=true;
+            try {
+              const result=await api('/api/admin/cards/gift',{
+                method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),
+              });
+              const info=byId('gift-link');info.replaceChildren();
+              info.append(document.createTextNode('Lien de don à usage unique (7 jours) : '));
+              const url=document.createElement('a');url.href=result.url;url.textContent=result.url;
+              info.append(url);
+              status('Lien de don créé. Envoyez-le uniquement au destinataire prévu.');
+            }catch(error){status(error.message)}finally{gift.disabled=false}
+          });
+          actions.append(gift);
+        }
         actions.append(link, remove);
         li.append(info, actions);
         list.append(li);
@@ -152,6 +176,25 @@
       byId('previous').disabled = page <= 1;
       byId('next').disabled = page >= last;
     }
+    byId('backfill').addEventListener('click',async()=>{
+      const button=byId('backfill');button.disabled=true;
+      let afterId=0,scanned=0,created=0,aliases=0,skipped=0;
+      try {
+        for (let i=0;i<500;i++) {
+          const result=await api('/api/admin/cards/backfill',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({afterId}),
+          });
+          scanned+=result.scanned;created+=result.created;
+          aliases+=result.aliases;skipped+=result.skipped;
+          afterId=result.lastId;
+          byId('backfill-info').textContent=scanned+' analysées · '+created+
+            ' cartes · '+aliases+' liens historiques conservés · '+skipped+' non comparables';
+          if(result.done){status('Réconciliation terminée. Vérifiez les résultats avant activation.');return}
+        }
+        status('Traitement partiel : plus de 20 000 séances. Relancer nécessite une reprise manuelle.');
+      } catch(error){status(error.message)}finally{button.disabled=false}
+    });
     byId('login-form').addEventListener('submit', async event => {
       event.preventDefault();
       const button = byId('login-button');
