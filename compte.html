@@ -80,7 +80,26 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       const li=document.createElement('li'),a=document.createElement('a'),meta=document.createElement('span');
       a.textContent=item.name;a.href='/partages.html?id='+encodeURIComponent(item.id);
       meta.className='small';meta.textContent=(item.kind==='workout'?'Séance':'Playlist')+' · '+item.source;
-      li.append(a,meta);element.append(li);
+      li.append(a,meta);
+      if(element.id==='items'){
+        const remove=document.createElement('button');
+        remove.className='secondary';remove.textContent='Supprimer cette publication';
+        remove.style.marginTop='8px';
+        remove.addEventListener('click',async()=>{
+          if(!confirm('Supprimer définitivement « '+item.name+' » du catalogue ?'))return;
+          remove.disabled=true;
+          try{await api('/api/account/shared/'+encodeURIComponent(item.id),'DELETE');
+            const next=await api('/api/account/me');
+            if(next.authenticated){
+              const data=await api('/api/account/profile?handle='+encodeURIComponent(next.handle));
+              renderCards(data.items,$('items'));
+            }
+            status('Publication supprimée.');
+          }catch(error){status(error.message);remove.disabled=false}
+        });
+        li.append(remove);
+      }
+      element.append(li);
     }
   }
   async function account(){
