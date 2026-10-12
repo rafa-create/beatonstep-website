@@ -18,7 +18,9 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .collection-item{display:block;position:relative;width:160px;min-height:208px;border:1.5px solid var(--accent);border-radius:17px;background:radial-gradient(ellipse at 55% 39%,#66551d50,transparent 54%),linear-gradient(145deg,#282619,#10100d 75%);box-shadow:0 12px 30px #0006;padding:14px;transform:rotate(-1deg);transition:transform .25s,box-shadow .25s}
 .collection-item:hover{transform:rotate(0) translateY(-4px);box-shadow:0 15px 36px #0009,0 0 26px #fcea0722}
 .collection-item::before{content:'BEATONSTEP';display:block;color:var(--accent);letter-spacing:.14em;font-weight:900;font-size:10px}
-.collection-item::after{content:'♬';display:grid;place-items:center;font-size:46px;color:var(--accent);height:95px;text-shadow:0 0 30px #fcea0760}
+.collection-effort{height:104px;border:1px solid #665a2e;background:linear-gradient(180deg,#29271b,#14140d);border-radius:9px;display:flex;align-items:flex-end;gap:3px;padding:12px 8px 9px;margin:13px 0 9px}
+.collection-effort span{min-width:2px;flex-basis:0;background:linear-gradient(180deg,#fcea07,#a88d25);border-radius:3px 3px 0 0;box-shadow:0 0 9px #fcea0720}
+.collection-effort-empty{height:104px;border:1px solid #665a2e;border-radius:9px;display:grid;place-items:center;font-size:11px;color:#bdb38c;margin:13px 0 9px}
 .collection-item a{display:block;position:relative;z-index:1;color:var(--ink);font-size:14px;font-weight:850;line-height:1.22}
 .collection-item button{position:relative;z-index:1;width:100%;font-size:12px;margin-top:12px;min-height:37px;padding:7px;color:#fcea07;border:1px solid #fcea07;background:#282517}
 .collection-item small{display:block;color:var(--sub);font-size:10px;position:relative;z-index:1;margin-top:7px}
@@ -173,12 +175,31 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       element.append(li);
     }
   }
+  function elEffort(profile){
+    const valid=Array.isArray(profile)&&profile.length>0&&profile.length<=32&&
+      profile.every(p=>Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&p[0]>0&&
+        Number.isFinite(p[1])&&p[1]>0);
+    const graph=document.createElement('div');
+    if(!valid){graph.className='collection-effort-empty';graph.textContent='PROFIL À DÉCOUVRIR';return graph;}
+    graph.className='collection-effort';
+    const targets=profile.map(p=>p[1]),lo=Math.min(...targets),hi=Math.max(...targets);
+    const baseline=Math.max(0,lo-25),ceiling=hi+12;
+    for(const [duration,target] of profile){
+      const bar=document.createElement('span');
+      bar.style.flexGrow=String(Math.min(86400,Math.round(duration)));
+      bar.style.height=Math.max(20,Math.min(95,Math.round(22+73*(target-baseline)/(ceiling-baseline))))+'%';
+      graph.append(bar);
+    }
+    graph.setAttribute('aria-label','Profil d’effort de cette séance');
+    return graph;
+  }
   function renderCollection(items){
     const list=$('owned-cards');list.replaceChildren();
     if(!items.length){const li=document.createElement('li');li.textContent='Vous ne possédez pas encore de carte.';list.append(li);return}
     for(const item of items){
       const li=document.createElement('li');li.className='collection-item';
       const a=document.createElement('a');a.href='/partages.html?id='+encodeURIComponent(item.id);a.textContent=item.name;
+      const chart=elEffort(item.profile);
       const meta=document.createElement('small');meta.textContent=(item.imports||0)+' imports · Créateur : '+(item.creator?'@'+item.creator:'Anonyme');
       const offer=document.createElement('button');
       offer.type='button';offer.textContent='🎁 Offrir cette carte';
@@ -201,7 +222,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         }catch(error){status(error.message)}
         finally{offer.disabled=false}
       };
-      li.append(a,meta,offer);list.append(li);
+      li.append(chart,a,meta,offer);list.append(li);
     }
   }
   async function refreshCollection(){
