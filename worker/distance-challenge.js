@@ -39,23 +39,43 @@ export function assessDistanceEvidence(ruleInput,evidence) {
     return {status:'unverified',reason:'insufficient_evidence'};
   }
   let previous=null,winAt=null;
+  let paused=false;
   for(const sample of evidence.samples){
     if(!sample || !integer(sample.elapsedSec,0,172800) ||
         !integer(sample.distanceMeters,0,500000) ||
-        sample.quality!=='good') return {status:'unverified',reason:'invalid_sample'};
+        !['good','paused'].includes(sample.quality)) {
+      return {status:'unverified',reason:'invalid_sample'};
+    }
     if(previous){
       const deltaTime=sample.elapsedSec-previous.elapsedSec;
       const deltaDistance=sample.distanceMeters-previous.distanceMeters;
-      if(deltaTime<=0 || deltaTime>120 || deltaDistance<0 ||
-         deltaDistance/deltaTime>11) {
+      if(deltaTime<=0 || deltaDistance<0){
         return {status:'unverified',reason:'implausible_progress'};
       }
-    } else if(sample.elapsedSec!==0 || sample.distanceMeters!==0){
+      if(sample.quality==='paused'){
+        // A pause event must begin while a live GPS reading is fresh.
+        // All distance is frozen while the runner is paused.
+        if(deltaDistance!==0 || (!paused && deltaTime>120)){
+          return {status:'unverified',reason:'paused_distance_or_missing_start'};
+        }
+        paused=true;
+      } else if(paused){
+        // The FIRST reading after resume establishes a new native anchor.
+        // No movement through the paused interval can be credited.
+        if(deltaDistance!==0){
+          return {status:'unverified',reason:'distance_during_pause'};
+        }
+        paused=false;
+      } else if(deltaTime>120 || deltaDistance/deltaTime>11){
+        return {status:'unverified',reason:'implausible_progress'};
+      }
+    } else if(sample.elapsedSec!==0 || sample.distanceMeters!==0 ||
+        sample.quality!=='good'){
       return {status:'unverified',reason:'missing_start'};
     }
-    if(winAt===null && sample.distanceMeters>=rule.targetMeters){
-      // Interpolating a finish instant from widely spaced samples would be
-      // an unverified guess. Require a measured sample before the deadline.
+    if(sample.quality==='good' && winAt===null &&
+        sample.distanceMeters>=rule.targetMeters){
+      // Never infer a crossing during a pause or fill missing GPS points.
       winAt=sample.elapsedSec;
     }
     previous=sample;
