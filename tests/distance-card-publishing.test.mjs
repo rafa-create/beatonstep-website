@@ -1,0 +1,120 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import worker,{validate} from '../worker/index.js';
+import {publishUniqueWorkout} from '../worker/cards.js';
+
+const rule={v:2,goalMode:'distance',targetMeters:5000,deadlineSec:1800};
+const ROOT='https://beatonstep.app';
+
+test('v2 public card metadata is canonical and excludes personal provider, GPS and playlist data',()=>{
+  const result=validate('workout',rule);
+  assert.equal(result.name,'5 km · 30:00');
+  assert.equal(result.source,'mixed');
+  assert.equal(result.durationSec,1800);
+  assert.equal(result.tracks,0);
+  assert.deepEqual(result.canonicalPayload,rule);
+  for(const injection of [
+    {...rule,latitude:48.85}, {...rule,longitude:2.3},
+    {...rule,t:[{n:'secret song'}]}, {...rule,privateToken:'token'},
+    {...rule,goalMode:'time'}, {...rule,deadlineSec:1800.5},
+  ]){
+    assert.equal(validate('workout',injection),null);
+  }
+});
+
+test('legacy v1 workout validation and source selection remain intact',()=>{
+  const v1={v:1,s:'spotify',n:'Original',p:[['Start',300,160]],
+    t:[{p:0,n:'Song A',a:'Artist'}]};
+  const result=validate('workout',v1);
+  assert.equal(result.name,'Original');
+  assert.equal(result.source,'spotify');
+  assert.equal(result.durationSec,300);
+  assert.equal(Object.hasOwn(result,'canonicalPayload'),false);
+});
+
+test('distance publish remains disabled by default even with cards enabled',async()=>{
+  const data={kind:'workout',payload:rule};
+  const request=new Request(ROOT+'/api/shared',{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify(data),
+  });
+  const env={CATALOG_BACKEND:'d1',CARDS_ENABLED:'true',
+    DB:{prepare(){throw Error('D1 must not be touched when v2 is disabled');}}};
+  const response=await worker.fetch(request,env);
+  assert.equal(response.status,503);
+  assert.equal((await response.json()).error,'distance_challenges_not_ready');
+});
+
+test('enabled distance publication still requires a signed device grant',async()=>{
+  const request=new Request(ROOT+'/api/shared',{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({kind:'workout',payload:rule}),
+  });
+  const env={CATALOG_BACKEND:'d1',CARDS_ENABLED:'true',
+    DISTANCE_CHALLENGES_ENABLED:'true',DB:{}};
+  const response=await worker.fetch(request,env);
+  assert.equal(response.status,401);
+  assert.equal((await response.json()).error,'login_required');
+});
+
+test('v2 card creation never grants ownership, pack eligibility or achievement to uploader',async()=>{
+  let stored=false,statements=[];
+  const db={
+    prepare(sql){
+      return {
+        bind(...args){
+          return {sql,args,first:async()=>{
+            if(sql==='SELECT share_id FROM workout_cards WHERE fingerprint=?'){
+              return stored?{share_id:71}:null;
+            }
+            throw Error('unexpected first SQL '+sql);
+          }};
+        },
+      };
+    },
+    async batch(entries){
+      statements=entries;
+      stored=true;
+      return [{meta:{last_row_id:71}}];
+    },
+  };
+  const result=await publishUniqueWorkout(db,rule,{
+    source:'mixed',name:'5 km · 30:00',durationSec:1800,
+    bpm:null,tracks:0,phases:1,profile:null,
+  },{id:'uploader-not-winner'});
+  assert.deepEqual(result,{id:71,created:true});
+  assert.equal(statements.length,4);
+  const [shared,card,signed]=statements;
+  assert.match(shared.sql,/INSERT INTO shared_items/);
+  assert.deepEqual(JSON.parse(shared.args.at(-2)),rule,
+    'D1 only stores canonical sporting rule, never a personal playlist');
+  assert.match(card.sql,/INSERT OR IGNORE INTO workout_cards/);
+  assert.equal(card.args[1],'uploader-not-winner');
+  assert.equal(card.args[2],null,'creator does not own a card without a win');
+  assert.equal(card.args[3],0,'v2 distance card can never be opened from a random pack');
+  assert.equal(card.args[4],'challenge_created');
+  assert.equal(card.args[6],null,'no acquired_at before sporting capture');
+  assert.match(signed.sql,/signed_shares/);
+});
+
+test('v1 uploader still owns a newly published time card',async()=>{
+  const payload={v:1,p:[['Start',300,160]],t:[{p:0,n:'Song',a:'Artist'}]};
+  let created=false,card=null;
+  const db={
+    prepare(sql){return {bind(...args){return {sql,args,first:async()=>{
+      if(sql==='SELECT share_id FROM workout_cards WHERE fingerprint=?')
+        return created?{share_id:44}:null;
+      throw Error('unexpected select');
+    }};}}},
+    async batch(entries){card=entries[1];created=true;return [{meta:{last_row_id:44}}];},
+  };
+  const result=await publishUniqueWorkout(db,payload,{
+    source:'spotify',name:'Time',durationSec:300,bpm:null,
+    tracks:1,phases:1,profile:[[300,160]],
+  },{id:'creator'});
+  assert.deepEqual(result,{id:44,created:true});
+  assert.equal(card.args[1],'creator');
+  assert.equal(card.args[2],'creator');
+  assert.equal(card.args[3],0);
+  assert.equal(card.args[4],'created');
+});
