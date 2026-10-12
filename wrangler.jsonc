@@ -8,7 +8,9 @@
     "binding": "ASSETS",
     "run_worker_first": [
       "/api/*",
-      "/partages.html"
+      "/partages.html",
+      "/cadeau",
+      "/cadeau/"
     ]
   },
   "vars": {
