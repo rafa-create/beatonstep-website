@@ -53,6 +53,8 @@ test('gift invitation renders a collector card with safe app and web alternative
   assert.match(html,/name="referrer" content="no-referrer"/);
   assert.match(html,/prefers-reduced-motion:reduce/);
   assert.match(html,/id="gift-retry"/);
+  assert.match(html,/Ce lien ne contient pas de code cadeau/);
+  assert.match(html,/Ce code cadeau est incorrect/);
   assert.match(html,/vérification est momentanément indisponible/);
   assert.match(html,/\$\('gift-retry'\)\.onclick/);
   assert.doesNotMatch(html,/innerHTML\s*=/);
