@@ -11,7 +11,7 @@ export function runMixBpmProfile(tracks) {
 
   const count = Math.min(32, tracks.length);
   const groups = Array.from({ length: count }, () => ({
-    seconds: 0, knownSeconds: 0, bpmWeighted: 0,
+    seconds: 0, knownSeconds: 0, bpmWeighted: 0, hasUnknown: false,
   }));
   for (let i = 0; i < tracks.length; i++) {
     const track = tracks[i];
@@ -25,12 +25,15 @@ export function runMixBpmProfile(tracks) {
     if (bpm !== null) {
       group.knownSeconds += seconds;
       group.bpmWeighted += bpm * seconds;
+    } else {
+      group.hasUnknown = true;
     }
   }
   if (groups.every(group => group.knownSeconds === 0)) return null;
   return groups.map(group => [
     group.seconds,
-    group.knownSeconds > 0 ? Math.round(group.bpmWeighted / group.knownSeconds) : null,
+    group.knownSeconds > 0 && !group.hasUnknown
+      ? Math.round(group.bpmWeighted / group.knownSeconds) : null,
   ]);
 }
 
