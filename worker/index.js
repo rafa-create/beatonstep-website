@@ -306,6 +306,13 @@ export default {
     if (url.pathname === '/partages.html') {
       return sharePageResponse(request, env, url);
     }
+    // Resolve the friendly gift URL directly, retaining its URL fragment in the browser.
+    if ((url.pathname === '/cadeau' || url.pathname === '/cadeau/') &&
+        (request.method === 'GET' || request.method === 'HEAD')) {
+      const assetUrl = new URL('/cadeau.html', url);
+      assetUrl.hash = '';
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
     return env.ASSETS.fetch(request);
   },
 };
