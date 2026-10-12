@@ -1,6 +1,7 @@
 import { adminRequest } from './admin.js';
 import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } from './account.js';
 import { sharePageResponse } from './share-preview.js';
+import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -35,7 +36,7 @@ function validate(kind, payload) {
     return { name: clean(payload.n) || 'Run Mix', source: payload.s,
       durationSec: positive(payload.d) ? Math.round(payload.d) : 0,
       bpm: positive(payload.b) ? Math.round(payload.b) : null,
-      tracks: payload.t.length, phases: 0, profile: null };
+      tracks: payload.t.length, phases: 0, profile: runMixBpmProfile(payload.t) };
   }
   if (kind !== 'workout' || !PUBLIC_SOURCES.includes(payload.s) ||
       payload.v !== 1 || !Array.isArray(payload.p) ||
@@ -55,10 +56,15 @@ function validate(kind, payload) {
 }
 
 function publicRow(row) {
+  const storedProfile = row.profile_json ? JSON.parse(row.profile_json) : null;
+  // Older playlists already contain per-track BPMs in their payload_json.
+  // Reconstruct their graph at read time: no migration and no rewritten shares.
+  const profile = storedProfile || (row.kind === 'runmix'
+    ? legacyRunMixBpmProfile(row.payload_json) : null);
   return {
     id: row.id + D1_ID_OFFSET, kind: row.kind, source: row.source, name: row.name,
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
-    phases: row.phases, ...(row.profile_json ? { profile: JSON.parse(row.profile_json) } : {}),
+    phases: row.phases, ...(profile ? { profile } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
   };
 }
@@ -104,7 +110,7 @@ async function d1Request(request, env, url) {
       .bind(...args).first();
     const order = sort === 'popular' ? 'imports DESC, id DESC' : 'id DESC';
     const result = await db.prepare(
-      'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports ' +
+      'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports,payload_json ' +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
