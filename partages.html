@@ -19,7 +19,9 @@
     header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
     .brand{font-weight:800;text-decoration:none;display:flex;align-items:center;gap:10px;font-size:20px}
     .brand img{width:36px;height:36px;border-radius:9px}
-    .community-link{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:12px;text-decoration:none;white-space:nowrap;border:1px solid transparent;border-radius:999px;padding:7px 9px}
+    .community-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;color:var(--muted);font-weight:600;font-size:12px;text-decoration:none;white-space:nowrap;border:1px solid transparent;border-radius:999px;padding:7px 9px}
+    .community-icon{width:23px;height:23px;display:block;flex:none}
+    @media(max-width:600px){.community-link{width:44px;height:44px;padding:8px;border-color:var(--border)}.community-icon{width:27px;height:27px}.community-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
     header .lang{margin-left:auto;flex-shrink:0}
     .community-link:hover{color:var(--text);border-color:var(--border)}
     .community-link:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
@@ -47,7 +49,15 @@
     .stat-tracks::before{content:'♫';font-size:18px;line-height:1}
     .card-stats .stat-imports{color:#c0bbaa;gap:4px;font-variant-numeric:tabular-nums}
     .card-stats .stat-imports-icon{font-size:16px;line-height:1;color:#a8a396;transform:translateY(-1px)}
-    .card-owner{display:block;color:var(--muted);opacity:.78;font-size:11px;margin:0 0 8px;letter-spacing:.015em}
+    .card-owner{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:0 0 8px;letter-spacing:.015em}
+    .card-owner svg{width:16px;height:16px;flex:none;color:var(--yellow)}
+    .card-owner.unclaimed svg{color:var(--muted)}
+    .card{transition:box-shadow .25s ease,transform .25s ease;position:relative;overflow:hidden}
+    .card::before{content:'';pointer-events:none;position:absolute;inset:-80% auto auto -70%;width:45%;height:220%;transform:rotate(24deg);background:linear-gradient(90deg,transparent,#fff8c012,transparent)}
+    .card:hover{box-shadow:0 12px 38px #0008,0 0 0 1px #d8bb3b44}
+    .focus-stage.focus-enter .card{animation:collector-arrival 580ms cubic-bezier(.2,.9,.25,1) both}
+    @keyframes collector-arrival{0%{opacity:.15;transform:perspective(800px) rotateY(-34deg) scale(.92)}65%{opacity:1;transform:perspective(800px) rotateY(8deg) scale(1.02)}100%{transform:perspective(800px) rotateY(0deg) scale(1)}}
+    @media(prefers-reduced-motion:reduce){.card,.focus-stage.focus-enter .card{transition:none;animation:none}}
     .card-origin{font-size:13px;color:var(--muted);margin:0 0 14px}
     .card-origin a{color:var(--yellow);text-decoration:none}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
@@ -183,7 +193,13 @@
   <header>
     <a class="brand" href="./"><img src="assets/brand/logo-400.jpg" alt="">BeatOnStep</a>
     <div class="lang"><button type="button" id="fr" aria-pressed="true">FR</button><button type="button" id="en" aria-pressed="false">EN</button></div>
-    <a class="community-link" href="compte.html" id="community-link">Profil</a>
+    <a class="community-link" href="compte.html" id="community-link" aria-label="Profil" title="Profil">
+      <svg class="community-icon" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <circle cx="256" cy="256" r="192"/><circle cx="256" cy="192" r="48"/>
+        <path d="M352 352c-9.4-31.7-44.8-52-96-52s-86.6 20.3-96 52"/>
+      </svg>
+      <span class="community-label">Profil</span>
+    </a>
   </header>
   <a class="back" href="partages.html" id="back">← Catalogue</a>
   <h1 id="title">Catalogue</h1>
@@ -578,8 +594,21 @@
       el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),imports);
     summary.append(head,art,title);
     if(item.kind==='workout' && Object.prototype.hasOwnProperty.call(item,'owner')){
-      summary.append(el('span','card-owner',fr('Propriétaire · ','Owner · ')+
-        (item.owner?'@'+item.owner:fr('Anonyme','Anonymous'))));
+      const owner=el('span','card-owner'+(item.owner?'':' unclaimed'));
+      const ownerIcon=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      ownerIcon.setAttribute('viewBox','0 0 24 24');
+      ownerIcon.setAttribute('fill','none');
+      ownerIcon.setAttribute('stroke','currentColor');
+      ownerIcon.setAttribute('stroke-width','1.8');
+      ownerIcon.setAttribute('aria-hidden','true');
+      const crown=document.createElementNS('http://www.w3.org/2000/svg','path');
+      crown.setAttribute('d','M2 7l4.5 4 5.5-6 5.5 6L22 7l-2 12H4L2 7z');
+      ownerIcon.append(crown);
+      owner.append(ownerIcon,el('span','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
+      owner.setAttribute('aria-label',item.owner
+        ?fr('Carte détenue par @','Card held by @')+item.owner
+        :fr('Carte dans la réserve','Card in reserve'));
+      summary.append(owner);
     } else if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
       const by=el('a','creator',fr('Par @','By @')+item.author);
       by.href='compte.html?profil='+encodeURIComponent(item.author);
@@ -695,7 +724,9 @@
       ?fr('← Catalogue','← Catalog')
       :fr('← Séances programmées','← Programmed workouts');
     $('title').textContent=id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
-    $('community-link').textContent=fr('Profil','Profile');
+    $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
+    $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
+    $('community-link').title=fr('Profil','Profile');
     $('intro').hidden=Boolean(id);
     $('intro').textContent=fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));
