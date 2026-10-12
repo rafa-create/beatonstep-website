@@ -193,6 +193,24 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     graph.setAttribute('aria-label','Profil d’effort de cette séance');
     return graph;
   }
+  async function reusableGiftLink(cardId){
+    const me=await api('/api/account/me');
+    if(!me.authenticated || !me.handle)throw Error('Connexion nécessaire.');
+    const cacheKey='beatonstep.community.gift-link.v1:'+me.handle+':'+cardId;
+    let saved=null;
+    try{saved=JSON.parse(localStorage.getItem(cacheKey)||'null')}catch{}
+    const code=typeof saved?.url==='string'
+      ?/^https:\/\/beatonstep\.app\/cadeau\.html#gift=([a-f0-9]{64})$/.exec(saved.url)?.[1]:null;
+    if(code && saved.id===cardId && saved.expiresAt>Date.now()){
+      try{
+        const preview=await api('/api/account/gift?code='+code);
+        if(preview.available && preview.card?.id===cardId)return saved.url;
+      }catch{ /* Expired or accepted: create a replacement. */ }
+    }
+    const gift=await api('/api/account/gift/create','POST',{id:cardId});
+    try{localStorage.setItem(cacheKey,JSON.stringify(gift))}catch{}
+    return gift.url;
+  }
   function renderCollection(items){
     const list=$('owned-cards');list.replaceChildren();
     if(!items.length){const li=document.createElement('li');li.textContent='Vous ne possédez pas encore de carte.';list.append(li);return}
@@ -207,14 +225,12 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       offer.onclick=async()=>{
         offer.disabled=true;
         try{
-          const gift=await api('/api/account/gift/create','POST',{id:item.id});
-          const sharedUrl=gift.url;
-          const message='🎁 Je t’offre une carte BeatOnStep : '+item.name+'\n'+sharedUrl;
+          const sharedUrl=await reusableGiftLink(item.id);
           if(navigator.share) {
-            try{await navigator.share({title:'Une carte BeatOnStep pour toi',text:message,url:sharedUrl})}
+            try{await navigator.share({url:sharedUrl})}
             catch(error){if(error?.name!=='AbortError')throw error}
           }else if(navigator.clipboard?.writeText){
-            await navigator.clipboard.writeText(message);
+            await navigator.clipboard.writeText(sharedUrl);
             status('Lien cadeau copié. Tu peux maintenant l’envoyer.');
           }else {
             window.prompt('Copie ce lien pour offrir la carte :',sharedUrl);
