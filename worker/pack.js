@@ -88,6 +88,37 @@ export async function myCollection(db,userId) {
   }))});
 }
 
+
+/**
+ * Authenticated PRIVATE achievements. A successful distance challenge remains
+ * in this list even after its unique card is gifted or captured by someone else.
+ * Do not infer sporting success from ownership history, gifts or pack openings.
+ * No GPS route, coordinates or other runner IDs are returned.
+ *
+ * This is read-only: existing D1 0005 is the legacy achievements ledger until
+ * the separate v2 sporting clock/proof acceptance path is deployed.
+ */
+export async function myChallengeAchievements(db,userId) {
+  await requireCardSchema(db);
+  const rows=await db.prepare(`SELECT v.share_id,v.first_validated_at,
+      s.name,c.owner_user_id,
+      (SELECT COUNT(*) FROM workout_challenge_attempts a
+       WHERE a.user_id=? AND a.share_id=v.share_id AND a.result='won') AS win_count
+    FROM workout_challenge_validations v
+    JOIN workout_cards c ON c.share_id=v.share_id
+    JOIN shared_items s ON s.id=v.share_id
+    WHERE v.user_id=?
+      AND json_extract(s.payload_json,'$.v')=2
+      AND json_extract(s.payload_json,'$.goalMode')='distance'
+    ORDER BY v.first_validated_at DESC,v.share_id DESC LIMIT 200`)
+    .bind(userId,userId).all();
+  return json({items:(rows.results||[]).map(r=>({
+    id:publicId(r.share_id),name:r.name,firstValidatedAt:r.first_validated_at,
+    successfulAttempts:Number(r.win_count)||0,
+    currentlyOwned:r.owner_user_id===userId,
+  }))});
+}
+
 /**
  * A card owner can issue a short-lived single-use gift link. Ownership is NOT
  * changed here: the recipient must sign in/create a community account and
