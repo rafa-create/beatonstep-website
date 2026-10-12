@@ -7,9 +7,14 @@ const page = read('partages.html');
 assert.match(page, /const API='\/api\/shared';/, 'catalog must use the same-origin Worker');
 assert.match(read('seances-programmees.html'), /href="partages.html"/);
 assert.match(read('runmix.html'), /partages.html\?kind=runmix/);
-assert.match(page, /data-kind="workout"/);
-assert.match(page, /data-kind="runmix"/);
-assert.match(page, /data-sort="popular"/);
+assert.match(page, /<select id="kind-filter"/);
+assert.match(page, /<select id="sort-filter"/);
+assert.match(page, /<select id="source-filter"/);
+assert.match(page, /<option value="workout">Séances<\/option>/);
+assert.match(page, /<option value="runmix">Playlists<\/option>/);
+assert.match(page, /<option value="popular">Populaires<\/option>/);
+assert.match(page, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,
+  'mobile filters must share one compact row');
 for (const src of ['spotify','apple','deezer','youtube','amazon']) {
   assert.match(page, new RegExp('option value="' + src + '"'));
 }
