@@ -1,0 +1,250 @@
+// Optional community identities for the public catalogue.
+// Browser sessions and mobile publish-only grants are intentionally separate from admin.
+const enc = new TextEncoder();
+const COOKIE = '__Host-bos_community';
+const DAY = 86400000;
+const SESSION_MS = 30 * DAY;
+const LINK_MS = 3 * 60 * 1000;
+const USERS_SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS community_users (
+    id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, handle TEXT NOT NULL UNIQUE,
+    password_salt TEXT NOT NULL, password_hash TEXT NOT NULL,
+    created_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS community_sessions (
+    token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
+    expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS community_auth_limits (
+    bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS community_link_codes (
+    code_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
+    challenge TEXT NOT NULL, expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS community_devices (
+    token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
+    expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS signed_shares (
+    share_id INTEGER PRIMARY KEY REFERENCES shared_items(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE)`,
+  'CREATE INDEX IF NOT EXISTS signed_shares_creator ON signed_shares(user_id, share_id DESC)',
+  'CREATE INDEX IF NOT EXISTS community_devices_user ON community_devices(user_id)',
+];
+const ready = new WeakMap();
+export async function ensureCommunitySchema(db) {
+  if (!db) throw Error('database_unavailable');
+  if (!ready.has(db)) {
+    const promise = (async () => {
+      for (const sql of USERS_SCHEMA) await db.prepare(sql).run();
+    })();
+    ready.set(db, promise);
+    promise.catch(() => ready.delete(db));
+  }
+  return ready.get(db);
+}
+const reply = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), {
+  status, headers: {
+    'content-type':'application/json; charset=utf-8', 'cache-control':'no-store',
+    'x-content-type-options':'nosniff', ...headers,
+  },
+});
+const hex = bytes => [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
+const randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
+const hash = async value => hex(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(value))));
+const decodeHex = input => new Uint8Array((input.match(/../g) || []).map(v => parseInt(v, 16)));
+async function passHash(password, salt) {
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  return hex(new Uint8Array(await crypto.subtle.deriveBits({
+    name:'PBKDF2', hash:'SHA-256', salt:decodeHex(salt), iterations:100000,
+  }, key, 256)));
+}
+const safeEqual = (a, b) => {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length,b.length); i++) diff |= (a.charCodeAt(i)||0) ^ (b.charCodeAt(i)||0);
+  return diff === 0;
+};
+const cookie = (token, seconds) => COOKIE + '=' + token +
+  '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=' + seconds;
+function browserToken(request) {
+  const entry = (request.headers.get('cookie') || '').split(';').map(s=>s.trim())
+    .find(x=>x.startsWith(COOKIE+'='));
+  const value = entry?.slice(COOKIE.length+1) || '';
+  return /^[a-f0-9]{64}$/.test(value) ? value : '';
+}
+const bearerToken = request => {
+  const value = request.headers.get('authorization') || '';
+  const match = /^Bearer ([a-f0-9]{64})$/.exec(value);
+  return match?.[1] || '';
+};
+const sameOrigin = request => request.headers.get('origin') === new URL(request.url).origin;
+async function jsonBody(request) {
+  if (!(request.headers.get('content-type') || '').toLowerCase().startsWith('application/json')) return null;
+  if (Number(request.headers.get('content-length') || '0') > 4096) return null;
+  const raw = await request.text();
+  if (enc.encode(raw).length > 4096) return null;
+  try {
+    const value = JSON.parse(raw);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch { return null; }
+}
+async function personByToken(db, token, table) {
+  if (!token) return null;
+  return db.prepare(`SELECT u.id,u.email,u.handle FROM ${table} s
+    JOIN community_users u ON u.id = s.user_id
+    WHERE s.token_hash=? AND s.expires_at>?`)
+    .bind(await hash(token), Date.now()).first();
+}
+async function webUser(db, req) { return personByToken(db, browserToken(req), 'community_sessions'); }
+export async function devicePublisher(db, request) {
+  return personByToken(db, bearerToken(request), 'community_devices');
+}
+async function limited(db, env, request, kind, limit, period) {
+  if (!env.CATALOG_RATE_SALT) return false;
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const now = Date.now(), bucket = await hash(env.CATALOG_RATE_SALT + ':community:' + kind + ':' + ip);
+  const row = await db.prepare(`INSERT INTO community_auth_limits(bucket,count,expires_at)
+    VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET
+    count=CASE WHEN expires_at<=? THEN 1 ELSE count+1 END,
+    expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END
+    RETURNING count`).bind(bucket, now+period, now, now).first();
+  return Boolean(row && row.count <= limit);
+}
+async function createSession(db, user) {
+  const token=randomToken();
+  await db.prepare('INSERT INTO community_sessions(token_hash,user_id,expires_at) VALUES(?,?,?)')
+    .bind(await hash(token), user.id, Date.now()+SESSION_MS).run();
+  return reply({authenticated:true,handle:user.handle},200,{'set-cookie':cookie(token,SESSION_MS/1000)});
+}
+async function signup(db,env,req) {
+  if (!(await limited(db,env,req,'register',5,DAY))) return reply({error:'retry_later'},429);
+  const b=await jsonBody(req);
+  const email=typeof b?.email==='string'?b.email.trim().toLowerCase():'';
+  const handle=typeof b?.handle==='string'?b.handle.trim().toLowerCase():'';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length>254 ||
+      !/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle) ||
+      typeof b?.password!=='string' || b.password.length<12 || b.password.length>128 ||
+      b.accept_terms!==true) return reply({error:'invalid_registration'},400);
+  const salt=hex(crypto.getRandomValues(new Uint8Array(16)));
+  const user={id:crypto.randomUUID(),email,handle};
+  try {
+    await db.prepare(`INSERT INTO community_users(id,email,handle,password_salt,password_hash,created_at)
+      VALUES(?,?,?,?,?,?)`).bind(user.id,email,handle,salt,await passHash(b.password,salt),Date.now()).run();
+  } catch(error) {
+    if (/unique/i.test(String(error))) return reply({error:'account_exists'},409);
+    throw error;
+  }
+  return createSession(db,user);
+}
+async function signin(db,env,req) {
+  if (!(await limited(db,env,req,'login',8,15*60000))) return reply({error:'retry_later'},429);
+  const b=await jsonBody(req);
+  const email=typeof b?.email==='string'?b.email.trim().toLowerCase():'';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      typeof b?.password!=='string' || b.password.length>128) return reply({error:'invalid_credentials'},401);
+  const user=await db.prepare('SELECT * FROM community_users WHERE email=?').bind(email).first();
+  const digest=await passHash(b.password,user?.password_salt||'00'.repeat(16));
+  if (!user || !safeEqual(digest,user.password_hash)) return reply({error:'invalid_credentials'},401);
+  return createSession(db,user);
+}
+async function exchange(db,req) {
+  const b=await jsonBody(req);
+  if (!/^[a-f0-9]{64}$/.test(b?.code||'') || !/^[A-Za-z0-9_-]{43,128}$/.test(b?.verifier||'')) {
+    return reply({error:'invalid_code'},400);
+  }
+  const codeHash=await hash(b.code);
+  const row=await db.prepare('SELECT * FROM community_link_codes WHERE code_hash=? AND expires_at>?')
+    .bind(codeHash,Date.now()).first();
+  if (!row) return reply({error:'invalid_code'},401);
+  const removed=await db.prepare('DELETE FROM community_link_codes WHERE code_hash=?').bind(codeHash).run();
+  if (removed.meta?.changes!==1) return reply({error:'invalid_code'},401);
+  const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(b.verifier)));
+  const challenge=btoa(String.fromCharCode(...digest)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  if (!safeEqual(challenge,row.challenge)) return reply({error:'invalid_code'},401);
+  const token=randomToken();
+  await db.prepare('INSERT INTO community_devices(token_hash,user_id,expires_at) VALUES(?,?,?)')
+    .bind(await hash(token),row.user_id,Date.now()+SESSION_MS).run();
+  const user=await db.prepare('SELECT handle FROM community_users WHERE id=?').bind(row.user_id).first();
+  return reply({token,handle:user.handle,expiresAt:Date.now()+SESSION_MS});
+}
+export async function authorFor(db, shareIds) {
+  if (!shareIds.length) return new Map();
+  const placeholders=shareIds.map(()=>'?').join(',');
+  const rows=await db.prepare(`SELECT s.share_id,u.handle FROM signed_shares s
+    JOIN community_users u ON u.id=s.user_id WHERE s.share_id IN (${placeholders})`)
+    .bind(...shareIds).all();
+  return new Map((rows.results||[]).map(x=>[x.share_id,x.handle]));
+}
+export async function accountRequest(request,env,url) {
+  if (!env.DB || env.CATALOG_BACKEND!=='d1') return reply({error:'account_unavailable'},503);
+  try {
+    const db=env.DB, path=url.pathname, method=request.method;
+    await ensureCommunitySchema(db);
+    if (path==='/api/account/profile' && method==='GET') {
+      const handle=(url.searchParams.get('handle')||'').toLowerCase();
+      if (!/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle)) return reply({error:'not_found'},404);
+      const user=await db.prepare('SELECT id,handle FROM community_users WHERE handle=?').bind(handle).first();
+      if (!user) return reply({error:'not_found'},404);
+      const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at
+        FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
+        WHERE s.user_id=? ORDER BY x.id DESC LIMIT 100`).bind(user.id).all();
+      return reply({handle:user.handle,items:(items.results||[]).map(x=>({
+        id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,createdAt:x.created_at
+      }))});
+    }
+    if (path==='/api/account/device/me' && method==='GET') {
+      const user=await devicePublisher(db,request);
+      return user ? reply({authenticated:true,handle:user.handle}) : reply({authenticated:false},401);
+    }
+    if (path==='/api/account/exchange' && method==='POST') return exchange(db,request);
+    if (path==='/api/account/device/logout' && method==='POST') {
+      const token=bearerToken(request);
+      if (token) await db.prepare('DELETE FROM community_devices WHERE token_hash=?')
+        .bind(await hash(token)).run();
+      return reply({ok:true});
+    }
+    if (path==='/api/account/me' && method==='GET') {
+      const user=await webUser(db,request);
+      return reply(user?{authenticated:true,handle:user.handle}:{authenticated:false});
+    }
+    if (method==='POST'||method==='DELETE') {
+      if (!sameOrigin(request)) return reply({error:'origin_forbidden'},403);
+      if (path==='/api/account/signup' && method==='POST') return signup(db,env,request);
+      if (path==='/api/account/login' && method==='POST') return signin(db,env,request);
+      if (path==='/api/account/logout' && method==='POST') {
+        const token=browserToken(request);
+        if (token) await db.prepare('DELETE FROM community_sessions WHERE token_hash=?')
+          .bind(await hash(token)).run();
+        return reply({authenticated:false},200,{'set-cookie':cookie('',0)});
+      }
+      const user=await webUser(db,request);
+      if (!user) return reply({error:'login_required'},401);
+      if (path==='/api/account/connect' && method==='POST') {
+        if (!(await limited(db,env,request,'connect',20,15*60000))) return reply({error:'retry_later'},429);
+        const b=await jsonBody(request);
+        if (!/^[A-Za-z0-9_-]{43}$/.test(b?.challenge||'') ||
+            !/^[A-Za-z0-9_-]{16,128}$/.test(b?.state||'')) return reply({error:'invalid_link'},400);
+        const code=randomToken();
+        await db.prepare('INSERT INTO community_link_codes(code_hash,user_id,challenge,expires_at) VALUES(?,?,?,?)')
+          .bind(await hash(code),user.id,b.challenge,Date.now()+LINK_MS).run();
+        return reply({code,state:b.state});
+      }
+      if (path==='/api/account/me' && method==='DELETE') {
+        const b=await jsonBody(request);
+        if (typeof b?.password!=='string') return reply({error:'invalid_credentials'},401);
+        const secret=await db.prepare('SELECT password_hash,password_salt FROM community_users WHERE id=?')
+          .bind(user.id).first();
+        if (!safeEqual(await passHash(b.password,secret.password_salt),secret.password_hash)) {
+          return reply({error:'invalid_credentials'},401);
+        }
+        await db.prepare('DELETE FROM signed_shares WHERE user_id=?').bind(user.id).run();
+        await db.prepare('DELETE FROM community_devices WHERE user_id=?').bind(user.id).run();
+        await db.prepare('DELETE FROM community_link_codes WHERE user_id=?').bind(user.id).run();
+        await db.prepare('DELETE FROM community_sessions WHERE user_id=?').bind(user.id).run();
+        await db.prepare('DELETE FROM community_users WHERE id=?').bind(user.id).run();
+        return reply({deleted:true},200,{'set-cookie':cookie('',0)});
+      }
+    }
+    return reply({error:'not_found'},404);
+  } catch(error) {
+    console.error('community unavailable',String(error?.message||error).slice(0,90));
+    return reply({error:'account_unavailable'},503);
+  }
+}
