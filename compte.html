@@ -15,6 +15,8 @@ button{background:var(--accent);color:#14140b;border:0;border-radius:40px;min-he
 button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;border:1px solid #827756;color:var(--ink)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .notice{margin-top:16px;color:var(--ink);padding:12px;border-left:3px solid var(--accent);background:#28271b}
+.collection-item{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.collection-item a{font-weight:700}.collection-item small{color:var(--sub);font-size:12px}
+.pack-info{font-size:13px;color:var(--sub)}
 ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--line)}
 li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -43,6 +45,14 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à publier vos séances sous ce pseudo.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
+<div id="collection-panel" hidden><h2>Ma collection</h2>
+<p>Chaque séance possède une seule carte. Tout le monde peut l'importer, mais une seule personne en est propriétaire.</p>
+<ul id="owned-cards"></ul>
+<div id="pack-panel" class="notice"><h2>Pack découverte</h2>
+<p id="pack-info" class="pack-info"></p>
+<button id="open-pack" type="button" disabled>Ouvrir un pack · 1 carte</button></div>
+<div id="gift-panel" class="notice" hidden><h2>Une carte vous a été offerte</h2>
+<p id="gift-info"></p><button type="button" id="claim-gift">Accepter cette carte</button></div></div>
 <div id="my-cards"><h2>Mes publications</h2><ul id="items"></ul></div>
 <div class="actions"><button class="secondary" type="button" id="logout">Se déconnecter du site</button>
 <button class="secondary" type="button" id="delete-open">Supprimer mon compte</button></div>
@@ -57,6 +67,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   'use strict';
   const $=id=>document.getElementById(id), qs=new URLSearchParams(location.search);
   const handle=qs.get('profil');
+  const giftCode=new URLSearchParams(location.hash.slice(1)).get('gift');
   const connect=qs.get('connect')==='1';
   const state=qs.get('state')||'', challenge=qs.get('challenge')||'';
   const linking=connect&&/^[A-Za-z0-9_-]{16,128}$/.test(state)&&/^[A-Za-z0-9_-]{43}$/.test(challenge);
@@ -70,7 +81,11 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       account_unavailable:'Espace personnel non disponible : vérifier la migration D1.',
       invalid_credentials:'Identifiants invalides.',account_exists:'E-mail ou pseudo déjà utilisé.',
       retry_later:'Trop de tentatives. Réessayez ultérieurement.',
-      invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.'})[value.error]||
+      invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.',
+      collection_not_ready:'La collection sera disponible après la migration D1.',
+      pack_unavailable:'Aucune nouvelle carte disponible dans un pack.',
+      gift_unavailable:'Ce lien de transfert a expiré ou a déjà été utilisé.',
+      card_is_permanent:'Une carte de séance reste publique. Vous pouvez supprimer votre compte sans détruire la carte.'})[value.error]||
       'Opération impossible ('+r.status+').');
     return value;
   }
@@ -83,7 +98,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       a.textContent=item.name;a.href='/partages.html?id='+encodeURIComponent(item.id);
       meta.className='small';meta.textContent=(item.kind==='workout'?'Séance':'Playlist')+' · '+item.source;
       li.append(a,meta);
-      if(element.id==='items'){
+      if(element.id==='items' && item.kind!=='workout'){
         const remove=document.createElement('button');
         remove.className='secondary';remove.textContent='Supprimer cette publication';
         remove.style.marginTop='8px';
@@ -104,6 +119,40 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       element.append(li);
     }
   }
+  function renderCollection(items){
+    const list=$('owned-cards');list.replaceChildren();
+    if(!items.length){const li=document.createElement('li');li.textContent='Vous ne possédez pas encore de carte.';list.append(li);return}
+    for(const item of items){
+      const li=document.createElement('li');li.className='collection-item';
+      const a=document.createElement('a');a.href='/partages.html?id='+encodeURIComponent(item.id);a.textContent=item.name;
+      const meta=document.createElement('small');meta.textContent=(item.imports||0)+' imports · Créateur : '+(item.creator?'@'+item.creator:'Anonyme');
+      li.append(a,meta);list.append(li);
+    }
+  }
+  async function refreshCollection(){
+    try{
+      const [collection,pack]=await Promise.all([api('/api/account/collection'),api('/api/account/pack')]);
+      $('collection-panel').hidden=false;
+      renderCollection(collection.items||[]);
+      $('open-pack').disabled=!pack.available;
+      $('pack-info').textContent=pack.alreadyOpened
+        ?'Vous avez déjà ouvert votre pack de bienvenue. Une seule ouverture par compte pour cette première version.'
+        :pack.available?'Une nouvelle carte de séance anonyme attend un propriétaire. Réserve : '+pack.remaining+' carte(s).'
+        :'Aucune carte anonyme à attribuer pour le moment. Revenez lorsque la réserve sera alimentée.';
+      if(giftCode&&/^[a-f0-9]{64}$/.test(giftCode)){
+        $('gift-panel').hidden=false;
+        try{
+          const gift=await api('/api/account/gift?code='+encodeURIComponent(giftCode));
+          $('gift-info').textContent='Carte proposée : '+gift.card.name;
+          $('claim-gift').disabled=false;
+        }catch(error){$('gift-info').textContent=error.message;$('claim-gift').disabled=true}
+      }
+    }catch(error){
+      // The public account remains usable while migration 0004 is pending.
+      $('collection-panel').hidden=true;
+      if(!error.message.includes('migration D1')) status(error.message);
+    }
+  }
   async function account(){
     const me=await api('/api/account/me');
     if(!me.authenticated){panel('signin');status('Connexion facultative : les visiteurs peuvent continuer à partager anonymement.');return}
@@ -112,6 +161,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
     const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
     renderCards(data.items,$('items'));
+    await refreshCollection();
   }
   $('go-signup').onclick=()=>{panel('signup');status('Choisissez un pseudo public.')};
   $('go-signin').onclick=()=>{panel('signin');status('Connectez-vous avec votre compte.')};
@@ -143,6 +193,25 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       location.assign(callback);
       status('Retour à BeatOnStep… Si le retour ne se fait pas, utilisez le lien affiché.');
     }catch(error){status(error.message);$('link-button').disabled=false}
+  };
+  $('open-pack').onclick=async()=>{
+    $('open-pack').disabled=true;
+    try{
+      const result=await api('/api/account/pack/open','POST',{});
+      await refreshCollection();
+      status('Nouvelle carte obtenue : '+result.card.name+'. Elle est maintenant dans votre collection.');
+    }catch(error){status(error.message);await refreshCollection()}
+  };
+  $('claim-gift').onclick=async()=>{
+    if(!giftCode)return;
+    $('claim-gift').disabled=true;
+    try{
+      const result=await api('/api/account/gift/claim','POST',{code:giftCode});
+      history.replaceState(null,'',location.pathname+location.search);
+      $('gift-panel').hidden=true;
+      await refreshCollection();
+      status('Carte reçue : #'+String(result.id-1000000000000).padStart(4,'0'));
+    }catch(error){status(error.message);$('claim-gift').disabled=false}
   };
   $('logout').onclick=async()=>{
     try{await api('/api/account/logout','POST');await account()}catch(error){status(error.message)}
