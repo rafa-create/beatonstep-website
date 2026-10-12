@@ -2,8 +2,6 @@
 -- À exécuter MANUELLEMENT dans Cloudflare > D1 > beatonstep-catalog-prod
 -- (ID 278e152c-3338-4e0d-adfd-673eac7c60cb).
 -- Aucune suppression ni modification des partages anonymes historiques.
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS community_users (
   id TEXT PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
