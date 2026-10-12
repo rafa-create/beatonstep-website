@@ -137,7 +137,7 @@ export async function claimGift(db,userId,token) {
   // D1 batch = one transaction. Only the expected current owner may transfer;
   // a second redemption or an older link cannot override a newer owner.
   const actions=await db.batch([
-    db.prepare(`UPDATE workout_cards SET owner_user_id=?,last_reason='gift',acquired_at=?
+    db.prepare(`UPDATE workout_cards SET owner_user_id=?,last_reason='gift',acquired_at=?,pack_eligible=0
       WHERE share_id=? AND owner_user_id IS ?
       AND EXISTS(SELECT 1 FROM workout_card_gifts WHERE token_hash=?
         AND redeemed_at IS NULL AND expires_at>?)`)
