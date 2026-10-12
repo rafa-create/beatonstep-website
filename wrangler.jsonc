@@ -13,7 +13,8 @@
   },
   "vars": {
     "CATALOG_BACKEND": "d1",
-    "COMMUNITY_SIGNUPS_ENABLED": "true"
+    "COMMUNITY_SIGNUPS_ENABLED": "true",
+    "CARDS_ENABLED": "true"
   },
   "observability": {
     "enabled": true
