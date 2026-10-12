@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 6 octobre 2026
+**Dernière mise à jour :** 12 octobre 2026
 
 ## 1. Qui sommes-nous
 
@@ -10,9 +10,15 @@ BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au 
 
 ## 2. Principe général : collecte minimale, sans tracking commercial
 
-BeatOnStep **ne crée pas de compte utilisateur**, n'utilise **pas de publicité** et n'effectue **aucun tracking commercial ni profilage**. Une mesure d'usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n'est inclus dans cette mesure.
+BeatOnStep est **utilisable sans compte**. Il propose uniquement un **compte facultatif pour signer les partages du catalogue**. Il n'utilise **pas de publicité** et n'effectue **aucun tracking commercial ni profilage**. Une mesure d'usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n'est inclus dans cette mesure.
 
 Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens de titres Spotify, liens Partager Deezer, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
+
+### Comptes facultatifs du catalogue public
+
+Un compte est **facultatif** : créer des séances, courir, importer de la musique et publier anonymement ne demande aucune inscription. Lorsqu'un compte est créé sur le site, BeatOnStep conserve dans Cloudflare D1 l'adresse e-mail (non publique), un pseudo public, un sel et une empreinte de mot de passe, ainsi que la date d'inscription. Le site utilise un cookie de session sécurisé `HttpOnly`; l'app peut garder une autorisation limitée à la publication sous votre pseudo (durée maximale de 30 jours), révocable à la déconnexion.
+
+Votre pseudo et les séances ou Run Mix publiés en étant connecté sont publics. Les anciennes publications anonymes ne sont pas automatiquement attribuées. Il n'y a pas de transmission de vos identifiants de connexion aux services musicaux. Vous pouvez vous déconnecter et supprimer le compte dans « Mon profil » ; la suppression retire les signatures de vos publications qui restent accessibles anonymement, sauf modération. Les sessions et autorisations liées au compte sont révoquées. L'adresse e-mail sert exclusivement à la connexion ; elle n'est pas publiée ni utilisée pour de la prospection. Les comptes ne disposent pas encore de récupération de mot de passe ou de vérification e-mail : leur ouverture publique est conditionnée aux vérifications de conformité et de sécurité.
 
 ## 3. Fonctionnalités et flux de données
 
