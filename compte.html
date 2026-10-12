@@ -20,6 +20,7 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .collection-item::before{content:'BEATONSTEP';display:block;color:var(--accent);letter-spacing:.14em;font-weight:900;font-size:10px}
 .collection-item::after{content:'♬';display:grid;place-items:center;font-size:46px;color:var(--accent);height:95px;text-shadow:0 0 30px #fcea0760}
 .collection-item a{display:block;position:relative;z-index:1;color:var(--ink);font-size:14px;font-weight:850;line-height:1.22}
+.collection-item button{position:relative;z-index:1;width:100%;font-size:12px;margin-top:12px;min-height:37px;padding:7px;color:#fcea07;border:1px solid #fcea07;background:#282517}
 .collection-item small{display:block;color:var(--sub);font-size:10px;position:relative;z-index:1;margin-top:7px}
 #owned-cards{display:flex;gap:15px;flex-wrap:wrap;align-items:stretch}
 #owned-cards li:not(.collection-item){width:100%}
@@ -28,6 +29,9 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .pack-image svg{width:68px;height:68px}.pack-image strong{font-size:11px;letter-spacing:.2em}
 .pack-actions{flex:1;min-width:175px}.pack-actions p{margin:6px 0 15px;font-size:13px}
 .pack-info{font-size:13px;color:var(--sub)}
+.gift-accept{margin-top:15px;border:1px solid #81742d;border-radius:17px;padding:18px;background:linear-gradient(125deg,#252415,#14140e)}
+.gift-accept h2{color:#fcea07;font-size:23px}.gift-highlight{color:#f4f0db;font-size:17px;font-weight:850;line-height:1.3}
+.gift-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}.gift-cta a{display:inline-flex;border-radius:22px;padding:9px 15px;border:1px solid #a59435;text-decoration:none;font-weight:800;color:#fcea07}
 #card-reveal{position:fixed;inset:0;z-index:100;background:#040403f2;display:grid;place-content:center;justify-items:center;gap:20px;padding:16px;overflow:auto}
 #card-reveal[hidden]{display:none!important}
 .reveal-heading{margin:0;color:var(--accent);font-size:18px;font-weight:900;letter-spacing:.18em;text-align:center}
@@ -87,8 +91,9 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     <button id="open-pack" type="button" disabled>Ouvrir mon pack</button>
   </div>
 </div>
-<div id="gift-panel" class="notice" hidden><h2>Une carte vous a été offerte</h2>
-<p id="gift-info"></p><button type="button" id="claim-gift">Accepter cette carte</button></div></div>
+<div id="gift-panel" class="gift-accept" hidden><h2>🎁 Tu as reçu une carte BeatOnStep !</h2>
+<p id="gift-info" class="gift-highlight"></p><button type="button" id="claim-gift">Accepter cette carte</button>
+<p style="margin-top:12px">La carte deviendra la tienne uniquement après ton acceptation.</p></div></div>
 <div id="my-cards"><h2>Mes publications</h2><ul id="items"></ul></div>
 <div class="actions"><button class="secondary" type="button" id="logout">Se déconnecter du site</button>
 <button class="secondary" type="button" id="delete-open">Supprimer mon compte</button></div>
@@ -175,7 +180,28 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       const li=document.createElement('li');li.className='collection-item';
       const a=document.createElement('a');a.href='/partages.html?id='+encodeURIComponent(item.id);a.textContent=item.name;
       const meta=document.createElement('small');meta.textContent=(item.imports||0)+' imports · Créateur : '+(item.creator?'@'+item.creator:'Anonyme');
-      li.append(a,meta);list.append(li);
+      const offer=document.createElement('button');
+      offer.type='button';offer.textContent='🎁 Offrir cette carte';
+      offer.setAttribute('aria-label','Créer un lien pour offrir '+item.name);
+      offer.onclick=async()=>{
+        offer.disabled=true;
+        try{
+          const gift=await api('/api/account/gift/create','POST',{id:item.id});
+          const sharedUrl=gift.url;
+          const message='🎁 Je t’offre une carte BeatOnStep : '+item.name+'\n'+sharedUrl;
+          if(navigator.share) {
+            try{await navigator.share({title:'Une carte BeatOnStep pour toi',text:message,url:sharedUrl})}
+            catch(error){if(error?.name!=='AbortError')throw error}
+          }else if(navigator.clipboard?.writeText){
+            await navigator.clipboard.writeText(message);
+            status('Lien cadeau copié. Tu peux maintenant l’envoyer.');
+          }else {
+            window.prompt('Copie ce lien pour offrir la carte :',sharedUrl);
+          }
+        }catch(error){status(error.message)}
+        finally{offer.disabled=false}
+      };
+      li.append(a,meta,offer);list.append(li);
     }
   }
   async function refreshCollection(){
@@ -192,7 +218,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         $('gift-panel').hidden=false;
         try{
           const gift=await api('/api/account/gift?code='+encodeURIComponent(giftCode));
-          $('gift-info').textContent='Carte proposée : '+gift.card.name;
+          $('gift-info').textContent=gift.card.name+' · #'+String(gift.card.id-1000000000000).padStart(4,'0');
           $('claim-gift').disabled=false;
         }catch(error){$('gift-info').textContent=error.message;$('claim-gift').disabled=true}
       }
@@ -204,7 +230,15 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   }
   async function account(){
     const me=await api('/api/account/me');
-    if(!me.authenticated){panel('signin');status('Connexion facultative : les visiteurs peuvent continuer à partager anonymement.');return}
+    if(!me.authenticated){
+      panel('signin');
+      status(giftCode
+        ?'Connecte-toi ou crée un compte pour accepter ta carte cadeau BeatOnStep. Le lien restera disponible après la connexion.'
+        :'Connexion facultative : les visiteurs peuvent continuer à partager anonymement.');
+      if(giftCode){$('heading').textContent='Ta carte cadeau t’attend';
+        $('intro').textContent='Crée ton compte ou connecte-toi pour recevoir la carte dans ta collection.';}
+      return;
+    }
     panel('account');$('hello').textContent='Connecté : @'+me.handle;
     $('link-panel').hidden=!linking;
     status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
@@ -283,7 +317,15 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       history.replaceState(null,'',location.pathname+location.search);
       $('gift-panel').hidden=true;
       await refreshCollection();
-      status('Carte reçue : #'+String(result.id-1000000000000).padStart(4,'0'));
+      status('🎉 Carte reçue : #'+String(result.id-1000000000000).padStart(4,'0')+' ! Tu es maintenant son propriétaire.');
+      const links=document.createElement('div');links.className='gift-cta';
+      const app=document.createElement('a');
+      app.href='beatonstep://shared?id='+encodeURIComponent(result.id)+'&auto=1';
+      app.textContent='Ouvrir / importer la séance dans l’application';
+      const web=document.createElement('a');
+      web.href='/partages.html?id='+encodeURIComponent(result.id);
+      web.textContent='Voir la séance sur le site';
+      links.append(app,web);$('status').append(links);
     }catch(error){status(error.message);$('claim-gift').disabled=false}
   };
   $('logout').onclick=async()=>{
