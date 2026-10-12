@@ -105,21 +105,23 @@ export async function createGift(db,userId,id) {
     WHERE share_id=? AND owner_user_id=?`)
     .bind(await hashGiftToken(token),now+7*86400000,shareId,userId).run();
   if(result.meta?.changes!==1) return json({error:'card_not_owned'},409);
-  return json({url:'https://beatonstep.app/compte.html#gift='+token,
+  return json({url:'https://beatonstep.app/cadeau.html#gift='+token,
     expiresAt:now+7*86400000,id});
 }
 
 export async function giftStatus(db,token) {
   if (!validGiftToken(token)) return json({error:'invalid_gift'},400);
   await requireCardSchema(db);
-  const row=await db.prepare(`SELECT g.share_id,x.name,g.expires_at
+  const row=await db.prepare(`SELECT g.share_id,x.name,x.profile_json,x.duration_sec,g.expires_at
     FROM workout_card_gifts g JOIN shared_items x ON x.id=g.share_id
     JOIN workout_cards c ON c.share_id=g.share_id
     WHERE g.token_hash=? AND g.expires_at>? AND g.redeemed_at IS NULL
     AND c.owner_user_id IS g.expected_owner_id`)
     .bind(await hashGiftToken(token),Date.now()).first();
-  return row?json({available:true,card:{id:publicId(row.share_id),name:row.name}})
-    :json({error:'gift_unavailable'},404);
+  return row?json({available:true,card:{
+    id:publicId(row.share_id),name:row.name,profile:cardProfile(row.profile_json),
+    durationSec:row.duration_sec,expiresAt:row.expires_at,
+  }}):json({error:'gift_unavailable'},404);
 }
 
 export async function claimGift(db,userId,token) {
