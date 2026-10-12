@@ -10,7 +10,7 @@ BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au 
 
 ## 2. Principe général : collecte minimale, sans tracking commercial
 
-BeatOnStep est **utilisable sans compte**. Il propose uniquement un **compte facultatif pour signer les partages du catalogue**. Il n'utilise **pas de publicité** et n'effectue **aucun tracking commercial ni profilage**. Une mesure d'usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n'est inclus dans cette mesure.
+BeatOnStep est **utilisable sans compte**. Il propose uniquement un **compte facultatif pour signer les partages du catalogue**. Il n'utilise **pas de publicité** et n'effectue **aucun tracking commercial ni profilage**. Une mesure d'usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (pas/min), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n'est inclus dans cette mesure.
 
 Selon les fonctions que **vous** activez, l'application peut échanger des données avec des services que **vous choisissez** (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens de titres Spotify, liens Partager Deezer, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.
 
@@ -28,7 +28,7 @@ Votre pseudo et les séances ou Run Mix publiés en étant connecté sont public
 - Les métadonnées associées (chemin, BPM, préférences) sont stockées **localement uniquement**.
 - Aucun fichier audio n'est envoyé hors de l'appareil pour la détection de cadence ni la lecture locale, sauf si vous déclenchez l'analyse BPM serveur (§ 3.3).
 
-### 3.2 Détection de cadence (PPM)
+### 3.2 Détection de cadence (pas/min)
 
 - L'accéléromètre est lu **sur l'appareil** pour estimer votre cadence de pas.
 - Ces mesures restent **sur l’appareil par défaut** et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement **Help → Envoyer** (§ 3.11).
@@ -107,7 +107,7 @@ Pour évaluer l'usage de la fonction d'import et améliorer le produit, BeatOnSt
 
 Cette mesure correspond à de l'**analytics produit** : elle sert à comprendre l'utilisation de la fonction d'import et à orienter les améliorations de BeatOnStep.
 
-Cette mesure ne contient **aucun nom ni identifiant de playlist**, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (PPM) ou parcours. Les imports manuels de morceaux et les playlists/albums curatés fournis par BeatOnStep sont exclus du compteur.
+Cette mesure ne contient **aucun nom ni identifiant de playlist**, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (pas/min) ou parcours. Les imports manuels de morceaux et les playlists/albums curatés fournis par BeatOnStep sont exclus du compteur.
 
 L'identifiant est généré aléatoirement par BeatOnStep. Il n'est pas l'identifiant Apple, Google, Android ou d'un fournisseur musical et ne contient ni nom, ni adresse e-mail, ni identifiant de compte. Il permet uniquement de rattacher les snapshots successifs à une **même installation de BeatOnStep** et n'est pas utilisé pour identifier la personne qui utilise l'app.
 
@@ -134,7 +134,7 @@ Ce rapport peut inclure :
 
 - version, build, runtime et informations techniques de l'application ;
 - événements de diagnostic récents liés au fonctionnement de BeatOnStep ;
-- diagnostic PPM des dernières minutes, pouvant contenir des échantillons d'accéléromètre et la cadence calculée ;
+- diagnostic pas/min des dernières minutes, pouvant contenir des échantillons d'accéléromètre et la cadence calculée ;
 - états techniques Garmin / Apple Watch et des intégrations musicales (par exemple disponibilité, états de lecture, erreurs et identifiants techniques de titres ou d'appareils lorsqu'ils figurent déjà dans le diagnostic) ;
 - l'identifiant d'installation pseudonyme BeatOnStep, la plateforme et la version de l'app.
 
@@ -148,7 +148,7 @@ Le serveur utilise ce rapport uniquement pour le **support technique et le diagn
 
 | Permission | Raison |
 |------------|--------|
-| `HIGH_SAMPLING_RATE_SENSORS` | Lecture de l'accéléromètre à haute fréquence pour détecter la cadence de pas (PPM). |
+| `HIGH_SAMPLING_RATE_SENSORS` | Lecture de l'accéléromètre à haute fréquence pour détecter la cadence de pas (pas/min). |
 | `FOREGROUND_SERVICE` | Maintenir la lecture musicale et la détection de cadence en arrière-plan (téléphone verrouillé). |
 | `WAKE_LOCK` | Limiter la mise en veille du capteur pendant une session. |
 
