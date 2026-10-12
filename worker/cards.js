@@ -45,6 +45,7 @@ export async function cardPeople(db, shareIds) {
 }
 
 export async function publishUniqueWorkout(db, payload, meta, author) {
+  const distanceV2=payload?.v===2 && payload?.goalMode==='distance';
   const fingerprint=await workoutCardFingerprint(payload);
   // Not every old client sends complete music metadata. These invalid identities
   // remain in legacy publishing rather than being merged incorrectly.
@@ -66,9 +67,12 @@ export async function publishUniqueWorkout(db, payload, meta, author) {
     publish,
     db.prepare(`INSERT OR IGNORE INTO workout_cards
       (share_id,fingerprint,creator_user_id,owner_user_id,pack_eligible,last_reason,created_at,acquired_at)
-      VALUES(last_insert_rowid(),?,?,?,?,'created',?,?)`)
-      .bind(fingerprint,author?.id||null,author?.id||null,author?0:1,
-        createdAt,author?createdAt:null),
+      VALUES(last_insert_rowid(),?,?,?,?,?,?,?)`)
+      .bind(fingerprint,author?.id||null,
+        distanceV2?null:author?.id||null,
+        distanceV2?0:author?0:1,
+        distanceV2?'challenge_created':'created',
+        createdAt,distanceV2?null:author?createdAt:null),
   ];
   if (author) write.push(db.prepare(`INSERT INTO signed_shares(share_id,user_id)
     SELECT last_insert_rowid(),? WHERE EXISTS
@@ -94,8 +98,13 @@ export async function backfillWorkoutCards(db, afterId=0, limit=40) {
     stats.scanned++;
     stats.lastId=row.id;
     let fingerprint;
-    try {fingerprint=await workoutCardFingerprint(JSON.parse(row.payload_json));}
-    catch { /* legacy malformed payload */ }
+    try {
+      const historical=JSON.parse(row.payload_json);
+      // Backfill is for legacy music cards only. Never award a v2
+      // challenge to its uploader merely because it has a signed share.
+      if(historical?.v===2){stats.skipped++;continue;}
+      fingerprint=await workoutCardFingerprint(historical);
+    } catch { /* legacy malformed payload */ }
     if (!fingerprint) {stats.skipped++;continue;}
     let existing=await db.prepare('SELECT share_id FROM workout_cards WHERE fingerprint=?')
       .bind(fingerprint).first();
