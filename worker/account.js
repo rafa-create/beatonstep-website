@@ -1,5 +1,5 @@
 import { cardsEnabled } from './cards.js';
-import { packState,openPack,myCollection,giftStatus,claimGift } from './pack.js';
+import { packState,openPack,myCollection,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
 // Browser sessions and mobile publish-only grants are intentionally separate from admin.
@@ -185,6 +185,32 @@ export async function accountRequest(request,env,url) {
       return openPack(db,member.id);
     }
     if (path==='/api/account/exchange' && method==='POST') return exchange(db,request);
+    if (path==='/api/account/gift/preview' && method==='POST') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      if (!sameOrigin(request)) return reply({error:'origin_forbidden'},403);
+      const data=await jsonBody(request);
+      return giftStatus(db,data?.code);
+    }
+    if (path==='/api/account/device/gift/preview' && method==='POST') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      const data=await jsonBody(request);
+      // Public preview: no grant necessary, no card transferred by preview.
+      return giftStatus(db,data?.code);
+    }
+    if (path==='/api/account/device/gift/claim' && method==='POST') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      const data=await jsonBody(request);
+      return claimGift(db,member.id,data?.code);
+    }
+    if (path==='/api/account/device/gift/create' && method==='POST') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      const data=await jsonBody(request);
+      return createGift(db,member.id,data?.id);
+    }
     if (path==='/api/account/device/logout' && method==='POST') {
       const token=bearerToken(request);
       if (token) await db.prepare('DELETE FROM community_devices WHERE token_hash=?')
@@ -216,10 +242,11 @@ export async function accountRequest(request,env,url) {
       }
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
-      if (method==='POST' && ['/api/account/pack/open','/api/account/gift/claim'].includes(path)) {
+      if (method==='POST' && ['/api/account/pack/open','/api/account/gift/claim','/api/account/gift/create'].includes(path)) {
         if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
         if (path==='/api/account/pack/open') return openPack(db,user.id);
         const data=await jsonBody(request);
+        if (path==='/api/account/gift/create') return createGift(db,user.id,data?.id);
         return claimGift(db,user.id,data?.code);
       }
       if (path==='/api/account/connect' && method==='POST') {
