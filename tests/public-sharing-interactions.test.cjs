@@ -45,30 +45,25 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(search,data=example){
   const items=Array.isArray(data)?data:[data];
   const elements={};
-  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter','footer-privacy','footer-privacy-label','community-link'])
+  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages',
+    'kind-label','kind-filter','sort-label','sort-filter','source-label','source-filter',
+    'footer-privacy','footer-privacy-label','community-link'])
     elements[name]=new Node(name);
-  const kinds=['all','workout','runmix'].map(k=>{
-    const n=new Node('button');n.dataset.kind=k;return n;
-  });
-  const sorts=['recent','popular'].map(k=>{
-    const n=new Node('button');n.dataset.sort=k;return n;
-  });
-  const selectAll=new Node('option');
+  elements['sort-filter'].value='recent';
+  const options={};
+  for(const [id,values] of [
+    ['kind-filter',['all','workout','runmix']],
+    ['sort-filter',['recent','popular']],
+    ['source-filter',['all']],
+  ])for(const value of values)options[`#${id} option[value=${value}]`]=new Node('option');
   const body=new Node('body');
   const apiCalls=[];
   const document={
     hidden:false,documentElement:{lang:'fr'},body,
     createElement(tag){return new Node(tag)},
     getElementById(name){return elements[name]},
-    querySelectorAll(selector){
-      if(selector==='[data-kind]')return kinds;
-      if(selector==='[data-sort]')return sorts;
-      throw Error('unexpected querySelectorAll '+selector);
-    },
     querySelector(selector){
-      if(selector==='#source-filter option[value=all]')return selectAll;
-      const matched=selector.match(/^\[data-(kind|sort)=(.+)\]$/);
-      if(matched)return (matched[1]==='kind'?kinds:sorts).find(x=>x.dataset[matched[1]]===matched[2]);
+      if(options[selector])return options[selector];
       throw Error('unexpected querySelector '+selector);
     }
   };
@@ -84,7 +79,7 @@ function setup(search,data=example){
   const location={search};
   vm.runInNewContext(script,{document,navigator:{language:'fr-FR'},location,
     URLSearchParams,fetch,console});
-  return {elements,kinds,sorts,apiCalls,body};
+  return {elements,options,apiCalls,body};
 }
 (async()=>{
   // Individual workout: one collapsed workout, then independently expandable
@@ -235,9 +230,19 @@ function setup(search,data=example){
   catalog.elements['source-filter'].onchange();
   await flush();
   assert.match(catalog.apiCalls.at(-1),/source=spotify/);
-  catalog.kinds[2].onclick();
+  catalog.elements['kind-filter'].value='runmix';
+  catalog.elements['kind-filter'].onchange();
   await flush();
   assert.match(catalog.apiCalls.at(-1),/kind=runmix&source=spotify/);
+  catalog.elements['sort-filter'].value='popular';
+  catalog.elements['sort-filter'].onchange();
+  await flush();
+  assert.match(catalog.apiCalls.at(-1),/kind=runmix&source=spotify&sort=popular/);
+  assert.equal(catalog.elements['kind-filter'].value,'runmix');
+  assert.equal(catalog.elements['sort-filter'].value,'popular');
+  assert.equal(catalog.elements['source-filter'].value,'spotify');
+  assert.equal(catalog.options['#kind-filter option[value=workout]'].textContent,'Workouts');
+  assert.equal(catalog.options['#sort-filter option[value=recent]'].textContent,'Newest');
 
   // Catalog summaries open the focus viewer, navigating only matching types.
   const gallery=setup('',[example,{...example,id:9,name:'Other workout'}]);
