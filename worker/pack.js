@@ -104,16 +104,30 @@ export async function createGift(db,userId,id) {
   const count=await db.prepare(`SELECT COUNT(*) AS total FROM workout_card_gifts
     WHERE share_id=? AND expected_owner_id=? AND redeemed_at IS NULL AND expires_at>?`)
     .bind(shareId,userId,now).first();
-  if ((Number(count?.total)||0)>=3) return json({error:'gift_limit'},429);
+  // Three unclaimed invitations is the maximum stored per card and owner.
+  // If the sender lost the URL, allow regeneration by retiring the oldest
+  // pending invitation, rather than blocking all future gifts indefinitely.
+  const needsRotation=(Number(count?.total)||0)>=3;
   const token=hex(crypto.getRandomValues(new Uint8Array(32)));
   // The owner check is re-evaluated inside the INSERT to handle a concurrent
   // transfer that happens between the initial SELECT and link creation.
-  const result=await db.prepare(`INSERT INTO workout_card_gifts
+  const insert=db.prepare(`INSERT INTO workout_card_gifts
     (token_hash,share_id,expected_owner_id,expires_at)
     SELECT ?,share_id,owner_user_id,? FROM workout_cards
     WHERE share_id=? AND owner_user_id=?`)
-    .bind(await hashGiftToken(token),now+7*86400000,shareId,userId).run();
-  if(result.meta?.changes!==1) return json({error:'card_not_owned'},409);
+    .bind(await hashGiftToken(token),now+7*86400000,shareId,userId);
+  // D1 batch commits atomically: never retire an earlier code without issuing
+  // its replacement, and never touch an accepted or another owner's gift.
+  const results=needsRotation?await db.batch([
+    db.prepare(`DELETE FROM workout_card_gifts WHERE token_hash=(
+      SELECT token_hash FROM workout_card_gifts
+      WHERE share_id=? AND expected_owner_id=? AND redeemed_at IS NULL AND expires_at>?
+      ORDER BY expires_at ASC LIMIT 1
+    ) AND EXISTS(SELECT 1 FROM workout_cards
+      WHERE share_id=? AND owner_user_id=?)`).bind(shareId,userId,now,shareId,userId),
+    insert,
+  ]):[await insert.run()];
+  if(results.at(-1)?.meta?.changes!==1) return json({error:'card_not_owned'},409);
   return json({url:'https://beatonstep.app/cadeau.html#gift='+token,
     expiresAt:now+7*86400000,id});
 }
