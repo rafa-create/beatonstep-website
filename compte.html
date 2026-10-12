@@ -123,7 +123,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   'use strict';
   const $=id=>document.getElementById(id), qs=new URLSearchParams(location.search);
   const handle=qs.get('profil');
-  const giftCode=new URLSearchParams(location.hash.slice(1)).get('gift');
+  let giftCode=new URLSearchParams(location.hash.slice(1)).get('gift');
   const connect=qs.get('connect')==='1';
   const state=qs.get('state')||'', challenge=qs.get('challenge')||'';
   const linking=connect&&/^[A-Za-z0-9_-]{16,128}$/.test(state)&&/^[A-Za-z0-9_-]{43}$/.test(challenge);
@@ -230,6 +230,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       const [collection,pack]=await Promise.all([api('/api/account/collection'),api('/api/account/pack')]);
       $('collection-panel').hidden=false;
       renderCollection(collection.items||[]);
+      $('gift-panel').hidden=!giftCode;
       $('open-pack').disabled=!pack.available;
       $('pack-info').textContent=pack.alreadyOpened
         ?'Pack déjà ouvert. Ta carte est dans ta collection.'
@@ -336,6 +337,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     try{
       const result=await api('/api/account/gift/claim','POST',{code:giftCode});
       history.replaceState(null,'',location.pathname+location.search);
+      giftCode=null;
       $('gift-panel').hidden=true;
       await refreshCollection();
       status('🎉 Carte reçue : #'+String(result.id-1000000000000).padStart(4,'0')+' ! Tu es maintenant son propriétaire.');
