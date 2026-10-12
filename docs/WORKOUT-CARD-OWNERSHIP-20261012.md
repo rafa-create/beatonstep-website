@@ -9,7 +9,7 @@
 - Toute séance demeure importable par tous. Le propriétaire est discrètement visible dans le catalogue ; le créateur apparaît dans le détail.
 - Les cartes publiées anonymement vont dans la réserve, tant qu'elles n'ont pas de propriétaire. Les créations connectées appartiennent initialement à leur créateur.
 - Un compte peut ouvrir un pack depuis son espace personnel seulement s'il existe du stock. **Un pack = une carte**. La première version limite volontairement à **un pack de bienvenue par compte** pour éviter l'épuisement de la petite réserve ; les récompenses de fin de course sont un développement ultérieur.
-- Seul l'administrateur crée un lien de don (sept jours, un usage). Le destinataire doit être connecté. Aucun don direct ni vente par les membres.
+- Le propriétaire actuel (ou l'administrateur) peut créer un lien de don valable sept jours et à usage unique. Le destinataire doit se connecter/créer un compte puis accepter explicitement pour acquérir la carte. Aucun transfert automatique à l'envoi du lien, aucune vente/échange marchand.
 - Conserver l'historique des propriétaires, et protéger une séance publiée contre la suppression individuelle par son créateur.
 
 ## Implémentation livrée
@@ -20,7 +20,8 @@
 | Publication idempotente, alias et backfill progressif | `worker/cards.js` |
 | Route publique et métadonnées propriétaire/créateur | `worker/index.js` |
 | Pack atomique, collection et acceptation de don | `worker/pack.js` + `worker/account.js` |
-| Génération du lien et réconciliation admin | `worker/admin.js`, `admin.html` |
+| Génération de liens par propriétaire ou admin | `worker/pack.js`, `worker/account.js`, `worker/admin.js` |
+| Invitation cadeau, aperçu privé et liens natifs | `cadeau.html`, `compte.html` |
 | Catalogue avec propriétaire discret | `partages.html` |
 | Collection, pack et réception dans le profil | `compte.html` |
 | Schéma additif et triggers d'historique et de pack | `migrations/0004_workout_cards.sql` |
@@ -70,5 +71,8 @@ La comparaison multi-plateforme est **volontairement limitée aux mêmes libell�
 ## Risques et travail restant
 - Le compteur d'imports actuel est appelé après sauvegarde locale, mais le endpoint public `/import` reste falsifiable malgré sa limitation IP/jour. **Il n'est pas encore une mesure robuste des imports réels**. Prévoir une attestation et une déduplication par compte/appareil côté serveur avant de donner une valeur financière à la popularité.
 - L'identité des morceaux sans artiste et les variantes textuelles des plateformes sont volontairement remises à plus tard.
-- Les packs ne sont pas encore liés à l'événement de fin de course. Le pack de bienvenue (une ouverture par compte) permet de valider l'expérience web sans nouvelle OTA.
+- Les packs ne sont pas encore liés à l'événement de fin de course. Le pack de bienvenue reste limité à une ouverture par compte, sans monnaie ni achats.
+- Le lien cadeau ouvre `cadeau.html#gift=<token>` (secret uniquement dans le fragment URL) puis `beatonstep://card-gift?code=...`. Après acceptation, `beatonstep://shared?id=<publicId>&auto=1` ouvre la séance et l'importe de façon idempotente dans Mes séances si absente. Les identifiants publics canoniques restent intacts.
+- La D1 ne stocke que le SHA-256 du code de cadeau, applique expiration + vérification du détenteur actuel, conserve un historique des propriétaires, et marque les cartes attribuées comme non éligibles au stock des packs.
+- Statut : code commité, réception OTA réelle et déploiement Cloudflare **à confirmer** séparément. Test E2E deux comptes nécessaire (cadeau valable, expiré, déjà consommé, import absent/existant).
 - Le backfill doit être testé sur une copie D1 avant production ; seuls des contrôles de syntaxe et tests unitaires/mocks ont été effectués ici, **pas un test bout en bout sur la D1 réelle**.
