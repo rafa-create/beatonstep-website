@@ -259,8 +259,8 @@ test('gift capacity allows issuing another invitation by retiring one unused cod
 test('private challenge achievements survive ownership loss and show no GPS or other identities',async()=>{
   const db={prepare(sql){
     if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
-    assert.match(sql,/workout_challenge_validations v/);
-    assert.match(sql,/workout_challenge_attempts a/);
+    assert.match(sql,/workout_distance_validations_v2 v/);
+    assert.match(sql,/workout_distance_attempts_v2 a/);
     assert.match(sql,/json_extract\(s\.payload_json/);
     return {bind:(a,b)=>{
       assert.equal(a,'runner-me');assert.equal(b,'runner-me');
