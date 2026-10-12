@@ -49,6 +49,10 @@ function setup(search,data=example){
     'kind-label','kind-filter','sort-label','sort-filter','source-label','source-filter',
     'footer-privacy','footer-privacy-label','community-link'])
     elements[name]=new Node(name);
+  // Mirror the actual accessible profile label inside #community-link.
+  const communityLabel=new Node('span');
+  communityLabel.className='community-label';
+  elements['community-link'].append(communityLabel);
   elements['sort-filter'].value='recent';
   const options={};
   for(const [id,values] of [
@@ -91,6 +95,7 @@ function setup(search,data=example){
   assert.equal(detail.elements.title.textContent,'Partage BeatOnStep');
   assert.equal(detail.elements.intro.hidden,true);
   assert.equal(detail.elements['footer-privacy-label'].textContent,'Confidentialité');
+  assert.equal(detail.elements['community-link'].querySelector('.community-label').textContent,'Profil');
   assert.equal(detail.elements.detail.hidden,false);
   const card=detail.elements.detail.children[0];
   const roots=walk(card,x=>x.tagName==='details');
@@ -182,6 +187,8 @@ function setup(search,data=example){
   assert.equal(detail.elements.back.textContent,'← Catalog');
   assert.equal(detail.elements.title.textContent,'BeatOnStep share');
   assert.equal(detail.elements['footer-privacy-label'].textContent,'Privacy');
+  assert.equal(detail.elements['community-link'].querySelector('.community-label').textContent,'Profile');
+  assert.equal(detail.elements['community-link'].attributes['aria-label'],'Profile');
   assert.equal(detail.apiCalls.filter(url=>url.endsWith('/view')).length,1,
     'changing language must not increment views');
 
