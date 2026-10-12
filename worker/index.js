@@ -3,6 +3,7 @@ import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } fro
 import { sharePageResponse } from './share-preview.js';
 import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishUniqueWorkout } from './cards.js';
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
+import { challengeRule } from './distance-challenge.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -26,9 +27,26 @@ const clean = (value, n = 80) => typeof value === 'string'
   ? [...value.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()].slice(0, n).join('') : '';
 const positive = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
 
-function validate(kind, payload) {
+export function validate(kind, payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
       new TextEncoder().encode(JSON.stringify(payload)).length > 512 * 1024) return null;
+  if (kind === 'workout' && payload.v === 2) {
+    const rule=challengeRule(payload);
+    // A public canonical card never stores anybody's personal playlist,
+    // GPS samples, account identity or other arbitrary client data.
+    if (!rule || Object.keys(payload).length !== 4 ||
+        Object.keys(payload).some(key=>!['v','goalMode','targetMeters','deadlineSec'].includes(key))) return null;
+    const minutes=Math.floor(rule.deadlineSec/60);
+    const seconds=String(rule.deadlineSec%60).padStart(2,'0');
+    return {
+      name:(rule.targetMeters/1000)+' km · '+minutes+':'+seconds,
+      source:'mixed',durationSec:rule.deadlineSec,bpm:null,
+      tracks:0,phases:1,profile:null,
+      canonicalPayload:{
+        v:2,goalMode:'distance',targetMeters:rule.targetMeters,deadlineSec:rule.deadlineSec,
+      },
+    };
+  }
   if (kind === 'runmix') {
     if (payload.v !== 1 || !/^[a-f0-9]{16,64}$/i.test(payload.i || '') ||
         !['spotify', 'deezer', 'youtube', 'apple'].includes(payload.s) ||
@@ -141,8 +159,17 @@ async function d1Request(request, env, url) {
     }
     let input;
     try { input = JSON.parse(raw); } catch { return json({ error: 'invalid_share' }, 400); }
+    const isDistanceV2=input?.kind==='workout' && input?.payload?.v===2;
+    if (isDistanceV2 && (!cardsEnabled(env) || env.DISTANCE_CHALLENGES_ENABLED!=='true')) {
+      return json({error:'distance_challenges_not_ready'},503);
+    }
     const meta = validate(input?.kind, input?.payload);
     if (!meta) return json({ error: 'invalid_share' }, 400);
+    // Canonical challenge publication requires a valid device account.
+    // Creating a card never grants the achievement or ownership.
+    if (isDistanceV2 && !request.headers.has('authorization')) {
+      return json({error:'login_required'},401);
+    }
     if (!env.CATALOG_RATE_SALT) return json({ error: 'catalog_write_not_configured' }, 503);
     if (!(await rateLimit(request, env, 'publish', 86400000, 20))) {
       return json({ error: 'retry_later' }, 429);
@@ -157,7 +184,7 @@ async function d1Request(request, env, url) {
     }
     if (input.kind === 'workout' && cardsEnabled(env)) {
       await requireCardSchema(db);
-      const unique = await publishUniqueWorkout(db,input.payload,meta,author);
+      const unique = await publishUniqueWorkout(db,meta.canonicalPayload??input.payload,meta,author);
       if (unique) {
         const publicId=unique.id+D1_ID_OFFSET;
         return json({id:publicId,created:unique.created,
