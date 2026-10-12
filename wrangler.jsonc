@@ -12,7 +12,8 @@
     ]
   },
   "vars": {
-    "CATALOG_BACKEND": "d1"
+    "CATALOG_BACKEND": "d1",
+    "COMMUNITY_SIGNUPS_ENABLED": "true"
   },
   "observability": {
     "enabled": true
