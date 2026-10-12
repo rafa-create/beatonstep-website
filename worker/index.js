@@ -1,6 +1,7 @@
 import { adminRequest } from './admin.js';
 import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } from './account.js';
 import { sharePageResponse } from './share-preview.js';
+import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishUniqueWorkout } from './cards.js';
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
@@ -103,6 +104,7 @@ async function d1Request(request, env, url) {
     const rawPage = Number(url.searchParams.get('page'));
     const page = Number.isSafeInteger(rawPage) ? Math.max(1, Math.min(rawPage, 10000)) : 1;
     const predicates = [], args = [];
+    if (cardsEnabled(env)) predicates.push('NOT EXISTS(SELECT 1 FROM workout_card_aliases a WHERE a.alias_share_id=shared_items.id)');
     if (kind !== 'all') { predicates.push('kind = ?'); args.push(kind); }
     if (source !== 'all') { predicates.push('source = ?'); args.push(source); }
     const where = predicates.length ? ' WHERE ' + predicates.join(' AND ') : '';
@@ -122,6 +124,13 @@ async function d1Request(request, env, url) {
         if (name) item.author = name;
       }
     } catch { /* Old public catalogue must stay available until D1 migration. */ }
+    if (cardsEnabled(env)) {
+      const people=await cardPeople(db,(result.results||[]).map(x=>x.id));
+      for (const item of items) {
+        const info=people.get(item.id-D1_ID_OFFSET);
+        if (info) { item.owner=info.owner; item.creator=info.creator; }
+      }
+    }
     return json({ total: count?.total ?? 0, page, pageSize: 20,
       items }, 200, { 'cache-control': 'public, max-age=30' });
   }
@@ -145,6 +154,15 @@ async function d1Request(request, env, url) {
       await ensureCommunitySchema(db);
       author = await devicePublisher(db, request);
       if (!author) return json({ error: 'account_session_expired' }, 401);
+    }
+    if (input.kind === 'workout' && cardsEnabled(env)) {
+      await requireCardSchema(db);
+      const unique = await publishUniqueWorkout(db,input.payload,meta,author);
+      if (unique) {
+        const publicId=unique.id+D1_ID_OFFSET;
+        return json({id:publicId,created:unique.created,
+          url:'https://beatonstep.app/partages.html?id='+publicId}, unique.created?201:200);
+      }
     }
     const createdAt = Date.now();
     const insert = db.prepare(
@@ -176,7 +194,8 @@ async function d1Request(request, env, url) {
   if (!Number.isSafeInteger(publicId) || publicId <= D1_ID_OFFSET) {
     return json({ error: 'expired_share' }, 404);
   }
-  const id = publicId - D1_ID_OFFSET;
+  const incomingId = publicId - D1_ID_OFFSET;
+  const id = cardsEnabled(env) ? await canonicalShareId(db,incomingId) : incomingId;
   const action = match[2];
   if (!action && request.method === 'GET') {
     const row = await db.prepare('SELECT * FROM shared_items WHERE id = ?').bind(id).first();
@@ -186,6 +205,23 @@ async function d1Request(request, env, url) {
       const author = (await authorFor(db, [row.id])).get(row.id);
       if (author) item.author = author;
     } catch { /* Pre-migration catalogue remains public. */ }
+    if (cardsEnabled(env)) {
+      const people=await cardPeople(db,[id]);
+      const info=people.get(id);
+      if (info) {
+        item.owner=info.owner; item.creator=info.creator;
+        const history=await db.prepare(`SELECT h.reason,h.changed_at,
+          previous.handle AS previousOwner,next.handle AS newOwner
+          FROM workout_card_history h
+          LEFT JOIN community_users previous ON previous.id=h.previous_owner_id
+          LEFT JOIN community_users next ON next.id=h.new_owner_id
+          WHERE h.share_id=? ORDER BY h.id DESC LIMIT 30`).bind(id).all();
+        item.ownershipHistory=(history.results||[]).map(h=>({
+          reason:h.reason,changedAt:h.changed_at,
+          previousOwner:h.previousOwner||null,newOwner:h.newOwner||null,
+        }));
+      }
+    }
     return json(item, 200, { 'cache-control': 'public, max-age=30' });
   }
   if (action && request.method === 'POST') {
