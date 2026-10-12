@@ -105,15 +105,14 @@
       <li>Si vous envoyez un fichier audio pour <strong>analyse BPM</strong>, ce fichier transite par le serveur pour traitement ; il n&#x27;est pas conservé à des fins de stockage permanent ni revendu.</li>
       </ul>
       <h3>3.4 YouTube (optionnel)</h3>
-      <p>Si vous connectez un compte Google pour utiliser YouTube dans BeatOnStep :</p>
+      <p>La connexion à Google/YouTube est facultative et distincte du compte facultatif du catalogue BeatOnStep. Sans connexion Google, BeatOnStep n'accède pas aux données de votre compte YouTube.</p>
       <ul>
-      <li>Fonction <strong>initiée par vous</strong> ; BeatOnStep <strong>ne fournit pas</strong> de catalogue YouTube.</li>
-      <li>Connexion Google sécurisée ; l&#x27;éditeur ne reçoit <strong>pas</strong> votre mot de passe Google.</li>
-      <li>Les <strong>jetons d&#x27;accès</strong> sont stockés <strong>localement</strong> sur l&#x27;appareil et ne sont <strong>jamais transmis</strong> à l&#x27;éditeur ni revendus.</li>
-      <li>L&#x27;app interroge les <strong>API Google / YouTube</strong> pour afficher <strong>vos</strong> playlists et métadonnées.</li>
-      <li>La <strong>lecture</strong> s&#x27;effectue dans l&#x27;app <strong>YouTube</strong> ou <strong>YouTube Music</strong> (au choix dans Réglages) — pas dans BeatOnStep.</li>
-      <li>Vous pouvez <strong>déconnecter</strong> YouTube dans l&#x27;app à tout moment : les jetons locaux sont effacés.</li>
-      <li>Le traitement de votre compte Google reste régi par les politiques de <strong>Google</strong>.</li>
+      <li><strong>Données consultées et finalité :</strong> avec votre consentement OAuth, BeatOnStep lit votre chaîne YouTube, vos playlists personnelles (y compris privées si l'API les expose), les morceaux et leurs métadonnées disponibles (identifiants, titres, artistes, durées et vignettes). Elles servent à afficher et importer votre bibliothèque, calculer ou modifier localement les BPM, préparer une séance et ouvrir la musique dans YouTube ou YouTube Music. Aucun fichier audio YouTube n'est téléchargé.</li>
+      <li><strong>Autorisations :</strong> <code>youtube.readonly</code> sert à la lecture et à l'import ; <code>userinfo.email</code> sert uniquement à afficher l'adresse du compte connecté. Une autorisation d'écriture YouTube distincte n'est demandée que si vous choisissez « Autoriser la création de playlists » pour exporter manuellement une séance vers une nouvelle playlist privée. Aucune modification de votre compte YouTube n'est effectuée automatiquement pendant une course.</li>
+      <li><strong>Mesures de protection :</strong> connexion OAuth avec PKCE, échanges HTTPS avec les API Google, aucun mot de passe Google demandé ou conservé. Les jetons d'accès et de renouvellement restent dans le stockage privé de l'application sur l'appareil (AsyncStorage, sans prétendre à un coffre-fort matériel dédié). Les requêtes Google normales partent directement de l'app ; les jetons ne sont pas envoyés au serveur BeatOnStep pour l'import ou la lecture.</li>
+      <li><strong>Partage limité :</strong> noms et identifiants de playlists et BPM importés ne sont ni publiés dans le catalogue, ni vendus, ni utilisés pour la publicité. Seul un compteur pseudonyme de playlists importées, sans identifiants Google ni détails de titres, peut parvenir au serveur (§ 3.9). Un rapport technique envoyé volontairement peut contenir des identifiants de morceaux, jamais de jetons OAuth (§ 3.11).</li>
+      <li><strong>Conservation :</strong> les jetons restent sur l'appareil tant que YouTube est connecté et sont effacés à la déconnexion. Les métadonnées et BPM déjà importés restent dans la bibliothèque locale jusqu'à leur suppression par l'utilisateur ou la désinstallation ; déconnecter YouTube ne les supprime pas automatiquement. Aucune copie permanente de la bibliothèque Google n'est conservée sur le serveur BeatOnStep.</li>
+      <li><strong>Suppression et retrait du consentement :</strong> vous pouvez déconnecter YouTube dans l'app, supprimer les imports locaux et révoquer l'autorisation sur <a href="https://myaccount.google.com/connections">votre compte Google</a>. Révoquer l'accès n'efface pas à lui seul les imports déjà présents sur le téléphone. Les données détenues par Google restent soumises à ses propres règles.</li>
       </ul>
       <h3>3.5 Apple Music (optionnel)</h3>
       <p>Si vous connectez un compte Apple pour utiliser Apple Music dans BeatOnStep :</p>
@@ -200,7 +199,7 @@
       <ul>
       <li>Bibliothèque importée (chemins, BPM, sources activées).</li>
       <li>Préférences (mode, plages cibles, réglages, langue).</li>
-      <li>Jetons de connexion YouTube et Apple Music (si connectés).</li>
+      <li>Jetons d'accès et de renouvellement YouTube (si connecté, voir § 3.4) et jetons de connexion Apple Music (si connecté).</li>
       <li>Titres ou playlists publiques Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — <strong>pas</strong> de jeton de compte Spotify.</li>
       <li>Titres ou playlists publiques Deezer dont vous avez collé le lien (identifiant, métadonnées, BPM saisi, détecté ou fourni par Deezer) — <strong>pas</strong> de jeton de compte Deezer.</li>
       <li>Identifiant d&#x27;installation aléatoire BeatOnStep et dernier état d&#x27;envoi de la mesure de playlists (§ 3.9).</li>
@@ -211,7 +210,7 @@
       <table>
       <thead><tr><th>Service</th><th>Quand</th><th>Ce qui transite</th></tr></thead>
       <tbody>
-      <tr><td><strong>Google / YouTube</strong></td><td>Si vous connectez YouTube</td><td>Connexion Google ; requêtes API playlists / métadonnées</td></tr>
+      <tr><td><strong>Google / YouTube</strong></td><td>Connexion ou export expressément autorisé</td><td>OAuth ; playlists / métadonnées par API ; création facultative d'une playlist privée à votre demande (§ 3.4)</td></tr>
       <tr><td><strong>Apple / Apple Music</strong></td><td>Si vous connectez Apple Music</td><td>Connexion Apple ; métadonnées playlists</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>Distribution iOS</td><td>Gestion par Apple selon ses propres règles</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatique</td><td>Vérification / téléchargement de mises à jour OTA</td></tr>
@@ -228,7 +227,7 @@
       <p>La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant à l&#x27;éditeur de rattacher spontanément un snapshot à votre identité. Pour toute question relative à cette mesure ou à vos droits, utilisez le forum BeatOnStep indiqué ci-dessous.</p>
       <ul>
       <li><strong>Données locales</strong> (bibliothèque, réglages, jetons) : vous les contrôlez directement dans l&#x27;app ou via la désinstallation.</li>
-      <li><strong>Compte Google / YouTube</strong> : exercez vos droits auprès de Google selon leurs procédures.</li>
+      <li><strong>Compte Google / YouTube</strong> : déconnectez YouTube pour effacer les jetons, supprimez séparément les imports locaux ou désinstallez l'app, et révoquez l'accès dans <a href="https://myaccount.google.com/connections">votre compte Google</a> (voir § 3.4).</li>
       <li><strong>Compte Apple / Apple Music</strong> : exercez vos droits auprès d&#x27;Apple selon leurs procédures.</li>
       <li><strong>Spotify</strong> : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l&#x27;appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.</li>
       <li><strong>Deezer</strong> : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l&#x27;appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.</li>
@@ -287,15 +286,14 @@
       <li>If you send an audio file for <strong>BPM analysis</strong>, it transits through the server for processing; it is not retained permanently or resold.</li>
       </ul>
       <h3>3.4 YouTube (optional)</h3>
-      <p>If you connect a Google account to use YouTube in BeatOnStep:</p>
+      <p>Connecting Google/YouTube is optional and separate from an optional BeatOnStep catalogue account. Without Google sign-in, BeatOnStep does not access your YouTube account data.</p>
       <ul>
-      <li>Feature <strong>initiated by you</strong>; BeatOnStep <strong>does not provide</strong> a YouTube catalogue.</li>
-      <li>Secure Google sign-in; the publisher does <strong>not</strong> receive your Google password.</li>
-      <li><strong>Access tokens</strong> are stored <strong>locally</strong> on the device and are <strong>never transmitted</strong> to the publisher or resold.</li>
-      <li>The app queries <strong>Google / YouTube APIs</strong> to display <strong>your</strong> playlists and metadata.</li>
-      <li><strong>Playback</strong> happens in the <strong>YouTube</strong> or <strong>YouTube Music</strong> app (your choice in Settings) — not inside BeatOnStep.</li>
-      <li>You can <strong>disconnect</strong> YouTube in the app at any time: local tokens are deleted.</li>
-      <li>Your Google account remains governed by <strong>Google&#x27;s</strong> policies.</li>
+      <li><strong>Data accessed and purpose:</strong> with your OAuth consent, BeatOnStep reads your YouTube channel, personal playlists (including private ones when available from the API), their tracks and available metadata (IDs, titles, artists, durations, thumbnails). This supports library display/import, local BPM calculation and editing, workout preparation, and opening a track in YouTube or YouTube Music. No YouTube audio file is downloaded.</li>
+      <li><strong>Permissions:</strong> <code>youtube.readonly</code> is used to read/import playlists; <code>userinfo.email</code> only displays the connected Google account address. A separate YouTube write permission is requested only when you choose “Allow creating playlists” to manually export a workout as a new private playlist. No automatic changes are made to your YouTube account during a workout.</li>
+      <li><strong>Data protection:</strong> OAuth with PKCE, HTTPS requests to Google's APIs, no Google password requested or stored. Access and refresh tokens remain in the app's private on-device storage (AsyncStorage, not represented as a dedicated hardware security vault). Normal Google requests go directly from the app to Google; tokens are not sent to the BeatOnStep server for import or playback.</li>
+      <li><strong>Limited sharing:</strong> imported playlist names, IDs and BPM values are not published to the catalogue, sold or used for advertising. Only a pseudonymous count of imported playlists, without Google IDs or track details, may reach the server (§ 3.9). An explicitly sent support report may contain track IDs but never OAuth tokens (§ 3.11).</li>
+      <li><strong>Retention:</strong> tokens remain on the device while YouTube is connected and are deleted on disconnect. Previously imported metadata and BPM remain in the local library until you delete them or uninstall the app; disconnecting does not delete them automatically. No permanent server-side copy of the Google music library is retained by BeatOnStep.</li>
+      <li><strong>Deletion and withdrawal:</strong> you can disconnect YouTube, delete local imports and revoke access from <a href="https://myaccount.google.com/connections">your Google Account</a>. Revocation alone does not erase data already imported onto the phone. Google's policies apply to information held by Google.</li>
       </ul>
       <h3>3.5 Apple Music (optional)</h3>
       <p>If you connect an Apple account to use Apple Music in BeatOnStep:</p>
@@ -382,7 +380,7 @@
       <ul>
       <li>Imported library (paths, BPM, enabled sources).</li>
       <li>Preferences (mode, target ranges, settings, language).</li>
-      <li>YouTube and Apple Music connection tokens (if connected).</li>
+      <li>YouTube access and refresh tokens (when connected; see § 3.4) and Apple Music connection tokens (if connected).</li>
       <li>Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — <strong>no</strong> Spotify account token.</li>
       <li>Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — <strong>no</strong> Deezer account token.</li>
       <li>Random BeatOnStep installation identifier and the last local state used for playlist-count measurement (§ 3.9).</li>
@@ -393,7 +391,7 @@
       <table>
       <thead><tr><th>Service</th><th>When</th><th>What transits</th></tr></thead>
       <tbody>
-      <tr><td><strong>Google / YouTube</strong></td><td>If you connect YouTube</td><td>Google sign-in; playlist / metadata API requests</td></tr>
+      <tr><td><strong>Google / YouTube</strong></td><td>Sign-in or explicitly authorized export</td><td>OAuth; playlist / metadata API calls; optional creation of a private playlist on request (§ 3.4)</td></tr>
       <tr><td><strong>Apple / Apple Music</strong></td><td>If you connect Apple Music</td><td>Apple sign-in; playlist metadata</td></tr>
       <tr><td><strong>Apple (App Store)</strong></td><td>iOS distribution</td><td>Managed by Apple under their own terms</td></tr>
       <tr><td><strong>Expo</strong></td><td>Automatic</td><td>OTA update verification / download</td></tr>
@@ -410,7 +408,7 @@
       <p>The server-side measurement contains no name, email address, or BeatOnStep account that would allow the publisher to directly associate a snapshot with your identity. For questions about this measurement or your privacy rights, use the BeatOnStep forum listed below.</p>
       <ul>
       <li><strong>Local data</strong> (library, settings, tokens): you control it directly in the app or by uninstalling.</li>
-      <li><strong>Google / YouTube account</strong>: exercise your rights with Google under their procedures.</li>
+      <li><strong>Google / YouTube account</strong>: disconnect YouTube to delete tokens, separately delete local imports or uninstall, and revoke access through <a href="https://myaccount.google.com/connections">your Google Account</a> (see § 3.4).</li>
       <li><strong>Apple / Apple Music account</strong>: exercise your rights with Apple under their procedures.</li>
       <li><strong>Spotify</strong>: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.</li>
       <li><strong>Deezer</strong>: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.</li>
