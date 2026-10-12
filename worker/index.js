@@ -60,7 +60,7 @@ function publicRow(row) {
   // Older playlists already contain per-track BPMs in their payload_json.
   // Reconstruct their graph at read time: no migration and no rewritten shares.
   const profile = storedProfile || (row.kind === 'runmix'
-    ? legacyRunMixBpmProfile(row.payload_json) : null);
+    ? legacyRunMixBpmProfile(row.legacy_runmix_json ?? row.payload_json) : null);
   return {
     id: row.id + D1_ID_OFFSET, kind: row.kind, source: row.source, name: row.name,
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
@@ -110,7 +110,8 @@ async function d1Request(request, env, url) {
       .bind(...args).first();
     const order = sort === 'popular' ? 'imports DESC, id DESC' : 'id DESC';
     const result = await db.prepare(
-      'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports,payload_json ' +
+      'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports, ' +
+      "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json " +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
