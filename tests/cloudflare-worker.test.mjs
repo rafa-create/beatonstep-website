@@ -146,11 +146,17 @@ test('D1 publishes separate numeric IDs and old VM IDs never resolve to new card
   assert.equal((await legacy.json()).error, 'expired_share');
   const list = await worker.fetch(new Request('https://beatonstep.app/api/shared'), env);
   assert.equal(list.status, 200);
-  assert.equal((await list.json()).items[0].id, publicId);
+  const listData = await list.json();
+  assert.equal(listData.items[0].id, publicId);
+  assert.equal('profile' in listData.items[0], false,
+    'Run Mix without per-track BPM must not invent a profile');
   const detail = await worker.fetch(new Request(
     'https://beatonstep.app/api/shared/' + publicId), env);
   assert.equal(detail.status, 200);
-  assert.equal((await detail.json()).id, publicId);
+  const detailData = await detail.json();
+  assert.equal(detailData.id, publicId);
+  assert.equal('profile' in detailData, false,
+    'legacy playlist with unknown BPM stays uncharted');
   const view = await worker.fetch(new Request(
     'https://beatonstep.app/api/shared/' + publicId + '/view', {
       method: 'POST', headers: { 'cf-connecting-ip': '192.0.2.4' },
