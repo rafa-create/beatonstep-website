@@ -200,7 +200,7 @@ export async function accountRequest(request,env,url) {
           .bind(await hash(code),user.id,b.challenge,Date.now()+LINK_MS).run();
         return reply({code,state:b.state});
       }
-      const deleteCard=/^\\/api\\/account\\/shared\\/([1-9][0-9]{0,14})$/.exec(path);
+      const deleteCard=new RegExp('^/api/account/shared/([1-9][0-9]{0,14})$').exec(path);
       if (deleteCard && method==='DELETE') {
         const publicId=Number(deleteCard[1]);
         if (!Number.isSafeInteger(publicId)||publicId<=1000000000000) {
