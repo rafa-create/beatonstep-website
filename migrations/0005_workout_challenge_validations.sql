@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS workout_challenge_attempts (
   goal_distance_m INTEGER NOT NULL CHECK(goal_distance_m>0),
   measured_distance_m INTEGER NOT NULL CHECK(measured_distance_m>=0),
   playlist_duration_sec INTEGER NOT NULL CHECK(playlist_duration_sec>0),
-  elapsed_music_sec INTEGER NOT NULL CHECK(elapsed_music_sec>=0)
+  elapsed_music_sec INTEGER NOT NULL CHECK(elapsed_music_sec>=0),
+  CHECK(result <> 'won' OR (measured_distance_m>=goal_distance_m AND elapsed_music_sec<=playlist_duration_sec))
 );
 CREATE INDEX IF NOT EXISTS workout_challenge_attempts_by_runner
   ON workout_challenge_attempts(user_id,completed_at DESC);
@@ -48,7 +49,7 @@ CREATE INDEX IF NOT EXISTS workout_challenge_attempts_by_card
 CREATE TABLE IF NOT EXISTS workout_challenge_validations (
   user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
   share_id INTEGER NOT NULL REFERENCES workout_cards(share_id) ON DELETE CASCADE,
-  first_attempt_id TEXT NOT NULL REFERENCES workout_challenge_attempts(attempt_id),
+  first_attempt_id TEXT NOT NULL UNIQUE REFERENCES workout_challenge_attempts(attempt_id),
   first_validated_at INTEGER NOT NULL CHECK(first_validated_at>0),
   PRIMARY KEY (user_id,share_id)
 );
