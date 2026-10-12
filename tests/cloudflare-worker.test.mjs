@@ -165,3 +165,43 @@ test('D1 publishes separate numeric IDs and old VM IDs never resolve to new card
   assert.equal((await view.json()).counted, true);
   assert.deepEqual(boundIds, [7, 7, 7]);
 });
+
+
+test('old Run Mix shares show real BPM graphs on catalog and detail without a D1 migration', async () => {
+  const row = {
+    id: 4, kind: 'runmix', source: 'spotify', name: 'Old Run Mix',
+    duration_sec: 620, bpm: 140, tracks: 3, phases: 0,
+    profile_json: null,
+    payload_json: JSON.stringify({ v: 1, i: 'a'.repeat(32), s: 'spotify',
+      n: 'Old Run Mix', t: [
+        ['a','Song 1','A','Album',120,180],
+        ['b','Song 2','A','Album',null,240],
+        ['c','Song 3','A','Album',160,200],
+      ] }),
+    created_at: 100, views: 0, imports: 0,
+  };
+  const db = {
+    prepare(sql) {
+      return {
+        bind() {
+          if (sql.startsWith('SELECT COUNT(*)')) return {first: async () => ({total:1})};
+          if (sql.startsWith('SELECT id,kind,source,name')) {
+            assert.match(sql,/payload_json/, 'legacy list must have old track metadata');
+            return {all: async () => ({results:[row]})};
+          }
+          if (sql.startsWith('SELECT * FROM shared_items')) return {first:async()=>row};
+          throw Error('Unexpected SQL '+sql);
+        },
+      };
+    },
+  };
+  const env={DB:db,CATALOG_BACKEND:'d1',ASSETS:{fetch:()=>new Response('STATIC')}};
+  const list=await worker.fetch(new Request('https://beatonstep.app/api/shared?kind=runmix'),env);
+  assert.equal(list.status,200);
+  const item=(await list.json()).items[0];
+  assert.deepEqual(item.profile,[[180,120],[240,null],[200,160]]);
+  assert.equal('payload' in item,false,'catalog cards remain compact public responses');
+  const detail=await worker.fetch(new Request('https://beatonstep.app/api/shared/1000000000004'),env);
+  assert.equal(detail.status,200);
+  assert.deepEqual((await detail.json()).profile,item.profile);
+});
