@@ -164,6 +164,27 @@ lecture de `d1_migrations` et de `sqlite_master`, Preview isolée,
 endpoint transactionnel et tests physiques GPS validés, puis accord
 explicite pour le changement de production. Ne pas relancer 0005.
 
+## Publication canonique v2 préparée sur la branche
+
+Le Worker accepte structurellement le règlement versionné exact
+`{v:2,goalMode:'distance',targetMeters,deadlineSec}` uniquement.
+Il refuse les champs supplémentaires comme playlist privée, morceaux,
+coordonnées GPS ou jetons. Le nom affiché est généré par le serveur.
+Le hash global de la carte dépend uniquement de la distance et du temps limite.
+Deux personnes publiant le même règlement obtiennent le même identifiant.
+
+Le compte ayant publié **ne gagne aucune carte** : le nouveau
+`workout_cards.owner_user_id` est NULL, avec `pack_eligible=0`
+jusqu'à une victoire future officiellement acceptée. Les séances
+Temps v1 gardent leur mécanisme de création/propriété historique.
+
+**`DISTANCE_CHALLENGES_ENABLED=false` dans la configuration production
+et Preview.** Publier du v2, ainsi que consulter les réussites v2,
+reste indisponible tant que la migration 0006 n'a pas été éprouvée sur
+D1 isolée, que le transfert transactionnel et l'anti-rejeu ne sont
+pas livrés et que les essais GPS réels ne sont pas concluants.
+Ne pas activer le drapeau uniquement parce que les tests SQLite passent.
+
 ## Tests et ordre de livraison
 
 1. Tests identité v1 conservée / identité v2 distincte ;
