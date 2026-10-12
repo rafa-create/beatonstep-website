@@ -46,15 +46,14 @@ The demo catalogue (278 royalty-free tracks) is hosted on a publisher server (`h
 
 ### 3.4 YouTube (optional)
 
-If you connect a Google account to use YouTube in BeatOnStep:
+Connecting Google/YouTube is optional and separate from an optional BeatOnStep catalogue account. Without Google sign-in, BeatOnStep does not access your YouTube account data.
 
-- Feature **initiated by you**; BeatOnStep **does not provide** a YouTube catalogue.
-- Secure Google sign-in; the publisher does **not** receive your Google password.
-- **Access tokens** are stored **locally** on the device and are **never transmitted** to the publisher or resold.
-- The app queries **Google / YouTube APIs** to display **your** playlists and metadata.
-- **Playback** happens in the **YouTube** or **YouTube Music** app (your choice in Settings) — not inside BeatOnStep.
-- You can **disconnect** YouTube in the app at any time: local tokens are deleted.
-- Your Google account remains governed by **Google's** policies.
+- **Data accessed and purpose:** with your OAuth consent, BeatOnStep reads your YouTube channel, personal playlists (including private ones when the API makes them available), their tracks and available metadata (IDs, titles, artists, durations, thumbnails). It uses them to display and import your music library, calculate or edit BPM values locally, prepare a workout, and open music in YouTube or YouTube Music. BeatOnStep does not download YouTube audio files.
+- **Permissions:** `youtube.readonly` is used to read and import playlists. `userinfo.email` is used only to display the connected Google account address. If you expressly choose “Allow creating playlists” in the library, a separate YouTube write permission may be requested to manually export a workout to a new private playlist. BeatOnStep does not automatically add to or alter playlists in your YouTube account during workouts.
+- **Data protection:** Google OAuth uses PKCE, and requests to Google's APIs use HTTPS. BeatOnStep neither requests nor stores your Google password. Access and refresh tokens are stored in the app's private on-device storage (AsyncStorage application storage, not represented as a dedicated hardware security vault). Normal Google API requests go directly from the app to Google; tokens are not sent to the BeatOnStep server for importing or playback.
+- **Limited sharing:** imported playlist names, identifiers, and BPM values are not published to the BeatOnStep catalogue, sold, or used for advertising. The server may receive only a pseudonymous count of imported playlists, without Google account identifiers or track details (§ 3.9). A voluntary technical support report may contain track identifiers but never OAuth tokens (§ 3.11).
+- **Retention:** tokens remain locally stored while YouTube stays connected (and may be refreshed as needed), and are deleted when you disconnect; uninstalling removes the app's local data. Previously imported track metadata and BPM values remain in your local library until you delete them in the app or uninstall; disconnecting does not automatically delete previously imported tracks. BeatOnStep does not retain a permanent server-side copy of your Google music library.
+- **Deletion and withdrawal:** you can disconnect YouTube in BeatOnStep, delete imported playlists/tracks from your library, and revoke BeatOnStep's access from [your Google Account](https://myaccount.google.com/connections). Revocation stops future access but does not itself erase locally imported data. Google's own policies and controls apply to information Google holds in your YouTube account.
 
 ### 3.5 Apple Music (optional)
 
@@ -168,7 +167,7 @@ On your device, in the app's private storage:
 
 - Imported library (paths, BPM, enabled sources).
 - Preferences (mode, target ranges, settings, language).
-- YouTube and Apple Music connection tokens (if connected).
+- YouTube access and refresh tokens (when connected; see § 3.4) and Apple Music connection tokens (if connected).
 - Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
 - Random BeatOnStep installation identifier and local state of the playlist-usage measurement (§ 3.9).
@@ -180,7 +179,7 @@ On your device, in the app's private storage:
 
 | Service | When | What transits |
 |---------|------|---------------|
-| **Google / YouTube** | If you connect YouTube | Google sign-in; playlist / metadata API requests |
+| **Google / YouTube** | If you connect YouTube or explicitly authorize a playlist export | OAuth, direct playlist/metadata API requests; optional creation of a private playlist on your request (§ 3.4) |
 | **Apple / Apple Music** | If you connect Apple Music | Apple sign-in; playlist metadata |
 | **Apple (App Store)** | iOS distribution | Managed by Apple under their own terms |
 | **Expo** | Automatic | OTA update verification / download |
@@ -198,7 +197,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 ## 8. Your rights (GDPR / privacy)
 
 - **Local data** (library, settings, tokens): you control it directly in the app or by uninstalling.
-- **Google / YouTube account**: exercise your rights with Google under their procedures.
+- **Google / YouTube account**: disconnect YouTube to delete local connection tokens, delete imported tracks separately or uninstall, and revoke access in [Google Account](https://myaccount.google.com/connections) (see § 3.4).
 - **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
 - **Spotify**: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.
 - **Deezer**: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.
@@ -208,7 +207,7 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 
 This policy may be updated. The date at the top reflects the latest revision. The current version is available at the address listed on **Google Play** and in the app (*Settings → About*):
 
-**https://rafa-create.github.io/beatonstep-website/privacy.html**
+**https://beatonstep.app/privacy.html**
 
 ## 10. Contact
 
