@@ -2324,6 +2324,46 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   .workouts-hero h1 { font-size: clamp(2.35rem, 10vw, 3.3rem); }
 }
 
+/* Three genuine app screenshots, no image composites. */
+.workouts-page { max-width: 58rem; }
+.workouts-screens {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.2rem);
+  max-width: 56rem;
+  margin: -1.25rem auto 3.5rem;
+  align-items: start;
+}
+.workouts-screens img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(244, 241, 224, 0.14);
+  border-radius: 17px;
+  background: #f6f4ea;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+@media (max-width: 700px) {
+  .workouts-screens {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 1.25rem 0.85rem;
+    margin: 0 -1.25rem 2.5rem;
+  }
+  .workouts-screens::-webkit-scrollbar { display: none; }
+  .workouts-screens img {
+    width: min(68vw, 250px);
+    min-width: min(68vw, 250px);
+    scroll-snap-align: center;
+    border-radius: 14px;
+  }
+}
+
 /* Group the three running experiences without a third dense illustration. */
 .pace-modes .pace-workout-card {
   grid-column: 1 / -1;

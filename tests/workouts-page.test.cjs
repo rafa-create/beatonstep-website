@@ -27,10 +27,19 @@ assert(!css.includes('.first-run'), 'Remove obsolete first-run styling');
 
 assert(page.includes('À chaque séance, <span>sa playlist.</span>'), 'Concise French headline');
 assert(page.includes('A playlist for <span>every workout.</span>'), 'Concise English headline');
-assert(page.includes('importe celles qui te plaisent dans BeatOnStep'), 'Import path explained');
-assert(page.includes('play them with your music source'), 'Music source explained in English');
+assert(page.includes('importe-la dans BeatOnStep'), 'Import path explained');
+assert(page.includes('run with your music'), 'Music source explained in English');
 assert(page.includes('href="partages.html"'), 'Catalogue link retained');
 assert.equal((page.match(/class="workouts-catalogue"/g) || []).length, 2, 'One primary catalogue link per language');
+assert(page.includes('Fractionné, progression ou endurance'), 'Runner-centric French copy');
+assert(page.includes('Intervals, progression or endurance'), 'Runner-centric English copy');
+for (const file of ['seance-choisir.webp', 'seance-en-cours.webp', 'seance-terminee.webp']) {
+  assert(page.includes('assets/workouts/' + file), 'Genuine app screenshot referenced: ' + file);
+  assert(fs.statSync(path.join(base, 'assets/workouts', file)).size > 4000, 'App screenshot asset exists: ' + file);
+}
+assert(page.includes('data-alt-en='), 'Screenshot alternative descriptions are bilingual');
+assert(css.includes('scroll-snap-type: x mandatory'), 'Screenshots scroll horizontally on narrow phones');
+assert(css.includes('.workouts-screens'), 'No screenshot montage, responsive grid');
 assert(!page.includes('workouts-main-visual'), 'No giant promotional images');
 assert(!page.includes('<figure'), 'No promotional artwork');
 assert(!page.includes('workouts-benefits'), 'No repetitive cards');
