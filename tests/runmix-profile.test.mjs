@@ -22,6 +22,14 @@ test('unknown track BPMs are visibly unmeasured, not guessed', () => {
   assert.equal(runMixBpmProfile([song(1000)]),null);
 });
 
+test('downsampled long lists do not hide an unknown song behind a measured group', () => {
+  const tracks=Array.from({length:160},()=>song(140,200));
+  tracks[2]=song(null,200);
+  const profile=runMixBpmProfile(tracks);
+  assert.deepEqual(profile[0],[1000,null]);
+  assert.deepEqual(profile[1],[1000,140]);
+});
+
 test('unusable duration is a visual width fallback, not a fabricated BPM', () => {
   assert.deepEqual(runMixBpmProfile([song(130,null)]),[[180,130]]);
   assert.deepEqual(runMixBpmProfile([song(130,10000)]),[[180,130]]);
