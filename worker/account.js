@@ -200,6 +200,19 @@ export async function accountRequest(request,env,url) {
           .bind(await hash(code),user.id,b.challenge,Date.now()+LINK_MS).run();
         return reply({code,state:b.state});
       }
+      const deleteCard=/^\\/api\\/account\\/shared\\/([1-9][0-9]{0,14})$/.exec(path);
+      if (deleteCard && method==='DELETE') {
+        const publicId=Number(deleteCard[1]);
+        if (!Number.isSafeInteger(publicId)||publicId<=1000000000000) {
+          return reply({error:'not_found'},404);
+        }
+        const rowId=publicId-1000000000000;
+        const deleted=await db.prepare(`DELETE FROM shared_items WHERE id=? AND
+          EXISTS (SELECT 1 FROM signed_shares WHERE share_id=? AND user_id=?)`)
+          .bind(rowId,rowId,user.id).run();
+        return deleted.meta?.changes===1 ? reply({deleted:true})
+          : reply({error:'not_found'},404);
+      }
       if (path==='/api/account/me' && method==='DELETE') {
         const b=await jsonBody(request);
         if (typeof b?.password!=='string') return reply({error:'invalid_credentials'},401);
