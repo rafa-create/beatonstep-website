@@ -4,9 +4,24 @@ export const CARD_ID_OFFSET = 1_000_000_000_000;
 export const cardsEnabled = env => env.CARDS_ENABLED === 'true';
 
 // D1 migration 0004 is deliberately manual. No public request may create tables.
+const CARD_TABLES = ['workout_cards','workout_card_aliases',
+  'workout_card_history','workout_pack_claims','workout_card_gifts'];
+const CARD_TRIGGERS = ['workout_card_history_first','workout_card_history_change',
+  'workout_card_pack_claim','workout_card_alias_imports'];
+
+// Fail closed if D1 migration has only been partially applied. In particular,
+// a missing ownership trigger must NEVER allow packs or reconciliation.
 export async function requireCardSchema(db) {
-  await db.prepare('SELECT share_id FROM workout_cards LIMIT 1').first();
-  await db.prepare('SELECT alias_share_id FROM workout_card_aliases LIMIT 1').first();
+  const rows=await db.prepare(`SELECT name,type FROM sqlite_master
+    WHERE (type='table' AND name IN ('workout_cards','workout_card_aliases',
+      'workout_card_history','workout_pack_claims','workout_card_gifts'))
+       OR (type='trigger' AND name IN ('workout_card_history_first',
+         'workout_card_history_change','workout_card_pack_claim',
+         'workout_card_alias_imports'))`).all();
+  const present=new Set((rows.results||[]).map(row=>row.type+':'+row.name));
+  const complete=CARD_TABLES.every(name=>present.has('table:'+name))&&
+    CARD_TRIGGERS.every(name=>present.has('trigger:'+name));
+  if (!complete) throw Error('workout_card_schema_incomplete');
 }
 export async function canonicalShareId(db, id) {
   const alias = await db.prepare(
