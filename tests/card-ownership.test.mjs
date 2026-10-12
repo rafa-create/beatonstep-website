@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {
   cardsEnabled, requireCardSchema, canonicalShareId, publishUniqueWorkout, backfillWorkoutCards,
 } from '../worker/cards.js';
@@ -204,4 +205,33 @@ test('public gift preview reveals only public card artwork data, not recipient o
   assert.equal(data.card.name,'Progression');
   assert.equal(data.card.owner,undefined);
   assert.equal(data.token,undefined);
+});
+
+test('a legacy workout still displays its real duration-weighted PPM phases',async()=>{
+  const db={prepare(sql){
+    if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
+    if(sql.includes('FROM workout_card_gifts g')){
+      assert.match(sql,/json_extract\(x\.payload_json/);
+      return {bind:()=>({first:async()=>({
+        share_id:13,name:'Séance historique',duration_sec:600,
+        expires_at:Date.now()+10000,
+        // Legacy workout phase schema: label, duration, target PPM, music BPM.
+        profile_json:JSON.stringify([
+          ['Échauffement',120,132,null],['Effort',360,168,171],
+          ['Retour au calme',120,138,null],
+        ]),
+      })})};
+    }
+    throw Error('unexpected SQL '+sql);
+  }};
+  const response=await giftStatus(db,'b'.repeat(64));
+  const data=await response.json();
+  assert.deepEqual(data.card.profile,[[120,132],[360,168],[120,138]]);
+});
+
+test('deleting the owner also revokes their outstanding gift invitations',()=>{
+  const account=readFileSync(new URL('../worker/account.js',import.meta.url),'utf8');
+  assert.match(account,/DELETE FROM workout_card_gifts WHERE expected_owner_id=\?/);
+  assert.ok(account.indexOf('DELETE FROM workout_card_gifts')<
+    account.indexOf('DELETE FROM community_users WHERE id=?'));
 });
