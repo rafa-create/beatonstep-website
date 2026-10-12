@@ -1,3 +1,6 @@
+import { cardsEnabled } from './cards.js';
+import { packState,openPack,myCollection,giftStatus,claimGift } from './pack.js';
+
 // Optional community identities for the public catalogue.
 // Browser sessions and mobile publish-only grants are intentionally separate from admin.
 const enc = new TextEncoder();
@@ -178,6 +181,15 @@ export async function accountRequest(request,env,url) {
       const user=await webUser(db,request);
       return reply(user?{authenticated:true,handle:user.handle}:{authenticated:false});
     }
+    if (['/api/account/pack','/api/account/collection','/api/account/gift'].includes(path)
+        && method==='GET') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      const user=await webUser(db,request);
+      if (!user) return reply({error:'login_required'},401);
+      if (path==='/api/account/pack') return reply(await packState(db,user.id));
+      if (path==='/api/account/collection') return myCollection(db,user.id);
+      return giftStatus(db,url.searchParams.get('code'));
+    }
     if (method==='POST'||method==='DELETE') {
       if (!sameOrigin(request)) return reply({error:'origin_forbidden'},403);
       if (path==='/api/account/signup' && method==='POST') return signup(db,env,request);
@@ -190,6 +202,12 @@ export async function accountRequest(request,env,url) {
       }
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
+      if (method==='POST' && ['/api/account/pack/open','/api/account/gift/claim'].includes(path)) {
+        if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+        if (path==='/api/account/pack/open') return openPack(db,user.id);
+        const data=await jsonBody(request);
+        return claimGift(db,user.id,data?.code);
+      }
       if (path==='/api/account/connect' && method==='POST') {
         if (!(await limited(db,env,request,'connect',20,15*60000))) return reply({error:'retry_later'},429);
         const b=await jsonBody(request);
@@ -207,6 +225,10 @@ export async function accountRequest(request,env,url) {
           return reply({error:'not_found'},404);
         }
         const rowId=publicId-1000000000000;
+        if (cardsEnabled(env)) {
+          const kind=await db.prepare('SELECT kind FROM shared_items WHERE id=?').bind(rowId).first();
+          if (kind?.kind==='workout') return reply({error:'card_is_permanent'},409);
+        }
         const deleted=await db.prepare(`DELETE FROM shared_items WHERE id=? AND
           EXISTS (SELECT 1 FROM signed_shares WHERE share_id=? AND user_id=?)`)
           .bind(rowId,rowId,user.id).run();
