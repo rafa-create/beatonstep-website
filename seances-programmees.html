@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Séances programmées — BeatOnStep</title>
-  <meta name="description" content="Crée automatiquement tes playlists de course par phases, avec une sélection de titres adaptée au BPM cible et à la durée de chaque effort." />
+  <meta name="description" content="Explore les séances et playlists partagées, importe-les dans BeatOnStep et lance-les avec ta source musicale." />
   <link rel="canonical" href="https://beatonstep.app/seances-programmees.html" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Séances programmées — BeatOnStep" />
-  <meta property="og:description" content="Des playlists adaptées à chaque phase de ta course : sélection intelligente, BPM et progression musicale." />
+  <meta property="og:description" content="Des séances et playlists à découvrir, importer et jouer dans BeatOnStep." />
   <meta property="og:url" content="https://beatonstep.app/seances-programmees.html" />
   <meta property="og:image" content="https://beatonstep.app/assets/brand/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -24,8 +24,8 @@
       en: "Planned workouts — BeatOnStep"
     };
     window.BOS_DESC = {
-      fr: "Crée automatiquement tes playlists de course par phases, avec une sélection de titres adaptée au BPM cible et à la durée de chaque effort.",
-      en: "Automatically build running playlists for every workout phase with music matched to your target tempo."
+      fr: "Explore les séances et playlists partagées, importe-les dans BeatOnStep et lance-les avec ta source musicale.",
+      en: "Explore shared workouts and playlists, import them into BeatOnStep and play them with your music source."
     };
   </script>
   <script src="i18n.js"></script>
@@ -33,18 +33,7 @@
 <body>
   <a class="skip-link" href="#main" data-fr>Aller au contenu</a>
   <a class="skip-link" href="#main" data-en>Skip to content</a>
-  <div class="app-bar">
-    <div class="app-bar-inner">
-      <div class="app-bar-slot"><p class="app-bar-title" data-fr>BeatOnStep — musique au rythme de tes pas</p><p class="app-bar-title" data-en>BeatOnStep — music that matches your stride</p></div>
-      <div class="app-bar-actions">
-        <a class="store-badge store-badge-bar" data-fr href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share"><img src="badges/google-play-fr.svg" width="135" height="40" alt="Disponible sur Google Play" /></a>
-        <a class="store-badge store-badge-bar" data-en href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share"><img src="badges/google-play-en.png" width="564" height="168" alt="Get it on Google Play" /></a>
-        <a class="store-badge store-badge-bar" data-fr href="https://apps.apple.com/app/beatonstep/id6803512375"><img src="badges/app-store-fr.svg" width="127" height="40" alt="Télécharger dans l’App Store" /></a>
-        <a class="store-badge store-badge-bar" data-en href="https://apps.apple.com/app/beatonstep/id6803512375"><img src="badges/app-store-en.svg" width="120" height="40" alt="Download on the App Store" /></a>
-      </div>
-    </div>
-  </div>
-  <div class="wrap">
+  <div class="wrap workouts-shell">
     <header>
       <div class="brand-row">
         <div class="brand-anchor"><div class="brand-lockup">
@@ -57,109 +46,20 @@
         </div></div>
       </div>
     </header>
-
     <main class="workouts-page" id="main">
       <a class="workouts-back" data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à l’accueil</a>
       <a class="workouts-back" data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to home</a>
-      <div class="workouts-intro-block workouts-new-intro">
-        <p class="tag" data-fr>Playlists de séance</p>
-        <p class="tag" data-en>Workout playlists</p>
-        <h1 data-fr>Chaque phase a son rythme. <span>Sa playlist aussi.</span></h1>
-        <h1 data-en>Every phase has a rhythm. <span>Now it has a playlist.</span></h1>
-        <p class="workouts-intro" data-fr>Échauffement, progression, effort, retour au calme : BeatOnStep compose ta séance musicale à partir de tes morceaux et du BPM de chaque phase. Tu ajustes, tu lances, tu cours.</p>
-        <p class="workouts-intro" data-en>Warm-up, build-up, effort, cool-down: BeatOnStep puts together a workout soundtrack from your music and each phase’s target tempo. Fine-tune it, press play and run.</p>
-      </div>
-
-      <p style="margin:18px 0 26px"><a href="partages.html" style="display:inline-block;background:#fcea07;color:#17160a;padding:13px 22px;text-decoration:none;font-weight:800;border-radius:24px" data-fr>Découvrir les séances et playlists partagées →</a><a href="partages.html" style="display:inline-block;background:#fcea07;color:#17160a;padding:13px 22px;text-decoration:none;font-weight:800;border-radius:24px" data-en>Explore shared workouts and playlists →</a></p>
-      <figure class="workouts-main-visual">
-        <img src="assets/workouts/playlists-sur-mesure.webp" width="1400" height="900" alt="Création de playlists BeatOnStep avec une coureuse, des phases musicales et une interface sombre aux accents jaunes" loading="eager" fetchpriority="high" />
-        <figcaption data-fr>Montage illustratif de la fonctionnalité, inspiré des captures de l’application.</figcaption>
-        <figcaption data-en>Illustrative artwork inspired by real app screenshots.</figcaption>
-      </figure>
-
-      <section class="workouts-benefits">
-        <h2 data-fr>La bonne musique, au bon moment</h2>
-        <h2 data-en>The right music at the right moment</h2>
-        <div class="workouts-benefit-grid">
-          <article class="workouts-benefit"><span class="workouts-number">01</span>
-            <h3 data-fr>Choisis ta course</h3><h3 data-en>Choose your run</h3>
-            <p data-fr>Endurance, course progressive, fractionné ou séance personnalisée : définis tes phases et leur BPM cible.</p>
-            <p data-en>Endurance, progressive, intervals or a custom session: set up phases and their target BPM.</p>
-          </article>
-          <article class="workouts-benefit"><span class="workouts-number">02</span>
-            <h3 data-fr>La playlist se crée</h3><h3 data-en>Your playlist comes together</h3>
-            <p data-fr>BeatOnStep pioche dans les titres disponibles de ta source musicale et privilégie les BPM proches de chaque phase, sans répéter inutilement les morceaux.</p>
-            <p data-en>BeatOnStep draws from tracks in your chosen music source, prioritizes the nearest BPM for each phase and avoids unnecessary repeats.</p>
-          </article>
-          <article class="workouts-benefit"><span class="workouts-number">03</span>
-            <h3 data-fr>Personnalise le résultat</h3><h3 data-en>Make it yours</h3>
-            <p data-fr>Consulte les titres, remplace-les, change leur ordre et adapte la structure. Ta sélection est enregistrée avec ta séance.</p>
-            <p data-en>Preview, replace and reorder tracks, or adjust the structure. Your selection is saved with your workout.</p>
-          </article>
-          <article class="workouts-benefit"><span class="workouts-number">04</span>
-            <h3 data-fr>Lance et suis ta progression</h3><h3 data-en>Run with your plan</h3>
-            <p data-fr>Retrouve la phase en cours, les barres de progression, le tempo visé et ta cadence réelle pendant la course.</p>
-            <p data-en>Follow the current phase, progress bars, target tempo and your real cadence while running.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="workouts-showcase">
-        <div class="workouts-showcase-copy">
-          <p class="tag" data-fr>Une séance, plusieurs ambiances</p>
-          <p class="tag" data-en>One workout, multiple moods</p>
-          <h2 data-fr>Du premier pas au retour au calme.</h2>
-          <h2 data-en>From the first step to the cool-down.</h2>
-          <p data-fr>Une séance progressive peut enchaîner quatre playlists de phase : la musique accompagne l’effort à mesure que l’intensité évolue.</p>
-          <p data-en>A progression run can combine four phase playlists, with music evolving as your effort builds.</p>
-          <ol class="workouts-phase-stack">
-            <li><span data-fr>Échauffement</span><span data-en>Warm-up</span><strong>120 <small>BPM</small></strong></li>
-            <li><span data-fr>Progression</span><span data-en>Build-up</span><strong>136 <small>BPM</small></strong></li>
-            <li><span data-fr>Intensité cible</span><span data-en>Target intensity</span><strong>154 <small>BPM</small></strong></li>
-            <li><span data-fr>Retour au calme</span><span data-en>Cool-down</span><strong>119 <small>BPM</small></strong></li>
-          </ol>
-          <p class="workouts-illustration-note" data-fr>Exemple basé sur une séance réelle. Le nombre de titres et la durée musicale varient selon la bibliothèque.</p>
-          <p class="workouts-illustration-note" data-en>Based on a real workout example. Track count and actual playback time depend on your library.</p>
-        </div>
-        <figure class="workouts-poster">
-          <img src="assets/workouts/course-en-musique.webp" width="900" height="1320" loading="lazy" alt="Illustration BeatOnStep : course à pied et interfaces de séance programmée sur iPhone" />
-          <figcaption data-fr>Montage illustratif inspiré des captures de la version 1.7.1.</figcaption>
-          <figcaption data-en>Illustrative composition inspired by version 1.7.1 screenshots.</figcaption>
-        </figure>
-      </section>
-
-      <section class="workouts-steps">
-        <h2 data-fr>Concrètement, comment ça marche ?</h2>
-        <h2 data-en>How does it work?</h2>
-        <ol>
-          <li data-fr>Depuis ton profil, crée une séance et choisis un modèle ou tes propres phases.</li>
-          <li data-en>From your profile, create a workout from a template or your own phases.</li>
-          <li data-fr>Sélectionne une source musicale activée, puis règle les durées et les BPM des phases.</li>
-          <li data-en>Select an enabled music source, then set each phase's duration and tempo.</li>
-          <li data-fr>Prépare la playlist proposée, remplace ou réorganise les titres à ton goût.</li>
-          <li data-en>Generate your playlist, then replace or reorder tracks to suit your taste.</li>
-          <li data-fr>Lance ta course : tu vois la progression de la séance et de la phase en cours.</li>
-          <li data-en>Start running and track both your workout and current phase progress.</li>
-        </ol>
-        <p class="workouts-note" data-fr>La sélection dépend des titres disponibles dans la source choisie et de leurs durées. Les BPM connus sont privilégiés. Les morceaux sont lus en entier : la durée musicale réelle peut différer du découpage prévu.</p>
-        <p class="workouts-note" data-en>Selection depends on tracks available from your chosen source and their durations. Known BPM values are preferred. Full tracks are played, so actual playback time may differ from planned phase durations.</p>
-      </section>
-
-      <section class="workouts-cta">
-        <h2 data-fr>Prêt à programmer ta prochaine sortie ?</h2>
-        <h2 data-en>Ready to plan your next run?</h2>
-        <p data-fr>Retrouve les séances programmées dans BeatOnStep.</p>
-        <p data-en>Find planned workouts in BeatOnStep.</p>
-        <div class="workouts-stores">
-          <a class="store-badge" data-fr href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share"><img src="badges/google-play-fr.svg" width="135" height="40" alt="Disponible sur Google Play" /></a>
-          <a class="store-badge" data-en href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share"><img src="badges/google-play-en.png" width="564" height="168" alt="Get it on Google Play" /></a>
-          <a class="store-badge" data-fr href="https://apps.apple.com/app/beatonstep/id6803512375"><img src="badges/app-store-fr.svg" width="127" height="40" alt="Télécharger dans l’App Store" /></a>
-          <a class="store-badge" data-en href="https://apps.apple.com/app/beatonstep/id6803512375"><img src="badges/app-store-en.svg" width="120" height="40" alt="Download on the App Store" /></a>
-        </div>
-      </section>
-      <div class="workouts-footer">
-        <a data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à BeatOnStep</a>
-        <a data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to BeatOnStep</a>
+      <div class="workouts-hero">
+        <p class="workouts-eyebrow" data-fr>Séances &amp; playlists partagées</p>
+        <p class="workouts-eyebrow" data-en>Shared workouts &amp; playlists</p>
+        <h1 data-fr>À chaque séance, <span>sa playlist.</span></h1>
+        <h1 data-en>A playlist for <span>every workout.</span></h1>
+        <p class="workouts-intro" data-fr>Découvre les séances et playlists partagées, importe celles qui te plaisent dans BeatOnStep et lance-les avec ta source musicale.</p>
+        <p class="workouts-intro" data-en>Explore shared workouts and playlists, import your favorites into BeatOnStep and play them with your music source.</p>
+        <a class="workouts-catalogue" data-fr href="partages.html">Explorer le catalogue <span aria-hidden="true">→</span></a>
+        <a class="workouts-catalogue" data-en href="partages.html">Browse the catalogue <span aria-hidden="true">→</span></a>
+        <p class="workouts-app-links" data-fr>Pas encore l’app ? <a href="https://apps.apple.com/app/beatonstep/id6803512375">App Store</a><span aria-hidden="true">·</span><a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share">Google Play</a></p>
+        <p class="workouts-app-links" data-en>New to BeatOnStep? <a href="https://apps.apple.com/app/beatonstep/id6803512375">App Store</a><span aria-hidden="true">·</span><a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share">Google Play</a></p>
       </div>
     </main>
   </div>

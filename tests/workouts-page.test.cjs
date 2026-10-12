@@ -25,15 +25,18 @@ assert(teaser.includes('120 <small>BPM</small>'), 'Readable phase tempo example'
 assert(!css.includes('.workouts-home-teaser'), 'Remove orphaned teaser layout');
 assert(!css.includes('.first-run'), 'Remove obsolete first-run styling');
 
-for (const src of ['assets/workouts/playlists-sur-mesure.webp', 'assets/workouts/course-en-musique.webp']) {
-  assert(page.includes(src), 'Workout page must display ' + src);
-  assert(fs.statSync(path.join(base, src)).size > 10000, 'Real image exists: ' + src);
-}
-assert(page.includes('La playlist se crée'), 'Smart phase selection described');
-assert(page.includes('Your playlist comes together'), 'English copy is present');
-assert(page.includes('durée musicale réelle'), 'True playable track duration explained');
-assert(page.includes('Known BPM values are preferred'), 'Fallback behavior explained');
-assert(page.includes('Tu ajustes, tu lances, tu cours.'), 'Product feature described');
-assert(css.includes('@media (max-width: 700px)'), 'Responsive layout');
-assert(css.includes('.workouts-showcase'), 'Feature art layout');
-console.log('Workout page: FR/EN + copy + image assets + responsive rules OK.');
+assert(page.includes('À chaque séance, <span>sa playlist.</span>'), 'Concise French headline');
+assert(page.includes('A playlist for <span>every workout.</span>'), 'Concise English headline');
+assert(page.includes('importe celles qui te plaisent dans BeatOnStep'), 'Import path explained');
+assert(page.includes('play them with your music source'), 'Music source explained in English');
+assert(page.includes('href="partages.html"'), 'Catalogue link retained');
+assert.equal((page.match(/class="workouts-catalogue"/g) || []).length, 2, 'One primary catalogue link per language');
+assert(!page.includes('workouts-main-visual'), 'No giant promotional images');
+assert(!page.includes('<figure'), 'No promotional artwork');
+assert(!page.includes('workouts-benefits'), 'No repetitive cards');
+assert(!page.includes('workouts-steps'), 'No redundant walkthrough');
+assert(!page.includes('class="app-bar"'), 'No oversized store badge banner');
+assert(css.includes('.workouts-catalogue'), 'Catalogue button has dedicated compact styling');
+assert(css.includes('@media (max-width: 600px)'), 'Mobile styling');
+assert(!css.includes('.workouts-showcase'), 'Remove now-orphaned feature art layout');
+console.log('Workout landing: concise FR/EN copy, catalogue CTA, no artwork, responsive styling OK.');

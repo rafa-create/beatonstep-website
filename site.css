@@ -2196,7 +2196,7 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 }
 
 
-/* Planned workouts detail page; reuses the existing card and phase timeline styles. */
+/* Concise catalogue landing page: no promo images, no redundant cards. */
 .planned-playlists-link {
   display: inline-flex;
   align-items: center;
@@ -2211,65 +2211,83 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
 .planned-playlists-link:hover { color: var(--ink); }
 .planned-playlists-link:focus-visible,
 .workouts-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.workouts-page { max-width: 52rem; margin: 0 auto; }
-.workouts-back { display: inline-flex; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin: 0.25rem 0 1.65rem; }
-.workouts-back:hover { color: var(--accent); }
-.workouts-intro-block { max-width: 48rem; }
-.workouts-page h1 {
-  font-size: clamp(2.1rem, 5vw, 3.3rem);
-  line-height: 1.12;
-  letter-spacing: -0.045em;
-  margin: 0.6rem 0 1rem;
+.workouts-shell { max-width: 62rem; padding-top: 1.6rem; }
+.workouts-shell header { margin-bottom: 0; }
+.workouts-page { max-width: 43rem; margin: 0 auto; }
+.workouts-back {
+  display: inline-flex;
+  margin-top: 2.2rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
 }
-.workouts-intro { color: var(--muted); font-size: 1.08rem; max-width: 42rem; margin: 0; }
-.workouts-page section { margin: 3rem 0; }
-.workouts-page section h2 { font-size: clamp(1.3rem, 2.6vw, 1.6rem); line-height: 1.3; margin: 0 0 1.05rem; letter-spacing: -0.025em; }
-.workouts-steps ol { margin: 0; padding: 0 0 0 1.5rem; }
-.workouts-steps li { padding-left: 0.35rem; margin-bottom: 0.7rem; }
-.workouts-steps li::marker { color: var(--accent); font-weight: 800; }
-.workouts-note { color: var(--muted); font-size: 0.9rem; margin-top: 1rem; }
-.workouts-cta { background: var(--fill); padding: 1.6rem; border: 1px solid var(--line); border-radius: 14px; }
-.workouts-cta p { color: var(--muted); margin: 0 0 1rem; }
-.workouts-stores { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem 1rem; }
-.workouts-footer { border-top: 1px solid var(--line); padding: 1.2rem 0 2rem; margin-top: 2rem; }
-.workouts-footer a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
-.workouts-footer a:hover { color: var(--accent); }
+.workouts-back:hover { color: var(--ink); }
+.workouts-hero { padding: clamp(3.3rem, 9vw, 6rem) 0 5rem; }
+.workouts-eyebrow {
+  margin: 0 0 1rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.workouts-hero h1 {
+  max-width: 16ch;
+  margin: 0 0 1.3rem;
+  font-size: clamp(2.55rem, 6.2vw, 4.3rem);
+  font-weight: 800;
+  line-height: 1.09;
+  letter-spacing: -0.055em;
+}
+.workouts-hero h1 span { color: var(--accent); }
+.workouts-intro {
+  max-width: 36rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.7vw, 1.16rem);
+  line-height: 1.6;
+}
+.workouts-catalogue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 1.75rem;
+  padding: 0.8rem 1.1rem;
+  border: 1px solid var(--accent);
+  border-radius: 11px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.96rem;
+  font-weight: 800;
+  line-height: 1.3;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.workouts-catalogue:hover { background: #fff34c; transform: translateY(-1px); }
+.workouts-catalogue span { font-size: 1.2rem; font-weight: 600; line-height: 1; }
+.workouts-app-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.81rem;
+}
+.workouts-app-links a {
+  color: var(--ink);
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.workouts-app-links a:hover { color: var(--accent); }
 @media (max-width: 600px) {
-  .workouts-page section { margin: 2.25rem 0; }
-  .workouts-cta { padding: 1.2rem; }
-}
-
-
-/* Playlists par séance — visuels éditoriaux + grille responsive */
-.workouts-new-intro { max-width: 60rem; }
-.workouts-new-intro h1 { max-width: 53rem; }
-.workouts-new-intro h1 span { color: var(--accent); }
-.workouts-page { max-width: 69rem; }
-.workouts-main-visual { margin: 1.5rem 0 2rem; }
-.workouts-main-visual img, .workouts-poster img {
-  display: block; width: 100%; height: auto; border-radius: 19px;
-}
-.workouts-main-visual img { border: 1px solid var(--line); }
-.workouts-page figcaption { font-size: .74rem; color: var(--muted); margin-top: .55rem; }
-.workouts-benefit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
-.workouts-benefit { background: var(--fill); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }
-.workouts-number { color: var(--accent); display: inline-block; font-weight: 800; font-size: .95rem; margin-bottom: .55rem; }
-.workouts-benefit h3 { margin: 0 0 .55rem; font-size: 1.14rem; }
-.workouts-benefit p { margin: 0; color: var(--muted); line-height: 1.6; }
-.workouts-showcase { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .8fr); align-items: center; gap: 2rem; }
-.workouts-showcase-copy > p:not(.tag) { color: var(--muted); }
-.workouts-phase-stack { list-style: none; padding: 0; margin: 1.25rem 0 .85rem; display: grid; gap: .55rem; }
-.workouts-phase-stack li { background: var(--fill); border: 1px solid var(--line); border-radius: 11px; padding: .85rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: .8rem; }
-.workouts-phase-stack li strong { white-space: nowrap; color: var(--accent); font-size: 1.25rem; }
-.workouts-phase-stack li small { font-size: .65rem; }
-.workouts-illustration-note { font-size: .85rem; }
-.workouts-poster { margin: 0; max-width: 440px; }
-.workouts-poster img { border: 1px solid var(--line); }
-@media (max-width: 700px) {
-  .workouts-benefit-grid { grid-template-columns: 1fr; }
-  .workouts-showcase { grid-template-columns: 1fr; gap: 1.2rem; }
-  .workouts-poster { max-width: 360px; margin: 0 auto; }
-  .workouts-main-visual { margin: 1.1rem 0; }
+  .workouts-shell { padding-top: 1.1rem; }
+  .workouts-back { margin-top: 1.6rem; }
+  .workouts-hero { padding-top: 3.15rem; padding-bottom: 3rem; }
+  .workouts-hero h1 { font-size: clamp(2.35rem, 10vw, 3.3rem); }
 }
 
 /* Group the three running experiences without a third dense illustration. */
