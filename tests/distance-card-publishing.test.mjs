@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker,{validate} from '../worker/index.js';
+import worker,{validate,publicRow} from '../worker/index.js';
 import {publishUniqueWorkout} from '../worker/cards.js';
 
 const rule={v:2,goalMode:'distance',targetMeters:5000,deadlineSec:1800};
@@ -117,4 +117,21 @@ test('v1 uploader still owns a newly published time card',async()=>{
   assert.equal(card.args[2],'creator');
   assert.equal(card.args[3],0);
   assert.equal(card.args[4],'created');
+});
+
+test('v2 public listing exposes distance and deadline, never a private GPS trace',()=>{
+  const row={id:18,kind:'workout',source:'mixed',name:'5 km · 30:00',
+    duration_sec:1800,bpm:null,tracks:0,phases:1,
+    created_at:12345,views:0,imports:1,payload_v:2,goal_mode:'distance',
+    target_meters:5000,deadline_sec:1800};
+  const item=publicRow(row);
+  assert.equal(item.id,1_000_000_000_018);
+  assert.equal(item.goalMode,'distance');
+  assert.equal(item.targetMeters,5000);
+  assert.equal(item.deadlineSec,1800);
+  assert.equal(Object.hasOwn(item,'latitude'),false);
+  assert.equal(Object.hasOwn(item,'longitude'),false);
+  assert.equal(Object.hasOwn(item,'owner_user_id'),false);
+  const time=publicRow({...row,payload_v:1,goal_mode:null});
+  assert.equal(Object.hasOwn(time,'goalMode'),false);
 });
