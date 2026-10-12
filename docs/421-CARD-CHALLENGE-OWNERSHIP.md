@@ -1,3 +1,13 @@
+> **⚠️ Contrat produit du 13 octobre 2026 : ce document du 12 octobre décrit une ANCIENNE approche « carte Distance = défi programmé distance × deadline ». Pour les futures CARTES SPORTIVES, NE PAS l'utiliser comme spécification de référence.** La source de vérité V1 est maintenant constituée des issues mobiles [#420](https://github.com/rafa-create/BeatOnStep/issues/420), [#444](https://github.com/rafa-create/BeatOnStep/issues/444), [#448](https://github.com/rafa-create/BeatOnStep/issues/448), [#450](https://github.com/rafa-create/BeatOnStep/issues/450), [#451](https://github.com/rafa-create/BeatOnStep/issues/451) et des issues d'historique/transferts associées.
+>
+> **Règle désormais prioritaire :** gain passif après une course normale finalisée et vérifiée, sans mode Défi ; un seul plus grand palier de distance **dans un catalogue fermé de 10 familles** (400 m sub1, 1 km, 5 km, 10 km, 15 km, 20 km, semi-marathon exact 21,0975 km, 30 km, 40 km, marathon exact 42,195 km), chrono officiel pauses comprises, sous-minute stricte et **aucun repli** si la performance finale ne qualifie pas. Les 2/3/4/21/22/25/35/42/43/50 km ne créent pas de cartes en V1. `distance_cm` doit préserver le demi-mètre du semi sans promettre une précision GPS centimétrique.
+>
+> **Sept niveaux de difficulté seulement, pas de rareté ; design discret, chaleureux et également qualitatif pour le niveau Débutant comme pour Élite.** Cette hiérarchie visuelle discrète et les sept skins détaillés nécessitent encore approbation graphique.
+>
+> **Migration existante ≠ schéma complet du futur jeu.** `0005` et `0006` ont été déclarées appliquées manuellement en D1 production mais décrivent des tentatives liées à l'ancien défi programmé. **Ne pas rejouer ces migrations, ne pas adapter silencieusement l'identité des cartes musicales pour les performances**, ne pas activer `DISTANCE_CHALLENGES_ENABLED`. Le futur registre de cartes sportives, course/idempotence et transfert sécurisé exige un design D1 distinct et une migration ultérieure explicite. La TestFlight iPhone 1.7.2 en cours ne doit pas être modifiée pendant sa validation.
+
+---
+
 # #421 — Cartes défis dynamiques, réussite pérenne, site et compte
 **Conception du 12 octobre 2026. Non publiée / en branche isolée.**
 Ne pas toucher aux cartes historiques de séances chronométriques.
