@@ -147,6 +147,7 @@
     .import-icon{font-size:19px;font-weight:600;line-height:1}
     .back{display:inline-block;margin:0 0 13px;color:var(--muted);font-size:14px;text-decoration:none}
     .back:hover{text-decoration:underline}
+    .back[hidden]{display:none}
     .site-footer{display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px;margin-top:38px;padding:18px 0;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
     .site-footer .foot-link{display:inline-flex;align-items:center;gap:7px;color:var(--muted);text-decoration:none}
     .site-footer .foot-link:hover{color:var(--yellow)}
@@ -210,7 +211,7 @@
       <span class="community-label">Profil</span>
     </a>
   </header>
-  <a class="back" href="partages.html" id="back">← Catalogue</a>
+  <a class="back" href="partages.html" id="back" hidden>← Catalogue</a>
   <h1 id="title">Catalogue</h1>
   <p class="sub" id="intro">Séances et playlists de la communauté.</p>
   <div id="catalog">
@@ -728,10 +729,11 @@
     document.documentElement.lang=lang;
     $('fr').setAttribute('aria-pressed',String(lang==='fr'));
     $('en').setAttribute('aria-pressed',String(lang==='en'));
-    $('back').href=id?'partages.html':'seances-programmees.html';
-    $('back').textContent=id
-      ?fr('← Catalogue','← Catalog')
-      :fr('← Séances programmées','← Programmed workouts');
+    $('back').hidden=!id;
+    if(id){
+      $('back').href='partages.html';
+      $('back').textContent=fr('← Catalogue','← Catalog');
+    }
     $('title').textContent=id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));

@@ -80,7 +80,7 @@
       <p>BeatOnStep est une application mobile (Android et iOS) qui adapte la musique au rythme de votre allure de marche ou de course. L&#x27;application est disponible sur <strong>Google Play</strong> (Android, <strong>BeatOnStep</strong>) et l&#x27;<strong>App Store</strong> (iOS, <strong>BeatOnSteps</strong>).</p>
       <p><strong>Éditeur :</strong> Rafael Orset — contact : <a href="https://github.com/rafa-create/beatonstep-website/discussions/1">forum BeatOnStep</a></p>
       <h2>2. Principe général : collecte minimale, sans tracking commercial</h2>
-      <p>BeatOnStep <strong>reste utilisable sans compte</strong> et propose un compte facultatif pour signer les partages du catalogue. Il n&#x27;utilise <strong>pas de publicité</strong> et n&#x27;effectue <strong>aucun tracking commercial ni profilage</strong>. Une mesure d&#x27;usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (PPM), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n&#x27;est inclus dans cette mesure.</p>
+      <p>BeatOnStep <strong>reste utilisable sans compte</strong> et propose un compte facultatif pour signer les partages du catalogue. Il n&#x27;utilise <strong>pas de publicité</strong> et n&#x27;effectue <strong>aucun tracking commercial ni profilage</strong>. Une mesure d&#x27;usage pseudonyme très limitée peut être envoyée au serveur BeatOnStep pour connaître uniquement le nombre de playlists personnelles importées par source (§ 3.9). Aucune cadence (pas / minute), donnée de parcours, nom ou identifiant de playlist, titre, artiste ou compte musical n&#x27;est inclus dans cette mesure.</p>
       <p>Selon les fonctions que <strong>vous</strong> activez, l&#x27;application peut échanger des données avec des services que <strong>vous choisissez</strong> (Mix démo / serveur musique, YouTube ou Apple Music si connectés, liens Spotify ou Deezer collés, analyse BPM) ou avec des infrastructures techniques (mises à jour). Le détail figure ci-dessous.</p>
       <h3>Comptes facultatifs du catalogue public</h3>
       <p>Le compte est facultatif : les séances, la course, la musique et le partage anonyme restent disponibles sans inscription. La création d&#x27;un compte sur le site stocke dans Cloudflare D1 une adresse e-mail privée, un pseudo public, un sel et une empreinte de mot de passe ainsi que la date d&#x27;inscription. Le site utilise un cookie de session sécurisé HttpOnly ; l&#x27;application peut stocker une autorisation de publication limitée à 30 jours, révocable à la déconnexion.</p>
@@ -92,7 +92,7 @@
       <li>Les métadonnées associées (chemin, BPM, préférences) sont stockées <strong>localement uniquement</strong>.</li>
       <li>Aucun fichier audio n&#x27;est envoyé hors de l&#x27;appareil pour la détection de cadence ni la lecture locale, sauf si vous déclenchez l&#x27;analyse BPM serveur (§ 3.3).</li>
       </ul>
-      <h3>3.2 Détection de cadence (PPM)</h3>
+      <h3>3.2 Détection de cadence (pas / minute)</h3>
       <ul>
       <li>L&#x27;accéléromètre est lu <strong>sur l&#x27;appareil</strong> pour estimer votre cadence de pas.</li>
       <li>Ces mesures restent <strong>sur l&#x27;appareil par défaut</strong> et ne sont pas envoyées automatiquement. Elles peuvent uniquement être incluses dans un rapport de diagnostic si vous choisissez explicitement <strong>Bug / remarque → Envoyer</strong> (§ 3.11).</li>
@@ -155,7 +155,7 @@
       <p>Pour évaluer l&#x27;usage de la fonction d&#x27;import et améliorer le produit, BeatOnStep peut envoyer occasionnellement au serveur de l&#x27;éditeur un <strong>snapshot minimal</strong> comprenant : un identifiant d&#x27;installation aléatoire propre à BeatOnStep, la plateforme (iOS / Android), la version de l&#x27;app et le <strong>nombre</strong> de playlists personnelles encore importées pour Apple Music, YouTube, Spotify et Deezer.</p>
       <ul>
       <li>Cette mesure correspond à de l&#x27;<strong>analytics produit</strong> : elle sert à comprendre l&#x27;utilisation de la fonction d&#x27;import et à orienter les améliorations de BeatOnStep.</li>
-      <li>Cette mesure ne contient <strong>aucun nom ni identifiant de playlist</strong>, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (PPM) ou parcours.</li>
+      <li>Cette mesure ne contient <strong>aucun nom ni identifiant de playlist</strong>, aucun titre, artiste, token OAuth, compte musical, donnée audio, cadence (pas / minute) ou parcours.</li>
       <li>L&#x27;identifiant est généré aléatoirement par BeatOnStep. Il n&#x27;est pas l&#x27;identifiant Apple, Google, Android ou d&#x27;un fournisseur musical et ne contient ni nom, ni adresse e-mail, ni identifiant de compte.</li>
       <li>Cet identifiant permet uniquement de rattacher les snapshots successifs à une <strong>même installation de BeatOnStep</strong>. Il n&#x27;est pas utilisé pour identifier la personne qui utilise l&#x27;app.</li>
       <li>Les suppressions sont prises en compte : le snapshot suivant reflète le nombre de playlists encore présentes dans l&#x27;app.</li>
@@ -176,7 +176,7 @@
       <ul>
       <li>la version, le build, le runtime et les informations techniques de livraison de l&#x27;application ;</li>
       <li>des événements de diagnostic récents liés au fonctionnement de BeatOnStep ;</li>
-      <li>le diagnostic PPM récent, pouvant contenir des échantillons d&#x27;accéléromètre et la cadence calculée ;</li>
+      <li>le diagnostic récent de cadence (pas / minute), pouvant contenir des échantillons d&#x27;accéléromètre et la cadence calculée ;</li>
       <li>des états techniques Garmin / Apple Watch et des intégrations musicales, par exemple disponibilité, états de lecture, erreurs et identifiants techniques de titres ou d&#x27;appareils lorsqu&#x27;ils figurent déjà dans le diagnostic ;</li>
       <li>l&#x27;identifiant d&#x27;installation pseudonyme BeatOnStep, la plateforme et la version de l&#x27;app.</li>
       </ul>
@@ -187,7 +187,7 @@
       <table>
       <thead><tr><th>Permission</th><th>Raison</th></tr></thead>
       <tbody>
-      <tr><td><code>HIGH_SAMPLING_RATE_SENSORS</code></td><td>Lecture de l&#x27;accéléromètre à haute fréquence pour détecter la cadence de pas (PPM).</td></tr>
+      <tr><td><code>HIGH_SAMPLING_RATE_SENSORS</code></td><td>Lecture de l&#x27;accéléromètre à haute fréquence pour détecter la cadence de pas (pas / minute).</td></tr>
       <tr><td><code>FOREGROUND_SERVICE</code></td><td>Maintenir la lecture musicale et la détection de cadence en arrière-plan (téléphone verrouillé).</td></tr>
       <tr><td><code>WAKE_LOCK</code></td><td>Limiter la mise en veille du capteur pendant une session.</td></tr>
       </tbody></table>

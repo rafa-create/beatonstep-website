@@ -301,7 +301,7 @@
       return block;
     };
     const averageMeta = [
-      show('avgPpm') && d.avgPpm !== null ? `${d.avgPpm} ${t('PPM', 'SPM')}` : '',
+      show('avgPpm') && d.avgPpm !== null ? `${d.avgPpm} ${t('pas / minute', 'steps / minute')}` : '',
       show('avgMusicBpm') && d.avgMusicBpm !== null ? `${d.avgMusicBpm} BPM` : '',
     ].filter(Boolean).join(' · ');
     const averageBlock = (labelY, valueY, valueSize = 84) =>
@@ -337,7 +337,7 @@
       } else {
         content += text(540, 325, 58, liveCadenceLabel, 850, ink, 'middle', 940);
         if (d.ppm !== null) {
-          content += metric(540, 590, d.ppm, t('PPM', 'SPM'), 215, 60);
+          content += metric(540, 590, d.ppm, t('pas / minute', 'steps / minute'), 215, 60);
           content += text(
             540, 670, 45,
             d.cadence === 'target' ? t('CADENCE CIBLE', 'TARGET CADENCE') : t('CADENCE ACTUELLE', 'CURRENT CADENCE'),
@@ -382,7 +382,7 @@
           content += text(540, 995, 46, t('MORCEAU', 'TRACK'), 800);
         }
         if (d.ppm !== null) {
-          content += text(540, 1125, 54, `${d.ppm} ${t('PPM', 'SPM')} · ${liveCadenceLabel}`, 780, ink, 'middle', 960);
+          content += text(540, 1125, 54, `${d.ppm} ${t('pas / minute', 'steps / minute')} · ${liveCadenceLabel}`, 780, ink, 'middle', 960);
         }
         const liveSteps = show('steps') ? stepText(d.steps ?? d.runSteps) : '';
         if (liveSteps) content += text(540, 1240, 46, liveSteps, 700, ink, 'middle', 940);

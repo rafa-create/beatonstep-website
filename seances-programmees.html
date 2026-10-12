@@ -33,6 +33,28 @@
 <body>
   <a class="skip-link" href="#main" data-fr>Aller au contenu</a>
   <a class="skip-link" href="#main" data-en>Skip to content</a>
+  <div class="app-bar">
+    <div class="app-bar-inner">
+      <div class="app-bar-slot">
+        <p class="app-bar-title" data-fr>BeatOnStep — musique au rythme de tes pas</p>
+        <p class="app-bar-title" data-en>BeatOnStep — music that matches your stride</p>
+      </div>
+      <div class="app-bar-actions">
+        <a class="store-badge store-badge-bar" data-fr href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&pcampaignid=web_share">
+          <img src="badges/google-play-fr.svg" width="135" height="40" alt="Disponible sur Google Play" />
+        </a>
+        <a class="store-badge store-badge-bar" data-en href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&pcampaignid=web_share">
+          <img src="badges/google-play-en.png" width="564" height="168" alt="Get it on Google Play" />
+        </a>
+        <a class="store-badge store-badge-bar" data-fr href="https://apps.apple.com/app/beatonstep/id6803512375">
+          <img src="badges/app-store-fr.svg" width="127" height="40" alt="Télécharger dans l’App Store" />
+        </a>
+        <a class="store-badge store-badge-bar" data-en href="https://apps.apple.com/app/beatonstep/id6803512375">
+          <img src="badges/app-store-en.svg" width="120" height="40" alt="Download on the App Store" />
+        </a>
+      </div>
+    </div>
+  </div>
   <div class="wrap workouts-shell">
     <header>
       <div class="brand-row">
@@ -59,14 +81,30 @@
         <p class="workouts-intro" data-en>Intervals, progression or endurance: find a workout with its playlist, import it into BeatOnStep and run with your music.</p>
         <a class="workouts-catalogue" data-fr href="partages.html">Explorer le catalogue <span aria-hidden="true">→</span></a>
         <a class="workouts-catalogue" data-en href="partages.html">Browse the catalogue <span aria-hidden="true">→</span></a>
-        <p class="workouts-app-links" data-fr>Pas encore l’app ? <a href="https://apps.apple.com/app/beatonstep/id6803512375">App Store</a><span aria-hidden="true">·</span><a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share">Google Play</a></p>
-        <p class="workouts-app-links" data-en>New to BeatOnStep? <a href="https://apps.apple.com/app/beatonstep/id6803512375">App Store</a><span aria-hidden="true">·</span><a href="https://play.google.com/store/apps/details?id=com.patrick.beatonstep&amp;pcampaignid=web_share">Google Play</a></p>
       </div>
 
       <section class="workouts-screens" aria-label="Aperçu des séances dans BeatOnStep">
-        <img src="assets/workouts/seance-choisir.webp" width="320" height="694" loading="lazy" decoding="async" alt="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-fr="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-en="My workouts: intervals, progression and pyramid workouts, ready to start" />
-        <img src="assets/workouts/seance-en-cours.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance en cours : cadence, temps restant, progression et musique" data-alt-fr="Séance en cours : cadence, temps restant, progression et musique" data-alt-en="Workout in progress: cadence, time remaining, progress and music" />
-        <img src="assets/workouts/seance-terminee.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-fr="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-en="Workout complete: summary and recorded average cadence" />
+        <figure class="workouts-shot">
+          <img src="assets/workouts/seance-choisir.webp" width="320" height="694" loading="lazy" decoding="async" alt="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-fr="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-en="My workouts: intervals, progression and pyramid workouts, ready to start" />
+          <figcaption>
+            <h2 data-fr>Choisis ta séance</h2><h2 data-en>Choose your workout</h2>
+            <p data-fr>Retrouve tes programmes enregistrés, compare leurs profils de rythme et prépare ta prochaine sortie.</p><p data-en>Browse saved workouts, compare their pace profiles and prepare for your next run.</p>
+          </figcaption>
+        </figure>
+        <figure class="workouts-shot">
+          <img src="assets/workouts/seance-en-cours.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance en cours : cadence, temps restant, progression et musique" data-alt-fr="Séance en cours : cadence, temps restant, progression et musique" data-alt-en="Workout in progress: cadence, time remaining, progress and music" />
+          <figcaption>
+            <h2 data-fr>Suis ta progression</h2><h2 data-en>Track your progress</h2>
+            <p data-fr>Pendant la course, vois la phase en cours, les pas / minute visés et la musique qui t’accompagne.</p><p data-en>While running, follow the current phase, your target steps / minute and the music playing.</p>
+          </figcaption>
+        </figure>
+        <figure class="workouts-shot">
+          <img src="assets/workouts/seance-terminee.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-fr="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-en="Workout complete: summary and recorded average cadence" />
+          <figcaption>
+            <h2 data-fr>Retrouve ton bilan</h2><h2 data-en>Review your run</h2>
+            <p data-fr>À l’arrivée, consulte la durée, les phases terminées et ta cadence moyenne.</p><p data-en>After your run, review the duration, completed phases and your average cadence.</p>
+          </figcaption>
+        </figure>
       </section>
       <script>
         window.BOS_onLangChange(function (lang) {
@@ -77,6 +115,33 @@
         });
       </script>
     </main>
+
+    <footer>
+      <a class="foot-link" href="https://github.com/rafa-create/beatonstep-website/discussions/1" aria-label="Forum">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.5 3.2A1.2 1.2 0 0 1 2.7 2h7.6A1.2 1.2 0 0 1 11.5 3.2v5.1H5.2L1.5 11.6V3.2zm5.2 7.1h6.6A1.2 1.2 0 0 1 14.5 11.5v2.7l-3.2-2.1H6.7z"/></svg>
+        <span class="foot-label">Forum</span>
+      </a>
+      <a class="foot-link" href="https://www.instagram.com/beatonstep/" aria-label="Instagram">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="11.4" cy="4.6" r="0.8" fill="currentColor"/></svg>
+        <span class="foot-label">Instagram</span>
+      </a>
+      <a class="foot-link" href="https://www.youtube.com/@coulonpaktric1321" aria-label="YouTube">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.2" width="13" height="9.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M6.6 5.8v4.4L10.8 8z"/></svg>
+        <span class="foot-label">YouTube</span>
+      </a>
+      <a class="foot-link" href="https://www.linkedin.com/company/beatonstep" aria-label="LinkedIn">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor" d="M5.1 6.4h1.6V12H5.1V6.4zM5.9 4.1a.95.95 0 1 1 0 1.9.95.95 0 0 1 0-1.9zM8.1 6.4h1.55v.76h.02c.22-.41.75-.84 1.55-.84 1.66 0 1.97 1.09 1.97 2.5V12h-1.6V9.1c0-.7-.01-1.6-.97-1.6s-1.12.76-1.12 1.55V12H8.1V6.4z"/></svg>
+        <span class="foot-label">LinkedIn</span>
+      </a>
+      <a class="foot-link" data-fr data-keep-lang data-href="privacy.html" href="privacy.html" aria-label="Confidentialité">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" d="M8 1.8 13.2 4v3.6c0 3.2-2.2 5.4-5.2 6.6C4.2 13 2 10.8 2 7.6V4L8 1.8z"/><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M5.6 7.8 7.2 9.4 10.5 5.9"/></svg>
+        <span class="foot-label">Confidentialité</span>
+      </a>
+      <a class="foot-link" data-en data-keep-lang data-href="privacy.html" href="privacy.html" aria-label="Privacy">
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" d="M8 1.8 13.2 4v3.6c0 3.2-2.2 5.4-5.2 6.6C4.2 13 2 10.8 2 7.6V4L8 1.8z"/><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M5.6 7.8 7.2 9.4 10.5 5.9"/></svg>
+        <span class="foot-label">Privacy</span>
+      </a>
+    </footer>
   </div>
 </body>
 </html>

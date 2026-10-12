@@ -73,7 +73,7 @@
       fieldPace: t('Allure', 'Pace'),
       fieldSteps: t('Pas', 'Steps'),
       fieldTrackCount: t('Musiques écoutées', 'Tracks played'),
-      fieldAvgPpm: t('PPM moyen', 'Average SPM'),
+      fieldAvgPpm: t('Cadence moyenne (pas / minute)', 'Average SPM'),
       fieldAvgMusicBpm: t('BPM moyen', 'Average BPM'),
       fieldAverageHeartRate: t('FC moyenne', 'Average HR'),
       fieldMaxHeartRate: t('FC max', 'Max HR'),
