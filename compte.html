@@ -132,8 +132,14 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     try{
       const grant=await api('/api/account/connect','POST',{challenge,state});
       // The one-time code has no privilege without the secret verifier held by the app.
-      location.assign('beatonstep://community-auth?code='+encodeURIComponent(grant.code)+'&state='+encodeURIComponent(state));
-      status('Retour à BeatOnStep…');
+      const callback='beatonstep://community-auth?code='+encodeURIComponent(grant.code)+
+        '&state='+encodeURIComponent(state);
+      const fallback=document.createElement('a');
+      fallback.href=callback;fallback.textContent='Revenir dans BeatOnStep';
+      fallback.style.display='block';
+      $('link-panel').append(fallback);
+      location.assign(callback);
+      status('Retour à BeatOnStep… Si le retour ne se fait pas, utilisez le lien affiché.');
     }catch(error){status(error.message);$('link-button').disabled=false}
   };
   $('logout').onclick=async()=>{
