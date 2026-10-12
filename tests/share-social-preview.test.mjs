@@ -127,3 +127,17 @@ test('social tags escape unsafe titles rather than allowing HTML injections', ()
   assert.match(html, /<meta property="og:title" content="A &amp; &quot;B&quot; &lt;script&gt;alert\(1\)&lt;\/script&gt; — BeatOnStep">/);
   assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
 });
+
+test('gift invitation is available at short URLs', async () => {
+  for (const path of ['/cadeau', '/cadeau/']) {
+    const locations = [];
+    const env = { ASSETS: { fetch(request) {
+      locations.push(new URL(request.url).pathname);
+      return new Response('Invitation BeatOnStep', { status: 200 });
+    } } };
+    const response = await worker.fetch(new Request('https://beatonstep.app' + path), env);
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), 'Invitation BeatOnStep');
+    assert.deepEqual(locations, ['/cadeau.html']);
+  }
+});
