@@ -45,7 +45,7 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(search,data=example){
   const items=Array.isArray(data)?data:[data];
   const elements={};
-  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter','footer-privacy','footer-privacy-label'])
+  for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages','source-label','source-filter','footer-privacy','footer-privacy-label','community-link'])
     elements[name]=new Node(name);
   const kinds=['all','workout','runmix'].map(k=>{
     const n=new Node('button');n.dataset.kind=k;return n;
@@ -270,6 +270,7 @@ function setup(search,data=example){
   const youtube={
     id:2,kind:'runmix',source:'youtube',name:'Run Mix',durationSec:1800,
     tracks:1,phases:0,imports:2,views:1,
+    profile:[[220,156]],
     payload:{v:1,n:'Run Mix',s:'youtube',t:[['dQw4w9WgXcQ','Video','Artist','Album',156,220,'','']]},
   };
   const playlist=setup('?id=2',youtube);
@@ -279,9 +280,32 @@ function setup(search,data=example){
   assert.equal(walk(playlistCard,x=>x.className==='source-logo')[0].src,
     'assets/music-services/youtube.svg');
   assert.equal(walk(playlistCard,x=>x.className==='stat-imports')[0].textContent,'⇩2');
-  assert.equal(walk(playlistCard,x=>x.className==='effort-segment').length,0,
-    'music playlists must not show a fictional sports effort profile');
-  assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Playlist musicale/);
+  assert.equal(walk(playlistCard,x=>x.className==='effort-segment').length,1,
+    'Run Mix shows a real BPM segment, not a fictional cadence profile');
+  assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Profil BPM/);
+  const playlistCatalog=setup('',youtube);
+  await flush();
+  assert.equal(walk(playlistCatalog.elements.results,x=>x.className==='effort-segment').length,1,
+    'Run Mix cards render BPM immediately from compact API metadata, without a detail fetch');
+  assert.equal(playlistCatalog.apiCalls.filter(url=>url.endsWith('/2')).length,0);
+  const unknownBpm=setup('?id=22',{
+    ...youtube,id:22,profile:undefined,
+    payload:{...youtube.payload,t:[['id','Unknown','Artist','Album',null,180]]},
+  });
+  await flush();
+  assert.equal(walk(unknownBpm.elements.detail,x=>x.className==='effort-segment').length,0,
+    'a playlist without any BPM retains the musical note, no invented data');
+  assert.match(walk(unknownBpm.elements.detail,
+    x=>x.className==='collection-art-label')[0].textContent,/Playlist musicale/);
+  const partialBpm=setup('?id=23',{
+    ...youtube,id:23,profile:[[200,128],[180,null],[240,160]],
+  });
+  await flush();
+  assert.equal(walk(partialBpm.elements.detail,
+    x=>x.className==='effort-segment effort-segment--unknown').length,1,
+    'unknown BPM inside an otherwise measurable playlist is drawn as a neutral gap');
+  assert.equal(walk(partialBpm.elements.detail,
+    x=>x.className==='effort-segment').length,2);
   const playlistRoot=walk(playlistCard,x=>x.tagName==='details');
   assert.equal(playlistRoot.length,1);
   playlistRoot[0].open=true;
