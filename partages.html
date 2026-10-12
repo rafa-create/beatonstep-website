@@ -539,7 +539,7 @@
     summary.append(head,art,title);
     if(item.kind==='workout' && Object.prototype.hasOwnProperty.call(item,'owner')){
       summary.append(el('span','card-owner',fr('Propriétaire · ','Owner · ')+
-        (item.owner?'@'+item.owner:fr('Anonyme','Anonymous')));
+        (item.owner?'@'+item.owner:fr('Anonyme','Anonymous'))));
     } else if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
       const by=el('a','creator',fr('Par @','By @')+item.author);
       by.href='compte.html?profil='+encodeURIComponent(item.author);
