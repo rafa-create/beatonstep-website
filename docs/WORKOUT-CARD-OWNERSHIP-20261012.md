@@ -1,53 +1,63 @@
-# Cartes de séances uniques — décisions et plan de livraison
-Date : 2026-10-12
-État : **socle de comparaison livré ; propriété et packs non activés**.
+# Cartes uniques de séance — état et déploiement (12 octobre 2026)
 
-## Règles produit confirmées
+**État : code et interfaces versionnés sur `beatonstep-website/main`, fonctionnalité désactivée en production (variable `CARDS_ENABLED` absente ou différente de `true`). Aucune migration D1 exécutée. Aucune OTA.**
 
-- **Une séquence musicale unique = une carte unique.** Comparer les morceaux dans leur ordre de lecture, indépendamment de la plateforme, des identifiants du fournisseur, des phases, de leurs valeurs BPM/PPM, de la durée et du titre.
-- Ajouter, remplacer, supprimer ou réordonner un morceau crée une nouvelle carte ; changer seulement les paramètres sportifs n'en crée pas.
-- Quand une séquence existe déjà, toujours renvoyer la **première carte**, son titre canonique et son créateur d'origine, sans en cloner les téléchargements.
-- Une carte a un **créateur permanent** et **un propriétaire unique à la fois**. Le créateur est affiché dans le détail et le propriétaire très discrètement sur la carte du catalogue.
-- Tout le monde peut importer la séance, sans posséder sa carte.
-- Une publication anonyme crée une carte dans la **réserve non attribuée**. Une publication d'un compte connecté lui donne initialement la propriété de sa nouvelle carte.
-- Dans l'espace personnel d'un compte connecté uniquement, un pack permet l'attribution de **une** carte disponible, créée anonymement. Aucune option d'ouverture si la réserve est vide. Ne jamais distribuer la carte d'un membre déjà propriétaire.
-- Les utilisateurs ne peuvent pas donner leurs cartes ; **seul l'administrateur** peut générer un transfert par lien spécial sécurisé à usage unique. Pas de vente à ce stade.
-- Les transferts changent le propriétaire, jamais le créateur, la carte ni ses statistiques. Conserver l'historique des propriétaires.
-- La popularité compte les **imports réels**, et non les simples vues ou ouvertures de lien. **Run Mix est hors du périmètre initial.**
+## Contrat fonctionnel
+- Une séance partageable est identifiée par l'**ordre de lecture des morceaux** (titres + artistes normalisés), sans tenir compte du titre de séance, de ses BPM/PPM, durées, phases et identifiants musicaux propriétaires.
+- À séquence identique, réutiliser l'ID de la première carte, son titre, son créateur et son historique d'imports. Une vraie modification de morceau ou d'ordre crée une nouvelle carte. Run Mix non concerné.
+- Créateur initial immuable tant que son compte existe ; en cas d'effacement légal du compte, afficher « Anonyme ». Propriétaire unique et transférable.
+- Toute séance demeure importable par tous. Le propriétaire est discrètement visible dans le catalogue ; le créateur apparaît dans le détail.
+- Les cartes publiées anonymement vont dans la réserve, tant qu'elles n'ont pas de propriétaire. Les créations connectées appartiennent initialement à leur créateur.
+- Un compte peut ouvrir un pack depuis son espace personnel seulement s'il existe du stock. **Un pack = une carte**. La première version limite volontairement à **un pack de bienvenue par compte** pour éviter l'épuisement de la petite réserve ; les récompenses de fin de course sont un développement ultérieur.
+- Seul l'administrateur crée un lien de don (sept jours, un usage). Le destinataire doit être connecté. Aucun don direct ni vente par les membres.
+- Conserver l'historique des propriétaires, et protéger une séance publiée contre la suppression individuelle par son créateur.
 
-## Audit du code actuel
+## Implémentation livrée
 
-| Composant | Constat | Conséquence |
-| --- | --- | --- |
-| `worker/index.js` | `POST /api/shared` crée systématiquement une nouvelle entrée D1 | Mettre en place un lookup unique de la séquence avant INSERT et un garde-fou SQL concurrent |
-| `mobile-app/src/services/PublicSharingService.ts` | Le mobile envoie les morceaux `payload.t`, avec `p` (phase), `n` (titre), `a` (artiste) et la source | La signature doit classer les morceaux par phase puis par ordre dans la phase, sans utiliser les IDs de plateforme |
-| `migrations/0003_community_profiles.sql` | `signed_shares` identifie le signataire, pas le propriétaire ; suppression de compte retire la signature | Introduire une propriété distincte et préserver la provenance historique sous réserve d'effacement de données personnelles |
-| `worker/account.js` | Le propriétaire du compte peut supprimer **définitivement** un partage via `/api/account/shared/:id` | Empêcher la destruction d'une carte de collection en raison de la suppression de sa publication |
-| `worker/admin.js` | Seule la modération/suppression existe | Ajouter le transfert administrateur et la vérification à usage unique côté serveur |
-| `worker/index.js` + mobile | Le mobile appelle `/import` après sauvegarde, mais l'endpoint public est forgeable et limité par IP/user-agent | Ajouter un mécanisme antifraude et un décompte dédupliqué adapté aux comptes et aux appareils |
-| `partages.html` et `compte.html` | Le catalogue et le profil savent montrer les créations, pas les possessions | Ajouter propriétaire discret, créateur au détail, collection et pack dans le profil |
+| Élément | Chemin |
+| --- | --- |
+| Identité musicale (SHA-256, artiste/titre normalisés) | `worker/workout-identity.js` |
+| Publication idempotente, alias et backfill progressif | `worker/cards.js` |
+| Route publique et métadonnées propriétaire/créateur | `worker/index.js` |
+| Pack atomique, collection et acceptation de don | `worker/pack.js` + `worker/account.js` |
+| Génération du lien et réconciliation admin | `worker/admin.js`, `admin.html` |
+| Catalogue avec propriétaire discret | `partages.html` |
+| Collection, pack et réception dans le profil | `compte.html` |
+| Schéma additif et triggers d'historique et de pack | `migrations/0004_workout_cards.sql` |
+| Tests inclus dans `npm run build` | `tests/workout-identity.test.mjs`, `tests/card-ownership.test.mjs` |
 
-## Socle implémenté
+La comparaison multi-plateforme est **volontairement limitée aux mêmes libellés titre + artiste**, après normalisation des espaces et de la casse. Les titres différents entre Spotify et YouTube, les reprises et les métadonnées manquantes ne sont pas réconciliés à cette étape. Les anciennes séances sans artiste peuvent rester hors collection tant qu'elles n'ont pas été contrôlées.
 
-- `worker/workout-identity.js` exporte `workoutMusicSequence` et `workoutMusicFingerprint` ; hash SHA-256 stable basé sur artistes et titres normalisés dans l'ordre effectif.
-- `tests/workout-identity.test.mjs` couvre les variations de titre, source, BPM, phases, ordre et morceaux ; quatre tests exécutés localement avec succès.
-- Le test est branché dans `npm run build`.
-- Cette fonction est **inertielle tant qu'elle n'est pas appelée par les routes de publication** : aucun changement D1 ou comportement utilisateur pour le moment.
+## Procédure de mise en service (manuelle, ne pas sauter d'étape)
 
-### Limite actuelle de la comparaison
+1. Faire une **sauvegarde/export D1** de la production `beatonstep-catalog-prod` (UUID `278e152c-3338-4e0d-adfd-673eac7c60cb`) et conserver une fenêtre de retour arrière. Ne pas exécuter les commandes sur une autre base.
+2. Dans la console SQL de cette base, exécuter le contenu **intégral** de `migrations/0004_workout_cards.sql`. Ce script n'efface et ne transforme aucune publication historique. Vérifier les tables et triggers :
+   ```sql
+   SELECT name,type FROM sqlite_master
+   WHERE name IN ('workout_cards','workout_card_aliases',
+     'workout_card_history','workout_pack_claims','workout_card_gifts',
+     'workout_card_history_first','workout_card_history_change',
+     'workout_card_pack_claim','workout_card_alias_imports')
+   ORDER BY type,name;
+   ```
+   Attendu : **5 tables et 4 triggers**.
+3. Se connecter à `https://beatonstep.app/admin.html`, cliquer sur **Réconcilier les séances historiques**. Le Worker traite par pages de 40, dans l'ordre de création. La plus ancienne devient canonique ; les copies deviennent des alias (anciens liens conservés) et leurs imports historiques sont reportés une seule fois.
+4. Vérifier en D1 les totaux puis les doublons résiduels et les exclusions (métadonnées manquantes) :
+   ```sql
+   SELECT (SELECT COUNT(*) FROM shared_items WHERE kind='workout') AS workouts,
+     (SELECT COUNT(*) FROM workout_cards) AS canonical,
+     (SELECT COUNT(*) FROM workout_card_aliases) AS aliases,
+     (SELECT COUNT(*) FROM workout_cards WHERE pack_eligible=1 AND owner_user_id IS NULL) AS stock;
+   SELECT fingerprint,COUNT(*) FROM workout_cards GROUP BY fingerprint HAVING COUNT(*)>1;
+   ```
+   Attendu : aucune empreinte en double ; `workouts = canonical + aliases + exclus` (les séances non comparables sont comptées à part dans le bilan admin).
+5. **Après seulement** : activer dans `wrangler.jsonc` > `vars` la variable `"CARDS_ENABLED":"true"`, puis publier le site via Cloudflare Workers Builds. Ne pas activer tant que le backfill n'est pas terminé.
+6. Vérifier sur le site le retour d'une publication musicale identique (même ID et titre), le pack d'un utilisateur test avec une seule carte anonyme, l'indisponibilité quand stock=0, les liens de don expirés et consommés, puis la disponibilité continue des anciennes URL. Contrôler la création et la suppression de compte.
 
-Une empreinte de texte artiste+titre ne garantit pas l'identité d'un enregistrement si ses métadonnées diffèrent entre YouTube et Spotify, ou si un artiste manque. Le helper v1 refuse de fusionner les morceaux sans artiste plutôt que de rapprocher abusivement deux enregistrements. Prévoir, plus tard, une table de correspondances vérifiées permettant la réconciliation des variantes d'écriture. Ne jamais comparer uniquement les IDs fournisseurs.
+**Ne pas lancer GitHub Actions ni OTA** : la VM est indisponible et le quota Actions épuisé. Les changements concernent le Worker et les pages du site ; le mobile n'est pas modifié.
 
-## Séquence de déploiement recommandée
-
-1. **Auditer l'existant D1** : nombre de séances, séquences identiques déjà publiées, comptes et signatures ; choisir la plus ancienne comme carte de référence. Conserver les anciennes URL et les compteurs via des alias non destructifs. Aucun backfill hasardeux.
-2. Créer une **migration D1 additive** avec empreinte UNIQUE, lien vers la séance canonique, créateur, propriétaire, réserve anonyme et historique des transferts. Reprendre les signatures existantes comme créateurs de leur carte ; ne pas rendre éligibles les cartes déjà attribuées.
-3. Ajouter la publication idempotente et son test de concurrence ; si doublon, renvoyer le lien/titre de référence sans modifier la propriété ni le créateur. Conserver le format d'ID existant et la compatibilité mobile.
-4. Exposer `creator` et `owner` dans le catalogue et le détail ; ajouter un espace « Ma collection » dans le compte, sans distraire du parcours d'import public.
-5. Ajouter `GET /api/account/pack` et `POST /api/account/pack/open`, uniquement pour un compte connecté, avec sélection et attribution **atomiques** en D1 et enregistrement de l'historique dans la même transaction ou un déclencheur SQL.
-6. Ajouter un lien de transfert émis uniquement par un administrateur, expirant et consommable une seule fois par un compte connecté. Tester les courses simultanées, les permissions et le stock épuisé.
-7. Adapter la suppression des publications/comptes en protégeant le lien et la carte, tout en anonymisant les identifiants personnels supprimés. Renforcer le compteur d'imports avant toute mise en valeur économique.
-
-## Contraintes d'exploitation
-
-Le site se déploie depuis `beatonstep-website/main` via Cloudflare Workers Builds. Les changements applicatifs éventuels vont sur `BeatOnStep/release/v1.0.0`, mais aucune OTA ne doit être lancée sans VM. **La migration D1 de production est manuelle**, à exécuter dans la console Cloudflare après vérification. La VM distante n'est pas accessible et le quota GitHub Actions est épuisé : ne pas lancer de workflow.
+## Risques et travail restant
+- Le compteur d'imports actuel est appelé après sauvegarde locale, mais le endpoint public `/import` reste falsifiable malgré sa limitation IP/jour. **Il n'est pas encore une mesure robuste des imports réels**. Prévoir une attestation et une déduplication par compte/appareil côté serveur avant de donner une valeur financière à la popularité.
+- L'identité des morceaux sans artiste et les variantes textuelles des plateformes sont volontairement remises à plus tard.
+- Les packs ne sont pas encore liés à l'événement de fin de course. Le pack de bienvenue (une ouverture par compte) permet de valider l'expérience web sans nouvelle OTA.
+- Le backfill doit être testé sur une copie D1 avant production ; seuls des contrôles de syntaxe et tests unitaires/mocks ont été effectués ici, **pas un test bout en bout sur la D1 réelle**.
