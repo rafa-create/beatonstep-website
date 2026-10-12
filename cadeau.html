@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta name="description" content="Vous avez reçu une carte BeatOnStep. Ouvrez votre cadeau dans l’application ou connectez-vous pour l’accepter.">
+<meta property="og:site_name" content="BeatOnStep"><meta property="og:type" content="website">
+<meta property="og:title" content="🎁 Vous avez reçu une carte BeatOnStep">
+<meta property="og:description" content="Une séance à découvrir dans votre collection. Ouvrez votre cadeau BeatOnStep !">
+<meta property="og:image" content="https://beatonstep.app/assets/brand/logo-400.jpg">
+<title>Une carte pour toi • BeatOnStep</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0b0b08;color:#f3f0e3}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;overflow-x:hidden;background:radial-gradient(ellipse at 48% 12%,#3b3516 0%,#14130e 39%,#080807 83%)}
+header{padding:18px max(18px,calc((100vw - 980px)/2));display:flex;justify-content:space-between;align-items:center;gap:14px}
+header a{color:#e9dd5e;text-decoration:none;font-weight:900;letter-spacing:.09em}header small{color:#d5ccb0}
+main{max-width:1000px;margin:0 auto;padding:6px 18px 52px;display:grid;grid-template-columns:minmax(230px,350px) minmax(260px,1fr);align-items:center;gap:clamp(24px,5vw,86px);min-height:calc(100vh - 78px)}
+.card-area{perspective:1100px;padding:16px}.gift-card{aspect-ratio:0.71;width:100%;max-width:330px;border:2px solid #fcea07;border-radius:23px;padding:21px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:0 32px 70px #000b,0 0 65px #fcea0720;transform:rotate(-4deg);animation:arrive 800ms cubic-bezier(.19,.8,.27,1) both;background:radial-gradient(ellipse at 55% 46%,#383111 0%,#19190f 58%,#0e0e0b 95%)}
+.gift-card::before{content:'';position:absolute;inset:-70% auto auto -85%;width:45%;height:230%;background:linear-gradient(90deg,transparent,#fffbd92e,transparent);transform:rotate(25deg);animation:shimmer 2.1s ease .5s both;pointer-events:none}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fcea07;font-size:12px;font-weight:900;letter-spacing:.22em}
+.star{font-size:28px;letter-spacing:0}.card-art{height:43%;border:1px solid #776521;border-radius:14px;background:linear-gradient(180deg,#313021,#17170e);display:flex;flex-direction:column;justify-content:center;gap:12px;padding:16px;position:relative}
+.effort-bars{display:flex;align-items:flex-end;gap:4px;height:100%;max-height:145px;border-bottom:1px solid #81722c}
+.effort-bars span{display:block;min-width:3px;background:linear-gradient(180deg,#fcea07,#aa8f24);border-radius:4px 4px 0 0;box-shadow:0 0 14px #fcea0730;flex-basis:0}
+.card-art-label{font-size:10px;letter-spacing:.2em;color:#ddd09b;font-weight:800;text-align:center}
+.card-details small{font-size:12px;color:#c5c0a8;font-weight:800;letter-spacing:.13em}
+.card-details h2{font-size:clamp(19px,4vw,28px);line-height:1.12;margin:9px 0 8px;overflow-wrap:anywhere}
+.card-details p{font-size:12px;margin:0;color:#c4bea4}.content h1{font-size:clamp(33px,5vw,57px);line-height:1.04;letter-spacing:-.04em;margin:0 0 17px}.content h1 em{color:#fcea07;font-style:normal}
+.eyebrow{color:#fcea07;font-size:12px;letter-spacing:.25em;font-weight:900;margin:0 0 14px}
+.description{color:#ddd7c7;line-height:1.65;font-size:16px;max-width:520px;margin:0 0 21px}
+.actions{display:grid;gap:12px;max-width:425px}
+.button{display:flex;align-items:center;justify-content:center;text-align:center;min-height:52px;border-radius:999px;padding:13px 20px;text-decoration:none;font-size:15px;font-weight:800;border:1px solid #fcea07;transition:transform .2s,background .2s}
+.button:hover{transform:translateY(-2px)}.primary{background:#fcea07;color:#15140a}.secondary{color:#fcea07;background:#1c1b12}.tertiary{color:#eee7cf;background:transparent;border-color:#615c3d}
+.button[aria-disabled="true"]{pointer-events:none;opacity:.4}
+.status{min-height:45px;color:#d6d0bb;font-size:13px;line-height:1.5;max-width:440px}
+.note{color:#aaa491;font-size:12px;line-height:1.6;max-width:460px;margin:15px 0 0}
+#offer[hidden],#pending[hidden]{display:none}
+@keyframes arrive{from{opacity:0;transform:translateY(30px) rotate(-15deg) scale(.94)}to{opacity:1;transform:translateY(0) rotate(-4deg) scale(1)}}
+@keyframes shimmer{0%{left:-85%}100%{left:190%}}
+@media(max-width:700px){main{display:flex;flex-direction:column;padding:0 22px 42px;gap:20px}.card-area{padding:4px}.gift-card{width:min(48vw,215px);min-width:170px;border-radius:16px;padding:12px;box-shadow:0 14px 35px #0009}.card-header{font-size:8px}.star{font-size:17px}.card-art{padding:9px;gap:5px}.effort-bars{max-height:70px}.card-art-label{font-size:8px}.card-details small{font-size:9px}.card-details h2{font-size:15px;margin:4px 0}.card-details p{font-size:9px}.content{text-align:center;width:100%}.eyebrow{margin-bottom:9px}.content h1{font-size:35px;margin-bottom:12px}.description{font-size:14px;margin-bottom:16px}.actions{margin:0 auto}.status,.note{margin-left:auto;margin-right:auto}}
+@media(prefers-reduced-motion:reduce){.gift-card,.gift-card::before{animation:none}.button{transition:none}}
+</style></head><body>
+<header><a href="/">BEATONSTEP</a><small>UNE SURPRISE POUR TOI ✦</small></header>
+<main>
+  <div class="card-area" aria-hidden="true">
+    <div class="gift-card"><div class="card-header"><span>BEATONSTEP</span><span class="star">✧</span></div>
+      <div class="card-art"><div class="effort-bars" id="effort-bars"></div><span class="card-art-label">PROFIL D’EFFORT</span></div>
+      <div class="card-details"><small id="card-number">CARTE DE SÉANCE</small><h2 id="card-name">Une surprise…</h2><p>À ajouter à ta collection</p></div>
+    </div>
+  </div>
+  <section class="content" aria-labelledby="gift-heading">
+    <p class="eyebrow">CADEAU BEATONSTEP</p>
+    <h1 id="gift-heading">Tu as reçu <em>une carte !</em></h1>
+    <p class="description">Une nouvelle séance t’attend. Connecte-toi ou crée gratuitement ton compte BeatOnStep, puis accepte le cadeau pour qu’elle rejoigne ta collection.</p>
+    <p id="status" class="status" role="status" aria-live="polite">Vérification de ton cadeau…</p>
+    <div id="offer" class="actions" hidden>
+      <a id="open-app" class="button primary" href="#">Ouvrir le cadeau dans l’application</a>
+      <a id="account" class="button secondary" href="#">Se connecter ou créer un compte</a>
+      <a id="open-session" class="button tertiary" href="#">Voir / importer la séance dans l’application</a>
+      <a id="view-site" class="button tertiary" href="#">Voir le détail de la séance sur le site</a>
+    </div>
+    <div id="pending" class="actions" hidden><a href="/partages.html" class="button tertiary">Découvrir le catalogue</a></div>
+    <p class="note">Le cadeau est valable sept jours, et la carte change de propriétaire seulement lorsque tu acceptes le transfert. Consulter ou importer la séance ne transfère pas sa propriété.</p>
+  </section>
+</main>
+<script>
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const token=new URLSearchParams(location.hash.slice(1)).get('gift')||'';
+  const status=text=>{$('status').textContent=text;};
+  const draw=profile=>{
+    const graph=$('effort-bars');graph.replaceChildren();
+    if(!Array.isArray(profile)||!profile.length)return;
+    const points=profile.filter(row=>Array.isArray(row)&&row.length===2&&
+      Number.isFinite(row[0])&&row[0]>0&&Number.isFinite(row[1])&&row[1]>0);
+    if(points.length!==profile.length)return;
+    const values=points.map(p=>p[1]),lo=Math.min(...values),hi=Math.max(...values);
+    const baseline=Math.max(0,lo-25),ceiling=hi+12;
+    for(const [duration,target] of points){
+      const span=document.createElement('span');
+      span.style.height=Math.max(20,Math.min(95,Math.round(22+73*(target-baseline)/(ceiling-baseline))))+'%';
+      span.style.flexGrow=String(Math.min(86400,Math.round(duration)));
+      graph.append(span);
+    }
+  };
+  const start=async()=>{
+    if(!/^[a-f0-9]{64}$/.test(token)){status('Ce lien de cadeau est invalide.');$('pending').hidden=false;return;}
+    try{
+      const response=await fetch('/api/account/gift/preview',{
+        method:'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'content-type':'application/json'},body:JSON.stringify({code:token})
+      });
+      if(!response.ok)throw Error('invalid');
+      const result=await response.json();
+      if(!result.available||!result.card)throw Error('invalid');
+      const card=result.card;
+      $('card-name').textContent=card.name||'Séance BeatOnStep';
+      $('card-number').textContent='#'+String(card.id-1000000000000).padStart(4,'0')+' · SÉANCE';
+      draw(card.profile);
+      $('open-app').href='beatonstep://card-gift?code='+encodeURIComponent(token);
+      $('account').href='/compte.html#gift='+token;
+      $('open-session').href='beatonstep://shared?id='+encodeURIComponent(card.id)+'&auto=1';
+      $('view-site').href='/partages.html?id='+encodeURIComponent(card.id);
+      $('offer').hidden=false;
+      status('Ton cadeau est prêt. Ouvre-le dans l’application pour l’accepter.');
+    }catch{
+      status('Ce cadeau a expiré, a déjà été accepté ou n’est plus disponible.');
+      $('pending').hidden=false;
+    }
+  };
+  void start();
+})();
+</script></body></html>
