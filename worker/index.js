@@ -1,4 +1,5 @@
 import { adminRequest } from './admin.js';
+import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } from './account.js';
 import { sharePageResponse } from './share-preview.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
@@ -106,9 +107,16 @@ async function d1Request(request, env, url) {
       'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports ' +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
+    const items = (result.results || []).map(publicRow);
+    try {
+      const names = await authorFor(db, (result.results || []).map(row => row.id));
+      for (const item of items) {
+        const name = names.get(item.id - D1_ID_OFFSET);
+        if (name) item.author = name;
+      }
+    } catch { /* Old public catalogue must stay available until D1 migration. */ }
     return json({ total: count?.total ?? 0, page, pageSize: 20,
-      items: (result.results || []).map(publicRow) }, 200,
-    { 'cache-control': 'public, max-age=30' });
+      items }, 200, { 'cache-control': 'public, max-age=30' });
   }
   if (path === '/api/shared' && request.method === 'POST') {
     const raw = await request.text();
@@ -123,14 +131,30 @@ async function d1Request(request, env, url) {
     if (!(await rateLimit(request, env, 'publish', 86400000, 20))) {
       return json({ error: 'retry_later' }, 429);
     }
+    const hasIdentity = request.headers.has('authorization');
+    let author = null;
+    if (hasIdentity) {
+      // A stale or revoked login MUST fail, not silently become an anonymous post.
+      await ensureCommunitySchema(db);
+      author = await devicePublisher(db, request);
+      if (!author) return json({ error: 'account_session_expired' }, 401);
+    }
     const createdAt = Date.now();
-    const result = await db.prepare(
+    const insert = db.prepare(
       'INSERT INTO shared_items ' +
       '(kind,source,name,duration_sec,bpm,tracks,phases,profile_json,payload_json,created_at) ' +
       'VALUES (?,?,?,?,?,?,?,?,?,?)'
     ).bind(input.kind, meta.source, meta.name, meta.durationSec, meta.bpm, meta.tracks,
       meta.phases, meta.profile ? JSON.stringify(meta.profile) : null,
-      JSON.stringify(input.payload), createdAt).run();
+      JSON.stringify(input.payload), createdAt);
+    // D1 batches are transactional. Either BOTH the card and its signature
+    // commit, or neither is published. Keep the anonymous path unchanged.
+    const result = author
+      ? (await db.batch([
+          insert, db.prepare('INSERT INTO signed_shares(share_id,user_id) VALUES(last_insert_rowid(),?)')
+            .bind(author.id),
+        ]))[0]
+      : await insert.run();
     const id = result.meta?.last_row_id;
     const publicId = id + D1_ID_OFFSET;
     if (!Number.isSafeInteger(id) || id < 1 || publicId > 999_999_999_999_999) {
@@ -150,8 +174,12 @@ async function d1Request(request, env, url) {
   if (!action && request.method === 'GET') {
     const row = await db.prepare('SELECT * FROM shared_items WHERE id = ?').bind(id).first();
     if (!row) return json({ error: 'expired_share' }, 404);
-    return json({ ...publicRow(row), payload: JSON.parse(row.payload_json) }, 200,
-      { 'cache-control': 'public, max-age=30' });
+    const item = { ...publicRow(row), payload: JSON.parse(row.payload_json) };
+    try {
+      const author = (await authorFor(db, [row.id])).get(row.id);
+      if (author) item.author = author;
+    } catch { /* Pre-migration catalogue remains public. */ }
+    return json(item, 200, { 'cache-control': 'public, max-age=30' });
   }
   if (action && request.method === 'POST') {
     const exists = await db.prepare('SELECT id FROM shared_items WHERE id = ?').bind(id).first();
@@ -208,6 +236,9 @@ export default {
       // Private moderation is isolated from the CORS-enabled public share API.
       if (url.pathname === '/api/admin' || url.pathname.startsWith('/api/admin/')) {
         return adminRequest(request, env, url);
+      }
+      if (url.pathname === '/api/account' || url.pathname.startsWith('/api/account/')) {
+        return accountRequest(request, env, url);
       }
       if (request.method === 'OPTIONS') return new Response(null, {
         status: 204, headers: {
