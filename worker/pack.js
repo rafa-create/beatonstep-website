@@ -42,7 +42,7 @@ export async function openPack(db,userId) {
     AND NOT EXISTS(SELECT 1 FROM workout_pack_claims WHERE user_id=?)
     RETURNING share_id`).bind(userId,now,userId).first();
   if (!card) return json({error:'pack_unavailable',...(await packState(db,userId))},409);
-  const share=await db.prepare('SELECT name,imports,profile_json FROM shared_items WHERE id=?')
+  const share=await db.prepare("SELECT name,imports,COALESCE(profile_json,json_extract(payload_json,'$.p')) AS profile_json FROM shared_items WHERE id=?")
     .bind(card.share_id).first();
   return json({opened:true,card:{
     id:publicId(card.share_id),name:share.name,imports:share.imports,
@@ -57,16 +57,25 @@ const cardProfile=value=>{
   if (!value) return null;
   try {
     const phases=JSON.parse(value);
-    return Array.isArray(phases)&&phases.length>=1&&phases.length<=32&&
-      phases.every(p=>Array.isArray(p)&&p.length===2&&
-        Number.isFinite(p[0])&&p[0]>0&&Number.isFinite(p[1])&&p[1]>0)
-      ?phases:null;
+    if(!Array.isArray(phases)||phases.length<1||phases.length>32)return null;
+    const compact=phases.map(phase=>{
+      if(!Array.isArray(phase))return null;
+      // Stored catalogue graph: [duration,PPM].
+      // Historic signed workout payload: [label,duration,PPM,track BPM].
+      const fromWorkout=phase.length>=3&&typeof phase[0]==='string';
+      const duration=fromWorkout?phase[1]:phase[0];
+      const ppm=fromWorkout?phase[2]:phase[1];
+      return Number.isFinite(duration)&&duration>=30&&duration<=14400&&
+        Number.isFinite(ppm)&&ppm>=30&&ppm<=300
+        ? [duration,ppm] : null;
+    });
+    return compact.every(Boolean)?compact:null;
   } catch { return null; }
 };
 
 export async function myCollection(db,userId) {
   await requireCardSchema(db);
-  const results=await db.prepare(`SELECT c.share_id,x.name,x.imports,x.created_at,x.profile_json,
+  const results=await db.prepare(`SELECT c.share_id,x.name,x.imports,x.created_at,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
     creator.handle AS creator
     FROM workout_cards c JOIN shared_items x ON x.id=c.share_id
     LEFT JOIN community_users creator ON creator.id=c.creator_user_id
@@ -112,7 +121,7 @@ export async function createGift(db,userId,id) {
 export async function giftStatus(db,token) {
   if (!validGiftToken(token)) return json({error:'invalid_gift'},400);
   await requireCardSchema(db);
-  const row=await db.prepare(`SELECT g.share_id,x.name,x.profile_json,x.duration_sec,g.expires_at
+  const row=await db.prepare(`SELECT g.share_id,x.name,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,x.duration_sec,g.expires_at
     FROM workout_card_gifts g JOIN shared_items x ON x.id=g.share_id
     JOIN workout_cards c ON c.share_id=g.share_id
     WHERE g.token_hash=? AND g.expires_at>? AND g.redeemed_at IS NULL
