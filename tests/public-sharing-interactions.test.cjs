@@ -133,6 +133,25 @@ function setup(search,data=example){
   await flush();
   const phaseBranches=walk(card,x=>x.tagName==='details'&&x.className==='phase-branch');
   assert.equal(phaseBranches.length,2);
+  const group=walk(card,x=>x.className==='workout-phases')[0];
+  assert(group,'the phases belong to a distinct visual child of the workout');
+  assert.equal(walk(group,x=>x.className==='phase-list').length,1,
+    'all phase cards are grouped in one nested list');
+  assert.equal(walk(group,x=>x.className==='phase-branch').length,2,
+    'the whole timeline belongs to the one parent workout card');
+  assert.match(walk(group,x=>x.className==='workout-phases-title')[0].textContent,
+    /Phases de la séance/);
+  assert.equal(walk(group,x=>x.className==='workout-phases-count')[0].textContent,
+    '2 phases');
+  assert.equal(walk(group,x=>x.className==='phase-number').map(x=>x.textContent).join(','),
+    '1,2','phase numbers convey order without editing controls');
+  for(const branch of phaseBranches){
+    const meta=walk(branch,x=>x.className==='phase-meta')[0].textContent;
+    assert.match(meta,/BPM moy\./,'average musical tempo is shown');
+    assert.doesNotMatch(meta,/Cible|Target|PPM/,'target cadence is hidden from the web view');
+  }
+  assert.equal(walk(group,x=>x.tagName==='button').length,0,
+    'the site does not add song or phase editing buttons');
   assert(phaseBranches.every(x=>!x.open),'phases initially collapsed');
   assert.equal(walk(card,x=>x.className==='track').length,0);
   assert.match(phaseBranches[0].textContent,/Échauffement/);
@@ -319,6 +338,8 @@ function setup(search,data=example){
     x=>x.className==='effort-segment').length,2);
   const playlistRoot=walk(playlistCard,x=>x.tagName==='details');
   assert.equal(playlistRoot.length,1);
+  assert.equal(walk(playlistCard,x=>x.className==='workout-phases').length,0,
+    'read-only nested workout styling must not affect Run Mix playlists');
   playlistRoot[0].open=true;
   playlistRoot[0].events.toggle();
   await flush();
