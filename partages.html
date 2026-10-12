@@ -19,7 +19,10 @@
     header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
     .brand{font-weight:800;text-decoration:none;display:flex;align-items:center;gap:10px;font-size:20px}
     .brand img{width:36px;height:36px;border-radius:9px}
-    .community-link{color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;margin-left:auto}
+    .community-link{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:12px;text-decoration:none;white-space:nowrap;border:1px solid transparent;border-radius:999px;padding:7px 9px}
+    header .lang{margin-left:auto;flex-shrink:0}
+    .community-link:hover{color:var(--text);border-color:var(--border)}
+    .community-link:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
     .lang button,.pagination button{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 14px;cursor:pointer;font:inherit}
     .filter-picker{display:flex;align-items:center;flex:0 1 170px;min-width:0}
     .filter-picker select{appearance:auto;width:100%;min-width:0;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;font-size:13px;cursor:pointer}
@@ -121,8 +124,10 @@
     .error{padding:20px;border:1px solid var(--border);border-radius:16px;color:var(--muted)}
     @media(max-width:600px){
       main{margin-top:18px}
-      header{margin-bottom:16px}
-      .brand{font-size:19px}
+      header{margin-bottom:16px;gap:7px}
+      .brand{font-size:17px;gap:7px}
+      .brand img{width:30px;height:30px}
+      .community-link{padding:7px 5px;font-size:11px}
       .back{margin-bottom:10px}
       .lang button{padding:8px 11px;font-size:13px}
       .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 15px}
@@ -145,8 +150,8 @@
 <main>
   <header>
     <a class="brand" href="./"><img src="assets/brand/logo-400.jpg" alt="">BeatOnStep</a>
-    <a class="community-link" href="compte.html" id="community-link">Mon profil</a>
     <div class="lang"><button type="button" id="fr" aria-pressed="true">FR</button><button type="button" id="en" aria-pressed="false">EN</button></div>
+    <a class="community-link" href="compte.html" id="community-link">Profil</a>
   </header>
   <a class="back" href="partages.html" id="back">← Catalogue</a>
   <h1 id="title">Catalogue</h1>
@@ -165,7 +170,7 @@
         <label id="sort-label" for="sort-filter">Classement</label>
         <select id="sort-filter" aria-labelledby="sort-label">
           <option value="recent">Récentes</option>
-          <option value="popular">Populaires</option>
+          <option value="popular" selected>Populaires</option>
         </select>
       </div>
       <div class="filter-picker source-picker">
@@ -219,7 +224,7 @@
   let lang=(navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
   let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):'all';
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
-  let sort='recent',page=1,listTicket=0;
+  let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
   const cache=new Map();
   const countedViews=new Set();
   const $=key=>document.getElementById(key);
@@ -634,7 +639,7 @@
       ?fr('← Catalogue','← Catalog')
       :fr('← Séances programmées','← Programmed workouts');
     $('title').textContent=id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
-    $('community-link').textContent=fr('Mon profil','My profile');
+    $('community-link').textContent=fr('Profil','Profile');
     $('intro').hidden=Boolean(id);
     $('intro').textContent=fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));

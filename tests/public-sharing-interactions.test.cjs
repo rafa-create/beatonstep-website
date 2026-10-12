@@ -183,7 +183,13 @@ function setup(search,data=example){
   assert.equal(catalog.elements.intro.textContent,'Workouts and playlists from the community.');
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Privacy');
   assert.equal(catalog.elements['footer-privacy'].attributes['aria-label'],'Privacy');
-  assert.match(catalog.apiCalls[0],/source=all/);
+  assert.match(catalog.apiCalls[0],/source=all&sort=popular/,
+    'catalogue initially requests popular ranking');
+  assert.equal(catalog.elements['sort-filter'].value,'popular');
+  const recentCatalog=setup('?sort=recent');
+  await flush();
+  assert.match(recentCatalog.apiCalls[0],/sort=recent/,
+    'explicit newest ranking still overrides the default');
   const catalogCard=catalog.elements.results.children[0];
   const catalogRoot=walk(catalogCard,x=>x.tagName==='details');
   assert.equal(catalogRoot.length,1);

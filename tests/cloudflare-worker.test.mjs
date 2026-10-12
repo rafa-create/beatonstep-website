@@ -3,6 +3,21 @@ import assert from 'node:assert/strict';
 import worker from '../worker/index.js';
 import { existsSync, readFileSync } from 'node:fs';
 
+test('site header profile entry and catalogue popular default', () => {
+  for (const name of ['index.html', 'seances-programmees.html', 'garmin.html', 'privacy.html', 'music-credits.html']) {
+    const html = readFileSync(name, 'utf8');
+    assert.match(html, /class="profile-link" href="compte\.html"/, name + ' links to the optional account');
+    assert.match(html, /class="profile-link-label" data-fr>Profil<\/span>/, name + ' has French profile label');
+    assert.match(html, /class="profile-link-label" data-en>Profile<\/span>/, name + ' has English profile label');
+  }
+  const catalogue = readFileSync('partages.html', 'utf8');
+  assert.match(catalogue, /class="community-link" href="compte\.html"/);
+  assert.match(catalogue, /<option value="popular" selected>/);
+  assert.match(catalogue, /params\.get\('sort'\)\)\?params\.get\('sort'\):'popular'/);
+  assert.match(catalogue, /'&sort='\+sort/);
+  assert.match(readFileSync('site.css', 'utf8'), /\.profile-link:focus-visible/);
+});
+
 test('worker reports mode without requiring a D1 binding', async () => {
   const response = await worker.fetch(new Request('https://example.com/api/health'), {
     CATALOG_BACKEND: 'legacy',
