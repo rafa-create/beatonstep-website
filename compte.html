@@ -76,7 +76,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à publier vos séances sous ce pseudo.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
 <div id="collection-panel" hidden><h2>Ma collection</h2>
-<p>Chaque séance possède une seule carte. Tout le monde peut l'importer, mais une seule personne en est propriétaire.</p>
+<p>Une carte unique par séance, à découvrir et collectionner. Toutes les séances restent accessibles à la communauté.</p>
 <ul id="owned-cards"></ul>
 <div id="pack-panel" class="pack-game">
   <div class="pack-image" aria-hidden="true">
@@ -185,9 +185,9 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       renderCollection(collection.items||[]);
       $('open-pack').disabled=!pack.available;
       $('pack-info').textContent=pack.alreadyOpened
-        ?'Vous avez déjà ouvert votre pack de bienvenue. Une seule ouverture par compte pour cette première version.'
-        :pack.available?'Une nouvelle carte de séance anonyme attend un propriétaire. Réserve : '+pack.remaining+' carte(s).'
-        :'Aucune carte anonyme à attribuer pour le moment. Revenez lorsque la réserve sera alimentée.';
+        ?'Pack déjà ouvert. Ta carte est dans ta collection.'
+        :pack.available?'Une carte surprise à découvrir.'
+        :'Aucun pack disponible pour le moment.';
       if(giftCode&&/^[a-f0-9]{64}$/.test(giftCode)){
         $('gift-panel').hidden=false;
         try{
@@ -243,12 +243,36 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       status('Retour à BeatOnStep… Si le retour ne se fait pas, utilisez le lien affiché.');
     }catch(error){status(error.message);$('link-button').disabled=false}
   };
+  function showCardReveal(card){
+    const layer=$('card-reveal');
+    $('reveal-name').textContent=card.name;
+    $('reveal-number').textContent='#'+String(card.id-1000000000000).padStart(4,'0');
+    layer.classList.remove('is-revealed');
+    layer.hidden=false;
+    document.body.style.overflow='hidden';
+    $('reveal-close').focus();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('is-revealed')));
+  }
+  function closeCardReveal(){
+    $('card-reveal').hidden=true;
+    $('card-reveal').classList.remove('is-revealed');
+    document.body.style.overflow='';
+    $('open-pack').focus();
+  }
+  $('reveal-close').onclick=closeCardReveal;
+  $('card-reveal').addEventListener('keydown',event=>{
+    if(event.key==='Escape'){event.preventDefault();closeCardReveal()}
+    if(event.key==='Tab'){
+      event.preventDefault();$('reveal-close').focus();
+    }
+  });
   $('open-pack').onclick=async()=>{
     $('open-pack').disabled=true;
     try{
       const result=await api('/api/account/pack/open','POST',{});
+      showCardReveal(result.card);
       await refreshCollection();
-      status('Nouvelle carte obtenue : '+result.card.name+'. Elle est maintenant dans votre collection.');
+      status('Carte ajoutée à ta collection.');
     }catch(error){status(error.message);await refreshCollection()}
   };
   $('claim-gift').onclick=async()=>{
