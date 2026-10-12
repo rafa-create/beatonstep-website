@@ -39,3 +39,46 @@ test('site scripts remain parseable and account device pack has an auth gate',()
   assert.match(account,/account_session_expired/);
   assert.match(account,/return openPack\(db,member.id\)/);
 });
+
+test('gift invitation renders a collector card with safe app and web alternatives',()=>{
+  const html=read('cadeau.html');
+  assert.match(html,/Tu as reçu <em>une carte/);
+  assert.match(html,/id="effort-bars"/);
+  assert.match(html,/beatonstep:\/\/card-gift\?code=/);
+  assert.match(html,/beatonstep:\/\/shared\?id=/);
+  assert.match(html,/auto=1/);
+  assert.match(html,/compte\.html#gift=/);
+  assert.match(html,/api\/account\/gift\/preview/);
+  assert.match(html,/name="robots" content="noindex,nofollow,noarchive"/);
+  assert.match(html,/name="referrer" content="no-referrer"/);
+  assert.match(html,/prefers-reduced-motion:reduce/);
+  assert.doesNotMatch(html,/innerHTML\s*=/);
+  for(const [,script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)){
+    new vm.Script(script,{filename:'cadeau.html'});
+  }
+});
+test('gift creation is owner-authorized; native acceptance requires a valid device grant',()=>{
+  const account=read('worker/account.js');
+  const pack=read('worker/pack.js');
+  assert.match(account,/return createGift\(db,user\.id,data\?\.id\)/);
+  assert.match(account,/return createGift\(db,member\.id,data\?\.id\)/);
+  assert.match(account,/return claimGift\(db,member\.id,data\?\.code\)/);
+  assert.match(account,/devicePublisher\(db,request\)/);
+  assert.match(account,/return giftStatus\(db,data\?\.code\)/);
+  assert.match(pack,/WHERE share_id=\? AND owner_user_id=\?/);
+  assert.match(pack,/expected_owner_id/);
+  assert.match(pack,/gift_self_claim/);
+  assert.match(pack,/redeemed_at IS NULL/);
+  assert.match(pack,/expires_at>\?/);
+  assert.match(pack,/beatonstep\.app\/cadeau\.html#gift=/);
+  assert.match(pack,/profile:cardProfile\(r\.profile_json\)/);
+});
+test('website allows owners to share their cards and sign-in keeps gift tokens',()=>{
+  const html=read('compte.html');
+  assert.match(html,/Offrir cette carte/);
+  assert.match(html,/\/api\/account\/gift\/create/);
+  assert.match(html,/giftCode=new URLSearchParams\(location\.hash\.slice\(1\)\)/);
+  assert.match(html,/\/api\/account\/gift\/claim/);
+  assert.match(html,/Voir la séance sur le site/);
+  assert.match(html,/shared\?id=/);
+});
