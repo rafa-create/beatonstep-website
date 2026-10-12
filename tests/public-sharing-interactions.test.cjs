@@ -195,16 +195,16 @@ function setup(search,data=example){
   // The catalog only fetches compact records until the workout itself expands.
   const catalog=setup('');
   await flush();
-  assert.equal(catalog.elements.back.href,'seances-programmees.html');
-  assert.equal(catalog.elements.back.textContent,'← Séances programmées');
+  assert.equal(catalog.elements.back.hidden,true,
+    'standalone catalog hides the detail-only return link');
   assert.equal(catalog.elements.title.textContent,'Catalogue');
   assert.equal(catalog.elements.intro.textContent,'Séances et playlists de la communauté.');
   assert.equal(catalog.elements.intro.hidden,false);
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Confidentialité');
   catalog.elements.en.onclick();
   await flush();
-  assert.equal(catalog.elements.back.href,'seances-programmees.html');
-  assert.equal(catalog.elements.back.textContent,'← Programmed workouts');
+  assert.equal(catalog.elements.back.hidden,true,
+    'language switching does not expose a detail-only return link');
   assert.equal(catalog.elements.title.textContent,'Catalog');
   assert.equal(catalog.elements.intro.textContent,'Workouts and playlists from the community.');
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Privacy');
