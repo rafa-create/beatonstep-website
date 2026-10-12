@@ -28,5 +28,12 @@
       "database_id": "278e152c-3338-4e0d-adfd-673eac7c60cb",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+  "previews": {
+    "vars": {
+      "CATALOG_BACKEND": "d1",
+      "COMMUNITY_SIGNUPS_ENABLED": "false",
+      "CARDS_ENABLED": "false"
+    }
+  }
 }
