@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   cardsEnabled, requireCardSchema, canonicalShareId, publishUniqueWorkout, backfillWorkoutCards,
 } from '../worker/cards.js';
-import { packState, openPack, claimGift, validGiftToken } from '../worker/pack.js';
+import { packState, openPack, claimGift, validGiftToken,createGift,giftStatus } from '../worker/pack.js';
 
 const completeCardSchemaObjects=[
   ...['workout_cards','workout_card_aliases','workout_card_history',
@@ -149,4 +149,59 @@ test('backfill scans in historical order and does not delete old shared items', 
   assert.equal(result.scanned,2);
   assert.equal(aliases,1);
   assert.equal(result.done,true);
+});
+
+test('only the current owner can issue a gift and issuing does not transfer ownership', async()=>{
+  const sqlSeen=[];
+  const ownerId='owner-1';
+  const db={prepare(sql){
+    sqlSeen.push(sql);
+    if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
+    if(sql.startsWith('SELECT share_id FROM workout_cards'))return {
+      bind:(id,user)=>({first:async()=>user===ownerId&&id===12?{share_id:12}:null}),
+    };
+    if(sql.includes('COUNT(*) AS total FROM workout_card_gifts'))return {
+      bind:()=>({first:async()=>({total:0})}),
+    };
+    if(sql.startsWith('INSERT INTO workout_card_gifts'))return {
+      bind:(hash,expiry,id,user)=>({
+        run:async()=>{
+          assert.match(hash,/^[a-f0-9]{64}$/);
+          assert.equal(id,12);assert.equal(user,ownerId);
+          assert.ok(expiry>Date.now());
+          return {meta:{changes:1}};
+        },
+      }),
+    };
+    throw Error('unexpected SQL '+sql);
+  }};
+  const bad=await createGift(db,'different-user',1000000000012);
+  assert.equal(bad.status,403);
+  const good=await createGift(db,ownerId,1000000000012);
+  assert.equal(good.status,200);
+  const result=await good.json();
+  assert.match(result.url,/^https:\/\/beatonstep\.app\/cadeau\.html#gift=[a-f0-9]{64}$/);
+  assert.equal(result.id,1000000000012);
+  assert.ok(sqlSeen.some(sql=>sql.includes('WHERE share_id=? AND owner_user_id=?')));
+  assert.ok(!sqlSeen.some(sql=>sql.startsWith('UPDATE workout_cards')));
+});
+
+test('public gift preview reveals only public card artwork data, not recipient or token',async()=>{
+  const db={prepare(sql){
+    if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
+    if(sql.includes('FROM workout_card_gifts g'))return {bind:()=>({
+      first:async()=>({share_id:12,name:'Progression',
+        duration_sec:2400,expires_at:Date.now()+10000,
+        profile_json:JSON.stringify([[600,135],[1200,160],[600,142]])}),
+    })};
+    throw Error('unexpected SQL '+sql);
+  }};
+  const answer=await giftStatus(db,'a'.repeat(64));
+  assert.equal(answer.status,200);
+  const data=await answer.json();
+  assert.equal(data.card.id,1000000000012);
+  assert.deepEqual(data.card.profile,[[600,135],[1200,160],[600,142]]);
+  assert.equal(data.card.name,'Progression');
+  assert.equal(data.card.owner,undefined);
+  assert.equal(data.token,undefined);
 });
