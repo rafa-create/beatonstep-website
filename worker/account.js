@@ -176,6 +176,9 @@ export async function accountRequest(request,env,url) {
       if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
       const member=await devicePublisher(db,request);
       if (!member) return reply({error:'account_session_expired'},401);
+      if (env.DISTANCE_CHALLENGES_ENABLED!=='true') {
+        return reply({error:'distance_challenges_not_ready'},503);
+      }
       return myChallengeAchievements(db,member.id);
     }
     // Explicit native collection capability. Device bearer grants stay isolated
@@ -236,7 +239,11 @@ export async function accountRequest(request,env,url) {
       if (!user) return reply({error:'login_required'},401);
       if (path==='/api/account/pack') return reply(await packState(db,user.id));
       if (path==='/api/account/collection') return myCollection(db,user.id);
-      if (path==='/api/account/achievements') return myChallengeAchievements(db,user.id);
+      if (path==='/api/account/achievements') {
+        return env.DISTANCE_CHALLENGES_ENABLED==='true'
+          ? myChallengeAchievements(db,user.id)
+          : reply({error:'distance_challenges_not_ready'},503);
+      }
       return giftStatus(db,url.searchParams.get('code'));
     }
     if (method==='POST'||method==='DELETE') {
