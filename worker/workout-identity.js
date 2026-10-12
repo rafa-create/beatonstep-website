@@ -51,6 +51,9 @@ export async function workoutMusicFingerprint(payload) {
 // Legacy v1 stays song-based. A v2 distance challenge deliberately uses
 // a different namespace, independent of songs or streaming platform.
 export async function workoutCardFingerprint(payload) {
-  return payload?.v===2 ? distanceChallengeFingerprint(payload)
-    : workoutMusicFingerprint(payload);
+  if (payload?.v===2) return distanceChallengeFingerprint(payload);
+  if (payload?.v===1 || payload?.v===undefined)
+    return workoutMusicFingerprint(payload);
+  // Never reuse a v1 fingerprint for an unsupported future schema.
+  return null;
 }
