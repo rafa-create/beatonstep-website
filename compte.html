@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0a0a08">
+<title>Mon profil — BeatOnStep</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0a08;--panel:#1b1b14;--line:#48412d;--ink:#f5f2e4;--accent:#fcea07;--sub:#bcb6a5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif}
+main{max-width:720px;padding:24px 18px 65px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+a{color:var(--accent)}header a{color:var(--ink);font-weight:800;text-decoration:none}
+h1{font-size:30px;letter-spacing:-.04em;line-height:1.2;margin:28px 0 8px}h2{font-size:19px;margin:0 0 12px}
+p{margin:6px 0 18px;color:var(--sub)}section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0}
+label{display:block;font-weight:600;margin:14px 0 5px}
+input{width:100%;border:1px solid #756b4e;border-radius:10px;background:#100f0d;color:var(--ink);min-height:46px;padding:11px;font:inherit}
+button{background:var(--accent);color:#14140b;border:0;border-radius:40px;min-height:44px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;border:1px solid #827756;color:var(--ink)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.notice{margin-top:16px;color:var(--ink);padding:12px;border-left:3px solid var(--accent);background:#28271b}
+ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--line)}
+li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
+[hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style></head><body><main>
+<header><a href="/">BeatOnStep</a><a href="/partages.html">← Catalogue</a></header>
+<h1 id="heading">Mon profil</h1><p id="intro">Retrouvez vos séances signées. La connexion est toujours facultative dans l’application.</p>
+<div class="notice" id="status" aria-live="polite">Vérification du compte…</div>
+<section id="signin" hidden><h2>Connexion</h2>
+<form id="signin-form"><label for="signin-email">E-mail</label><input type="email" id="signin-email" autocomplete="username" required>
+<label for="signin-password">Mot de passe</label><input type="password" id="signin-password" autocomplete="current-password" required>
+<div class="actions"><button type="submit">Se connecter</button><button class="secondary" type="button" id="go-signup">Créer un compte</button></div>
+</form></section>
+<section id="signup" hidden><h2>Créer un compte public</h2>
+<p>Votre pseudo sera visible sur les séances signées. Votre e-mail restera privé.</p>
+<form id="signup-form"><label for="signup-handle">Pseudo public (3 à 24 caractères)</label>
+<input id="signup-handle" minlength="3" maxlength="24" pattern="[a-z0-9][a-z0-9_.-]{2,23}" autocomplete="nickname" required>
+<label for="signup-email">E-mail</label><input type="email" id="signup-email" autocomplete="email" required>
+<label for="signup-password">Mot de passe (au moins 12 caractères)</label>
+<input id="signup-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+<label><input id="signup-terms" style="width:auto;min-height:0" type="checkbox" required> J’accepte la <a href="/privacy.html" target="_blank" rel="noopener noreferrer">politique de confidentialité</a> et la publication de mon pseudo.</label>
+<div class="actions"><button type="submit">Créer mon compte</button><button type="button" class="secondary" id="go-signin">J’ai déjà un compte</button></div>
+</form></section>
+<section id="account" hidden><h2 id="hello"></h2>
+<p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
+<div id="link-panel" hidden><p>Autorisez BeatOnStep à publier vos séances sous ce pseudo.</p>
+<button id="link-button" type="button">Relier mon application</button></div>
+<div id="my-cards"><h2>Mes publications</h2><ul id="items"></ul></div>
+<div class="actions"><button class="secondary" type="button" id="logout">Se déconnecter du site</button>
+<button class="secondary" type="button" id="delete-open">Supprimer mon compte</button></div>
+<div id="delete-panel" hidden><p>La suppression retire votre signature des anciennes séances et révoque les connexions. Les cartes restent anonymes.</p>
+<label for="delete-password">Confirmez votre mot de passe</label><input type="password" id="delete-password" autocomplete="current-password">
+<button id="delete-confirm" type="button">Supprimer définitivement mon compte</button></div>
+</section>
+<section id="public-profile" hidden><h2 id="public-handle"></h2><ul id="public-items"></ul></section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $=id=>document.getElementById(id), qs=new URLSearchParams(location.search);
+  const handle=qs.get('profil');
+  const connect=qs.get('connect')==='1';
+  const state=qs.get('state')||'', challenge=qs.get('challenge')||'';
+  const linking=connect&&/^[A-Za-z0-9_-]{16,128}$/.test(state)&&/^[A-Za-z0-9_-]{43}$/.test(challenge);
+  const status=message=>{$('status').textContent=message};
+  async function api(url,method='GET',data) {
+    const r=await fetch(url,{method,credentials:'same-origin',cache:'no-store',
+      headers:data?{'content-type':'application/json'}:{},
+      body:data?JSON.stringify(data):undefined});
+    const value=await r.json().catch(()=>({}));
+    if(!r.ok)throw Error(({registration_closed:'Les inscriptions ne sont pas encore ouvertes.',
+      account_unavailable:'Espace personnel non disponible : vérifier la migration D1.',
+      invalid_credentials:'Identifiants invalides.',account_exists:'E-mail ou pseudo déjà utilisé.',
+      retry_later:'Trop de tentatives. Réessayez ultérieurement.',
+      invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.'})[value.error]||
+      'Opération impossible ('+r.status+').');
+    return value;
+  }
+  function panel(value){for(const key of ['signin','signup','account','public-profile']) $(key).hidden=key!==value}
+  function renderCards(items,element){
+    element.replaceChildren();
+    if(!items.length){const p=document.createElement('li');p.textContent='Aucune publication pour le moment.';element.append(p);return}
+    for(const item of items) {
+      const li=document.createElement('li'),a=document.createElement('a'),meta=document.createElement('span');
+      a.textContent=item.name;a.href='/partages.html?id='+encodeURIComponent(item.id);
+      meta.className='small';meta.textContent=(item.kind==='workout'?'Séance':'Playlist')+' · '+item.source;
+      li.append(a,meta);element.append(li);
+    }
+  }
+  async function account(){
+    const me=await api('/api/account/me');
+    if(!me.authenticated){panel('signin');status('Connexion facultative : les visiteurs peuvent continuer à partager anonymement.');return}
+    panel('account');$('hello').textContent='Connecté : @'+me.handle;
+    $('link-panel').hidden=!linking;
+    status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
+    const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
+    renderCards(data.items,$('items'));
+  }
+  $('go-signup').onclick=()=>{panel('signup');status('Choisissez un pseudo public.')};
+  $('go-signin').onclick=()=>{panel('signin');status('Connectez-vous avec votre compte.')};
+  $('signin-form').onsubmit=async e=>{
+    e.preventDefault();const b=e.submitter;b.disabled=true;
+    try{await api('/api/account/login','POST',{email:$('signin-email').value,password:$('signin-password').value});
+      $('signin-form').reset();await account()}catch(error){status(error.message)}
+    finally{b.disabled=false}
+  };
+  $('signup-form').onsubmit=async e=>{
+    e.preventDefault();const b=e.submitter;b.disabled=true;
+    try{await api('/api/account/signup','POST',{email:$('signup-email').value,
+      handle:$('signup-handle').value,password:$('signup-password').value,accept_terms:$('signup-terms').checked});
+      $('signup-form').reset();await account()}catch(error){status(error.message)}
+    finally{b.disabled=false}
+  };
+  $('link-button').onclick=async()=>{
+    if(!linking)return;
+    $('link-button').disabled=true;
+    try{
+      const grant=await api('/api/account/connect','POST',{challenge,state});
+      // The one-time code has no privilege without the secret verifier held by the app.
+      location.assign('beatonstep://community-auth?code='+encodeURIComponent(grant.code)+'&state='+encodeURIComponent(state));
+      status('Retour à BeatOnStep…');
+    }catch(error){status(error.message);$('link-button').disabled=false}
+  };
+  $('logout').onclick=async()=>{
+    try{await api('/api/account/logout','POST');await account()}catch(error){status(error.message)}
+  };
+  $('delete-open').onclick=()=>{$('delete-panel').hidden=!$('delete-panel').hidden};
+  $('delete-confirm').onclick=async()=>{
+    if(!confirm('Supprimer définitivement votre compte et vos signatures ?'))return;
+    try{await api('/api/account/me','DELETE',{password:$('delete-password').value});
+      await account();status('Compte supprimé. Les anciennes cartes sont désormais anonymes.')}
+    catch(error){status(error.message)}
+  };
+  (async()=>{
+    if(handle){
+      panel('public-profile');$('heading').textContent='Profil de créateur';
+      $('intro').textContent='Séances publiques signées par un membre de BeatOnStep.';
+      try{const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
+        $('public-handle').textContent='@'+data.handle;renderCards(data.items,$('public-items'));
+        status('Profil public.')}
+      catch{status('Profil indisponible.')}
+      return;
+    }
+    try{await account()}catch(error){panel('signin');status(error.message)}
+  })();
+})();
+</script></body></html>
