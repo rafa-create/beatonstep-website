@@ -52,6 +52,9 @@ test('gift invitation renders a collector card with safe app and web alternative
   assert.match(html,/name="robots" content="noindex,nofollow,noarchive"/);
   assert.match(html,/name="referrer" content="no-referrer"/);
   assert.match(html,/prefers-reduced-motion:reduce/);
+  assert.match(html,/id="gift-retry"/);
+  assert.match(html,/vérification est momentanément indisponible/);
+  assert.match(html,/\$\('gift-retry'\)\.onclick/);
   assert.doesNotMatch(html,/innerHTML\s*=/);
   for(const [,script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)){
     new vm.Script(script,{filename:'cadeau.html'});
@@ -72,6 +75,8 @@ test('gift creation is owner-authorized; native acceptance requires a valid devi
   assert.match(pack,/expires_at>\?/);
   assert.match(pack,/beatonstep\.app\/cadeau\.html#gift=/);
   assert.match(pack,/profile:cardProfile\(r\.profile_json\)/);
+  assert.match(pack,/COALESCE\(x\.profile_json,json_extract\(x\.payload_json/);
+  assert.match(account,/DELETE FROM workout_card_gifts WHERE expected_owner_id=/);
 });
 test('website allows owners to share their cards and sign-in keeps gift tokens',()=>{
   const html=read('compte.html');
