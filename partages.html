@@ -511,7 +511,7 @@
       el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),imports);
     summary.append(head,art,title);
     if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
-      const by=el('a','creator','✓ @'+item.author);
+      const by=el('a','creator',fr('Par @','By @')+item.author);
       by.href='compte.html?profil='+encodeURIComponent(item.author);
       by.style.cssText='color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;display:inline-block;margin-bottom:10px';
       // A creator link opens the web profile, not the full-screen card carousel.
