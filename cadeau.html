@@ -82,8 +82,14 @@ main{max-width:1000px;margin:0 auto;padding:6px 18px 52px;display:grid;grid-temp
     }
   };
   const start=async()=>{
+    if(!token){
+      status('Ce lien ne contient pas de code cadeau. Demande à la personne qui t’offre la carte de te renvoyer le lien complet.');
+      $('gift-retry').hidden=true;
+      $('pending').hidden=false;
+      return;
+    }
     if(!/^[a-f0-9]{64}$/.test(token)){
-      status('Ce lien de cadeau est invalide.');
+      status('Ce code cadeau est incorrect. Demande un nouveau lien à la personne qui t’offre la carte.');
       $('gift-retry').hidden=true;
       $('pending').hidden=false;
       return;
