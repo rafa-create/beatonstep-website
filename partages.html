@@ -20,17 +20,16 @@
     .brand{font-weight:800;text-decoration:none;display:flex;align-items:center;gap:10px;font-size:20px}
     .brand img{width:36px;height:36px;border-radius:9px}
     .community-link{color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;margin-left:auto}
-    .lang button,.filters button,.sort button,.pagination button{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 14px;cursor:pointer;font:inherit}
-    .source-picker{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px}
-    .source-picker select{appearance:auto;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;max-width:180px}
-    .source-picker select:focus-visible,summary:focus-visible,.card-title:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
-    .lang button[aria-pressed=true],.filters button[aria-pressed=true],.sort button[aria-pressed=true]{background:var(--yellow);color:#151510;border-color:var(--yellow)}
+    .lang button,.pagination button{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 14px;cursor:pointer;font:inherit}
+    .filter-picker{display:flex;align-items:center;flex:0 1 170px;min-width:0}
+    .filter-picker select{appearance:auto;width:100%;min-width:0;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;font-size:13px;cursor:pointer}
+    .filter-picker select:focus-visible,summary:focus-visible,.card-title:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .lang button[aria-pressed=true]{background:var(--yellow);color:#151510;border-color:var(--yellow)}
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
-    .toolbar{display:flex;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;align-items:center;margin:12px 0 16px}
-    .filters,.sort,.pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-    .sort{font-size:13px} .sort button{font-size:13px}
-    .source-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 16px}
+    .pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .filter-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .card{background:radial-gradient(ellipse at 100% 0%,#292618 0%,#171711 55%);border:1px solid #403b2c;border-radius:20px;margin:12px 0;padding:14px;box-shadow:0 8px 28px #00000024}
     .card h2{font-size:clamp(19px,4.8vw,22px);margin:13px 0 10px;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
     .card-head,.card-stats{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -125,12 +124,10 @@
       header{margin-bottom:16px}
       .brand{font-size:19px}
       .back{margin-bottom:10px}
-      .lang button,.filters button,.sort button{padding:8px 11px;font-size:13px}
-      .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:9px;margin:12px 0 15px}
-      .filters{grid-column:1/-1}
-      .sort{grid-column:1;flex-wrap:nowrap}
-      .source-picker{grid-column:2;justify-content:flex-end;min-width:0}
-      .source-picker select{max-width:115px;padding:8px 7px;font-size:13px}
+      .lang button{padding:8px 11px;font-size:13px}
+      .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 15px}
+      .filter-picker{width:100%;min-width:0}
+      .filter-picker select{padding:9px 7px;font-size:13px;text-overflow:ellipsis}
       .card{padding:12px}
       .share-summary{padding:14px 40px 15px 14px}
       .share-summary::after{right:17px}
@@ -156,16 +153,22 @@
   <p class="sub" id="intro">Séances et playlists de la communauté.</p>
   <div id="catalog">
     <div class="toolbar">
-      <div class="filters" aria-label="Filtres">
-        <button data-kind="all" aria-pressed="true">Tout</button>
-        <button data-kind="workout" aria-pressed="false">Séances</button>
-        <button data-kind="runmix" aria-pressed="false">Playlists</button>
+      <div class="filter-picker">
+        <label id="kind-label" for="kind-filter">Type</label>
+        <select id="kind-filter" aria-labelledby="kind-label">
+          <option value="all">Types</option>
+          <option value="workout">Séances</option>
+          <option value="runmix">Playlists</option>
+        </select>
       </div>
-      <div class="sort" aria-label="Tri">
-        <button data-sort="recent" aria-pressed="true">Récentes</button>
-        <button data-sort="popular" aria-pressed="false">Populaires</button>
+      <div class="filter-picker">
+        <label id="sort-label" for="sort-filter">Classement</label>
+        <select id="sort-filter" aria-labelledby="sort-label">
+          <option value="recent">Récentes</option>
+          <option value="popular">Populaires</option>
+        </select>
       </div>
-      <div class="source-picker">
+      <div class="filter-picker source-picker">
         <label id="source-label" for="source-filter">Source</label>
         <select id="source-filter" aria-labelledby="source-label">
           <option value="all">Sources</option>
@@ -574,8 +577,8 @@
     empty(paging);
     catalogItems=[];
     result.append(el('p','sub',fr('Chargement…','Loading…')));
-    document.querySelectorAll('[data-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.kind===kind)));
-    document.querySelectorAll('[data-sort]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.sort===sort)));
+    $('kind-filter').value=kind;
+    $('sort-filter').value=sort;
     $('source-filter').value=musicSource;
     try{
       const data=await get(API+'?kind='+encodeURIComponent(kind)+'&source='+
@@ -636,21 +639,23 @@
     $('intro').textContent=fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));
     $('footer-privacy-label').textContent=fr('Confidentialité','Privacy');
-    document.querySelector('[data-kind=all]').textContent=fr('Tout','All');
-    document.querySelector('[data-kind=workout]').textContent=fr('Séances','Workouts');
-    document.querySelector('[data-kind=runmix]').textContent=fr('Playlists','Playlists');
-    document.querySelector('[data-sort=recent]').textContent=fr('Récentes','Newest');
-    document.querySelector('[data-sort=popular]').textContent=fr('Populaires','Popular');
+    $('kind-label').textContent=fr('Type','Type');
+    document.querySelector('#kind-filter option[value=all]').textContent=fr('Types','Types');
+    document.querySelector('#kind-filter option[value=workout]').textContent=fr('Séances','Workouts');
+    document.querySelector('#kind-filter option[value=runmix]').textContent=fr('Playlists','Playlists');
+    $('sort-label').textContent=fr('Classement','Sort order');
+    document.querySelector('#sort-filter option[value=recent]').textContent=fr('Récentes','Newest');
+    document.querySelector('#sort-filter option[value=popular]').textContent=fr('Populaires','Popular');
     $('source-label').textContent=fr('Source','Source');
     document.querySelector('#source-filter option[value=all]').textContent=fr('Sources','Sources');
     if(id)showDetail();else showList();
   }
-  document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{
-    kind=b.dataset.kind;page=1;showList();
-  });
-  document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{
-    sort=b.dataset.sort;page=1;showList();
-  });
+  $('kind-filter').onchange=()=>{
+    kind=$('kind-filter').value;page=1;showList();
+  };
+  $('sort-filter').onchange=()=>{
+    sort=$('sort-filter').value;page=1;showList();
+  };
   $('source-filter').onchange=()=>{
     musicSource=$('source-filter').value;
     page=1;
