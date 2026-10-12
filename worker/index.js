@@ -74,7 +74,7 @@ export function validate(kind, payload) {
     profile: payload.p.map(p => [Math.round(p[1]), Math.round(p[2])]) };
 }
 
-function publicRow(row) {
+export function publicRow(row) {
   const storedProfile = row.profile_json ? JSON.parse(row.profile_json) : null;
   // Older playlists already contain per-track BPMs in their payload_json.
   // Reconstruct their graph at read time: no migration and no rewritten shares.
@@ -85,6 +85,11 @@ function publicRow(row) {
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
     phases: row.phases, ...(profile ? { profile } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
+    ...(row.payload_v===2 && row.goal_mode==='distance' &&
+        Number.isSafeInteger(row.target_meters) &&
+        Number.isSafeInteger(row.deadline_sec)
+      ? {goalMode:'distance',targetMeters:row.target_meters,deadlineSec:row.deadline_sec}
+      : {}),
   };
 }
 
@@ -131,7 +136,11 @@ async function d1Request(request, env, url) {
     const order = sort === 'popular' ? 'imports DESC, id DESC' : 'id DESC';
     const result = await db.prepare(
       'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports, ' +
-      "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json " +
+      "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json, " +
+      "json_extract(payload_json,'$.v') AS payload_v, " +
+      "json_extract(payload_json,'$.goalMode') AS goal_mode, " +
+      "json_extract(payload_json,'$.targetMeters') AS target_meters, " +
+      "json_extract(payload_json,'$.deadlineSec') AS deadline_sec " +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
@@ -227,7 +236,9 @@ async function d1Request(request, env, url) {
   if (!action && request.method === 'GET') {
     const row = await db.prepare('SELECT * FROM shared_items WHERE id = ?').bind(id).first();
     if (!row) return json({ error: 'expired_share' }, 404);
-    const item = { ...publicRow(row), payload: JSON.parse(row.payload_json) };
+    const payload=JSON.parse(row.payload_json);
+    const rule=challengeRule(payload);
+    const item = { ...publicRow(row), ...(rule ?? {}), payload };
     try {
       const author = (await authorFor(db, [row.id])).get(row.id);
       if (author) item.author = author;
