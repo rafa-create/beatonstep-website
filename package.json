@@ -13,6 +13,6 @@
     "dev": "npm run build && wrangler dev"
   },
   "devDependencies": {
-    "wrangler": "4.129.1"
+    "wrangler": "4.149.0"
   }
 }
