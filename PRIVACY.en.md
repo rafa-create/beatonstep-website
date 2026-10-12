@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** October 6, 2026
+**Last updated:** October 12, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -12,9 +12,15 @@ BeatOnStep is a mobile app (Android and iOS) that adapts music to your walking o
 
 ## 2. Core principle: minimal collection, no commercial tracking
 
-BeatOnStep **does not create user accounts**, uses **no advertising**, and performs **no commercial tracking or profiling**. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count personal playlists imported per source (§ 3.9). That measurement contains no cadence (SPM), route data, playlist name or ID, track, artist, or music-account information.
+BeatOnStep **works without an account** and offers an **optional catalogue account solely for signing public shares**. It uses **no advertising**, and performs **no commercial tracking or profiling**. A very limited pseudonymous usage measurement may be sent to the BeatOnStep server solely to count personal playlists imported per source (§ 3.9). That measurement contains no cadence (SPM), route data, playlist name or ID, track, artist, or music-account information.
 
 Depending on the features **you** enable, the app may exchange data with services **you choose** (demo mix / music server, YouTube or Apple Music if connected, pasted Spotify or Deezer links, BPM analysis) or with technical infrastructure (updates). Details below.
+
+### Optional catalogue accounts
+
+An account is **optional**: creating workouts, running, importing music, and sharing anonymously never require registration. If you create a catalogue account on the website, BeatOnStep stores your non-public email address, public handle, password salt and password hash, and registration date in Cloudflare D1. The site uses a secure `HttpOnly` session cookie; the app can store a publish-only grant (maximum 30 days), revocable by signing out.
+
+Your handle and any workouts or Run Mix published while connected are public. Older anonymous posts are never automatically attributed. Music-provider credentials are not shared with the catalogue. You can sign out and delete your account via “My profile”: deletion removes attribution from your posts, which stay publicly available as anonymous posts unless moderated, and revokes associated sessions and device grants. Email is used solely for sign-in, never publicly displayed or used for marketing. Public registration remains gated until security and privacy checks are completed, including the lack of email verification and password recovery.
 
 ## 3. Features and data flows
 
