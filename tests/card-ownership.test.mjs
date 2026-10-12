@@ -1,9 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  cardsEnabled, canonicalShareId, publishUniqueWorkout, backfillWorkoutCards,
+  cardsEnabled, requireCardSchema, canonicalShareId, publishUniqueWorkout, backfillWorkoutCards,
 } from '../worker/cards.js';
 import { packState, openPack, claimGift, validGiftToken } from '../worker/pack.js';
+
+const completeCardSchemaObjects=[
+  ...['workout_cards','workout_card_aliases','workout_card_history',
+    'workout_pack_claims','workout_card_gifts'].map(name=>({name,type:'table'})),
+  ...['workout_card_history_first','workout_card_history_change',
+    'workout_card_pack_claim','workout_card_alias_imports']
+    .map(name=>({name,type:'trigger'})),
+];
+
+test('incomplete D1 migration blocks pack or backfill before any writes', async () => {
+  const db={prepare(sql){
+    assert.match(sql,/sqlite_master/);
+    return {all:async()=>({results:completeCardSchemaObjects.slice(0,3)})};
+  }};
+  await assert.rejects(()=>requireCardSchema(db),/workout_card_schema_incomplete/);
+  await assert.rejects(()=>openPack(db,'u1'),/workout_card_schema_incomplete/);
+});
 
 test('collection requires explicit activation after manual migration', () => {
   assert.equal(cardsEnabled({}),false);
@@ -54,6 +71,7 @@ test('pack availability depends on real unclaimed stock and the user first-claim
   }};
   // Separate stock query has no bind parameters.
   db.prepare=sql=>({
+    all:async()=>({results:completeCardSchemaObjects}),
     first:async()=>{
       if(sql.includes('COUNT(*)'))return {total:3};
       return null;
@@ -72,6 +90,7 @@ test('pack opening uses one guarded UPDATE with SQL-driven history and claim', a
     queries.push(sql);
     return {
       first:async()=>null,
+      all:async()=>({results:completeCardSchemaObjects}),
       bind:(...args)=>({
         first:async()=>{
           if(sql.startsWith('UPDATE workout_cards')) {
