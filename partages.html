@@ -75,6 +75,14 @@
     .effort-segment--unknown{background:repeating-linear-gradient(135deg,#737568 0 4px,#494b43 4px 8px);box-shadow:none;opacity:.5}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
+    /* Reading a shared workout: session > phase cards > songs, never an editor. */
+    .tree-content--workout{padding:12px 4px 0}
+    .workout-phases{padding:14px 13px 16px;border:1px solid #665c38;border-radius:16px;background:linear-gradient(180deg,#242319,#1b1b15);box-shadow:inset 0 1px 0 #ffffff08}
+    .workout-phases-head{display:flex;align-items:center;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;padding:0 3px 12px;border-bottom:1px solid #47412d}
+    .workout-phases-title{margin:0;font-size:15px;font-weight:750;line-height:1.35}
+    .workout-phases-count{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+    .phase-list{position:relative;display:grid;gap:10px;padding:12px 0 0 15px}
+    .phase-list::before{content:'';position:absolute;left:6px;top:30px;bottom:29px;width:2px;background:linear-gradient(#8a7937,#524d36);opacity:.75;pointer-events:none}
     .share-tree[open]>.tree-content{animation:details-in 190ms cubic-bezier(.2,.8,.2,1) both}
     @keyframes details-in{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
     .focus-dialog{width:min(620px,calc(100vw - 18px));max-height:min(92dvh,920px);box-sizing:border-box;overflow:auto;overscroll-behavior:contain;padding:12px;background:#11110e;border:1px solid #625b39;border-radius:22px;color:var(--text);box-shadow:0 25px 85px #000b}
@@ -95,15 +103,21 @@
     @keyframes focus-from-left{from{opacity:.3;transform:translateX(-22px)}to{opacity:1;transform:none}}
     @keyframes focus-from-right{from{opacity:.3;transform:translateX(22px)}to{opacity:1;transform:none}}
     @media(prefers-reduced-motion:reduce){.share-tree[open]>.tree-content,.focus-stage.focus-enter,.focus-stage.focus-from-left,.focus-stage.focus-from-right{animation:none}}
-    .phase-branch{border-bottom:1px solid var(--border);margin:0}
-    .phase-branch:last-child{border-bottom:0}
-    .phase-branch>summary{padding:15px 36px 15px 12px;position:relative}
-    .phase-branch>summary::after{content:'›';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:23px}
+    .phase-branch{position:relative;margin:0;border:1px solid #55503d;border-radius:13px;background:#26251c;min-width:0}
+    .phase-branch::before{content:'';position:absolute;left:-19px;top:22px;width:10px;height:10px;border-radius:50%;background:#373526;border:2px solid #9d9055;box-shadow:0 0 0 3px #211f17;z-index:1}
+    .phase-branch[open]{border-color:#b9a73e;background:#2b291e}
+    .phase-branch[open]::before{background:var(--yellow);border-color:var(--yellow)}
+    .phase-branch>summary{padding:12px 37px 13px 12px;position:relative;border-radius:13px}
+    .phase-branch>summary:hover{background:#ffffff08}
+    .phase-branch>summary::after{content:'›';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:23px}
     .phase-branch[open]>summary::after{content:'⌄'}
-    .phase-name{font-size:15px;font-weight:650}
-    .phase-meta{margin-top:6px;color:var(--muted);font-size:13px;display:flex;gap:6px 12px;flex-wrap:wrap}
+    .phase-heading{display:flex;align-items:center;gap:9px;min-width:0}
+    .phase-number{display:inline-flex;align-items:center;justify-content:center;flex:none;width:27px;height:27px;border:1px solid #756a3b;border-radius:50%;background:#383424;color:#e4dca8;font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
+    .phase-branch[open] .phase-number{background:var(--yellow);border-color:var(--yellow);color:#17160a}
+    .phase-name{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+    .phase-meta{margin:6px 0 0 36px;color:var(--muted);font-size:13px;display:flex;gap:5px 12px;flex-wrap:wrap}
     .phase-meta .phase-bpm{color:var(--yellow)}
-    .phase-songs{padding:2px 12px 12px 28px;border-left:2px solid var(--border);margin-left:13px}
+    .phase-songs{margin:0 12px 12px 48px;padding:2px 12px 7px;border-left:2px solid #73663a;border-radius:0 9px 9px 0;background:#15161188}
     .track{padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
     .track:last-child{border:0}
     .track small{display:block;color:var(--muted);margin-top:4px}
@@ -142,6 +156,21 @@
       .collection-art{height:74px}
       .collection-glyph{font-size:56px}
       .tree-content{padding:12px 4px 0}
+      .tree-content--workout{padding:10px 0 0}
+      .workout-phases{padding:11px 8px 13px;border-radius:13px}
+      .workout-phases-head{padding:0 2px 10px}
+      .workout-phases-title{font-size:14px}
+      .phase-list{padding-left:11px;gap:8px}
+      .phase-list::before{left:4px}
+      .phase-branch::before{left:-14px;top:21px;width:8px;height:8px}
+      .phase-branch>summary{padding:11px 28px 12px 9px}
+      .phase-branch>summary::after{right:9px}
+      .phase-heading{gap:7px}
+      .phase-number{width:23px;height:23px;font-size:11px}
+      .phase-name{font-size:14px}
+      .phase-meta{margin-left:30px;gap:5px 9px;font-size:12px}
+      .phase-songs{margin:0 8px 10px 24px;padding:3px 8px 7px}
+      .track{font-size:13px}
       .primary{width:auto}
       .site-footer{justify-content:center;gap:18px 22px}
       .site-footer .foot-label{display:none}
@@ -327,16 +356,25 @@
   function phaseTree(body,item){
     const phases=item.payload&&item.payload.p;
     if(!Array.isArray(phases))throw Error('invalid_phases');
+    // One clearly delimited read-only group inside the parent session card.
+    const panel=el('section','workout-phases');
+    panel.setAttribute('aria-label',fr('Phases de la séance','Workout phases'));
+    const heading=el('div','workout-phases-head');
+    heading.append(el('h3','workout-phases-title',fr('Phases de la séance','Workout phases')),
+      el('span','workout-phases-count',number(phases.length)+' '+fr('phases','phases')));
+    const list=el('div','phase-list');
     phases.forEach((phase,index)=>{
       const branch=el('details','phase-branch');
       const summary=el('summary','');
-      summary.append(el('div','phase-name',(index+1)+'. '+phase[0]));
+      const title=el('div','phase-heading');
+      title.append(el('span','phase-number',String(index+1)),
+        el('span','phase-name',phase[0]));
+      summary.append(title);
       const stats=el('div','phase-meta');
-      stats.append(el('span','',duration(phase[1])),
-        el('span','',fr('Cible','Target')+' '+phase[2]+' PPM'),
-        el('span','phase-bpm',fr('BPM moy. ','Avg BPM ')+(phase[3]||'—')));
       const count=item.payload.t.filter(song=>song.p===index).length;
-      stats.append(el('span','',number(count)+' '+fr('titres','tracks')));
+      stats.append(el('span','',duration(phase[1])),
+        el('span','',number(count)+' '+(count===1?fr('titre','track'):fr('titres','tracks'))),
+        el('span','phase-bpm',fr('BPM moy. ','Avg BPM ')+(phase[3]||'—')));
       summary.append(stats);
       const content=el('div','phase-songs');
       branch.append(summary,content);
@@ -345,8 +383,10 @@
         songRows(content,item,index);
         branch.dataset.loaded='yes';
       });
-      body.append(branch);
+      list.append(branch);
     });
+    panel.append(heading,list);
+    body.append(panel);
   }
   // The existing workout graph shows target cadence (PPM).
   // Run Mix uses the *actual known BPM of songs*, never a fabricated target.
@@ -551,7 +591,7 @@
       summary.append(el('span','',fr('Partage anonyme','Anonymous share')));
     }
     summary.append(stats);
-    const content=el('div','tree-content');
+    const content=el('div',item.kind==='workout'?'tree-content tree-content--workout':'tree-content');
     tree.append(summary,content);
     tree.addEventListener('toggle',async()=>{
       if(!tree.open||['yes','loading'].includes(tree.dataset.loaded))return;
