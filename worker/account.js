@@ -170,6 +170,20 @@ export async function accountRequest(request,env,url) {
       const user=await devicePublisher(db,request);
       return user ? reply({authenticated:true,handle:user.handle}) : reply({authenticated:false},401);
     }
+    // Explicit native collection capability. Device bearer grants stay isolated
+    // from browser cookies, passwords, account deletion and admin operations.
+    if (['/api/account/device/collection','/api/account/device/pack',
+         '/api/account/device/pack/open'].includes(path)) {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      if ((method==='GET' && path.endsWith('/open')) ||
+          (method!=='GET' && method!=='POST') ||
+          (method==='POST' && !path.endsWith('/open'))) return reply({error:'method_not_allowed'},405);
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      if (path==='/api/account/device/collection') return myCollection(db,member.id);
+      if (path==='/api/account/device/pack') return reply(await packState(db,member.id));
+      return openPack(db,member.id);
+    }
     if (path==='/api/account/exchange' && method==='POST') return exchange(db,request);
     if (path==='/api/account/device/logout' && method==='POST') {
       const token=bearerToken(request);
