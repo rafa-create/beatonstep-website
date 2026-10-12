@@ -67,6 +67,7 @@
     .effort-graph{position:absolute;left:17px;right:17px;top:11px;bottom:21px;display:flex;align-items:flex-end;gap:3px}
     .effort-graph::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0,transparent 32%,#e5d7691c calc(32% + 1px),transparent calc(32% + 2px));pointer-events:none}
     .effort-segment{position:relative;z-index:1;flex-basis:0;min-width:3px;max-height:100%;background:linear-gradient(180deg,#fcea07,#a68d25);border-radius:3px 3px 0 0;box-shadow:0 0 14px #fcea071d}
+    .effort-segment--unknown{background:repeating-linear-gradient(135deg,#737568 0 4px,#494b43 4px 8px);box-shadow:none;opacity:.5}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
     .share-tree[open]>.tree-content{animation:details-in 190ms cubic-bezier(.2,.8,.2,1) both}
@@ -336,32 +337,47 @@
       body.append(branch);
     });
   }
-  // Only draw the effort profile when its actual phase targets are available.
-  // Compact catalog rows intentionally contain no phase list: don't invent a shape.
+  // The existing workout graph shows target cadence (PPM).
+  // Run Mix uses the *actual known BPM of songs*, never a fabricated target.
+  // Both share the same compact visual language, but have distinct labels.
   function drawEffortProfile(art,item){
-    if(item.kind!=='workout')return;
-    const phases=Array.isArray(item.profile)?item.profile:(item.payload&&item.payload.p);
+    const runMix=item.kind==='runmix';
+    if(!runMix&&item.kind!=='workout')return;
+    const phases=Array.isArray(item.profile)?item.profile:
+      (!runMix&&item.payload&&item.payload.p);
     if(!Array.isArray(phases)||!phases.length||phases.length>32)return;
     const data=[];
     for(const phase of phases){
       if(!Array.isArray(phase))return;
-      // Catalog metadata uses [duration,target]; full shares use [name,duration,target,bpm].
-      const seconds=Number(phase.length===2?phase[0]:phase[1]);
-      const target=Number(phase.length===2?phase[1]:phase[2]);
-      if(!Number.isFinite(seconds)||seconds<=0||!Number.isFinite(target)||target<=0)return;
+      // Catalog profiles: [duration, BPM-or-PPM]; full workouts have
+      // [name, duration, PPM target, music BPM].
+      const compact=phase.length===2;
+      const seconds=Number(compact?phase[0]:phase[1]);
+      const rawTarget=compact?phase[1]:phase[2];
+      const unknown=runMix&&rawTarget===null;
+      const target=unknown?null:Number(rawTarget);
+      if(!Number.isFinite(seconds)||seconds<=0||
+          (!unknown&&(!Number.isFinite(target)||target<=0)))return;
       data.push({seconds,target});
     }
-    const targets=data.map(x=>x.target);
-    const baseline=Math.max(0,Math.min(...targets)-25);
-    const ceiling=Math.max(...targets)+12;
+    const targets=data.filter(x=>x.target!==null).map(x=>x.target);
+    if(!targets.length)return;
+    const low=Math.min(...targets),high=Math.max(...targets);
+    const baseline=Math.max(0,low-25);
+    const ceiling=high+12;
     const graph=el('div','effort-graph');
     for(const phase of data){
-      const bar=el('span','effort-segment');
-      const height=Math.max(20,Math.min(95,Math.round(22+73*(phase.target-baseline)/(ceiling-baseline))));
-      bar.setAttribute('style','height:'+height+'%;flex-grow:'+Math.min(86400,Math.round(phase.seconds)));
+      const bar=el('span','effort-segment'+
+        (phase.target===null?' effort-segment--unknown':''));
+      const height=phase.target===null?32:
+        (runMix&&high===low?64:
+          Math.max(20,Math.min(95,Math.round(22+73*(phase.target-baseline)/(ceiling-baseline)))));
+      bar.setAttribute('style','height:'+height+'%;flex-grow:'+
+        Math.min(86400,Math.round(phase.seconds)));
       graph.append(bar);
     }
-    art.replaceChildren(graph,el('span','collection-art-label',fr("Profil d'effort",'Effort profile')));
+    art.replaceChildren(graph,el('span','collection-art-label',
+      runMix?fr('Profil BPM','BPM profile'):fr("Profil d'effort",'Effort profile')));
     art.className='collection-art collection-art--effort';
   }
   let catalogItems=[];
