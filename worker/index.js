@@ -137,10 +137,10 @@ async function d1Request(request, env, url) {
     const result = await db.prepare(
       'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports, ' +
       "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json, " +
-      "json_extract(payload_json,'$.v') AS payload_v, " +
-      "json_extract(payload_json,'$.goalMode') AS goal_mode, " +
-      "json_extract(payload_json,'$.targetMeters') AS target_meters, " +
-      "json_extract(payload_json,'$.deadlineSec') AS deadline_sec " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.v') END AS payload_v, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.goalMode') END AS goal_mode, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.targetMeters') END AS target_meters, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.deadlineSec') END AS deadline_sec " +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
