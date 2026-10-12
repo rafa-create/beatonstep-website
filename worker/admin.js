@@ -1,3 +1,6 @@
+import { backfillWorkoutCards, requireCardSchema } from './cards.js';
+import { hashGiftToken } from './pack.js';
+
 // Restricted catalogue moderation, modelled on the D1/session design in rafa-create/saas.
 // No public registration and no access to music-provider credentials.
 const COOKIE = '__Host-bos_admin';
@@ -191,6 +194,35 @@ export async function adminRequest(request, env, url) {
     }
     if (path === '/api/admin/login' && method === 'POST') return await login(env.DB, env, request);
     if (path === '/api/admin/logout' && method === 'POST') return await logout(env.DB, request);
+    if (path==='/api/admin/cards/backfill' && method==='POST') {
+      if (!verifyOrigin(request)) return respond({error:'origin_forbidden'},403);
+      if (!await currentAdmin(env.DB,request)) return respond({error:'admin_required'},401);
+      const body=await parseBody(request);
+      const cursor=body?.afterId??0;
+      if (!Number.isSafeInteger(cursor)||cursor<0) return respond({error:'invalid_cursor'},400);
+      await requireCardSchema(env.DB);
+      return respond(await backfillWorkoutCards(env.DB,cursor));
+    }
+    if (path==='/api/admin/cards/gift' && method==='POST') {
+      if (!verifyOrigin(request)) return respond({error:'origin_forbidden'},403);
+      if (!await currentAdmin(env.DB,request)) return respond({error:'admin_required'},401);
+      const body=await parseBody(request);
+      const id=Number(body?.id);
+      if (!Number.isSafeInteger(id)||id<=D1_OFFSET) return respond({error:'invalid_card'},400);
+      await requireCardSchema(env.DB);
+      const row=await env.DB.prepare('SELECT owner_user_id FROM workout_cards WHERE share_id=?')
+        .bind(id-D1_OFFSET).first();
+      if (!row) return respond({error:'card_not_found'},404);
+      const bytes=crypto.getRandomValues(new Uint8Array(32));
+      const token=hex(bytes);
+      const now=Date.now();
+      await env.DB.prepare(`INSERT INTO workout_card_gifts
+        (token_hash,share_id,expected_owner_id,expires_at)
+        VALUES(?,?,?,?)`).bind(await hashGiftToken(token),id-D1_OFFSET,
+          row.owner_user_id,now+7*86400000).run();
+      return respond({url:'https://beatonstep.app/compte.html?gift='+token,
+        expiresAt:now+7*86400000});
+    }
     const match = /^\/api\/admin\/shared\/([1-9][0-9]{0,14})$/.exec(path);
     if (match && method === 'DELETE') return await deleteShare(env.DB, request, match[1]);
     return respond({ error: 'not_found' }, 404);
