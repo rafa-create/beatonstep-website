@@ -47,6 +47,9 @@
     .stat-tracks::before{content:'♫';font-size:18px;line-height:1}
     .card-stats .stat-imports{color:#c0bbaa;gap:4px;font-variant-numeric:tabular-nums}
     .card-stats .stat-imports-icon{font-size:16px;line-height:1;color:#a8a396;transform:translateY(-1px)}
+    .card-owner{display:block;color:var(--muted);opacity:.78;font-size:11px;margin:0 0 8px;letter-spacing:.015em}
+    .card-origin{font-size:13px;color:var(--muted);margin:0 0 14px}
+    .card-origin a{color:var(--yellow);text-decoration:none}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
     details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
     .share-summary{background:linear-gradient(145deg,#242319,#1c1c17 62%);border:1px solid #60583a;border-radius:14px;padding:16px 44px 16px 16px;position:relative;transition:background-color .2s,border-color .2s,box-shadow .2s}
@@ -534,7 +537,10 @@
     stats.append(el('span','stat-duration',duration(item.durationSec)),
       el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),imports);
     summary.append(head,art,title);
-    if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
+    if(item.kind==='workout' && Object.prototype.hasOwnProperty.call(item,'owner')){
+      summary.append(el('span','card-owner',fr('Propriétaire · ','Owner · ')+
+        (item.owner?'@'+item.owner:fr('Anonyme','Anonymous')));
+    } else if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
       const by=el('a','creator',fr('Par @','By @')+item.author);
       by.href='compte.html?profil='+encodeURIComponent(item.author);
       by.style.cssText='color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;display:inline-block;margin-bottom:10px';
@@ -554,6 +560,16 @@
       try{
         const full=detailed?item:await getDetail(item.id);
         empty(content);
+        if(item.kind==='workout' && Object.prototype.hasOwnProperty.call(full,'creator')){
+          const creator=el('div','card-origin');
+          creator.append(el('span','',fr('Créateur · ','Creator · ')));
+          if(typeof full.creator==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(full.creator)){
+            const link=el('a','', '@'+full.creator);
+            link.href='compte.html?profil='+encodeURIComponent(full.creator);
+            creator.append(link);
+          } else creator.append(el('span','',fr('Anonyme','Anonymous')));
+          content.append(creator);
+        }
         if(item.kind==='workout')phaseTree(content,full);
         else songRows(content,full);
         drawEffortProfile(art,full);
