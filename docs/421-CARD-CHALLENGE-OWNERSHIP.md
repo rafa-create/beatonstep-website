@@ -3,11 +3,18 @@
 Ne pas toucher aux cartes historiques de séances chronométriques.
 
 ## Contrat coureur retenu
-- Chaque séance **Distance** est un défi, défini par kilomètres, PPM
-  ciblés et une liste déterminée de chansons / durée réelle.
-- Victoire dès que le GPS a vérifié le kilométrage **avant ou à la fin**
-  de la playlist. Échec si fin musicale avec distance insuffisante et
-  mesure GPS fiable ; sinon non vérifiable.
+- Chaque carte **Distance** est un **défi canonique unique par distance
+  et limite de temps**, indépendant des chansons et de la bibliothèque
+  musicale (exemple : une seule carte 5 km / 30 min pour tout BeatOnStep).
+- Les PPM/BPM et la playlist sont personnels. L'utilisateur peut modifier
+  sa musique sans créer un nouvel exemplaire de la carte ou changer
+  le règlement du défi.
+- **Victoire** dès que le GPS confirme la distance avant ou à l'échéance
+  chronométrique (5 km <= 30 min) ; **échec** à la limite de temps si
+  la distance est insuffisante et le GPS fiable. La fin anticipée de la
+  playlist n'est **ni une victoire ni une défaite** : continuer la musique
+  via une réserve de titres compatible. Le chronomètre sportif n'est
+  pas déduit de la durée des chansons.
 - Un compte connecté peut importer/lancer une séance défi **sans posséder
   sa carte**. Une nouvelle victoire vérifiée fait de ce compte **le
   propriétaire courant de l'unique carte**. Le propriétaire précédent
@@ -46,8 +53,8 @@ Ne pas toucher aux cartes historiques de séances chronométriques.
 ## Site Internet (compte et fiche de carte)
 
 - **Fiche publique d'une carte Distance** :
-  `5 km · playlist réelle 20:00 · 160 PPM`,
-  **N coureurs distincts ayant validé le défi** (depuis la table des
+  `5 km · limite 30:00` (playlist/PPM personnels, non constitutifs de
+  l'identité de la carte), **N coureurs distincts ayant validé le défi** (depuis la table des
   validations), nom du propriétaire actuel, historique chronologique des
   propriétaires (motif + date/heure), liste de vainqueurs seulement sous
   pseudos et consentement. Exclure données GPS et sessions détaillées
@@ -57,8 +64,9 @@ Ne pas toucher aux cartes historiques de séances chronométriques.
 - **Mon compte** : une section **Mes cartes** montrant seulement les cartes
   actuellement détenues ; une section séparée **Mes défis réussis**
   montrant toutes les validations du coureur, même les cartes cédées
-  ou perdues. Pour chaque défi : date de première réussite, temps
-  réussi, propriétaire actuel, mes périodes de propriété.
+  ou perdues. Pour chaque défi : date de première réussite, meilleur
+  temps, **nombre total de réussites** (journal des tentatives),
+  propriétaire actuel et mes périodes de propriété.
 - **Carte colorée** uniquement via attribut serveur privé
   `goalMode==='distance' && challengeValidated===true && owner===me`.
   Le catalogue public ou l'invitation cadeau n'affichent jamais le
@@ -68,14 +76,16 @@ Ne pas toucher aux cartes historiques de séances chronométriques.
 
 - Identité des séances historiques (v1) actuellement calculée par
   `worker/workout-identity.js` sur la **séquence musicale seulement**.
-  Pour un défi, il faut un **empreinte versionnée v2** incluant au moins
-  morceaux, ordre, kilométrage total, distances/PPM des phases et durée
-  exacte de playlist, afin que 5 km/20 min et 5 km/25 min ne se
-  confondent pas. Conserver les vieux liens et alias, aucune
-  re-dédoublonnage destructif des cartes historiques.
+  Pour un défi, il faut une **empreinte versionnée v2 du règlement
+  sportif** incluant `distanceMeters` et `deadlineSec`, et excluant
+  titres, ordre des morceaux, BPM, PPM personnels et fournisseur musical.
+  Cela distingue 5 km/20 min de 5 km/25 min mais garde **une seule**
+  carte 5 km/30 min quel que soit le coureur. Conserver les anciens
+  liens et alias sans fusion destructive des cartes v1.
 - `worker/index.js` valide encore les phases en secondes
   `payload.v===1`. Prévoir un schéma v2 explicite `goalMode='distance'`
-  et un champ `targetMeters` ; ne pas convertir les mètres en secondes.
+  et des champs `targetMeters` et `deadlineSec` ; ne pas convertir les
+  mètres en secondes ni la playlist en chrono de défi.
 - Adapter ensemble le catalogue `partages.html`, `compte.html`,
   les cartes natives `CommunityCardsService.ts` /
   `CollectibleWorkoutCard.tsx`, l'import, l'export et les pages cadeaux.
@@ -96,10 +106,10 @@ Ne pas toucher aux cartes historiques de séances chronométriques.
 
 - La vérification côté serveur repose sur une tentative **authentifiée**
   et unique, pas un simple POST disant `won:true`.
-- Le mobile prépare un résumé local de chronologie musicale et mesures GPS
-  plausibles, sans envoyer de trace brute : distance et temps réellement
-  mesurés, contrôles des ruptures GPS, lecture continue de la playlist,
-  identifiant canonique du défi. Réexaminer les limites iOS/fournisseurs.
+- Le mobile prépare un résumé local de mesures GPS et chronologie du
+  **chrono sportif** plausibles, sans envoyer de trace brute. La playlist
+  est facultative/personnelle pour l'identité du défi, sans donner de
+  minutes supplémentaires si un morceau dure plus que prévu.
 - Antirejeu (`attempt_id` unique), rate limit, ordre officiel des
   attributions fixé **par réception/validation serveur**, mise à jour
   atomique de la propriété et de l'historique D1. Si deux courses se
@@ -114,6 +124,17 @@ Ne pas toucher aux cartes historiques de séances chronométriques.
   mais la **détention officielle** ne change qu'après réception
   et acceptation par le serveur ; ne pas antidater une propriété en
   supprimant les transferts intervenus entre-temps.
+
+## Migration D1 0005 déjà exécutée le 12 octobre
+
+Le propriétaire du projet a confirmé l'exécution du script dans D1.
+**Ne pas relancer une migration ni supprimer de tables existantes.**
+Les colonnes historiques `playlist_duration_sec` et
+`elapsed_music_sec` du journal de tentatives reflètent l'ancienne
+conception. Le Worker définitif devra conserver la durée musicale
+séparément de `deadlineSec` et du temps sportif enregistré (une
+migration additive de colonnes supplémentaires pourra être nécessaire).
+Le schéma installé ne constitue pas une API anti-triche ou de transfert.
 
 ## Tests et ordre de livraison
 
