@@ -136,33 +136,39 @@ séparément de `deadlineSec` et du temps sportif enregistré (une
 migration additive de colonnes supplémentaires pourra être nécessaire).
 Le schéma installé ne constitue pas une API anti-triche ou de transfert.
 
-## Nouveau schéma 0006 (préparé, NON appliqué)
+## Nouveau schéma 0006 — appliqué manuellement en production (déclaratif)
 
-Le 12 octobre, le coureur a confirmé que **0005 était déjà appliquée**.
-Elle conserve toutefois un CHECK historique comparant
-`elapsed_music_sec` à `playlist_duration_sec`, incompatible avec la
-décision finale : le temps limite sportif est indépendant de la musique.
-Ces colonnes ne doivent jamais recevoir des durées sportives sous de faux
-noms pour contourner le CHECK.
+Le propriétaire a confirmé l'application de
+`migrations/0006_distance_challenge_sport_clock.sql` dans **la base D1 de
+production**, après 0005, alors que **la plateforme n'a pas encore
+d'utilisateurs**. Cette déclaration n'est pas une vérification directe des
+tables et index. **NE PAS relancer 0005 ni 0006.**
 
-La migration additive `migrations/0006_distance_challenge_sport_clock.sql`
-prépare donc trois tables **v2 distinctes** pour les futurs essais :
-`workout_distance_attempts_v2`, `workout_distance_validations_v2` et
-`workout_distance_transfers_v2`. La preuve de course y possède
-`deadline_sec` et `elapsed_sport_sec` séparés de toute playlist.
-Les tables 0005, leurs enregistrements et le registre historique de
-propriété restent intacts. Le nouveau code de lecture
-`/api/account/achievements` (navigateur connecté) et
-`/api/account/device/achievements` (grant appareil) lit uniquement v2 ;
-aucun endpoint d'attribution de succès n'est encore activé.
+0005 garde son historique de durée musicale. 0006 a été conçu pour
+ajouter trois tables sportives indépendantes :
+`workout_distance_attempts_v2`,
+`workout_distance_validations_v2` et
+`workout_distance_transfers_v2`, avec `deadline_sec` et
+`elapsed_sport_sec`. Les données anciennes et la propriété actuelle
+des cartes ne sont pas migrées ni écrasées par ces instructions.
 
-**Aucune migration de production à lancer à ce stade.**
-La commande de smoke SQLite purement locale est
-`npm run test:distance-d1` ; elle n'ouvre aucune connexion Cloudflare.
-Avant une future exécution distante : accès D1 vérifié, sauvegarde,
-lecture de `d1_migrations` et de `sqlite_master`, Preview isolée,
-endpoint transactionnel et tests physiques GPS validés, puis accord
-explicite pour le changement de production. Ne pas relancer 0005.
+L'installation en production du schéma ne vaut **pas activation du
+service** : `DISTANCE_CHALLENGES_ENABLED=false` reste obligatoire ;
+les routes de succès sécurisé, anti-rejeu et transfert atomique ne sont
+pas encore finalisées ni validées. Les endpoints de consultation v2
+restent désactivés tant que cette bascule est fausse.
+
+**Prochain contrôle D1 en lecture seule seulement** : inspecter
+`sqlite_master` pour les trois tables et les quatre index v2, vérifier
+`PRAGMA foreign_key_check` et le registre `d1_migrations` si présent.
+Une migration exécutée par copier-coller dans l'interface D1 peut ne
+pas être enregistrée dans le journal officiel de Wrangler. Documenter
+ce décalage s'il existe, ne pas réappliquer le fichier et ne pas modifier
+le journal à l'aveugle. Avant toute prochaine modification de schéma,
+préparer une sauvegarde.
+
+Les tests SQLite en mémoire (`npm run test:distance-d1`) sont
+indépendants de la D1 en production.
 
 ## Publication canonique v2 préparée sur la branche
 
@@ -180,8 +186,8 @@ Temps v1 gardent leur mécanisme de création/propriété historique.
 
 **`DISTANCE_CHALLENGES_ENABLED=false` dans la configuration production
 et Preview.** Publier du v2, ainsi que consulter les réussites v2,
-reste indisponible tant que la migration 0006 n'a pas été éprouvée sur
-D1 isolée, que le transfert transactionnel et l'anti-rejeu ne sont
+reste indisponible tant que le schéma 0006 présent en production n'a
+pas été vérifié en lecture seule, que le transfert transactionnel et l'anti-rejeu ne sont
 pas livrés et que les essais GPS réels ne sont pas concluants.
 Ne pas activer le drapeau uniquement parce que les tests SQLite passent.
 
