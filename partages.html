@@ -19,6 +19,7 @@
     header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
     .brand{font-weight:800;text-decoration:none;display:flex;align-items:center;gap:10px;font-size:20px}
     .brand img{width:36px;height:36px;border-radius:9px}
+    .community-link{color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;margin-left:auto}
     .lang button,.filters button,.sort button,.pagination button{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 14px;cursor:pointer;font:inherit}
     .source-picker{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px}
     .source-picker select{appearance:auto;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;max-width:180px}
@@ -146,6 +147,7 @@
 <main>
   <header>
     <a class="brand" href="./"><img src="assets/brand/logo-400.jpg" alt="">BeatOnStep</a>
+    <a class="community-link" href="compte.html" id="community-link">Mon profil</a>
     <div class="lang"><button type="button" id="fr" aria-pressed="true">FR</button><button type="button" id="en" aria-pressed="false">EN</button></div>
   </header>
   <a class="back" href="partages.html" id="back">← Catalogue</a>
@@ -507,7 +509,18 @@
     imports.append(importGlyph,el('span','',importCount));
     stats.append(el('span','stat-duration',duration(item.durationSec)),
       el('span','stat-tracks',number(item.tracks)+' '+fr('titres','tracks')),imports);
-    summary.append(head,art,title,stats);
+    summary.append(head,art,title);
+    if(typeof item.author==='string' && /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(item.author)){
+      const by=el('a','creator','✓ @'+item.author);
+      by.href='compte.html?profil='+encodeURIComponent(item.author);
+      by.style.cssText='color:var(--yellow);font-weight:700;font-size:13px;text-decoration:none;display:inline-block;margin-bottom:10px';
+      // A creator link opens the web profile, not the full-screen card carousel.
+      by.addEventListener('click',event=>event.stopPropagation());
+      summary.append(by);
+    } else {
+      summary.append(el('span','',fr('Partage anonyme','Anonymous share')));
+    }
+    summary.append(stats);
     const content=el('div','tree-content');
     tree.append(summary,content);
     tree.addEventListener('toggle',async()=>{
@@ -602,6 +615,7 @@
       ?fr('← Catalogue','← Catalog')
       :fr('← Séances programmées','← Programmed workouts');
     $('title').textContent=id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
+    $('community-link').textContent=fr('Mon profil','My profile');
     $('intro').hidden=Boolean(id);
     $('intro').textContent=fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));
