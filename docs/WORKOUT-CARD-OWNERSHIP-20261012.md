@@ -1,6 +1,6 @@
 # Cartes uniques de séance — état et déploiement (12 octobre 2026)
 
-**État : code et interfaces versionnés sur `beatonstep-website/main`, fonctionnalité désactivée en production (variable `CARDS_ENABLED` absente ou différente de `true`). Aucune migration D1 exécutée. Aucune OTA.**
+**État : code et interfaces versionnés sur `beatonstep-website/main`, fonctionnalité désactivée (variable `CARDS_ENABLED` absente ou différente de `true`). Migration D1 partielle constatée, réparation préparée mais non exécutée. Aucune OTA.**
 
 ## Contrat fonctionnel
 - Une séance partageable est identifiée par l'**ordre de lecture des morceaux** (titres + artistes normalisés), sans tenir compte du titre de séance, de ses BPM/PPM, durées, phases et identifiants musicaux propriétaires.
@@ -27,6 +27,17 @@
 | Tests inclus dans `npm run build` | `tests/workout-identity.test.mjs`, `tests/card-ownership.test.mjs` |
 
 La comparaison multi-plateforme est **volontairement limitée aux mêmes libellés titre + artiste**, après normalisation des espaces et de la casse. Les titres différents entre Spotify et YouTube, les reprises et les métadonnées manquantes ne sont pas réconciliés à cette étape. Les anciennes séances sans artiste peuvent rester hors collection tant qu'elles n'ont pas été contrôlées.
+
+## État de D1 observé le 12 octobre 2026 à 13h21 (retour utilisateur)
+
+- `shared_items WHERE kind='workout'` : **4** séances préservées.
+- `workout_cards` : **0** ; `workout_card_aliases` : **0** ; stock : **0**. C'est attendu avant réconciliation, pas un signe de perte.
+- Sur les 9 objets attendus, **seules 3 tables existent** : `workout_cards`, `workout_card_aliases`, `workout_card_history`. Les 2 tables de pack/don et les 4 triggers ne sont pas installés.
+- **Ne pas lancer le backfill ni activer `CARDS_ENABLED` dans cet état.**
+- Un correctif `worker/cards.js` vérifie désormais l'existence des 5 tables + 4 triggers. Migration partielle = erreur bloquante avant attribution ou backfill.
+- Pour terminer : après sauvegarde D1, exécuter `migrations/0004b_complete_partial_install.sql` dans la console SQL de `beatonstep-catalog-prod`. Le script est idempotent et n'écrit aucune ligne métier. Si la console coupe un `CREATE TRIGGER`, exécuter chaque définition entière (jusqu'à `END;`) séparément.
+- Vérifier à nouveau `SELECT name,type FROM sqlite_master ...` : **9 lignes (5 tables + 4 triggers)** ; si moins, récupérer l'erreur SQL exacte et ne pas continuer.
+- Après cette vérification et les contrôles sauvegarde, lancer la réconciliation admin, puis contrôler `workouts=canonical+aliases+skipped`. Ne pas activer les packs tant que le traitement et les tests ne sont pas validés.
 
 ## Procédure de mise en service (manuelle, ne pas sauter d'étape)
 
