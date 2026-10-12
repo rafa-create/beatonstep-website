@@ -1,5 +1,5 @@
 import { cardsEnabled } from './cards.js';
-import { packState,openPack,myCollection,giftStatus,claimGift,createGift } from './pack.js';
+import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
 // Browser sessions and mobile publish-only grants are intentionally separate from admin.
@@ -170,6 +170,14 @@ export async function accountRequest(request,env,url) {
       const user=await devicePublisher(db,request);
       return user ? reply({authenticated:true,handle:user.handle}) : reply({authenticated:false},401);
     }
+    // Only the authenticated runner sees their durable sporting achievements.
+    // This reads ledger 0005; no challenge-result submission is enabled here.
+    if (path==='/api/account/device/achievements' && method==='GET') {
+      if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      return myChallengeAchievements(db,member.id);
+    }
     // Explicit native collection capability. Device bearer grants stay isolated
     // from browser cookies, passwords, account deletion and admin operations.
     if (['/api/account/device/collection','/api/account/device/pack',
@@ -221,13 +229,14 @@ export async function accountRequest(request,env,url) {
       const user=await webUser(db,request);
       return reply(user?{authenticated:true,handle:user.handle}:{authenticated:false});
     }
-    if (['/api/account/pack','/api/account/collection','/api/account/gift'].includes(path)
+    if (['/api/account/pack','/api/account/collection','/api/account/achievements','/api/account/gift'].includes(path)
         && method==='GET') {
       if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
       if (path==='/api/account/pack') return reply(await packState(db,user.id));
       if (path==='/api/account/collection') return myCollection(db,user.id);
+      if (path==='/api/account/achievements') return myChallengeAchievements(db,user.id);
       return giftStatus(db,url.searchParams.get('code'));
     }
     if (method==='POST'||method==='DELETE') {
