@@ -220,7 +220,7 @@ export async function adminRequest(request, env, url) {
         (token_hash,share_id,expected_owner_id,expires_at)
         VALUES(?,?,?,?)`).bind(await hashGiftToken(token),id-D1_OFFSET,
           row.owner_user_id,now+7*86400000).run();
-      return respond({url:'https://beatonstep.app/compte.html#gift='+token,
+      return respond({url:'https://beatonstep.app/cadeau.html#gift='+token,
         expiresAt:now+7*86400000});
     }
     const match = /^\/api\/admin\/shared\/([1-9][0-9]{0,14})$/.exec(path);
