@@ -15,8 +15,38 @@ button{background:var(--accent);color:#14140b;border:0;border-radius:40px;min-he
 button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;border:1px solid #827756;color:var(--ink)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .notice{margin-top:16px;color:var(--ink);padding:12px;border-left:3px solid var(--accent);background:#28271b}
-.collection-item{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.collection-item a{font-weight:700}.collection-item small{color:var(--sub);font-size:12px}
+.collection-item{display:block;position:relative;width:160px;min-height:208px;border:1.5px solid var(--accent);border-radius:17px;background:radial-gradient(ellipse at 55% 39%,#66551d50,transparent 54%),linear-gradient(145deg,#282619,#10100d 75%);box-shadow:0 12px 30px #0006;padding:14px;transform:rotate(-1deg);transition:transform .25s,box-shadow .25s}
+.collection-item:hover{transform:rotate(0) translateY(-4px);box-shadow:0 15px 36px #0009,0 0 26px #fcea0722}
+.collection-item::before{content:'BEATONSTEP';display:block;color:var(--accent);letter-spacing:.14em;font-weight:900;font-size:10px}
+.collection-item::after{content:'♬';display:grid;place-items:center;font-size:46px;color:var(--accent);height:95px;text-shadow:0 0 30px #fcea0760}
+.collection-item a{display:block;position:relative;z-index:1;color:var(--ink);font-size:14px;font-weight:850;line-height:1.22}
+.collection-item small{display:block;color:var(--sub);font-size:10px;position:relative;z-index:1;margin-top:7px}
+#owned-cards{display:flex;gap:15px;flex-wrap:wrap;align-items:stretch}
+#owned-cards li:not(.collection-item){width:100%}
+.pack-game{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center;border:1px solid #756531;border-radius:19px;background:radial-gradient(ellipse at 17% 50%,#544b1d50,transparent 65%),#151511;padding:22px;margin-top:18px}
+.pack-image{width:140px;height:190px;flex:none;display:grid;place-items:center;align-content:center;gap:10px;color:var(--accent);border:2px solid var(--accent);border-radius:17px;background:repeating-linear-gradient(145deg,#1b1b11,#1b1b11 13px,#222116 14px,#222116 26px);box-shadow:8px 9px 0 #5b511d,-5px -4px 0 #39341e;transform:rotate(-6deg)}
+.pack-image svg{width:68px;height:68px}.pack-image strong{font-size:11px;letter-spacing:.2em}
+.pack-actions{flex:1;min-width:175px}.pack-actions p{margin:6px 0 15px;font-size:13px}
 .pack-info{font-size:13px;color:var(--sub)}
+#card-reveal{position:fixed;inset:0;z-index:100;background:#040403f2;display:grid;place-content:center;justify-items:center;gap:20px;padding:16px;overflow:auto}
+#card-reveal[hidden]{display:none!important}
+.reveal-heading{margin:0;color:var(--accent);font-size:18px;font-weight:900;letter-spacing:.18em;text-align:center}
+.reveal-stage{perspective:1100px;width:235px;height:320px;position:relative}
+.reveal-stage::before{content:'';position:absolute;inset:25px;border-radius:50%;background:#fcea0740;filter:blur(50px);opacity:0;transition:opacity .7s .5s}
+#card-reveal.is-revealed .reveal-stage::before{opacity:1}
+.reveal-turn{width:100%;height:100%;position:relative;transform-style:preserve-3d;transform:rotateY(0);transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
+#card-reveal.is-revealed .reveal-turn{transform:rotateY(180deg)}
+.reveal-back,.reveal-front{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:2px solid var(--accent);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:24px;box-shadow:0 15px 65px #000b;background:linear-gradient(145deg,#34311c,#11110e 74%);text-align:center}
+.reveal-back{background:repeating-linear-gradient(130deg,#17170f 0 17px,#242216 18px 34px)}
+.reveal-back svg{width:76px;height:76px;color:var(--accent)}
+.reveal-front{transform:rotateY(180deg);background:radial-gradient(circle at 50% 42%,#53471999,transparent 48%),#181711}
+.reveal-front::before{content:'✦';font-size:80px;color:var(--accent);text-shadow:0 0 35px #fcea07a0}
+.reveal-brand{font-size:12px;letter-spacing:.25em;font-weight:900;color:var(--accent)}
+.reveal-number{font-size:12px;color:var(--sub)}.reveal-name{font-size:22px;font-weight:900;line-height:1.22;color:var(--ink)}
+.reveal-controls{text-align:center;max-width:340px}.reveal-controls p{margin:0 0 14px}
+@media(max-width:420px){#owned-cards{justify-content:center}.pack-game{padding:18px}.pack-image{width:120px;height:162px}}
+@media(prefers-reduced-motion:reduce){.collection-item,.reveal-turn,.reveal-stage::before{transition:none!important}#card-reveal.is-revealed .reveal-turn{transform:rotateY(180deg)}}
+
 ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--line)}
 li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -48,9 +78,15 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="collection-panel" hidden><h2>Ma collection</h2>
 <p>Chaque séance possède une seule carte. Tout le monde peut l'importer, mais une seule personne en est propriétaire.</p>
 <ul id="owned-cards"></ul>
-<div id="pack-panel" class="notice"><h2>Pack découverte</h2>
-<p id="pack-info" class="pack-info"></p>
-<button id="open-pack" type="button" disabled>Ouvrir un pack · 1 carte</button></div>
+<div id="pack-panel" class="pack-game">
+  <div class="pack-image" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="4" y="7" width="15" height="15" rx="2"/><path d="M7 4h14v15M9 11h5m-5 4h7"/></svg>
+    <strong>BEATONSTEP</strong>
+  </div>
+  <div class="pack-actions"><h2>Pack découverte</h2><p id="pack-info" class="pack-info"></p>
+    <button id="open-pack" type="button" disabled>Ouvrir mon pack</button>
+  </div>
+</div>
 <div id="gift-panel" class="notice" hidden><h2>Une carte vous a été offerte</h2>
 <p id="gift-info"></p><button type="button" id="claim-gift">Accepter cette carte</button></div></div>
 <div id="my-cards"><h2>Mes publications</h2><ul id="items"></ul></div>
@@ -60,6 +96,19 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <label for="delete-password">Confirmez votre mot de passe</label><input type="password" id="delete-password" autocomplete="current-password">
 <button id="delete-confirm" type="button">Supprimer définitivement mon compte</button></div>
 </section>
+<div id="card-reveal" role="dialog" aria-modal="true" aria-labelledby="reveal-title" hidden>
+  <h2 id="reveal-title" class="reveal-heading">CARTE DÉBLOQUÉE</h2>
+  <div class="reveal-stage"><div class="reveal-turn">
+    <div class="reveal-back"><span class="reveal-brand">BEATONSTEP</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="6" width="17" height="17" rx="2"/><path d="M6 3h15v17M8 11h7M8 15h5"/></svg>
+      <strong>PACK COLLECTION</strong></div>
+    <div class="reveal-front"><span class="reveal-brand">BEATONSTEP</span>
+      <strong id="reveal-name" class="reveal-name"></strong>
+      <span id="reveal-number" class="reveal-number"></span></div>
+  </div></div>
+  <div class="reveal-controls"><p>Cette carte a rejoint ta collection.</p>
+    <button type="button" id="reveal-close">Continuer</button></div>
+</div>
 <section id="public-profile" hidden><h2 id="public-handle"></h2><ul id="public-items"></ul></section>
 </main>
 <script>
