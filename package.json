@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node scripts/build-static.mjs && node --test tests/account-password-length.test.mjs tests/runmix-profile.test.mjs tests/cloudflare-worker.test.mjs tests/admin-worker.test.mjs tests/community-worker.test.mjs tests/workout-identity.test.mjs tests/distance-challenge.test.mjs tests/card-ownership.test.mjs tests/card-ui.test.mjs tests/share-social-preview.test.mjs && node tests/public-sharing-interactions.test.cjs",
+    "build": "node scripts/build-static.mjs && node --test tests/account-password-length.test.mjs tests/runmix-profile.test.mjs tests/cloudflare-worker.test.mjs tests/admin-worker.test.mjs tests/community-worker.test.mjs tests/workout-identity.test.mjs tests/distance-challenge.test.mjs tests/distance-card-publishing.test.mjs tests/card-ownership.test.mjs tests/card-ui.test.mjs tests/share-social-preview.test.mjs && node tests/public-sharing-interactions.test.cjs",
     "check": "node --check worker/index.js && node --check worker/admin.js && npm run build",
     "test:distance-d1": "python3 scripts/test-distance-d1.py",
     "deploy": "npm run build && wrangler deploy",
