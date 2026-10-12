@@ -5,39 +5,11 @@ const COOKIE = '__Host-bos_community';
 const DAY = 86400000;
 const SESSION_MS = 30 * DAY;
 const LINK_MS = 3 * 60 * 1000;
-const USERS_SCHEMA = [
-  `CREATE TABLE IF NOT EXISTS community_users (
-    id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, handle TEXT NOT NULL UNIQUE,
-    password_salt TEXT NOT NULL, password_hash TEXT NOT NULL,
-    created_at INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS community_sessions (
-    token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
-    expires_at INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS community_auth_limits (
-    bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS community_link_codes (
-    code_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
-    challenge TEXT NOT NULL, expires_at INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS community_devices (
-    token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
-    expires_at INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS signed_shares (
-    share_id INTEGER PRIMARY KEY REFERENCES shared_items(id) ON DELETE CASCADE,
-    user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE)`,
-  'CREATE INDEX IF NOT EXISTS signed_shares_creator ON signed_shares(user_id, share_id DESC)',
-  'CREATE INDEX IF NOT EXISTS community_devices_user ON community_devices(user_id)',
-];
-const ready = new WeakMap();
+// The schema is installed manually with migrations/0003_community_profiles.sql.
+// Never mutate production D1 schema during a public HTTP request.
 export async function ensureCommunitySchema(db) {
   if (!db) throw Error('database_unavailable');
-  if (!ready.has(db)) {
-    const promise = (async () => {
-      for (const sql of USERS_SCHEMA) await db.prepare(sql).run();
-    })();
-    ready.set(db, promise);
-    promise.catch(() => ready.delete(db));
-  }
-  return ready.get(db);
+  await db.prepare('SELECT id FROM community_users LIMIT 1').first();
 }
 const reply = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), {
   status, headers: {
@@ -114,6 +86,8 @@ async function createSession(db, user) {
   return reply({authenticated:true,handle:user.handle},200,{'set-cookie':cookie(token,SESSION_MS/1000)});
 }
 async function signup(db,env,req) {
+  // Public signup is opt-in until the legal notices and acceptance tests are complete.
+  if (env.COMMUNITY_SIGNUPS_ENABLED !== 'true') return reply({error:'registration_closed'},503);
   if (!(await limited(db,env,req,'register',5,DAY))) return reply({error:'retry_later'},429);
   const b=await jsonBody(req);
   const email=typeof b?.email==='string'?b.email.trim().toLowerCase():'';
