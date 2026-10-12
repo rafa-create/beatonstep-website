@@ -95,16 +95,16 @@ export async function myCollection(db,userId) {
  * Do not infer sporting success from ownership history, gifts or pack openings.
  * No GPS route, coordinates or other runner IDs are returned.
  *
- * This is read-only: existing D1 0005 is the legacy achievements ledger until
- * the separate v2 sporting clock/proof acceptance path is deployed.
+ * This read-only view uses additive schema 0006 with the sporting clock;
+ * old music-clock attempt rows from applied 0005 are deliberately excluded.
  */
 export async function myChallengeAchievements(db,userId) {
   await requireCardSchema(db);
   const rows=await db.prepare(`SELECT v.share_id,v.first_validated_at,
       s.name,c.owner_user_id,
-      (SELECT COUNT(*) FROM workout_challenge_attempts a
+      (SELECT COUNT(*) FROM workout_distance_attempts_v2 a
        WHERE a.user_id=? AND a.share_id=v.share_id AND a.result='won') AS win_count
-    FROM workout_challenge_validations v
+    FROM workout_distance_validations_v2 v
     JOIN workout_cards c ON c.share_id=v.share_id
     JOIN shared_items s ON s.id=v.share_id
     WHERE v.user_id=?
