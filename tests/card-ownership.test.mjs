@@ -235,3 +235,22 @@ test('deleting the owner also revokes their outstanding gift invitations',()=>{
   assert.ok(account.indexOf('DELETE FROM workout_card_gifts')<
     account.indexOf('DELETE FROM community_users WHERE id=?'));
 });
+
+test('gift capacity allows issuing another invitation by retiring one unused code',async()=>{
+  let rotated=false,inserted=false;
+  const db={prepare(sql){
+    if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
+    return {bind:(...args)=>({
+      first:async()=>sql.includes('COUNT(*)')?{total:3}:{share_id:12},
+      run:async()=>({meta:{changes:1}}),
+    })};
+  },batch:async statements=>{
+    assert.equal(statements.length,2);
+    rotated=true;inserted=true;
+    return [{meta:{changes:1}},{meta:{changes:1}}];
+  }};
+  const response=await createGift(db,'owner-1',1000000000012);
+  assert.equal(response.status,200);
+  assert.equal(rotated,true);
+  assert.equal(inserted,true);
+});
