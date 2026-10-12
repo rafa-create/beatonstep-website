@@ -34,6 +34,7 @@ test('v1 music identity stays unchanged after v2 dispatch',async()=>{
   assert.equal(await workoutCardFingerprint(payload),await workoutMusicFingerprint(payload));
   const changed={...payload,p:[['Longer',600,140]],s:'youtube'};
   assert.equal(await workoutCardFingerprint(changed),await workoutCardFingerprint(payload));
+  assert.equal(await workoutCardFingerprint({...payload,v:3}),null);
 });
 test('completed plausible GPS evidence does not confer an authenticated victory',()=>{
   const result=assessDistanceEvidence(challenge(),{locationSource:'phone_gps',
