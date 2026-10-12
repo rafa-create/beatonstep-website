@@ -84,6 +84,10 @@ test('website allows owners to share their cards and sign-in keeps gift tokens',
   const html=read('compte.html');
   assert.match(html,/Offrir cette carte/);
   assert.match(html,/\/api\/account\/gift\/create/);
+  assert.match(html,/reusableGiftLink\(item\.id\)/);
+  assert.match(html,/localStorage\.setItem\(cacheKey/);
+  assert.match(html,/navigator\.share\(\{url:sharedUrl\}\)/);
+  assert.match(html,/navigator\.clipboard\.writeText\(sharedUrl\)/);
   assert.match(html,/giftCode=new URLSearchParams\(location\.hash\.slice\(1\)\)/);
   assert.match(html,/\/api\/account\/gift\/claim/);
   assert.match(html,/Voir la séance sur le site/);
