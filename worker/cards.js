@@ -1,4 +1,4 @@
-import { workoutMusicFingerprint } from './workout-identity.js';
+import { workoutCardFingerprint } from './workout-identity.js';
 
 export const CARD_ID_OFFSET = 1_000_000_000_000;
 export const cardsEnabled = env => env.CARDS_ENABLED === 'true';
@@ -45,7 +45,7 @@ export async function cardPeople(db, shareIds) {
 }
 
 export async function publishUniqueWorkout(db, payload, meta, author) {
-  const fingerprint=await workoutMusicFingerprint(payload);
+  const fingerprint=await workoutCardFingerprint(payload);
   // Not every old client sends complete music metadata. These invalid identities
   // remain in legacy publishing rather than being merged incorrectly.
   if (!fingerprint) return null;
@@ -94,7 +94,7 @@ export async function backfillWorkoutCards(db, afterId=0, limit=40) {
     stats.scanned++;
     stats.lastId=row.id;
     let fingerprint;
-    try {fingerprint=await workoutMusicFingerprint(JSON.parse(row.payload_json));}
+    try {fingerprint=await workoutCardFingerprint(JSON.parse(row.payload_json));}
     catch { /* legacy malformed payload */ }
     if (!fingerprint) {stats.skipped++;continue;}
     let existing=await db.prepare('SELECT share_id FROM workout_cards WHERE fingerprint=?')
