@@ -284,6 +284,13 @@ export async function accountRequest(request,env,url) {
         if (!safeEqual(await passHash(b.password,secret.password_salt),secret.password_hash)) {
           return reply({error:'invalid_credentials'},401);
         }
+        // A deleted account cannot leave behind active gift invitations. Its
+        // cards become unowned via FK SET NULL, so old links would otherwise
+        // unexpectedly match an anonymous card's owner and remain claimable.
+        if(cardsEnabled(env)) {
+          await db.prepare('DELETE FROM workout_card_gifts WHERE expected_owner_id=?')
+            .bind(user.id).run();
+        }
         await db.prepare('DELETE FROM signed_shares WHERE user_id=?').bind(user.id).run();
         await db.prepare('DELETE FROM community_devices WHERE user_id=?').bind(user.id).run();
         await db.prepare('DELETE FROM community_link_codes WHERE user_id=?').bind(user.id).run();
