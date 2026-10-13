@@ -2,6 +2,7 @@ import { cardsEnabled } from './cards.js';
 import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
+import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -323,6 +324,23 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/library/','/api/account/device/library/');
       return accountLibraryRequest(request,db,forwarded,member.id);
+    }
+    // #450: optional OFFLINE-FIRST post-finish reconciliation.
+    // Zero requests are made while the user runs; no GPS coordinates uploaded.
+    // Good-faith watch/phone summaries remain local during server outages.
+    if(path==='/api/account/device/sport/reconcile'){
+      if(method!=='POST')return reply({error:'method_not_allowed'},405);
+      if(env.SPORT_AUTO_AWARDS_ENABLED!=='true'||
+         env.SPORT_WORLD_CARDS_ENABLED!=='true')
+        return reply({error:'sport_reconciliation_not_ready'},503);
+      const member=await devicePublisher(db,request);
+      if(!member)return reply({error:'account_session_expired'},401);
+      if(!await limited(db,env,request,'sport-offline-reconcile',
+        160,60*60*1000,member.id))
+        return reply({error:'retry_later'},429);
+      const payload=await jsonBody(request);
+      if(!payload)return reply({error:'invalid_payload'},400);
+      return reconcileOfflineSportResult(db,member.id,payload);
     }
     // Separate #447 sport gift APIs: no musical TTL, token always held
     // in fragment / POST body, anonymous preview remains viewable after loss.
