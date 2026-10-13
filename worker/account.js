@@ -97,7 +97,7 @@ async function signup(db,env,req) {
   const handle=typeof b?.handle==='string'?b.handle.trim().toLowerCase():'';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length>254 ||
       !/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle) ||
-      typeof b?.password!=='string' || b.password.length<8 || b.password.length>128 ||
+      typeof b?.password!=='string' || b.password.length<6 || b.password.length>128 ||
       b.accept_terms!==true) return reply({error:'invalid_registration'},400);
   const salt=hex(crypto.getRandomValues(new Uint8Array(16)));
   const user={id:crypto.randomUUID(),email,handle};
@@ -129,7 +129,7 @@ const RESET_LINK_ORIGIN = 'https://beatonstep.app';
 const resetGeneric = () => reply({accepted:true});
 const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=254;
 const validResetPassword = value => typeof value==='string' &&
-  value.length>=8&&value.length<=128;
+  value.length>=6&&value.length<=128;
 
 async function sendResetMail(env,email,token) {
   const link=RESET_LINK_ORIGIN+'/compte.html#reset='+token;
