@@ -76,7 +76,7 @@ export const cardProfile=value=>{
 export async function myCollection(db,userId) {
   await requireCardSchema(db);
   const results=await db.prepare(`SELECT c.share_id,x.name,x.imports,x.created_at,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
-    creator.handle AS creator
+    creator.handle AS creator,c.last_reason AS acquisition_reason
     FROM workout_cards c JOIN shared_items x ON x.id=c.share_id
     LEFT JOIN community_users creator ON creator.id=c.creator_user_id
     WHERE c.owner_user_id=? ORDER BY c.acquired_at DESC,c.share_id DESC
@@ -84,6 +84,7 @@ export async function myCollection(db,userId) {
   return json({items:(results.results||[]).map(r=>({
     id:publicId(r.share_id),name:r.name,imports:r.imports,
     createdAt:r.created_at,creator:r.creator||null,
+    receivedAsGift:r.acquisition_reason==='gift_claim',
     profile:cardProfile(r.profile_json),
   }))});
 }
