@@ -54,10 +54,12 @@ test('signup form documents six characters without parentheses', () => {
   assert.match(page, /<label for="signup-password">Mot de passe<\/label>/);
   assert.match(page, /6 caractères minimum\./);
   assert.doesNotMatch(page, /Mot de passe \(/);
+  assert.match(page, /id="reset-new"[^>]+minlength="6"/);
+  assert.match(page, /id="reset-confirm"[^>]+minlength="6"/);
   assert.doesNotMatch(page, /minlength="12"/);
 });
 
-test('password shorter than six characters is still rejected', async () => {
+test('password shorter than six characters is rejected', async () => {
   const {response,writes} = await register('abcde');
   assert.equal(response.status,400);
   assert.equal((await response.json()).error,'invalid_registration');
