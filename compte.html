@@ -107,12 +107,10 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
-<div class="deck-toggles" aria-label="Vue du compte">
-<button type="button" id="view-decks" aria-pressed="true">Mes decks</button>
-<button type="button" id="view-history" aria-pressed="false">Historique</button></div>
-<div id="deck-navigation" class="deck-toggles" aria-label="Collection de cartes">
+<div id="deck-navigation" class="deck-toggles" role="group" aria-label="Type de collection et historique">
 <button type="button" id="deck-sessions" aria-pressed="true">♫ Séances</button>
 <button type="button" id="deck-challenges" aria-pressed="false">🏆 Défis</button></div>
+<h2 id="deck-heading">Mon deck · Séances</h2>
 <div id="session-deck"><div id="collection-panel" hidden><h2>Cartes musicales possédées</h2>
 <p>Une carte unique par séance, à découvrir et collectionner. Toutes les séances restent accessibles à la communauté.</p>
 <ul id="owned-cards"></ul>
@@ -136,10 +134,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Les trophées mondiaux apparaîtront après activation des validations sportives.
 Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <ul id="challenge-deck-cards"></ul></div>
-<div id="history-deck" hidden><h2>Historique du compte</h2>
-<div class="deck-toggles" aria-label="Filtrer l'historique">
-<button type="button" id="history-sessions" aria-pressed="true">Séances</button>
-<button type="button" id="history-challenges" aria-pressed="false">Défis</button></div>
+<div id="history-deck"><h2 id="history-heading">Historique · Séances</h2>
 <div id="history-sessions-panel"><p id="history-sessions-info">Chargement…</p>
 <ul id="history-sessions-items"></ul>
 <button id="history-more" type="button" class="secondary" hidden>Afficher plus de séances</button></div>
@@ -299,28 +294,22 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       li.append(chart,a,meta,offer);list.append(li);
     }
   }
-  let selectedView='decks',selectedDeck='sessions',selectedHistory='sessions';
+  // One category controls both the deck above and its history below.
+  let selectedDeck='sessions';
   function showDecks(){
-    const inDeck=selectedView==='decks';
-    $('deck-navigation').hidden=!inDeck;
-    $('session-deck').hidden=!inDeck||selectedDeck!=='sessions';
-    $('challenge-deck').hidden=!inDeck||selectedDeck!=='challenges';
-    $('history-deck').hidden=inDeck;
-    $('history-sessions-panel').hidden=selectedHistory!=='sessions';
-    $('history-challenges-panel').hidden=selectedHistory!=='challenges';
-    for(const [id,on] of [
-      ['view-decks',inDeck],['view-history',!inDeck],
-      ['deck-sessions',selectedDeck==='sessions'],['deck-challenges',selectedDeck==='challenges'],
-      ['history-sessions',selectedHistory==='sessions'],
-      ['history-challenges',selectedHistory==='challenges']
-    ])$(''+id).setAttribute('aria-pressed',String(on));
+    const sessions=selectedDeck==='sessions';
+    $('session-deck').hidden=!sessions;
+    $('challenge-deck').hidden=sessions;
+    $('history-deck').hidden=false;
+    $('history-sessions-panel').hidden=!sessions;
+    $('history-challenges-panel').hidden=sessions;
+    $('deck-sessions').setAttribute('aria-pressed',String(sessions));
+    $('deck-challenges').setAttribute('aria-pressed',String(!sessions));
+    $('deck-heading').textContent=sessions?'Mon deck · Séances':'Mon deck · Défis';
+    $('history-heading').textContent=sessions?'Historique · Séances':'Historique · Défis';
   }
-  $('view-decks').onclick=()=>{selectedView='decks';showDecks()};
-  $('view-history').onclick=()=>{selectedView='history';showDecks()};
   $('deck-sessions').onclick=()=>{selectedDeck='sessions';showDecks()};
   $('deck-challenges').onclick=()=>{selectedDeck='challenges';showDecks()};
-  $('history-sessions').onclick=()=>{selectedHistory='sessions';showDecks()};
-  $('history-challenges').onclick=()=>{selectedHistory='challenges';showDecks()};
   let runHistoryCursor=null;
   function addHistoryRuns(items){
     const list=$('history-sessions-items');
