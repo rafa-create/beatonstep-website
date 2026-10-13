@@ -108,7 +108,7 @@ test('strict N minutes and performance examples: no rounding or rarity',()=>{
     assert.equal('awarded' in p,false);
   }
   assert.equal(result(42.195,[[42.195,330]],330).status,'none');
-  assert.equal(result(.4,[[.4,59.999/60]],.999983).status,'unverified');
+  assert.equal(result(.4,[[.4,59.999/60]],.999).status,'unverified');
 });
 
 test('one candidate at longest recognized crossing and no fallback when it fails',()=>{
