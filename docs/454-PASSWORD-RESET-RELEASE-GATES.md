@@ -24,7 +24,7 @@ parcours de reset existant.
 - Le jeton de 256 bits est généré côté serveur, stocké **haché
   SHA-256**, transmis en **fragment URL #reset=...**, retiré de la
   barre d'adresse immédiatement et jamais mis dans les querystrings.
-- Nouveaux mots de passe d'inscription et de réinitialisation : **8 à 128 caractères**, minimum inclusif. Les anciens comptes dont le mot de passe comporte six ou sept caractères peuvent toujours **se connecter sans changement forcé**.
+- Nouveaux mots de passe d'inscription et de réinitialisation : **6 à 128 caractères**, minimum inclusif. La connexion des comptes existants reste inchangée.
 - Après confirmation : consommation unique du jeton ; actualisation
   du hash PBKDF2 et du salt ; révocation des sessions navigateur,
   appareils mobiles et anciens codes de liaison ; cookie effacé.
@@ -69,7 +69,7 @@ révoqué quand le prestataire refuse l'envoi.
 migration non destructive, UI, provider manquant, réponses
 indiscernables connu/inconnu, secret uniquement en mail, jeton
 haché, confirmation, révocation navigateur + mobile, anti-rejeu,
-mot de passe trop court (7 refusé, 8 accepté). **Les tests unitaires ne valident pas le
+mot de passe trop court (5 refusé, 6 accepté). **Les tests unitaires ne valident pas le
 déploiement ni la réception d'un e-mail réel.**
 
 **Ne pas confondre avec l'auth Google/YouTube/Spotify.**
