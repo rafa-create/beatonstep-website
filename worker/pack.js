@@ -84,7 +84,7 @@ export async function myCollection(db,userId) {
   return json({items:(results.results||[]).map(r=>({
     id:publicId(r.share_id),name:r.name,imports:r.imports,
     createdAt:r.created_at,creator:r.creator||null,
-    receivedAsGift:r.acquisition_reason==='gift_claim',
+    receivedAsGift:r.acquisition_reason==='gift' || r.acquisition_reason==='gift_claim',
     profile:cardProfile(r.profile_json),
   }))});
 }
