@@ -294,6 +294,7 @@ export async function accountRequest(request,env,url,ctx) {
         FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
         LEFT JOIN workout_cards c ON c.share_id=x.id
         WHERE s.user_id=? AND x.kind='workout'
+          AND COALESCE(json_extract(x.payload_json,'$.v'),1)=1
         ORDER BY x.imports DESC,x.created_at DESC,x.id DESC LIMIT 200`)
         .bind(member.id,member.id).all();
       return reply({items:(rows.results||[]).map(x=>({
