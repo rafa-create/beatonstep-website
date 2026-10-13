@@ -100,6 +100,41 @@ test('D1 health checks both database tables and the publishing secret', async ()
   assert.equal(prepared.length, 2);
 });
 
+test('public health verifies world sport tables and triggers without exposing runner data', async () => {
+  const queries=[];
+  const env={
+    CATALOG_BACKEND:'d1',CATALOG_RATE_SALT:'private-test-only',
+    SPORT_WORLD_CARDS_ENABLED:'false',
+    SPORT_WORLD_GIFTS_ENABLED:'false',
+    SPORT_AUTO_AWARDS_ENABLED:'false',
+    DB:{prepare(sql){
+      queries.push(sql);
+      return {first:async()=>sql.includes('sqlite_master')?{found:7}:null};
+    }},
+    ASSETS:{fetch:()=>new Response('STATIC')},
+  };
+  const response=await worker.fetch(new Request('https://beatonstep.app/api/health'),env);
+  assert.equal(response.status,200);
+  const value=await response.json();
+  assert.equal(value.schemaReady,true);
+  assert.deepEqual(value.sport,{
+    schemaReady:true,worldCardsEnabled:false,giftsEnabled:false,autoAwardsEnabled:false,
+  });
+  assert.match(queries.at(-1),/sport_card_gift_links/);
+  assert.match(queries.at(-1),/sport_verified_run_award_v1/);
+  assert.equal(JSON.stringify(value).includes('runner'),false);
+  assert.equal(JSON.stringify(value).includes('private-test-only'),false);
+
+  env.DB.prepare=sql=>({first:async()=>sql.includes('sqlite_master')?{found:6}:null});
+  const incomplete=await worker.fetch(new Request('https://beatonstep.app/api/health'),env);
+  assert.equal((await incomplete.json()).sport.schemaReady,false);
+
+  env.DB.prepare=()=>{throw Error('D1 temporarily offline')};
+  const offline=await worker.fetch(new Request('https://beatonstep.app/api/health'),env);
+  assert.equal(offline.status,200);
+  assert.equal((await offline.json()).sport.schemaReady,false);
+});
+
 test('D1 publishes separate numeric IDs and old VM IDs never resolve to new cards', async () => {
   const publicId = 1_000_000_000_007;
   const row = {
