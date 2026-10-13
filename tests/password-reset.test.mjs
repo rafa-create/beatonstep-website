@@ -143,6 +143,33 @@ test('valid reset invalidates all existing session types and token replay',async
     assert.equal(f.tokens.size,0);
   }finally{globalThis.fetch=originalFetch}
 });
+test('invalid CSRF origin and expired token never change a password',async()=>{
+  const f=fixture();
+  const csrfReq=new Request(ORIGIN+'/api/account/password-reset/request',{
+    method:'POST',headers:{origin:'https://evil.example.test','content-type':'application/json'},
+    body:JSON.stringify({email:'runner@example.test'}),
+  });
+  const csrf=await accountRequest(csrfReq,f.env,new URL(csrfReq.url),f.ctx);
+  assert.equal(csrf.status,403);
+  assert.equal(f.recorded.mail.length,0);
+  const old=globalThis.fetch;
+  let emailBody='';
+  globalThis.fetch=async(_,options)=>{
+    emailBody=JSON.parse(options.body).text;
+    return new Response('{}',{status:200});
+  };
+  try{
+    const another=fixture({expired:true});
+    const r=await dispatch(another,'request',{email:'runner@example.test'});
+    assert.equal(r.status,200);await Promise.all(another.recorded.mail);
+    const token=linkFrom(emailBody);
+    const expired=await dispatch(another,'confirm',{
+      token,password:'Long-and-unique-password-2026',
+    });
+    assert.equal(expired.status,400);
+    assert.equal(another.recorded.batch.length,0);
+  }finally{globalThis.fetch=old}
+});
 test('weak password, invalid token and expiration fail without changing credentials',async()=>{
   const f=fixture();
   for(const data of [
