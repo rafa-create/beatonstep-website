@@ -71,10 +71,10 @@ async function webUser(db, req) { return personByToken(db, browserToken(req), 'c
 export async function devicePublisher(db, request) {
   return personByToken(db, bearerToken(request), 'community_devices');
 }
-async function limited(db, env, request, kind, limit, period) {
+async function limited(db, env, request, kind, limit, period, identity = null) {
   if (!env.CATALOG_RATE_SALT) return false;
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const now = Date.now(), bucket = await hash(env.CATALOG_RATE_SALT + ':community:' + kind + ':' + ip);
+  const now = Date.now(), bucket = await hash(env.CATALOG_RATE_SALT + ':community:' + kind + ':' + (identity===null?ip:'identity:'+identity));
   const row = await db.prepare(`INSERT INTO community_auth_limits(bucket,count,expires_at)
     VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET
     count=CASE WHEN expires_at<=? THEN 1 ELSE count+1 END,
@@ -121,6 +121,109 @@ async function signin(db,env,req) {
   if (!user || !safeEqual(digest,user.password_hash)) return reply({error:'invalid_credentials'},401);
   return createSession(db,user);
 }
+// Password reset never authenticates the caller or exposes whether an e-mail
+// exists. E-mail sends run after the generic response in the Worker context.
+// A verified sender/domain and provider credentials must be configured first.
+const RESET_MS = 20 * 60 * 1000;
+const RESET_LINK_ORIGIN = 'https://beatonstep.app';
+const resetGeneric = () => reply({accepted:true});
+const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=254;
+const validResetPassword = value => typeof value==='string' &&
+  value.length>=12&&value.length<=128;
+
+async function sendResetMail(env,email,token) {
+  const link=RESET_LINK_ORIGIN+'/compte.html#reset='+token;
+  const response=await fetch('https://api.resend.com/emails',{
+    method:'POST',
+    headers:{
+      authorization:'Bearer '+env.RESEND_API_KEY,
+      'content-type':'application/json',
+    },
+    body:JSON.stringify({
+      from:env.PASSWORD_RESET_EMAIL_FROM,
+      to:[email],
+      subject:'BeatOnStep — réinitialiser votre mot de passe',
+      text:'Vous avez demandé un nouveau mot de passe BeatOnStep.\n\n'+
+        'Ouvrez ce lien dans les 20 minutes :\n'+link+'\n\n'+
+        'Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.\n',
+    }),
+  });
+  if(!response.ok)throw Error('reset_email_provider_rejected');
+}
+
+async function requestPasswordReset(db,env,req,ctx) {
+  // Fail closed for ALL visitors when the service has not been provisioned.
+  if(typeof env.RESEND_API_KEY!=='string'||!env.RESEND_API_KEY||
+     typeof env.PASSWORD_RESET_EMAIL_FROM!=='string'||
+     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.PASSWORD_RESET_EMAIL_FROM)){
+    return reply({error:'password_reset_unavailable'},503);
+  }
+  if(!(await limited(db,env,req,'password-reset-ip',8,60*60*1000))){
+    return reply({error:'retry_later'},429);
+  }
+  const b=await jsonBody(req);
+  const email=typeof b?.email==='string'?b.email.trim().toLowerCase():'';
+  if(!validEmail(email))return resetGeneric();
+  // A salted identity bucket protects mailboxes against distributed abuse;
+  // neither this hash nor the account ID is sent to clients.
+  if(!(await limited(db,env,req,'password-reset-address',3,DAY,email))){
+    return resetGeneric();
+  }
+  const user=await db.prepare('SELECT id FROM community_users WHERE email=?')
+    .bind(email).first();
+  if(!user)return resetGeneric();
+  const token=randomToken();
+  const tokenHash=await hash(token);
+  const now=Date.now();
+  await db.prepare(`INSERT INTO community_password_reset_tokens
+    (user_id,token_hash,created_at,expires_at) VALUES(?,?,?,?)
+    ON CONFLICT(user_id) DO UPDATE SET
+      token_hash=excluded.token_hash,
+      created_at=excluded.created_at,expires_at=excluded.expires_at`)
+    .bind(user.id,tokenHash,now,now+RESET_MS).run();
+
+  // Route timing and response do not disclose account existence. Never log
+  // the e-mail address, secret token or reset URL.
+  const delivery=sendResetMail(env,email,token).catch(async()=>{
+    console.error('password reset delivery failed');
+    try{
+      await db.prepare('DELETE FROM community_password_reset_tokens WHERE token_hash=?')
+        .bind(tokenHash).run();
+    }catch{console.error('password reset cleanup failed')}
+  });
+  if(ctx?.waitUntil)ctx.waitUntil(delivery);
+  else await delivery; // supported when accountRequest is invoked directly.
+  return resetGeneric();
+}
+
+async function confirmPasswordReset(db,env,req) {
+  if(!(await limited(db,env,req,'password-reset-confirm',12,15*60*1000))){
+    return reply({error:'retry_later'},429);
+  }
+  const b=await jsonBody(req);
+  const token=b?.token;
+  if(typeof token!=='string'||!/^[a-f0-9]{64}$/.test(token)||
+     !validResetPassword(b?.password)){
+    return reply({error:'invalid_password_reset'},400);
+  }
+  const consumed=await db.prepare(`DELETE FROM community_password_reset_tokens
+    WHERE token_hash=? AND expires_at>? RETURNING user_id`)
+    .bind(await hash(token),Date.now()).first();
+  if(!consumed)return reply({error:'invalid_password_reset'},400);
+  const salt=hex(crypto.getRandomValues(new Uint8Array(16)));
+  const digest=await passHash(b.password,salt);
+  // Batch is atomic in Cloudflare D1: new password and revocation of every
+  // active browser/device/link session succeed or fail together.
+  await db.batch([
+    db.prepare('UPDATE community_users SET password_salt=?,password_hash=? WHERE id=?')
+      .bind(salt,digest,consumed.user_id),
+    db.prepare('DELETE FROM community_sessions WHERE user_id=?').bind(consumed.user_id),
+    db.prepare('DELETE FROM community_devices WHERE user_id=?').bind(consumed.user_id),
+    db.prepare('DELETE FROM community_link_codes WHERE user_id=?').bind(consumed.user_id),
+  ]);
+  return reply({reset:true},200,{'set-cookie':cookie('',0)});
+}
+
 async function exchange(db,req) {
   const b=await jsonBody(req);
   if (!/^[a-f0-9]{64}$/.test(b?.code||'') || !/^[A-Za-z0-9_-]{43,128}$/.test(b?.verifier||'')) {
@@ -149,7 +252,7 @@ export async function authorFor(db, shareIds) {
     .bind(...shareIds).all();
   return new Map((rows.results||[]).map(x=>[x.share_id,x.handle]));
 }
-export async function accountRequest(request,env,url) {
+export async function accountRequest(request,env,url,ctx) {
   if (!env.DB || env.CATALOG_BACKEND!=='d1') return reply({error:'account_unavailable'},503);
   try {
     const db=env.DB, path=url.pathname, method=request.method;
@@ -232,6 +335,10 @@ export async function accountRequest(request,env,url) {
     }
     if (method==='POST'||method==='DELETE') {
       if (!sameOrigin(request)) return reply({error:'origin_forbidden'},403);
+      if (path==='/api/account/password-reset/request' && method==='POST')
+        return requestPasswordReset(db,env,request,ctx);
+      if (path==='/api/account/password-reset/confirm' && method==='POST')
+        return confirmPasswordReset(db,env,request);
       if (path==='/api/account/signup' && method==='POST') return signup(db,env,request);
       if (path==='/api/account/login' && method==='POST') return signin(db,env,request);
       if (path==='/api/account/logout' && method==='POST') {
