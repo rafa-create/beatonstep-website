@@ -4,7 +4,8 @@ import {readFileSync} from 'node:fs';
 import {
   cardsEnabled, requireCardSchema, canonicalShareId, publishUniqueWorkout, backfillWorkoutCards,
 } from '../worker/cards.js';
-import { packState, openPack, claimGift, validGiftToken,createGift,giftStatus } from '../worker/pack.js';
+import { packState, openPack, myChallengeAchievements, claimGift, validGiftToken,createGift,giftStatus } from '../worker/pack.js';
+import {accountRequest} from '../worker/account.js';
 
 const completeCardSchemaObjects=[
   ...['workout_cards','workout_card_aliases','workout_card_history',
@@ -253,4 +254,46 @@ test('gift capacity allows issuing another invitation by retiring one unused cod
   assert.equal(response.status,200);
   assert.equal(rotated,true);
   assert.equal(inserted,true);
+});
+
+test('private challenge achievements survive ownership loss and show no GPS or other identities',async()=>{
+  const db={prepare(sql){
+    if(sql.includes('sqlite_master'))return {all:async()=>({results:completeCardSchemaObjects})};
+    assert.match(sql,/workout_distance_validations_v2 v/);
+    assert.match(sql,/workout_distance_attempts_v2 a/);
+    assert.match(sql,/json_extract\(s\.payload_json/);
+    return {bind:(a,b)=>{
+      assert.equal(a,'runner-me');assert.equal(b,'runner-me');
+      return {all:async()=>({results:[
+        {share_id:41,name:'5 km / 30 min',first_validated_at:1000,
+          owner_user_id:'runner-other',win_count:2},
+        {share_id:42,name:'10 km / 60 min',first_validated_at:900,
+          owner_user_id:'runner-me',win_count:1},
+      ]})};
+    }};
+  }};
+  const response=await myChallengeAchievements(db,'runner-me');
+  assert.equal(response.status,200);
+  const json=await response.json();
+  assert.deepEqual(json.items,[
+    {id:1000000000041,name:'5 km / 30 min',firstValidatedAt:1000,
+      successfulAttempts:2,currentlyOwned:false},
+    {id:1000000000042,name:'10 km / 60 min',firstValidatedAt:900,
+      successfulAttempts:1,currentlyOwned:true},
+  ]);
+  assert.equal(JSON.stringify(json).includes('runner-other'),false);
+  assert.equal(JSON.stringify(json).includes('latitude'),false);
+});
+
+test('challenge achievements need a current browser session or native bearer grant',async()=>{
+  const db={prepare(sql){
+    assert.match(sql,/SELECT id FROM community_users LIMIT 1/);
+    return {first:async()=>null};
+  }};
+  const env={DB:db,CATALOG_BACKEND:'d1',CARDS_ENABLED:'true'};
+  for(const path of ['/api/account/achievements','/api/account/device/achievements']){
+    const url=new URL('https://beatonstep.app'+path);
+    const res=await accountRequest(new Request(url),env,url);
+    assert.equal(res.status,401);
+  }
 });
