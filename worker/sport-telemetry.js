@@ -50,10 +50,10 @@ export function validateSportTelemetryPoints(rows,startedAt,finishedAt){
       return {ok:false,reason:'missing_live_samples'};
     if(i>0&&gap>12*3600000)
       return {ok:false,reason:'overlong_pause'};
-    if(deltaDistance>0&&deltaElapsed>0&&
-       deltaDistance/deltaElapsed>1.15)
+    if(deltaDistance>0&&(deltaElapsed===0||
+       deltaDistance/deltaElapsed>1.15))
       return {ok:false,reason:'implausible_speed'};
-    if(i>0&&p.seq!==i+1)return {ok:false,reason:'invalid_sequence'};
+    if(p.seq!==i+1)return {ok:false,reason:'invalid_sequence'};
     let crossed=0;
     for(const family of SPORT_CARD_DISTANCES){
       if(family.distanceCm>lastDistance&&family.distanceCm<=dist){
@@ -151,14 +151,15 @@ export async function sportTelemetryRequest(db,env,user,action,body,{
     p.acceptedFixes<current.last_accepted_fixes||
     deltaTime<0||(p.seq>1&&deltaTime===0)||
     (p.seq>1&&deltaTime>35000&&current.last_signal!=='paused')||
-    (p.seq>1&&deltaDist>0&&deltaElapsed>0&&
-      deltaDist/deltaElapsed>1.15)||
+    (deltaDist>0&&(deltaElapsed<=0||
+      deltaDist/deltaElapsed>1.15))||
     (deltaDist>0&&(p.paused||p.signal!=='good'||p.acceptedFixes<2));
   if(impossible){
     await reject(db,current.id,user,'gps_clock_or_speed_inconsistent');
     return json({error:'gps_inconsistent'},409);
   }
-  const q=await db.prepare(`INSERT INTO sport_telemetry_points
+  const statements=[
+    db.prepare(`INSERT INTO sport_telemetry_points
     (session_id,seq,received_at,elapsed_ms,distance_cm,
      paused,signal,accepted_fixes,rejected_fixes)
     SELECT id,?,?,?,?,?,?,?,?
@@ -166,16 +167,21 @@ export async function sportTelemetryRequest(db,env,user,action,body,{
     WHERE id=? AND user_id=? AND status='tracking' AND last_seq=?
     RETURNING seq`)
     .bind(p.seq,now,p.elapsedMs,p.distanceCm,p.paused?1:0,p.signal,
-      p.acceptedFixes,p.rejectedFixes,current.id,user,current.last_seq).first();
-  if(!q)return json({error:'concurrent_sample'},409);
-  const u=await db.prepare(`UPDATE sport_telemetry_sessions SET
+      p.acceptedFixes,p.rejectedFixes,current.id,user,current.last_seq),
+    db.prepare(`UPDATE sport_telemetry_sessions SET
      last_seq=?,last_received_at=?,last_elapsed_ms=?,
      last_distance_cm=?,last_accepted_fixes=?,last_signal=?
     WHERE id=? AND user_id=? AND last_seq=? AND status='tracking'
     RETURNING id`)
     .bind(p.seq,now,p.elapsedMs,p.distanceCm,p.acceptedFixes,p.signal,
-      current.id,user,current.last_seq).first();
-  if(!u)throw Error('telemetry_concurrent_write');
+      current.id,user,current.last_seq),
+  ];
+  // Single D1 transaction prevents an orphaned sample if competing
+  // requests race on the same sequence number.
+  const [sampleWrite,sessionWrite]=await db.batch(statements);
+  if((sampleWrite?.results||[]).length!==1||
+     (sessionWrite?.results||[]).length!==1)
+    return json({error:'concurrent_sample'},409);
   if(action==='point')return json({status:'observed',seq:p.seq});
   const points=await db.prepare(`SELECT * FROM sport_telemetry_points
     WHERE session_id=? ORDER BY seq ASC LIMIT 5001`)
