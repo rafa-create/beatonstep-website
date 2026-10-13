@@ -128,7 +128,10 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="gift-panel" class="gift-accept" hidden><h2>🎁 Tu as reçu une carte BeatOnStep !</h2>
 <p id="gift-info" class="gift-highlight"></p><button type="button" id="claim-gift">Accepter cette carte</button>
 <p style="margin-top:12px">La carte deviendra la tienne uniquement après ton acceptation.</p></div></div>
-<div id="my-cards"><h2>Mes séances créées · par popularité</h2><ul id="items"></ul></div></div>
+<div id="my-cards"><h2>Mes séances créées · par popularité</h2><ul id="items"></ul></div>
+<div id="saved-workouts-panel"><h2>Mes programmes enregistrés</h2>
+<p id="saved-workouts-status">Chargement des programmes…</p>
+<ul id="saved-workouts-items"></ul></div></div>
 <div id="challenge-deck" hidden><h2>Mes défis sportifs</h2>
 <p>Les trophées mondiaux apparaîtront après activation des validations sportives.
 Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
@@ -205,7 +208,9 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       meta.className='small';
       meta.textContent=(item.kind==='workout'?'Séance musicale':'Playlist')+' · '+item.source+
         (item.kind==='workout'&&Number.isFinite(item.imports)
-          ?' · '+Number(item.imports).toLocaleString('fr-FR')+' imports':'');
+          ?' · '+Number(item.imports).toLocaleString('fr-FR')+' imports':'')+
+        (item.kind==='workout'&&Number.isFinite(item.completedCount)&&item.completedCount>0
+          ?' · Réalisée × '+item.completedCount:'');
       li.append(a,meta);
       if(element.id==='items' && item.kind!=='workout'){
         const remove=document.createElement('button');
@@ -374,6 +379,62 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     }
   }
   $('history-more').onclick=()=>void refreshHistory(true);
+  async function refreshSavedWorkouts(publications){
+    const originals=new Set((publications||[])
+      .filter(item=>item.kind==='workout').map(item=>Number(item.id)));
+    const saved=[],counted=new Map();
+    let cursor=null;
+    try{
+      for(let page=0;page<100;page++){
+        const result=await api('/api/account/library/workouts'+
+          (cursor?'?after='+encodeURIComponent(cursor):''));
+        if(!Array.isArray(result.items))throw Error('invalid_workout_page');
+        for(const row of result.items){
+          if(row.deletedAt || !row.workout)continue;
+          saved.push(row);
+          if(Number.isSafeInteger(row.workout.publicCardId) &&
+             originals.has(row.workout.publicCardId))
+            counted.set(row.workout.publicCardId,row.completedCount||0);
+        }
+        if(!result.nextCursor){cursor=null;break;}
+        cursor=result.nextCursor;
+      }
+      if(cursor)throw Error('incomplete_account_library');
+      // Published originals already have an author card in the preceding list.
+      // The imported/non-published program remains a plain usable template,
+      // NEVER an author card or a world sporting reward.
+      const visible=saved.filter(row=>
+        !originals.has(row.workout.publicCardId));
+      const list=$('saved-workouts-items');
+      list.replaceChildren();
+      const isImported=row=>String(row.workout.id).startsWith('workout-shared-')||
+        Number.isSafeInteger(row.workout.publicCardId);
+      visible.sort((a,b)=>Number(isImported(a))-Number(isImported(b))||
+        a.workout.name.localeCompare(b.workout.name,'fr'));
+      for(const row of visible){
+        const li=document.createElement('li');li.className='deck-tile';
+        const name=document.createElement('h3');
+        name.textContent=row.workout.name;
+        const meta=document.createElement('small');
+        const count=Number.isSafeInteger(row.completedCount)?row.completedCount:0;
+        meta.textContent=(isImported(row)?'Séance importée':'Séance créée')+
+          (count>0?' · Réalisée × '+count:'');
+        li.append(name,meta);
+        list.append(li);
+      }
+      $('saved-workouts-status').textContent=saved.length
+        ?'Programmes utilisables dans l’application. Les imports ne transfèrent pas la création.'
+        :'Aucun programme sauvegardé sur ce compte.';
+      // Keep the original author card exactly once, with both import popularity
+      // and this runner's actual (explicitly saved) session count.
+      renderCards((publications||[]).map(item=>({
+        ...item,completedCount:counted.get(Number(item.id))||0,
+      })),$('items'));
+    }catch{
+      $('saved-workouts-status').textContent='La récupération des programmes enregistrés est indisponible.';
+      $('saved-workouts-items').replaceChildren();
+    }
+  }
   async function refreshCollection(){
     try{
       const [collection,pack]=await Promise.all([api('/api/account/collection'),api('/api/account/pack')]);
@@ -417,7 +478,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     renderCards(data.items,$('items'));
     await refreshCollection();
     showDecks();
-    void refreshHistory();
+    void Promise.all([refreshSavedWorkouts(data.items),refreshHistory()]);
   }
   $('go-signup').onclick=()=>{panel('signup');status('Choisissez un pseudo public.')};
   $('go-signin').onclick=()=>{panel('signin');status('Connectez-vous avec votre compte.')};
