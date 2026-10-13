@@ -83,6 +83,8 @@ test('new additive SQL contains reset table but does not touch sessions or card 
   assert.match(ui,/id="go-forgot"/);
   assert.match(ui,/id="forgot-form"/);
   assert.match(ui,/id="password-reset-form"/);
+  assert.match(ui,/id="reset-new"[^>]+minlength="8"/);
+  assert.match(ui,/id="reset-confirm"[^>]+minlength="8"/);
   assert.match(ui,/name="referrer" content="no-referrer"/);
 });
 test('unconfigured provider is fail-closed and never queries account identity',async()=>{
@@ -129,7 +131,7 @@ test('valid reset invalidates all existing session types and token replay',async
     const f=fixture(),r=await dispatch(f,'request',{email:'runner@example.test'});
     assert.equal(r.status,200);await Promise.all(f.recorded.mail);
     const token=linkFrom(sent);
-    const newPassword='Long-and-unique-password-2026';
+    const newPassword='abcdefgh'; // exactly 8 characters must be accepted
     const first=await dispatch(f,'confirm',{token,password:newPassword});
     assert.equal(first.status,200);assert.deepEqual(await first.json(),{reset:true});
     assert.match(first.headers.get('set-cookie')||'',/Max-Age=0/);
@@ -175,6 +177,7 @@ test('weak password, invalid token and expiration fail without changing credenti
   for(const data of [
     {token:'x'.repeat(64),password:'Strong-and-unique-password'},
     {token:'f'.repeat(64),password:'short'},
+    {token:'f'.repeat(64),password:'abcdef7'}, // 7 chars rejected
     {token:'f'.repeat(62),password:'Strong-and-unique-password'},
   ]){
     const r=await dispatch(f,'confirm',data);
