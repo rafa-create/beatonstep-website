@@ -48,7 +48,9 @@ test('wrangler routes API first and excludes private sources from static output'
   const config = JSON.parse(readFileSync('wrangler.jsonc', 'utf8'));
   assert.equal(config.name, 'beatonstep-website');
   assert.equal(config.vars.CATALOG_BACKEND, 'd1');
-  assert.deepEqual(config.assets.run_worker_first, ['/api/*', '/partages.html']);
+  assert.deepEqual(config.assets.run_worker_first,
+    ['/api/*', '/partages.html', '/cadeau', '/cadeau/'],
+    'gift short URLs must reach the Worker alongside the API and catalog');
   assert.ok(!existsSync('dist/worker/index.js'));
   assert.ok(!existsSync('dist/migrations/0001_shared_catalog.sql'));
   assert.ok(existsSync('dist/partages.html'));
