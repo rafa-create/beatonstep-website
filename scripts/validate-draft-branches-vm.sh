@@ -4,6 +4,7 @@
 set -euo pipefail
 
 SITE_REPO="${SITE_REPO:-/home/ubuntu/beatonstep-website}"
+MOBILE_REPO="${MOBILE_REPO:-/home/ubuntu/BeatOnStep}"
 test -d "$SITE_REPO/.git" || git -C "$SITE_REPO" rev-parse --is-inside-work-tree >/dev/null
 command -v npm >/dev/null
 command -v node >/dev/null
@@ -22,10 +23,14 @@ done
 
 TEMPROOT="$(mktemp -d /tmp/beatonstep-site-preflight-XXXXXX)"
 MOUNTED=()
+MOBILE_WT=""
 cleanup(){
   for workdir in "${MOUNTED[@]}"; do
     git -C "$SITE_REPO" worktree remove --force "$workdir" >/dev/null 2>&1 || true
   done
+  if [ -n "$MOBILE_WT" ]; then
+    git -C "$MOBILE_REPO" worktree remove --force "$MOBILE_WT" >/dev/null 2>&1 || true
+  fi
   rm -rf "$TEMPROOT"
 }
 trap cleanup EXIT
@@ -69,5 +74,22 @@ PY
 done
 
 echo
-echo "=== SITE DRAFTS GREEN — UNIT/BUILD ONLY, NOT DEPLOYED ==="
-echo "No D1 migration, signed app, production website or feature flag changed."
+echo "=== MOBILE SETTINGS DRAFT — TYPECHECK + UNIT CONVERTER ==="
+test -d "$MOBILE_REPO/mobile-app/node_modules" || {
+  echo "ERROR: existing mobile-app/node_modules missing in $MOBILE_REPO."
+  echo "This pilot validation reuses the VM dependencies without reinstalling native packages."
+  exit 2
+}
+git -C "$MOBILE_REPO" fetch --no-tags origin \
+  "+refs/heads/feature/453-unit-converter-settings:refs/remotes/origin/feature/453-unit-converter-settings"
+MOBILE_WT="$TEMPROOT/mobile-unit-settings"
+git -C "$MOBILE_REPO" worktree add --detach "$MOBILE_WT" "origin/feature/453-unit-converter-settings"
+ln -s "$MOBILE_REPO/mobile-app/node_modules" "$MOBILE_WT/mobile-app/node_modules"
+echo "MOBILE_SETTINGS_SHA=$(git -C "$MOBILE_WT" rev-parse HEAD)"
+npm --prefix "$MOBILE_WT/mobile-app" run test:unit-conversion
+npm --prefix "$MOBILE_WT/mobile-app" run test:typecheck
+echo "PASS mobile unit conversion + TypeScript (no IPA/OTA)"
+
+echo
+echo "=== THREE DRAFTS GREEN — UNIT/BUILD/TYPECHECK ONLY, NOT DEPLOYED ==="
+echo "No D1 migration, signed app, production website, Codemagic or feature flag changed."
