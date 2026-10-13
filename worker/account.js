@@ -1,5 +1,6 @@
 import { cardsEnabled } from './cards.js';
 import { accountLibraryRequest } from './account-library.js';
+import { readSportWorldCollection } from './sport-world-collection.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -321,6 +322,27 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/library/','/api/account/device/library/');
       return accountLibraryRequest(request,db,forwarded,member.id);
+    }
+    // #445/#449: new world-sport trophy ledger is NOT the old musical
+    // workout_card ledger nor the retired v2 distance musical challenge.
+    // Read-only and explicitly gated. Until an independent attestation route
+    // is proven, no HTTP endpoint can mint, award or transfer these trophies.
+    if (path.startsWith('/api/account/device/sport/') && method==='GET') {
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      if (env.SPORT_WORLD_CARDS_ENABLED!=='true')
+        return reply({error:'world_sport_cards_not_ready'},503);
+      return readSportWorldCollection(db,member.id,url);
+    }
+    if (path.startsWith('/api/account/sport/') && method==='GET') {
+      const member=await webUser(db,request);
+      if (!member) return reply({error:'login_required'},401);
+      if (env.SPORT_WORLD_CARDS_ENABLED!=='true')
+        return reply({error:'world_sport_cards_not_ready'},503);
+      const forwarded=new URL(request.url);
+      forwarded.pathname=path.replace('/api/account/sport/',
+        '/api/account/device/sport/');
+      return readSportWorldCollection(db,member.id,forwarded);
     }
     // Only the authenticated runner sees their durable sporting achievements.
     // This reads ledger 0005; no challenge-result submission is enabled here.
