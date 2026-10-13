@@ -102,6 +102,17 @@ test('an existing worldwide card is stolen when the prior owner differs',async()
   assert.equal(JSON.stringify(result).includes('runner-b'),false,
     'previous owner identity must remain private');
 });
+test('an existing but abandoned world card is not presented as first created',async()=>{
+  const {db}=sqlCalls();
+  db.batch=async()=>[
+    {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:null,owner_epoch:2}]},
+    {results:[{card_id:17}],meta:{changes:1}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+  ];
+  const result=await (await reconcileOfflineSportResult(db,'runner-a',body(),{now})).json();
+  assert.equal(result.acquisition,'unclaimed');
+});
 test('previously owned or replayed card does not celebrate a fresh capture',async()=>{
   const {db}=sqlCalls();
   db.batch=async()=>[
