@@ -41,8 +41,9 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   const digest=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',
     new TextEncoder().encode(canonical))));
 
-  // One D1 batch commits a canonical worldwide card, one per-user run claim,
-  // the 0010 ownership trigger, AND the resulting current owner read.
+  // One D1 transaction inserts the canonical card, captures the prior
+  // owner, records the run (0010 ownership trigger) and reads the owner again.
+  // The event type cannot be derived from awarded=true alone.
   const writes=[
     db.prepare(`INSERT INTO sport_world_cards
       (distance_cm,time_unit,sub_value,difficulty,ruleset,created_at)
@@ -50,6 +51,11 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
       ON CONFLICT(distance_cm,time_unit,sub_value) DO NOTHING`)
       .bind(candidate.distanceCm,candidate.timeUnit,candidate.subValue,
         candidate.difficulty,SPORT_CARD_RULESET,now),
+    db.prepare(`SELECT c.id,c.current_owner_id,c.owner_epoch
+      FROM sport_world_cards c WHERE c.distance_cm=? AND c.time_unit=?
+        AND c.sub_value=? AND c.ruleset=?`)
+      .bind(candidate.distanceCm,candidate.timeUnit,
+        candidate.subValue,SPORT_CARD_RULESET),
     db.prepare(`INSERT INTO sport_verified_runs
       (user_id,run_id,card_id,completed_at,verified_at,
        evidence_digest,evidence_source)
@@ -68,9 +74,10 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
         candidate.subValue,SPORT_CARD_RULESET),
   ];
   const result=await db.batch(writes);
-  const recorded=result[1]?.results||[],current=result[2]?.results||[];
-  if(current.length!==1||!digits(current[0].id)||
-     !digits(current[0].owner_epoch)||
+  const prior=result[1]?.results||[],recorded=result[2]?.results||[],
+    current=result[3]?.results||[];
+  if(prior.length!==1||current.length!==1||!digits(current[0].id)||
+     !digits(prior[0].owner_epoch)||!digits(current[0].owner_epoch)||
      recorded.length>1)throw Error('sport_reconciliation_integrity_failure');
 
   if(recorded.length===0){
@@ -85,10 +92,19 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
       return reply({error:'run_already_used_for_different_card'},409);
   }
   const owned=current[0].current_owner_id===userId;
+  const newRun=recorded.length===1;
+  // Keep previous-owner identities private. The caller may celebrate a
+  // conquest without identifying an athlete who did not consent.
+  const transferred=newRun&&owned&&
+    current[0].owner_epoch===prior[0].owner_epoch+1;
+  const acquisition=!newRun?'already_processed':!owned?'superseded':
+    !transferred?'already_owned':
+    prior[0].current_owner_id==null?'created':
+    prior[0].current_owner_id!==userId?'stolen':'already_owned';
   return reply({
     runId,performanceKey:candidate.performanceKey,cardId:current[0].id,
     worldStatus:owned?'confirmed':'lost',
-    ownerEpoch:current[0].owner_epoch,awarded:recorded.length===1,
+    ownerEpoch:current[0].owner_epoch,awarded:newRun,acquisition,
     completedAt:summary.endedAtMs,
   });
 }
