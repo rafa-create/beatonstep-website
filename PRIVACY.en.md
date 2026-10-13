@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** October 12, 2026
+**Last updated:** October 13, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -54,6 +54,8 @@ Connecting Google/YouTube is optional and separate from an optional BeatOnStep c
 - **Limited sharing:** imported playlist names, identifiers, and BPM values are not published to the BeatOnStep catalogue, sold, or used for advertising. The server may receive only a pseudonymous count of imported playlists, without Google account identifiers or track details (§ 3.9). A voluntary technical support report may contain track identifiers but never OAuth tokens (§ 3.11).
 - **Retention:** tokens remain locally stored while YouTube stays connected (and may be refreshed as needed), and are deleted when you disconnect; uninstalling removes the app's local data. Previously imported track metadata and BPM values remain in your local library until you delete them in the app or uninstall; disconnecting does not automatically delete previously imported tracks. BeatOnStep does not retain a permanent server-side copy of your Google music library.
 - **Deletion and withdrawal:** you can disconnect YouTube in BeatOnStep, delete imported playlists/tracks from your library, and revoke BeatOnStep's access from [your Google Account](https://myaccount.google.com/connections). Revocation stops future access but does not itself erase locally imported data. Google's own policies and controls apply to information Google holds in your YouTube account.
+
+**Google/YouTube data protection (additional details):** permissions are requested only when you connect YouTube or voluntarily enable playlist creation. The read-only grant does not let BeatOnStep create a playlist; that action requires a separate additional consent. OAuth uses PKCE (S256), and Google API communications use HTTPS. The app never receives your Google password. Tokens are kept in the app's private on-device application storage (AsyncStorage): **this is not a dedicated hardware vault or a claim of dedicated encryption**. They are not sent to the BeatOnStep server for the YouTube library, are excluded from diagnostic reports, and are removed from the local session when you disconnect. Imported playlist names and identifiers remain local unless you expressly trigger a permitted sharing action (§ 3.4, § 3.11). You can also revoke access from your Google Account. Google user data is not used for advertising or AI model training.
 
 ### 3.5 Apple Music (optional)
 
@@ -118,14 +120,18 @@ The server keeps only the **latest known snapshot per installation** to produce 
 
 These data are **not sold, not used for advertising, not used for advertising tracking, and not combined with data from other companies for profiling**.
 
-### 3.10 Garmin and route shape (optional)
+### 3.10 Garmin GPS and iPhone distance measurement (optional)
 
-If you use a compatible Garmin watch with BeatOnStep:
+**Garmin watch.** If you use a compatible Garmin watch with BeatOnStep:
 
 - the watch uses its GPS as part of the recorded Garmin activity and may temporarily send BeatOnStep the positions needed for the run recap;
 - raw GPS coordinates remain **in memory only during the run**: BeatOnStep does not persist them or send them to the BeatOnStep server;
-- at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, with no latitude or longitude, for the recap and share visuals;
-- if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the share URL.
+- at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, without latitude, longitude, or map background, for the recap and share visuals;
+- if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the sharing URL.
+
+**Phone GPS on iPhone (experimental feature, available only in some builds).** In the distance test panel, if enabled in your version, you explicitly choose to start GPS tracking and may pause or stop it. The app may then request iOS location permission (while in use and, if you choose, background access so measurement can continue while the iPhone is locked). GPS is used to calculate distance and elapsed time; it never starts automatically when opening BeatOnStep. Distance-based musical workouts are not yet enabled in the regular workout flow.
+
+The iOS module processes raw GPS fixes **only in volatile memory on the iPhone** during the measurement: it does not store a history of geographic coordinates or send them to the BeatOnStep server or music services. It calculates a local cumulative distance and may provide a **relative route silhouette**, without latitude or longitude, for a local recap if reliable. Tracking stops when the test ends or you leave the panel; raw positions are cleared from the session. Uninstalling clears any locally retained recaps. This phone GPS pilot is not available on the current Android versions.
 
 ### 3.11 Voluntary Bug / feedback diagnostic report
 
@@ -155,11 +161,11 @@ The server uses the report only for **technical support and incident diagnosis**
 
 ### iOS (App Store)
 
-BeatOnStep requests access only to **motion sensors** (accelerometer) for cadence detection. On iOS, this is handled by the native framework without an explicit user-facing permission prompt.
+On iOS, **cadence detection** uses the motion sensors (accelerometer) through the native framework, without a dedicated user-facing permission prompt for this sensor access.
 
-Access to the **media library** (Phone music) triggers a standard system permission request when you import music from your device.
+Access to the **media library** (Phone music) triggers a standard system permission request when you import music.
 
-The BeatOnStep mobile app requests **no phone GPS location permission**. If you use the BeatOnStep Garmin app, the watch may use its own positioning permission to record the activity and provide the relative route shape described in § 3.10. BeatOnStep does not access your contacts, camera, or microphone.
+In iPhone builds that include the **experimental GPS pilot**, iOS may request location access **while using the app** and, to continue measurements while the phone is locked, **Always / background** permission if you choose to grant it. Location is accessed only after you explicitly start a test (§ 3.10); the pilot does not run automatically on app launch. This phone GPS pilot is not available in current Android versions. Garmin watch GPS is governed by the watch's separate permissions (§ 3.10). BeatOnStep does not access your contacts, camera, or microphone.
 
 ## 5. Locally stored data
 
@@ -171,7 +177,7 @@ On your device, in the app's private storage:
 - Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
 - Random BeatOnStep installation identifier and local state of the playlist-usage measurement (§ 3.9).
-- Simplified relative shape of the latest Garmin route used for the recap/story, when available (§ 3.10) — **without raw GPS coordinates**.
+- Simplified relative shape from a Garmin route or the iPhone GPS pilot, when available for a local recap (§ 3.10) — **without raw GPS coordinates**.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
