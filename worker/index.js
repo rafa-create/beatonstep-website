@@ -3,6 +3,7 @@ import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } fro
 import { sharePageResponse } from './share-preview.js';
 import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishUniqueWorkout } from './cards.js';
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
+import { challengeRule } from './distance-challenge.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -26,9 +27,26 @@ const clean = (value, n = 80) => typeof value === 'string'
   ? [...value.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()].slice(0, n).join('') : '';
 const positive = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
 
-function validate(kind, payload) {
+export function validate(kind, payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
       new TextEncoder().encode(JSON.stringify(payload)).length > 512 * 1024) return null;
+  if (kind === 'workout' && payload.v === 2) {
+    const rule=challengeRule(payload);
+    // A public canonical card never stores anybody's personal playlist,
+    // GPS samples, account identity or other arbitrary client data.
+    if (!rule || Object.keys(payload).length !== 4 ||
+        Object.keys(payload).some(key=>!['v','goalMode','targetMeters','deadlineSec'].includes(key))) return null;
+    const minutes=Math.floor(rule.deadlineSec/60);
+    const seconds=String(rule.deadlineSec%60).padStart(2,'0');
+    return {
+      name:(rule.targetMeters/1000)+' km · '+minutes+':'+seconds,
+      source:'mixed',durationSec:rule.deadlineSec,bpm:null,
+      tracks:0,phases:1,profile:null,
+      canonicalPayload:{
+        v:2,goalMode:'distance',targetMeters:rule.targetMeters,deadlineSec:rule.deadlineSec,
+      },
+    };
+  }
   if (kind === 'runmix') {
     if (payload.v !== 1 || !/^[a-f0-9]{16,64}$/i.test(payload.i || '') ||
         !['spotify', 'deezer', 'youtube', 'apple'].includes(payload.s) ||
@@ -56,7 +74,7 @@ function validate(kind, payload) {
     profile: payload.p.map(p => [Math.round(p[1]), Math.round(p[2])]) };
 }
 
-function publicRow(row) {
+export function publicRow(row) {
   const storedProfile = row.profile_json ? JSON.parse(row.profile_json) : null;
   // Older playlists already contain per-track BPMs in their payload_json.
   // Reconstruct their graph at read time: no migration and no rewritten shares.
@@ -67,6 +85,11 @@ function publicRow(row) {
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
     phases: row.phases, ...(profile ? { profile } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
+    ...(row.payload_v===2 && row.goal_mode==='distance' &&
+        Number.isSafeInteger(row.target_meters) &&
+        Number.isSafeInteger(row.deadline_sec)
+      ? {goalMode:'distance',targetMeters:row.target_meters,deadlineSec:row.deadline_sec}
+      : {}),
   };
 }
 
@@ -113,7 +136,11 @@ async function d1Request(request, env, url) {
     const order = sort === 'popular' ? 'imports DESC, id DESC' : 'id DESC';
     const result = await db.prepare(
       'SELECT id,kind,source,name,duration_sec,bpm,tracks,phases,profile_json,created_at,views,imports, ' +
-      "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json " +
+      "CASE WHEN kind='runmix' AND profile_json IS NULL THEN payload_json ELSE NULL END AS legacy_runmix_json, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.v') END AS payload_v, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.goalMode') END AS goal_mode, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.targetMeters') END AS target_meters, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.deadlineSec') END AS deadline_sec " +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
@@ -141,8 +168,17 @@ async function d1Request(request, env, url) {
     }
     let input;
     try { input = JSON.parse(raw); } catch { return json({ error: 'invalid_share' }, 400); }
+    const isDistanceV2=input?.kind==='workout' && input?.payload?.v===2;
+    if (isDistanceV2 && (!cardsEnabled(env) || env.DISTANCE_CHALLENGES_ENABLED!=='true')) {
+      return json({error:'distance_challenges_not_ready'},503);
+    }
     const meta = validate(input?.kind, input?.payload);
     if (!meta) return json({ error: 'invalid_share' }, 400);
+    // Canonical challenge publication requires a valid device account.
+    // Creating a card never grants the achievement or ownership.
+    if (isDistanceV2 && !request.headers.has('authorization')) {
+      return json({error:'login_required'},401);
+    }
     if (!env.CATALOG_RATE_SALT) return json({ error: 'catalog_write_not_configured' }, 503);
     if (!(await rateLimit(request, env, 'publish', 86400000, 20))) {
       return json({ error: 'retry_later' }, 429);
@@ -157,7 +193,7 @@ async function d1Request(request, env, url) {
     }
     if (input.kind === 'workout' && cardsEnabled(env)) {
       await requireCardSchema(db);
-      const unique = await publishUniqueWorkout(db,input.payload,meta,author);
+      const unique = await publishUniqueWorkout(db,meta.canonicalPayload??input.payload,meta,author);
       if (unique) {
         const publicId=unique.id+D1_ID_OFFSET;
         return json({id:publicId,created:unique.created,
@@ -200,7 +236,9 @@ async function d1Request(request, env, url) {
   if (!action && request.method === 'GET') {
     const row = await db.prepare('SELECT * FROM shared_items WHERE id = ?').bind(id).first();
     if (!row) return json({ error: 'expired_share' }, 404);
-    const item = { ...publicRow(row), payload: JSON.parse(row.payload_json) };
+    const payload=JSON.parse(row.payload_json);
+    const rule=challengeRule(payload);
+    const item = { ...publicRow(row), ...(rule ?? {}), payload };
     try {
       const author = (await authorFor(db, [row.id])).get(row.id);
       if (author) item.author = author;
@@ -258,7 +296,7 @@ async function legacyRequest(request, url) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/health' && request.method === 'GET') {
       let schemaReady = false;
@@ -281,7 +319,7 @@ export default {
         return adminRequest(request, env, url);
       }
       if (url.pathname === '/api/account' || url.pathname.startsWith('/api/account/')) {
-        return accountRequest(request, env, url);
+        return accountRequest(request, env, url, ctx);
       }
       if (request.method === 'OPTIONS') return new Response(null, {
         status: 204, headers: {
