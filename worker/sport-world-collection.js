@@ -9,7 +9,7 @@ const whole=(n,min,max)=>Number.isSafeInteger(n)&&n>=min&&n<=max;
 const n=x=>x==null?null:Number(x);
 const date=x=>whole(n(x),1,4102444800000)?n(x):null;
 const bool=x=>Number(x)===1;
-const display=(distanceCm,timeUnit,subValue)=>{
+export const displaySportCard=(distanceCm,timeUnit,subValue)=>{
   const distance=distanceCm===40000?'400 m':
     distanceCm===2109750?'Semi-marathon':
     distanceCm===4219500?'Marathon':
@@ -89,7 +89,7 @@ export async function readSportWorldCollection(db,userId,url){
         ?end-acquiredAt:null;
       return {
         id:row.id,
-        name:display(row.distance_cm,row.time_unit,row.sub_value),
+        name:displaySportCard(row.distance_cm,row.time_unit,row.sub_value),
         distanceCm:row.distance_cm,timeUnit:row.time_unit,
         subValue:row.sub_value,difficulty:row.difficulty,
         currentlyOwned,ghost:!currentlyOwned&&acquiredAt!=null,
@@ -137,7 +137,7 @@ export async function readSportWorldCollection(db,userId,url){
       beforeAt,beforeAt,beforeAt,beforeKey).all();
   const result=pageResult(rows,row=>({
     key:row.event_key,cardId:row.card_id,
-    name:display(row.distance_cm,row.time_unit,row.sub_value),
+    name:displaySportCard(row.distance_cm,row.time_unit,row.sub_value),
     eventType:row.event_type,at:date(row.happened_at),
     runId:row.run_id||null,
   }));
