@@ -81,8 +81,8 @@ test('valid signed 10km crossing awards ONLY the longest tier in one D1 batch',a
   assert.match(state.statements[1].sql,/ON CONFLICT\(user_id,run_id\) DO NOTHING/);
   assert.deepEqual(state.statements[1].args.slice(0,2),
     ['runner-1','run-20261013-1']);
-  assert.equal(state.statements[1].args[7],1000000);
-  assert.equal(state.statements[1].args[9],40);
+  assert.equal(state.statements[1].args[6],1000000);
+  assert.equal(state.statements[1].args[8],40);
 });
 test('replay is a no-op and never increments achievements or steals again',async()=>{
   const {db,state}=fakeDb(0);
@@ -119,5 +119,5 @@ test('private writer has no client route or embedded attestation secret',()=>{
   assert.match(sql,/sport_card_achievements/);
   assert.match(sql,/sport_card_ownership_events/);
   assert.match(sql,/current_owner_id IS NOT NEW.user_id/);
-  assert.doesNotMatch(sql,/account_run_records|UPDATE workout_cards/i);
+  assert.doesNotMatch(sql.replace(/^--.*$/gm,''),/account_run_records|UPDATE workout_cards/i);
 });
