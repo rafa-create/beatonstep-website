@@ -107,3 +107,27 @@ test('reading one account uses a user_id parameter not a user-supplied query',as
   assert.deepEqual(params,['private-user','aa']);
   assert.deepEqual((await r.json()).items,[]);
 });
+
+test('private workout listing counts only the account owner’s saved run records',async()=>{
+  const statements=[];
+  const db={prepare(sql){return {bind(...args){
+    statements.push({sql,args});
+    return {async all(){return {results:[{
+      workout_id:'workout-local-1',snapshot_json:JSON.stringify({
+        id:'workout-local-1',name:'Endurance',source:'local',segments:[],playlistIds:[]
+      }),revision:2,updated_at:1790000000000,deleted_at:null,
+      completed_count:4
+    }]}}};
+  }}}};
+  const endpoint='/api/account/device/library/workouts';
+  const response=await accountLibraryRequest(request(endpoint),db,url(endpoint),'private-runner');
+  assert.equal(response.status,200);
+  const data=await response.json();
+  assert.equal(data.items.length,1);
+  assert.equal(data.items[0].completedCount,4);
+  assert.equal(data.items[0].workoutId,'workout-local-1');
+  assert.match(statements[0].sql,/COUNT\(\*\) FROM account_run_records/);
+  assert.match(statements[0].sql,/r\.user_id=w\.user_id/);
+  assert.match(statements[0].sql,/r\.source_workout_id=w\.workout_id/);
+  assert.deepEqual(statements[0].args,['private-runner','']);
+});
