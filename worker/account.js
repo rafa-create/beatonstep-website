@@ -1,6 +1,7 @@
 import { cardsEnabled } from './cards.js';
 import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
+import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -322,6 +323,36 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/library/','/api/account/device/library/');
       return accountLibraryRequest(request,db,forwarded,member.id);
+    }
+    // Separate #447 sport gift APIs: no musical TTL, token always held
+    // in fragment / POST body, anonymous preview remains viewable after loss.
+    // Writes are guarded by authenticated current owner and exact epoch.
+    if ([
+      '/api/account/device/sport/gift/preview',
+      '/api/account/device/sport/gift/create',
+      '/api/account/device/sport/gift/claim',
+      '/api/account/sport/gift/preview',
+      '/api/account/sport/gift/create',
+      '/api/account/sport/gift/claim',
+    ].includes(path)) {
+      if (method!=='POST')return reply({error:'method_not_allowed'},405);
+      if (env.SPORT_WORLD_CARDS_ENABLED!=='true'||
+          env.SPORT_WORLD_GIFTS_ENABLED!=='true')
+        return reply({error:'sport_gifts_not_ready'},503);
+      const browser=!path.startsWith('/api/account/device/');
+      if(browser&&!sameOrigin(request))return reply({error:'origin_forbidden'},403);
+      const input=await jsonBody(request);
+      if(!input)return reply({error:'invalid_payload'},400);
+      if(path.endsWith('/preview'))return previewSportGift(db,input.code);
+      const member=browser?await webUser(db,request):
+        await devicePublisher(db,request);
+      if(!member)return reply({error:browser?'login_required':'account_session_expired'},401);
+      const creating=path.endsWith('/create');
+      if(!(await limited(db,env,request,creating?'sport-gift-create':'sport-gift-claim',
+          creating?12:30,60*60*1000,member.id)))
+        return reply({error:'retry_later'},429);
+      return creating?createSportGift(db,member.id,input.id):
+        claimSportGift(db,member.id,input.code);
     }
     // #445/#449: new world-sport trophy ledger is NOT the old musical
     // workout_card ledger nor the retired v2 distance musical challenge.
