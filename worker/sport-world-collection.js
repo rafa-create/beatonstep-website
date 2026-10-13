@@ -102,7 +102,10 @@ export async function readSportWorldCollection(db,userId,url){
         lastReceivedReason:row.last_received_reason||null,
         verifiedAfterGiftAt:date(row.verified_after_gift_at),
         lostAt, heldDurationMs:heldMs,
-        ownerEpoch:currentlyOwned?row.owner_epoch:null,
+        // Authenticated user only; epoch carries no other runner identity.
+        // Needed so an offline "confirmed" card can become a ghost when
+        // a later competing run or gift transfers the global tier.
+        ownerEpoch:row.owner_epoch,
       };
     });
     return respond({items:result.items,nextCursor:result.hasMore?result.last.id:null});
