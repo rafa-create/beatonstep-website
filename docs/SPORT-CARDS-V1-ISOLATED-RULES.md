@@ -7,13 +7,13 @@ modification du build iOS TestFlight en cours.
 
 ## Catalogue V1 et identité mondiale
 
-- **400 m** : exception `sub1`, niveau Expert si preuve sportive fiable.
+- **400 m** : cartes **par seconde** `sub N s` avec sept difficultés, au lieu de l'ancienne exception unique sub1.
 - **Chaque kilomètre entier de 1 à 200 inclus** : 200 familles,
   cartes par minute `sub N` réellement atteinte (pas de précréation).
 - **Semi-marathon exact** : 21 097,5 m, entre 21 km et 22 km.
 - **Marathon exact** : 42 195 m, entre 42 km et 43 km.
 
-Soit **203 familles**, mais chaque `(distance_cm,sub_minute)` n'est
+Soit **203 familles**, mais chaque `(distance_cm,time_unit,sub_value)` n'est
 créé qu'à la demande après une vraie course attestée. La distance
 centimétrique est une clé d'identité exacte, **pas une promesse de
 précision GPS au centimètre**.
@@ -58,6 +58,39 @@ Les codes de skin sont les identifiants fonctionnels de #451 :
 Le rendu graphique réel, les couleurs, les textures et l'accessibilité
 doivent être approuvés **dans une étape visuelle séparée**.
 
+## Barème 400 m spécifique (jeu BeatOnStep, non fédéral)
+
+Le franchissement du 400 m est chronométré en **millisecondes réelles**,
+puis converti en carte **`sub N secondes`** par
+`floor(elapsedMs / 1000) + 1`. Les pauses sont incluses. La même
+carte de 400 m existe pour chaque seconde distincte validée, jamais
+pour chaque milliseconde.
+
+| Niveau | Temps attesté du 400 m | Seuil de carte |
+|---|---|---|
+| Élite mondiale | < 50 s | sub N s, N ≤ 50 |
+| Légende | 50 à < 60 s | sub 51 à sub 60 s |
+| Expert | 60 à < 70 s | sub 61 à sub 70 s |
+| Intermédiaire | 70 à < 85 s | sub 71 à sub 85 s |
+| Coureur régulier | 85 à < 100 s | sub 86 à sub 100 s |
+| Amateur | 100 à < 125 s | sub 101 à sub 125 s |
+| Débutant | 125 à < 181 s | sub 126 à sub 181 s |
+
+**Exemples :** 59,999 s donne **400 m sub60 s, Légende** ;
+60,000 s donne **400 m sub61 s, Expert** ; 180,999 s donne
+**sub181 s, Débutant** ; 181,000 s ne qualifie pas.
+Ces seuils sont des règles de jeu **inclusives, sans stigmatisation**.
+Ils ne prétendent pas être des catégories officielles d'athlétisme.
+À titre d'ancrage, World Athletics recense les records mondiaux
+de 400 m en **43,03 s (hommes)** et **47,60 s (femmes)**.
+<https://worldathletics.org/disciplines/sprints/400-metres>
+<https://worldathletics.org/records/all-time-toplists/sprints/400-metres/outdoor/women/senior>
+
+La clé future est `(distance_cm,time_unit,sub_value)`, ou un
+`target_time_ms` canonique, car l'ancien couple
+`(distance_cm,sub_minute)` ne saurait distinguer un 400 m par seconde
+des distances longues par minute. **Pas de migration ni d'activation.**
+
 ## Pas de vol ni de gain avant vérification
 
 Le moteur `worker/sport-card-rules.js` expose un
@@ -68,7 +101,8 @@ Il dépend d'une preuve de course finalisée, authentifiée et validée
 pas de simples données envoyées par le client.
 
 La règle de propriété mondiale reste **un seul exemplaire exact**
-par distance canonique × minute. Pour ce palier, une nouvelle course
+par distance canonique × seuil de temps, avec **secondes pour 400 m**
+et **minutes pour les autres distances**. Pour ce palier, une nouvelle course
 vérifiée peut voler automatiquement cette même carte au détenteur
 précédent. Si personne ne la possède, le coureur l'obtient sans vol.
 La multiplication des paliers favorise les occasions de gagner une
@@ -90,7 +124,8 @@ Le serveur doit vérifier activité, origine, jalons et anti-rejeu.
 
 Le lot ajoute les tests `tests/sport-card-rules.test.mjs` au
 `npm run build` : toutes les distances, 7 niveaux 1..42,
-plafonds accessibles, sub-minute strict, 400m, semi, marathon,
+plafonds accessibles, 400 m à la seconde et kilomètres à la minute,
+semi, marathon,
 ultras Légende, absence de repli, falsifications évidentes.
 Il ne valide **ni l'authenticité de preuves Garmin/GPS**, ni le
 Worker transactionnel, ni le design final, ni les transferts D1.
