@@ -258,7 +258,7 @@ async function legacyRequest(request, url) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/health' && request.method === 'GET') {
       let schemaReady = false;
@@ -281,7 +281,7 @@ export default {
         return adminRequest(request, env, url);
       }
       if (url.pathname === '/api/account' || url.pathname.startsWith('/api/account/')) {
-        return accountRequest(request, env, url);
+        return accountRequest(request, env, url, ctx);
       }
       if (request.method === 'OPTIONS') return new Response(null, {
         status: 204, headers: {
