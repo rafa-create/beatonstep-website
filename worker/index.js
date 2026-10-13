@@ -304,9 +304,33 @@ export default {
           console.warn('D1 catalogue schema is not ready');
         }
       }
+      // Readiness is public schema/flag metadata only: no users, runs, card
+      // owners, gifts, tokens or other private account records are returned.
+      const sport={
+        schemaReady:false,
+        worldCardsEnabled:env.SPORT_WORLD_CARDS_ENABLED==='true',
+        giftsEnabled:env.SPORT_WORLD_GIFTS_ENABLED==='true',
+        autoAwardsEnabled:env.SPORT_AUTO_AWARDS_ENABLED==='true',
+      };
+      if(env.DB){
+        try{
+          const row=await env.DB.prepare(`SELECT COUNT(*) AS found FROM sqlite_master
+            WHERE (type='table' AND name IN (
+              'sport_world_cards','sport_verified_runs',
+              'sport_card_achievements','sport_card_ownership_events',
+              'sport_card_gift_links'))
+            OR (type='trigger' AND name IN (
+              'sport_card_owner_account_deletion',
+              'sport_verified_run_award_v1'))`).first();
+          sport.schemaReady=Number(row?.found)===7;
+        }catch{
+          // A missing or disconnected D1 never takes down public health.
+        }
+      }
       return json({ status: 'ok', catalog: env.CATALOG_BACKEND === 'd1' ? 'd1' : 'legacy',
         database: Boolean(env.DB), schemaReady,
-        publishingConfigured: Boolean(env.CATALOG_RATE_SALT) });
+        publishingConfigured: Boolean(env.CATALOG_RATE_SALT),
+        sport });
     }
     if (url.pathname.startsWith('/api/')) {
       // Private moderation is isolated from the CORS-enabled public share API.
