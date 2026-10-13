@@ -68,7 +68,9 @@ CREATE TABLE IF NOT EXISTS sport_card_ownership_events (
   reason TEXT NOT NULL CHECK(reason IN
     ('sport_win','gift_claim','account_closed')),
   changed_at INTEGER NOT NULL CHECK(changed_at>0),
-  CHECK(previous_owner_id IS NOT new_owner_id)
+  -- Historical identity references can be anonymised on account deletion.
+  CHECK(previous_owner_id IS NOT new_owner_id OR
+    previous_owner_id IS NULL OR new_owner_id IS NULL)
 );
 CREATE UNIQUE INDEX IF NOT EXISTS sport_ownership_once_per_epoch
   ON sport_card_ownership_events(card_id,new_epoch);
@@ -78,6 +80,23 @@ CREATE INDEX IF NOT EXISTS sport_ownership_out
   ON sport_card_ownership_events(previous_owner_id,changed_at DESC);
 CREATE INDEX IF NOT EXISTS sport_ownership_timeline
   ON sport_card_ownership_events(card_id,changed_at DESC,id DESC);
+
+-- When deleting a runner's account, release their active world trophy.
+-- A BEFORE DELETE trigger is required: the owner FK SET NULL alone would
+-- conflict with owner_since remaining set, blocking account deletion.
+-- The event is anonymised by FK actions when the account is removed.
+CREATE TRIGGER IF NOT EXISTS sport_card_owner_account_deletion
+BEFORE DELETE ON community_users
+BEGIN
+  INSERT INTO sport_card_ownership_events
+    (card_id,previous_owner_id,new_owner_id,previous_epoch,new_epoch,reason,changed_at)
+    SELECT id,OLD.id,NULL,owner_epoch,owner_epoch+1,
+      'account_closed',CAST(strftime('%s','now') AS INTEGER)*1000
+    FROM sport_world_cards WHERE current_owner_id=OLD.id;
+  UPDATE sport_world_cards
+    SET current_owner_id=NULL,owner_since=NULL,owner_epoch=owner_epoch+1
+    WHERE current_owner_id=OLD.id;
+END;
 
 -- Free bearer links will be a separate follow-up. They reference card_id +
 -- owner_epoch (so a later re-win never revives an expired opportunity to claim)
