@@ -176,7 +176,10 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     for(const item of items) {
       const li=document.createElement('li'),a=document.createElement('a'),meta=document.createElement('span');
       a.textContent=item.name;a.href='/partages.html?id='+encodeURIComponent(item.id);
-      meta.className='small';meta.textContent=(item.kind==='workout'?'Séance':'Playlist')+' · '+item.source;
+      meta.className='small';
+      meta.textContent=(item.kind==='workout'?'Séance musicale':'Playlist')+' · '+item.source+
+        (item.kind==='workout'&&Number.isFinite(item.imports)
+          ?' · '+Number(item.imports).toLocaleString('fr-FR')+' imports':'');
       li.append(a,meta);
       if(element.id==='items' && item.kind!=='workout'){
         const remove=document.createElement('button');
