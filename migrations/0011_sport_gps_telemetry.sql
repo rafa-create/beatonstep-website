@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS sport_telemetry_sessions (
   last_elapsed_ms INTEGER NOT NULL DEFAULT 0 CHECK(last_elapsed_ms>=0),
   last_distance_cm INTEGER NOT NULL DEFAULT 0 CHECK(last_distance_cm>=0),
   last_accepted_fixes INTEGER NOT NULL DEFAULT 0 CHECK(last_accepted_fixes>=0),
+  last_signal TEXT NOT NULL DEFAULT 'waiting' CHECK(last_signal IN ('good','waiting','paused')),
   status TEXT NOT NULL DEFAULT 'tracking'
     CHECK(status IN ('tracking','rejected','completed')),
   reject_reason TEXT,
