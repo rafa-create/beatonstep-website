@@ -1,4 +1,5 @@
 import { cardsEnabled } from './cards.js';
+import { accountLibraryRequest } from './account-library.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -284,6 +285,22 @@ export async function accountRequest(request,env,url,ctx) {
     if (path==='/api/account/device/me' && method==='GET') {
       const user=await devicePublisher(db,request);
       return user ? reply({authenticated:true,handle:user.handle}) : reply({authenticated:false},401);
+    }
+    // #460: personal archives behind the existing, short-lived mobile bearer.
+    // These snapshots are never proof for world challenge ownership.
+    if (path.startsWith('/api/account/device/library/')) {
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      return accountLibraryRequest(request,db,url,member.id);
+    }
+    // Browser account sees the same private archive, using its own session.
+    // Writes remain device-only in V1 to avoid cookie-CSRF write paths.
+    if (path.startsWith('/api/account/library/') && method==='GET') {
+      const member=await webUser(db,request);
+      if (!member) return reply({error:'login_required'},401);
+      const forwarded=new URL(request.url);
+      forwarded.pathname=path.replace('/api/account/library/','/api/account/device/library/');
+      return accountLibraryRequest(request,db,forwarded,member.id);
     }
     // Only the authenticated runner sees their durable sporting achievements.
     // This reads ledger 0005; no challenge-result submission is enabled here.
