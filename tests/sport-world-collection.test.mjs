@@ -85,3 +85,13 @@ test('sport timeline merges only the current account ownership and verified runs
   assert.match(db.sql,/FROM sport_verified_runs r WHERE r.user_id=\?/);
   assert.match(db.sql,/e.previous_owner_id=\? OR e.new_owner_id=\?/);
 });
+
+test('world sport API stays read-only, opt-in, and authenticated',()=>{
+  const code=readFileSync(new URL('../worker/account.js',import.meta.url),'utf8');
+  assert.match(code,/path\.startsWith\('\/api\/account\/device\/sport\/'\) && method==='GET'/);
+  assert.match(code,/path\.startsWith\('\/api\/account\/sport\/'\) && method==='GET'/);
+  assert.match(code,/SPORT_WORLD_CARDS_ENABLED!=='true'/);
+  assert.match(code,/const member=await devicePublisher\(db,request\)/);
+  assert.match(code,/const member=await webUser\(db,request\)/);
+  assert.doesNotMatch(code,/method==='POST' && path\.startsWith\('\/api\/account\/device\/sport\//);
+});
