@@ -90,6 +90,8 @@ function setup(search,data=example){
   // phase branches; only the songs from the selected phase become visible.
   const detail=setup('?id=1');
   await flush();
+  assert.equal(detail.elements.back.hidden,false,
+    'share details expose a back-to-catalog link');
   assert.equal(detail.elements.back.href,'partages.html');
   assert.equal(detail.elements.back.textContent,'← Catalogue');
   assert.equal(detail.elements.title.textContent,'Partage BeatOnStep');
@@ -195,16 +197,16 @@ function setup(search,data=example){
   // The catalog only fetches compact records until the workout itself expands.
   const catalog=setup('');
   await flush();
-  assert.equal(catalog.elements.back.href,'seances-programmees.html');
-  assert.equal(catalog.elements.back.textContent,'← Séances programmées');
+  assert.equal(catalog.elements.back.hidden,true,
+    'the catalog does not show a back-to-workouts link');
   assert.equal(catalog.elements.title.textContent,'Catalogue');
   assert.equal(catalog.elements.intro.textContent,'Séances et playlists de la communauté.');
   assert.equal(catalog.elements.intro.hidden,false);
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Confidentialité');
   catalog.elements.en.onclick();
   await flush();
-  assert.equal(catalog.elements.back.href,'seances-programmees.html');
-  assert.equal(catalog.elements.back.textContent,'← Programmed workouts');
+  assert.equal(catalog.elements.back.hidden,true,
+    'changing language must not reveal a back link on the catalog');
   assert.equal(catalog.elements.title.textContent,'Catalog');
   assert.equal(catalog.elements.intro.textContent,'Workouts and playlists from the community.');
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Privacy');
