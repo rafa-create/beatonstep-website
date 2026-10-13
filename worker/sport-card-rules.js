@@ -9,6 +9,16 @@ const MARATHON_CM=4_219_500;
 const HALF_MARATHON_CM=2_109_750;
 const ULTRA_START_CM=4_300_000;
 const BEGINNER_10K_MAX_SUB_MINUTE=91; // 10 km in exactly 1h30 -> sub91 eligible.
+// Product-only 400m difficulty caps, not official World Athletics rankings.
+// Caps use strict sub-second thresholds. 400m 59.999s = sub60 Legend;
+// at exactly 60.000s the candidate is sub61 Expert.
+const FOUR_HUNDRED_METER_TIERS=Object.freeze([
+  ['world_elite',50],['legend',60],['expert',70],
+  ['intermediate',85],['regular',100],['amateur',125],
+  ['beginner',181], // Allows exactly 3 minutes on the 400m.
+].map(([difficulty,maxSubSecond])=>Object.freeze({
+  difficulty,maxSubSecond,
+})));
 
 // Exact centimeters identify a canonical family, not GPS centimeter accuracy.
 // 1..200 km + 400m sub1 + exact half-marathon + exact marathon = 203 families.
@@ -75,12 +85,22 @@ export function effectiveSportSubMinute(elapsedMs){
     ?Math.floor(elapsedMs/60_000)+1:null;
 }
 
-export function difficultyForSportCard(distanceCm,subMinute){
+// A 400 m sprint is timed to the second instead of the minute.
+// The period stays inclusive of pauses; the reward label is strict "sub N s".
+export function effectiveSportSubSecond(elapsedMs){
+  return whole(elapsedMs)&&elapsedMs>0
+    ?Math.floor(elapsedMs/1000)+1:null;
+}
+
+export function difficultyForSportCard(distanceCm,subValue){
   if(canonicalSportDistance(distanceCm)===null||
-     !Number.isSafeInteger(subMinute)||subMinute<1)return null;
+     !Number.isSafeInteger(subValue)||subValue<1)return null;
   if(distanceCm===40_000){
-    return subMinute===1?Object.freeze({
-      difficulty:'expert',skin:'difficulty_expert_v1',
+    const found=FOUR_HUNDRED_METER_TIERS.find(
+      tier=>subValue<=tier.maxSubSecond);
+    return found?Object.freeze({
+      difficulty:found.difficulty,
+      skin:`difficulty_${found.difficulty}_v1`,
     }):null;
   }
   if(distanceCm>=ULTRA_START_CM){
@@ -91,7 +111,7 @@ export function difficultyForSportCard(distanceCm,subMinute){
     });
   }
   const caps=maxSubMinuteByTier(distanceCm);
-  const found=ANCHORS.find(({tier})=>subMinute<=caps[tier]);
+  const found=ANCHORS.find(({tier})=>subValue<=caps[tier]);
   return found?Object.freeze({
     difficulty:found.tier,skin:`difficulty_${found.tier}_v1`,
   }):null;
@@ -135,19 +155,27 @@ export function evaluateSportCardCandidate({
   if(chosenMs===null){
     return {status:'unverified',reason:'missing_final_distance_crossing'};
   }
-  const subMinute=effectiveSportSubMinute(chosenMs);
-  const tier=difficultyForSportCard(distanceCm,subMinute);
+  const isSprint=distanceCm===40_000;
+  const timeUnit=isSprint?'second':'minute';
+  const subValue=isSprint
+    ?effectiveSportSubSecond(chosenMs)
+    :effectiveSportSubMinute(chosenMs);
+  const tier=difficultyForSportCard(distanceCm,subValue);
   if(!tier){
     return {status:'none',reason:'outside_beginner_qualification_cap',
-      distanceCm,elapsedMs:chosenMs,subMinute};
+      distanceCm,elapsedMs:chosenMs,timeUnit,subValue,
+      subMinute:isSprint?null:subValue,subSecond:isSprint?subValue:null};
   }
   return Object.freeze({
     status:'candidate',ruleset:SPORT_CARD_RULESET,
     difficultyRuleset:SPORT_CARD_DIFFICULTY_RULESET,
-    distanceCm,elapsedMs:chosenMs,subMinute,
+    distanceCm,elapsedMs:chosenMs,timeUnit,subValue,
+    subMinute:isSprint?null:subValue,
+    subSecond:isSprint?subValue:null,
     ...tier,
-    // Eventual D1 identity: UNIQUE(distance_cm,sub_minute); this string is
-    // not a receipt, a proof of the runner nor a right to ownership.
-    performanceKey:`${distanceCm}:${subMinute}`,
+    // Eventual D1 identity: UNIQUE(distance_cm,time_unit,sub_value).
+    // "400 m sub60 seconds" and "5 km sub60 minutes" stay unambiguous.
+    // This is NOT a receipt, proof or entitlement to ownership.
+    performanceKey:`${distanceCm}:${timeUnit}:${subValue}`,
   });
 }
