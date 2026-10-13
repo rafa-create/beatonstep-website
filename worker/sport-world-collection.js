@@ -1,0 +1,133 @@
+// #445/#449: private read-only world-sport collection; independent of music.
+// Not an award endpoint. No client can turn an account_run_records recap into
+// verified sporting success or a world-unique ownership transfer.
+const respond=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
+  'content-type':'application/json; charset=utf-8','cache-control':'no-store',
+  'x-content-type-options':'nosniff',
+}});
+const whole=(n,min,max)=>Number.isSafeInteger(n)&&n>=min&&n<=max;
+const n=x=>x==null?null:Number(x);
+const date=x=>whole(n(x),1,4102444800000)?n(x):null;
+const bool=x=>Number(x)===1;
+const display=(distanceCm,timeUnit,subValue)=>{
+  const distance=distanceCm===40000?'400 m':
+    distanceCm===2109750?'Semi-marathon':
+    distanceCm===4219500?'Marathon':
+    (distanceCm/100000).toLocaleString('fr-FR')+' km';
+  return distance+' · SUB '+subValue+(timeUnit==='second'?' s':' min');
+};
+const pageResult=(rows,mapper)=>{
+  const list=rows.results||[],page=list.slice(0,50);
+  return {items:page.map(mapper),hasMore:list.length>50,last:page.at(-1)||null};
+};
+export async function readSportWorldCollection(db,userId,url){
+  const path=url.pathname;
+  if(!['/api/account/device/sport/deck',
+       '/api/account/device/sport/history'].includes(path))
+    return respond({error:'not_found'},404);
+  if(path.endsWith('/deck')){
+    const raw=url.searchParams.get('after')||'0',after=Number(raw);
+    if(!whole(after,0,Number.MAX_SAFE_INTEGER))return respond({error:'invalid_cursor'},400);
+    // One global object per exact sub N; current possession and achievement
+    // are independent, and ghost cards are only for former owners.
+    const rows=await db.prepare(`SELECT
+      c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,c.owner_since,
+      c.owner_epoch,CASE WHEN c.current_owner_id=? THEN 1 ELSE 0 END AS owned,
+      a.first_validated_at,a.successful_runs,
+      (SELECT e.changed_at FROM sport_card_ownership_events e
+       WHERE e.card_id=c.id AND e.new_owner_id=?
+       ORDER BY e.new_epoch DESC LIMIT 1) AS last_received_at,
+      (SELECT e.reason FROM sport_card_ownership_events e
+       WHERE e.card_id=c.id AND e.new_owner_id=?
+       ORDER BY e.new_epoch DESC LIMIT 1) AS last_received_reason,
+      (SELECT e.changed_at FROM sport_card_ownership_events e
+       WHERE e.card_id=c.id AND e.previous_owner_id=?
+       ORDER BY e.previous_epoch DESC LIMIT 1) AS last_lost_at,
+      (SELECT MIN(e.changed_at) FROM sport_card_ownership_events e
+       WHERE e.card_id=c.id AND e.new_owner_id=? AND e.reason='gift_claim')
+       AS first_gift_at,
+      (SELECT MIN(r.verified_at) FROM sport_verified_runs r
+       WHERE r.card_id=c.id AND r.user_id=?
+       AND r.verified_at>(
+         SELECT MIN(g.changed_at) FROM sport_card_ownership_events g
+         WHERE g.card_id=c.id AND g.new_owner_id=? AND g.reason='gift_claim'
+       )) AS verified_after_gift_at
+     FROM sport_world_cards c
+     LEFT JOIN sport_card_achievements a
+       ON a.card_id=c.id AND a.user_id=?
+     WHERE c.id>? AND (
+       c.current_owner_id=? OR a.user_id IS NOT NULL OR EXISTS(
+         SELECT 1 FROM sport_card_ownership_events x
+         WHERE x.card_id=c.id AND
+           (x.new_owner_id=? OR x.previous_owner_id=?)
+       ))
+     ORDER BY c.id ASC LIMIT 51`)
+      .bind(userId,userId,userId,userId,userId,userId,userId,
+        userId,after,userId,userId,userId).all();
+    const result=pageResult(rows,row=>{
+      const currentlyOwned=bool(row.owned);
+      const validatedAt=date(row.first_validated_at);
+      const acquiredAt=date(row.last_received_at);
+      const lostAt=currentlyOwned?null:date(row.last_lost_at);
+      // Do not manufacture tenure if a legacy/incomplete epoch is missing.
+      const end=currentlyOwned?Date.now():lostAt;
+      const heldMs=acquiredAt!=null&&end!=null&&end>=acquiredAt
+        ?end-acquiredAt:null;
+      return {
+        id:row.id,
+        name:display(row.distance_cm,row.time_unit,row.sub_value),
+        distanceCm:row.distance_cm,timeUnit:row.time_unit,
+        subValue:row.sub_value,difficulty:row.difficulty,
+        currentlyOwned,ghost:!currentlyOwned&&acquiredAt!=null,
+        personallyValidated:validatedAt!=null,
+        firstValidatedAt:validatedAt,
+        successfulAttempts:Number(row.successful_runs)||0,
+        firstGiftAt:date(row.first_gift_at),
+        lastReceivedAt:acquiredAt,
+        lastReceivedReason:row.last_received_reason||null,
+        verifiedAfterGiftAt:date(row.verified_after_gift_at),
+        lostAt, heldDurationMs:heldMs,
+        ownerEpoch:currentlyOwned?row.owner_epoch:null,
+      };
+    });
+    return respond({items:result.items,nextCursor:result.hasMore?result.last.id:null});
+  }
+  const raw=url.searchParams.get('beforeAt')||'0',beforeAt=Number(raw);
+  const beforeKey=url.searchParams.get('beforeKey')||'';
+  if(!whole(beforeAt,0,4102444800000)||
+    (beforeAt!==0&&!/^(?:ownership:[1-9]\d*|run:[a-zA-Z0-9_.:-]{1,128})$/.test(beforeKey)))
+    return respond({error:'invalid_cursor'},400);
+  const rows=await db.prepare(`WITH event_feed AS (
+    SELECT e.changed_at AS happened_at,'ownership:'||e.id AS event_key,
+      e.card_id AS card_id,
+      CASE WHEN e.new_owner_id=? THEN
+         CASE WHEN e.reason='gift_claim' THEN 'gift_received' ELSE 'won' END
+       WHEN e.reason='gift_claim' THEN 'given'
+       ELSE 'lost' END AS event_type,
+      NULL AS run_id
+    FROM sport_card_ownership_events e
+    WHERE e.previous_owner_id=? OR e.new_owner_id=?
+    UNION ALL
+    SELECT r.verified_at AS happened_at,'run:'||r.run_id AS event_key,
+      r.card_id,'verified' AS event_type,r.run_id
+    FROM sport_verified_runs r WHERE r.user_id=?
+  )
+  SELECT e.happened_at,e.event_key,e.card_id,e.event_type,e.run_id,
+    c.distance_cm,c.time_unit,c.sub_value
+  FROM event_feed e JOIN sport_world_cards c ON c.id=e.card_id
+  WHERE ?=0 OR e.happened_at<? OR
+    (e.happened_at=? AND e.event_key<?)
+  ORDER BY e.happened_at DESC,e.event_key DESC LIMIT 51`)
+    .bind(userId,userId,userId,userId,
+      beforeAt,beforeAt,beforeAt,beforeKey).all();
+  const result=pageResult(rows,row=>({
+    key:row.event_key,cardId:row.card_id,
+    name:display(row.distance_cm,row.time_unit,row.sub_value),
+    eventType:row.event_type,at:date(row.happened_at),
+    runId:row.run_id||null,
+  }));
+  return respond({items:result.items,
+    nextCursor:result.hasMore?{
+      beforeAt:result.last.happened_at,beforeKey:result.last.event_key,
+    }:null});
+}
