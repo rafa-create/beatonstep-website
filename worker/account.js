@@ -2,6 +2,7 @@ import { cardsEnabled } from './cards.js';
 import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
+import {sportTelemetryRequest} from './sport-telemetry.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -323,6 +324,26 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/library/','/api/account/device/library/');
       return accountLibraryRequest(request,db,forwarded,member.id);
+    }
+    // #450 Option A. Normal running sends progressive distance and continuous
+    // elapsed time, not GPS coordinates. Feature OFF in production by default.
+    // This pilot has no world-card award or ownership-transfer path.
+    const sportAction=/^\/api\/account\/device\/sport\/telemetry\/(start|point|finish|abandon)$/
+      .exec(path);
+    if(sportAction){
+      if(method!=='POST')return reply({error:'method_not_allowed'},405);
+      if(env.SPORT_TELEMETRY_ENABLED!=='true')
+        return reply({error:'telemetry_not_ready'},503);
+      const member=await devicePublisher(db,request);
+      if(!member)return reply({error:'account_session_expired'},401);
+      const action=sportAction[1];
+      const limit=action==='point'?1200:action==='start'?12:30;
+      if(!await limited(db,env,request,'sport-telemetry-'+action,
+        limit,60*60*1000,member.id))
+        return reply({error:'retry_later'},429);
+      const input=await jsonBody(request);
+      if(!input)return reply({error:'invalid_payload'},400);
+      return sportTelemetryRequest(db,env,member.id,action,input);
     }
     // Separate #447 sport gift APIs: no musical TTL, token always held
     // in fragment / POST body, anonymous preview remains viewable after loss.
