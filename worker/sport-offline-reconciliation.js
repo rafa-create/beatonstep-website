@@ -97,10 +97,13 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   // conquest without identifying an athlete who did not consent.
   const transferred=newRun&&owned&&
     current[0].owner_epoch===prior[0].owner_epoch+1;
+  // A previously existing card can become unowned after account deletion.
+  // Claiming it is not its first-ever creation.
   const acquisition=!newRun?'already_processed':!owned?'superseded':
     !transferred?'already_owned':
-    prior[0].current_owner_id==null?'created':
-    prior[0].current_owner_id!==userId?'stolen':'already_owned';
+    prior[0].current_owner_id==null
+      ?result[0]?.meta?.changes===1?'created':'unclaimed'
+      :prior[0].current_owner_id!==userId?'stolen':'already_owned';
   return reply({
     runId,performanceKey:candidate.performanceKey,cardId:current[0].id,
     worldStatus:owned?'confirmed':'lost',
