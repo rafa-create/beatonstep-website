@@ -21,7 +21,10 @@
     "COMMUNITY_SIGNUPS_ENABLED": "true",
     "CARDS_ENABLED": "true",
     "DISTANCE_CHALLENGES_ENABLED": "false",
-    "PASSWORD_RESET_EMAIL_FROM": "no-reply@beatonstep.app"
+    "PASSWORD_RESET_EMAIL_FROM": "no-reply@beatonstep.app",
+    "STRAVA_CLIENT_ID": "178799",
+    "STRAVA_ATHLETE_CAPACITY": "10",
+    "STRAVA_EXPORT_ENABLED": "true"
   },
   "observability": {
     "enabled": true
