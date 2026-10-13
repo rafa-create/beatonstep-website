@@ -42,7 +42,8 @@ function safeWorkout(raw){
       !clean(raw.name,80)||!SOURCES.has(raw.source)||
       !Array.isArray(raw.segments)||raw.segments.length<1||raw.segments.length>32||
       !Array.isArray(raw.playlistIds)||raw.playlistIds.length>100||
-      raw.playlistIds.some(x=>!identity(x)))return null;
+      raw.playlistIds.some(x=>typeof x!=='string'||x.length<1||x.length>256||
+        /[\u0000-\u001f\u007f]/.test(x)))return null;
   const segments=[];
   for(const s of raw.segments){
     if(!s||!identity(s.id)||!clean(s.name,80)||!int(s.durationSec,30,14400)||
