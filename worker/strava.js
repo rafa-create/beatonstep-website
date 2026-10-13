@@ -98,9 +98,16 @@ async function callback(request, env, url) {
   if (url.searchParams.get('error')) return appReturn('cancelled');
   const code = url.searchParams.get('code') || '';
   const scopes = (url.searchParams.get('scope') || '').split(/[,\s]+/);
-  if (!code || !scopes.includes('activity:write')) return appReturn('permission_required');
+  if (!code) return appReturn('permission_required');
   try {
     const token = await oauthToken(env, {code, grant_type: 'authorization_code'});
+    if (!scopes.includes('activity:write')) {
+      // A grant without activity:write is not useful and may still consume capacity.
+      await fetch('https://www.strava.com/oauth/deauthorize', {
+        method:'POST', headers:{authorization:'Bearer '+token.access_token},
+      }).catch(() => {});
+      return appReturn('permission_required');
+    }
     const athleteId = String(token.athlete?.id || '');
     if (!/^[0-9]+$/.test(athleteId)) return appReturn('invalid_athlete');
     const key = await cryptoKey(env);
@@ -177,13 +184,19 @@ async function publish(request, env, device, row) {
   if (previous) return previous.status === 'complete'
     ? reply({ok:true,alreadyPublished:true,url:'https://www.strava.com/activities/'+previous.activity_id})
     : reply({error:'publication_pending_verify_strava'},409);
+  let token;
+  try {
+    // Refresh/auth failure is safe to retry: no activity POST has happened yet.
+    token = await accessToken(env,row);
+  } catch {
+    return reply({error:'strava_token_unavailable'},503);
+  }
   const inserted = await env.DB.prepare(
     "INSERT INTO strava_exports (athlete_id,run_id,status,created_at) VALUES (?,?,'pending',?) " +
     'ON CONFLICT(athlete_id,run_id) DO NOTHING'
   ).bind(row.athlete_id,runId,Date.now()).run();
   if (!inserted.meta?.changes) return reply({error:'publication_pending_verify_strava'},409);
   try {
-    const token = await accessToken(env,row);
     const form = new URLSearchParams({
       name: 'Course BeatOnStep',
       sport_type: 'Run',
