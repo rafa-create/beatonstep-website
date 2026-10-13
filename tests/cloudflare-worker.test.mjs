@@ -97,7 +97,10 @@ test('D1 health checks both database tables and the publishing secret', async ()
   const data = await response.json();
   assert.equal(data.schemaReady, true);
   assert.equal(data.publishingConfigured, true);
-  assert.equal(prepared.length, 2);
+  assert.equal(prepared.length, 3);
+  assert.equal(prepared.filter(sql=>sql.includes('sqlite_master')&&
+    sql.includes('sport_verified_run_award_v1')).length,1,
+    'Health must check the sport trigger once alongside existing catalogue checks');
 });
 
 test('public health verifies world sport tables and triggers without exposing runner data', async () => {
