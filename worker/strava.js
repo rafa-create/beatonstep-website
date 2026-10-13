@@ -172,15 +172,15 @@ async function publish(request, env, device, row) {
   // The mobile app's runId comes from the original session start time.
   if (runId !== 'bos-' + startedAt) return reply({error:'invalid_run_id'}, 400);
   const previous = await env.DB.prepare(
-    'SELECT status,activity_id FROM strava_exports WHERE device_hash=? AND run_id=?'
-  ).bind(device,runId).first();
+    'SELECT status,activity_id FROM strava_exports WHERE athlete_id=? AND run_id=?'
+  ).bind(row.athlete_id,runId).first();
   if (previous) return previous.status === 'complete'
     ? reply({ok:true,alreadyPublished:true,url:'https://www.strava.com/activities/'+previous.activity_id})
     : reply({error:'publication_pending_verify_strava'},409);
   const inserted = await env.DB.prepare(
-    "INSERT INTO strava_exports (device_hash,run_id,status,created_at) VALUES (?,?,'pending',?) " +
-    'ON CONFLICT(device_hash,run_id) DO NOTHING'
-  ).bind(device,runId,Date.now()).run();
+    "INSERT INTO strava_exports (athlete_id,run_id,status,created_at) VALUES (?,?,'pending',?) " +
+    'ON CONFLICT(athlete_id,run_id) DO NOTHING'
+  ).bind(row.athlete_id,runId,Date.now()).run();
   if (!inserted.meta?.changes) return reply({error:'publication_pending_verify_strava'},409);
   try {
     const token = await accessToken(env,row);
@@ -204,8 +204,8 @@ async function publish(request, env, device, row) {
     const id = String(data?.id || '');
     if (!/^[0-9]+$/.test(id)) return reply({error:'publication_pending_verify_strava'},502);
     await env.DB.prepare(
-      "UPDATE strava_exports SET status='complete',activity_id=?,published_at=? WHERE device_hash=? AND run_id=?"
-    ).bind(id,Date.now(),device,runId).run();
+      "UPDATE strava_exports SET status='complete',activity_id=?,published_at=? WHERE athlete_id=? AND run_id=?"
+    ).bind(id,Date.now(),row.athlete_id,runId).run();
     return reply({ok:true,url:'https://www.strava.com/activities/'+id});
   } catch (error) {
     console.error('Strava publishing uncertain',error instanceof Error?error.name:'unknown');
@@ -256,7 +256,11 @@ export async function stravaRequest(request, env, url) {
         method:'POST',headers:{authorization:'Bearer '+token},
       });
       if (!deauth.ok) return reply({error:'strava_disconnect_failed'},502);
-      await env.DB.prepare('DELETE FROM strava_connections WHERE device_hash=?').bind(device).run();
+      // The runner is opting out: drop export metadata together with credentials.
+      await env.DB.batch([
+        env.DB.prepare('DELETE FROM strava_exports WHERE athlete_id=?').bind(row.athlete_id),
+        env.DB.prepare('DELETE FROM strava_connections WHERE device_hash=?').bind(device),
+      ]);
       return reply({ok:true});
     }
     return reply({error:'not_found'},404);
