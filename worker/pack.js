@@ -53,7 +53,7 @@ export async function openPack(db,userId) {
 
 // Public workout profiles are a compact ordered list of [duration in seconds,
 // target cadence]. Never fabricate an effort curve from imports or card IDs.
-const cardProfile=value=>{
+export const cardProfile=value=>{
   if (!value) return null;
   try {
     const phases=JSON.parse(value);
