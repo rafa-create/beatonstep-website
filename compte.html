@@ -417,7 +417,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         li.append(title,meta);
         if(card.verifiedAfterGiftAt){
           const history=document.createElement('small');
-          history.textContent='Reçue le '+date(card.firstGiftAt)+
+          history.textContent='Reçue le '+date(card.verifiedGiftAt||card.firstGiftAt)+
             ' · Réussie le '+date(card.verifiedAfterGiftAt)+
             (card.lostAt?' · Perdue le '+date(card.lostAt):'');
           li.append(history);
