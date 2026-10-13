@@ -1,3 +1,55 @@
+## Build de Preview #421 : compatibilité Wrangler (12 octobre 2026)
+
+Le build Cloudflare d'une branche de travail affichait
+`Executing user deploy command: npx wrangler preview` avec
+`wrangler 4.129.1` puis un échec. **Ne pas remplacer cette commande par
+`wrangler deploy` pour une branche de Preview** : la première crée
+une Preview isolée tandis que la seconde publie sur la production.
+
+D'après la documentation officielle, **Worker Previews nécessite Wrangler
+4.135.0 ou supérieur**. Sur cette branche, `package.json` pointe vers
+`wrangler 4.149.0`. Le projet n'a pas de fichier lock versionné :
+Cloudflare résout donc la dépendance à partir du manifeste.
+
+Dans Cloudflare Workers & Pages → `beatonstep-website` → Settings → Builds,
+contrôler pour le dépôt `rafa-create/beatonstep-website` :
+
+| Réglage | Valeur |
+| --- | --- |
+| Production branch | `main` |
+| Build command, production et Preview | `npm run build` |
+| Production deploy command | `npx wrangler deploy` |
+| Preview command, branches hors `main` | `npx wrangler preview` |
+| Repository root | `/` |
+
+Le site nécessite l'étape `npm run build` pour générer `dist/`.
+Le journal de défaillance copié ne montrait **aucune exécution de
+`npm run build`** avant le deploy : vérifier le champ Build command.
+**Éviter tout redéploiement `main` en corrigeant une Preview.**
+
+Le bloc `previews.vars` définit `CATALOG_BACKEND=d1` avec l'inscription
+communautaire et les cartes désactivées. **Aucune base D1 n'est liée à
+la Preview** : ce choix préserve `beatonstep-catalog-prod`, mais
+les opérations API nécessitant D1 ne peuvent pas être validées
+dans cette Preview limitée. Pour tester les défis/cartes de bout en
+bout, créer **une base D1 de test distincte**, la binder via
+`previews.d1_databases`, appliquer ses migrations **uniquement** à cette
+base et configurer les secrets de test. Jamais de `database_id`
+de production dans `previews`.
+
+Après sauvegarde du réglage Build (ou mise à jour de la branche),
+examiner le journal complet du build Preview ; `private beta` seul
+est un avertissement non bloquant. Si l'échec persiste, récupérer
+les **20 dernières lignes non tronquées** comprenant l'erreur de Wrangler.
+
+Références Cloudflare :
+- https://developers.cloudflare.com/workers/previews/get-started/
+- https://developers.cloudflare.com/workers/previews/configuration/
+- https://developers.cloudflare.com/workers/previews/resources/
+- https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/
+
+---
+
 ## D1 cutover (11 October 2026)
 
 - Production Wrangler configuration: `CATALOG_BACKEND=d1`. The website and

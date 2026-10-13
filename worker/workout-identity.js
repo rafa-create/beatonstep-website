@@ -1,3 +1,5 @@
+import { distanceChallengeFingerprint } from './distance-challenge.js';
+
 // Musical identity of a shared workout, independent of its training parameters
 // and streaming platform. This module is deliberately pure and does not write D1.
 // v1 is a conservative metadata match, NOT acoustic fingerprinting: a catalogue
@@ -44,4 +46,14 @@ export async function workoutMusicFingerprint(payload) {
   const bytes = new TextEncoder().encode(JSON.stringify(['workout-music-v1', tracks]));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Legacy v1 stays song-based. A v2 distance challenge deliberately uses
+// a different namespace, independent of songs or streaming platform.
+export async function workoutCardFingerprint(payload) {
+  if (payload?.v===2) return distanceChallengeFingerprint(payload);
+  if (payload?.v===1 || payload?.v===undefined)
+    return workoutMusicFingerprint(payload);
+  // Never reuse a v1 fingerprint for an unsupported future schema.
+  return null;
 }
