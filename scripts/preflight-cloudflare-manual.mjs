@@ -25,8 +25,8 @@ const releaseFlags=[
   'SPORT_AUTO_AWARDS_ENABLED',
 ];
 for(const name of releaseFlags){
-  assert.equal(config.vars[name],'false',
-    name+' must remain disabled during initial deployment validation');
+  assert.equal(config.vars[name],'true',
+    name+' is already enabled in production; preflight must not silently disable it');
   assert.equal(config.previews.vars[name],'false',
     name+' must remain disabled in previews');
 }
@@ -56,13 +56,13 @@ assert.match(worker,/sport_verified_run_award_v1/,
   'The diagnostic endpoint must test readiness of the world-sport trigger');
 const account=readFileSync('worker/account.js','utf8');
 assert.match(account,/SPORT_AUTO_AWARDS_ENABLED!=='true'/,
-  'World-sport post-run reconciliation must be explicitly disabled');
+  'World-sport post-run reconciliation must remain guarded by the production flag');
 assert.match(account,/SPORT_WORLD_GIFTS_ENABLED!=='true'/,
-  'Sports gifts must be explicitly disabled');
+  'Sports gifts must remain guarded by the production flag');
 assert.doesNotMatch(account,/sportTelemetryRequest|sport\/telemetry/,
   'No online GPS streaming endpoints are permitted');
 
 console.log('PASS manual Oracle VM -> Cloudflare preflight');
 console.log('PASS site assets and D1 bindings exist; no GitHub runner needed');
-console.log('PASS all world-sport writes and gifts remain OFF');
+console.log('PASS world-sport production flags are ON; preview flags remain OFF');
 console.log('NEXT run: ./node_modules/.bin/wrangler deploy --dry-run');
