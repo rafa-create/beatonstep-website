@@ -156,15 +156,19 @@ export async function accountLibraryRequest(request,db,url,userId){
     const revision=input?.expectedRevision;
     if(!workout||!int(revision,0,2147483647))return reply({error:'invalid_workout'},400);
     const now=Date.now();
-    const changed=await db.prepare(`INSERT INTO account_workouts
-      (user_id,workout_id,snapshot_json,revision,created_at,updated_at,deleted_at)
-      VALUES(?,?,?,1,?,?,NULL)
-      ON CONFLICT(user_id,workout_id) DO UPDATE SET
-      snapshot_json=excluded.snapshot_json,revision=account_workouts.revision+1,
-      updated_at=excluded.updated_at,deleted_at=NULL
-      WHERE account_workouts.revision=? AND account_workouts.deleted_at IS NULL
-      RETURNING revision`)
-      .bind(userId,workout.id,JSON.stringify(workout),now,now,revision).first();
+    // Creation requires revision 0. Updates require the exact server revision.
+    // A stale device must never resurrect a tombstoned workout.
+    const changed=revision===0
+      ?await db.prepare(`INSERT INTO account_workouts
+        (user_id,workout_id,snapshot_json,revision,created_at,updated_at,deleted_at)
+        VALUES(?,?,?,1,?,?,NULL)
+        ON CONFLICT(user_id,workout_id) DO NOTHING RETURNING revision`)
+        .bind(userId,workout.id,JSON.stringify(workout),now,now).first()
+      :await db.prepare(`UPDATE account_workouts
+        SET snapshot_json=?,revision=revision+1,updated_at=?
+        WHERE user_id=? AND workout_id=? AND revision=? AND deleted_at IS NULL
+        RETURNING revision`)
+        .bind(JSON.stringify(workout),now,userId,workout.id,revision).first();
     return changed?reply({saved:true,revision:changed.revision})
       :reply({error:'revision_conflict'},409);
   }
