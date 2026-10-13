@@ -1,71 +1,75 @@
-// #444/#448/#450/#451 — pure performance-card business rules, version 1.
-// Intentionally disconnected from Worker routes, authentication and D1.
-// A "candidate" is NOT a verified win and must never change global ownership.
-// Published cards for musical workouts and the old distance+deadline V2 are
-// separate, historical formats; neither is migrated or overwritten here.
+// #444/#448/#450/#451 — performance-card business calculation only.
+// This file never creates a card, authenticates a run or writes to D1.
+// Historical musical cards and the earlier distance+deadline V2 remain separate.
 
 export const SPORT_CARD_RULESET='sport-cards-v1';
 export const SPORT_CARD_DIFFICULTY_RULESET='v1';
 
-// Centimeters are exact keys for catalog identity; GPS precision is NOT 1 cm.
-// Only these 10 distances can create a sporting card in the initial catalog.
-// Expanding the catalog requires a reviewed, explicitly versioned change.
+const MARATHON_CM=4_219_500;
+const HALF_MARATHON_CM=2_109_750;
+const ULTRA_START_CM=4_300_000;
+const BEGINNER_10K_MAX_SUB_MINUTE=91; // 10 km in exactly 1h30 -> sub91 eligible.
+
+// Exact centimeters identify a canonical family, not GPS centimeter accuracy.
+// 1..200 km + 400m sub1 + exact half-marathon + exact marathon = 203 families.
+// New families require a reviewed, versioned catalog change.
 const CATALOG=[
-  [40_000,'400m'],
-  [100_000,'1km'],
-  [500_000,'5km'],
-  [1_000_000,'10km'],
-  [1_500_000,'15km'],
-  [2_000_000,'20km'],
-  [2_109_750,'half_marathon'],
-  [3_000_000,'30km'],
-  [4_000_000,'40km'],
-  [4_219_500,'marathon'],
-];
+  {distanceCm:40_000,code:'400m'},
+  ...Array.from({length:200},(_,i)=>({
+    distanceCm:(i+1)*100_000,code:`${i+1}km`,
+  })),
+  {distanceCm:HALF_MARATHON_CM,code:'half_marathon'},
+  {distanceCm:MARATHON_CM,code:'marathon'},
+].sort((a,b)=>a.distanceCm-b.distanceCm);
 export const SPORT_CARD_DISTANCES=Object.freeze(
-  CATALOG.map(([distanceCm,code])=>Object.freeze({distanceCm,code})),
+  CATALOG.map(item=>Object.freeze(item)),
 );
 const recognized=new Set(SPORT_CARD_DISTANCES.map(item=>item.distanceCm));
-const MARATHON_CM=4_219_500;
+
+// Other six levels retain #451's original marathon performance anchors.
+// Beginner is deliberately widened to include 10 km in 90:00 exactly.
+// This is a game-design threshold, not a medical/scientific assessment.
 const ANCHORS=Object.freeze([
-  ['world_elite',150],
-  ['legend',180],
-  ['expert',210],
-  ['intermediate',240],
-  ['regular',270],
-  ['amateur',300],
+  ['world_elite',150],['legend',180],['expert',210],
+  ['intermediate',240],['regular',270],['amateur',300],
   ['beginner',330],
 ].map(([tier,limit])=>Object.freeze({tier,limit})));
-
-const whole=(value)=>Number.isSafeInteger(value)&&value>=0;
+const whole=value=>Number.isSafeInteger(value)&&value>=0;
 
 export function canonicalSportDistance(distanceCm){
   return recognized.has(distanceCm)?distanceCm:null;
 }
-
 export function longestSportDistance(finalDistanceCm){
   if(!whole(finalDistanceCm))return null;
   for(let i=SPORT_CARD_DISTANCES.length-1;i>=0;i--){
-    const distance=SPORT_CARD_DISTANCES[i].distanceCm;
-    if(finalDistanceCm>=distance)return distance;
+    const d=SPORT_CARD_DISTANCES[i].distanceCm;
+    if(finalDistanceCm>=d)return d;
   }
   return null;
 }
 
 export function maxSubMinuteByTier(distanceCm){
-  if(canonicalSportDistance(distanceCm)===null || distanceCm===40_000)return null;
+  if(canonicalSportDistance(distanceCm)===null||
+     distanceCm===40_000||distanceCm>=ULTRA_START_CM)return null;
   const factor=(distanceCm/MARATHON_CM)**1.06;
-  const caps={};
+  const out={};
   let previous=0;
   for(const {tier,limit} of ANCHORS){
-    const value=Math.max(1,Math.round(limit*factor),previous+1);
-    caps[tier]=value;
-    previous=value;
+    let cap=Math.round(limit*factor);
+    if(tier==='beginner'){
+      const inclusiveTenKmCap=Math.round(
+        BEGINNER_10K_MAX_SUB_MINUTE*(distanceCm/1_000_000)**1.06,
+      );
+      cap=Math.max(cap,inclusiveTenKmCap);
+    }
+    cap=Math.max(1,cap,previous+1);
+    out[tier]=cap;
+    previous=cap;
   }
-  return caps;
+  return out;
 }
 
-// Strict: 24:59.999 -> sub25, 25:00.000 -> sub26.
+// At exactly N:00 the eligible threshold is always sub(N+1).
 export function effectiveSportSubMinute(elapsedMs){
   return whole(elapsedMs)&&elapsedMs>0
     ?Math.floor(elapsedMs/60_000)+1:null;
@@ -79,6 +83,13 @@ export function difficultyForSportCard(distanceCm,subMinute){
       difficulty:'expert',skin:'difficulty_expert_v1',
     }):null;
   }
+  if(distanceCm>=ULTRA_START_CM){
+    // All authenticated 43..200 km performances are "Long-distance legend",
+    // irrespective of speed; plausibility and safety are separate checks.
+    return Object.freeze({
+      difficulty:'legend',skin:'difficulty_legend_v1',
+    });
+  }
   const caps=maxSubMinuteByTier(distanceCm);
   const found=ANCHORS.find(({tier})=>subMinute<=caps[tier]);
   return found?Object.freeze({
@@ -86,14 +97,12 @@ export function difficultyForSportCard(distanceCm,subMinute){
   }):null;
 }
 
-// Accept only finalized runs whose evidence was already authenticated and
-// verified by a distinct server-side gate. "evidenceVerified" is a TRUSTED
-// server flag, never a claim from the phone/HealthKit DTO. No GPS coordinates,
-// music duration, target BPM, user account, proof of signature or D1 access.
+// Runs must be verified BEFORE this pure calculation by an independent,
+// authenticated server-side gate. 'evidenceVerified' cannot be trusted if
+// supplied directly by a client. Result 'candidate' never means "awarded".
 //
-// Crossing events must come from trusted, monotonic distance and sporting
-// elapsed time (all pauses INCLUDED). Never interpolate a missing crossing
-// from final distance or fall back to a shorter, faster interim checkpoint.
+// Crossings come from a trusted source with genuine timestamps including
+// pauses. Missing final recognized crossing => no interpolation/no fallback.
 export function evaluateSportCardCandidate({
   finalized,evidenceVerified,finalDistanceCm,finishedElapsedMs,crossings,
 }={}){
@@ -101,7 +110,8 @@ export function evaluateSportCardCandidate({
     return {status:'unverified',reason:'run_not_finalized_or_evidence_unverified'};
   }
   if(!whole(finalDistanceCm)||!whole(finishedElapsedMs)||
-     finishedElapsedMs===0||!Array.isArray(crossings)||crossings.length>10){
+     finishedElapsedMs===0||!Array.isArray(crossings)||
+     crossings.length>SPORT_CARD_DISTANCES.length){
     return {status:'unverified',reason:'invalid_run'};
   }
   const distanceCm=longestSportDistance(finalDistanceCm);
@@ -125,7 +135,6 @@ export function evaluateSportCardCandidate({
   if(chosenMs===null){
     return {status:'unverified',reason:'missing_final_distance_crossing'};
   }
-
   const subMinute=effectiveSportSubMinute(chosenMs);
   const tier=difficultyForSportCard(distanceCm,subMinute);
   if(!tier){
@@ -137,8 +146,8 @@ export function evaluateSportCardCandidate({
     difficultyRuleset:SPORT_CARD_DIFFICULTY_RULESET,
     distanceCm,elapsedMs:chosenMs,subMinute,
     ...tier,
-    // Identity key for the eventual D1 UNIQUE(distance_cm,sub_minute).
-    // Does not identify a session and cannot be used as an entitlement.
+    // Eventual D1 identity: UNIQUE(distance_cm,sub_minute); this string is
+    // not a receipt, a proof of the runner nor a right to ownership.
     performanceKey:`${distanceCm}:${subMinute}`,
   });
 }
