@@ -20,7 +20,8 @@
     "CATALOG_BACKEND": "d1",
     "COMMUNITY_SIGNUPS_ENABLED": "true",
     "CARDS_ENABLED": "true",
-    "DISTANCE_CHALLENGES_ENABLED": "false"
+    "DISTANCE_CHALLENGES_ENABLED": "false",
+    "PASSWORD_RESET_EMAIL_FROM": "no-reply@beatonstep.app"
   },
   "observability": {
     "enabled": true
