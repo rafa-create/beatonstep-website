@@ -12,7 +12,9 @@
     "check": "node --check worker/index.js && node --check worker/admin.js && npm run build",
     "test:distance-d1": "python3 scripts/test-distance-d1.py",
     "deploy": "npm run build && wrangler deploy",
-    "dev": "npm run build && wrangler dev"
+    "dev": "npm run build && wrangler dev",
+    "preflight:cloudflare": "node scripts/preflight-cloudflare-manual.mjs",
+    "smoke:cloudflare": "node scripts/smoke-cloudflare-readonly.mjs"
   },
   "devDependencies": {
     "wrangler": "4.129.1"
