@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0a0a08">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0a0a08">
 <title>Mon profil — BeatOnStep</title>
 <style>
 :root{color-scheme:dark;--bg:#0a0a08;--panel:#1b1b14;--line:#48412d;--ink:#f5f2e4;--accent:#fcea07;--sub:#bcb6a5}
@@ -64,6 +64,25 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <form id="signin-form"><label for="signin-email">E-mail</label><input type="email" id="signin-email" autocomplete="username" required>
 <label for="signin-password">Mot de passe</label><input type="password" id="signin-password" autocomplete="current-password" required>
 <div class="actions"><button type="submit">Se connecter</button><button class="secondary" type="button" id="go-signup">Créer un compte</button></div>
+<p><button type="button" class="secondary" id="go-forgot">Mot de passe oublié ?</button></p>
+</form></section>
+<section id="forgot" hidden><h2>Retrouver mon compte</h2>
+<p>Saisissez l’adresse e-mail de votre compte. Si elle existe, vous recevrez un lien valable 20 minutes.</p>
+<form id="forgot-form">
+<label for="forgot-email">E-mail</label><input id="forgot-email" type="email" autocomplete="email" required>
+<div class="actions"><button type="submit">Recevoir un lien</button>
+<button type="button" class="secondary" id="forgot-back">Retour à la connexion</button></div>
+</form></section>
+<section id="password-reset" hidden><h2>Choisir un nouveau mot de passe</h2>
+<p>Le lien reçu par e-mail n’est valable qu’une fois et pendant 20 minutes.</p>
+<form id="password-reset-form">
+<label for="reset-new">Nouveau mot de passe</label>
+<input id="reset-new" type="password" autocomplete="new-password" minlength="6" maxlength="128" required>
+<p class="field-help">6 caractères minimum. Toutes vos anciennes connexions seront révoquées.</p>
+<label for="reset-confirm">Confirmer le mot de passe</label>
+<input id="reset-confirm" type="password" autocomplete="new-password" minlength="6" maxlength="128" required>
+<div class="actions"><button type="submit">Réinitialiser mon mot de passe</button>
+<button type="button" class="secondary" id="reset-back">Retour à la connexion</button></div>
 </form></section>
 <section id="signup" hidden><h2>Créer un compte public</h2>
 <p>Votre pseudo sera visible sur les séances signées. Votre e-mail restera privé.</p>
@@ -124,6 +143,9 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   const $=id=>document.getElementById(id), qs=new URLSearchParams(location.search);
   const handle=qs.get('profil');
   let giftCode=new URLSearchParams(location.hash.slice(1)).get('gift');
+  let resetToken=new URLSearchParams(location.hash.slice(1)).get('reset')||null;
+  // Remove bearer-grade secrets immediately from address bar and browser history.
+  if(resetToken)history.replaceState(null,'',location.pathname+location.search);
   const connect=qs.get('connect')==='1';
   const state=qs.get('state')||'', challenge=qs.get('challenge')||'';
   const linking=connect&&/^[A-Za-z0-9_-]{16,128}$/.test(state)&&/^[A-Za-z0-9_-]{43}$/.test(challenge);
@@ -136,6 +158,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     if(!r.ok)throw Error(({registration_closed:'Les inscriptions ne sont pas encore ouvertes.',
       account_unavailable:'Espace personnel non disponible : vérifier la migration D1.',
       invalid_credentials:'Identifiants invalides.',account_exists:'E-mail ou pseudo déjà utilisé.',
+      password_reset_unavailable:'La récupération par e-mail n’est pas encore configurée.',
+      invalid_password_reset:'Ce lien a expiré ou le mot de passe est invalide. Demandez un nouveau lien.',
       retry_later:'Trop de tentatives. Réessayez ultérieurement.',
       invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.',
       collection_not_ready:'La collection sera disponible après la migration D1.',
@@ -145,7 +169,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       'Opération impossible ('+r.status+').');
     return value;
   }
-  function panel(value){for(const key of ['signin','signup','account','public-profile']) $(key).hidden=key!==value}
+  function panel(value){for(const key of ['signin','signup','account','public-profile','forgot','password-reset']) $(key).hidden=key!==value}
   function renderCards(items,element){
     element.replaceChildren();
     if(!items.length){const p=document.createElement('li');p.textContent='Aucune publication pour le moment.';element.append(p);return}
@@ -286,6 +310,36 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   }
   $('go-signup').onclick=()=>{panel('signup');status('Choisissez un pseudo public.')};
   $('go-signin').onclick=()=>{panel('signin');status('Connectez-vous avec votre compte.')};
+  $('go-forgot').onclick=()=>{
+    $('forgot-email').value=$('signin-email').value;
+    panel('forgot');status('Un nouveau lien peut être demandé ici.');
+  };
+  $('forgot-back').onclick=()=>{panel('signin');status('Connexion BeatOnStep.')};
+  $('reset-back').onclick=()=>{resetToken=null;panel('signin');status('Connexion BeatOnStep.')};
+  $('forgot-form').onsubmit=async e=>{
+    e.preventDefault();const button=e.submitter;button.disabled=true;
+    try{
+      await api('/api/account/password-reset/request','POST',{
+        email:$('forgot-email').value,
+      });
+      status('Si un compte existe pour cet e-mail, un lien sera envoyé. Vérifiez votre boîte et les courriers indésirables.');
+    }catch(error){status(error.message)}
+    finally{button.disabled=false}
+  };
+  $('password-reset-form').onsubmit=async e=>{
+    e.preventDefault();const button=e.submitter;button.disabled=true;
+    if($('reset-new').value!==$('reset-confirm').value){
+      status('Les mots de passe ne sont pas identiques.');button.disabled=false;return;
+    }
+    try{
+      await api('/api/account/password-reset/confirm','POST',{
+        token:resetToken,password:$('reset-new').value,
+      });
+      resetToken=null;$('password-reset-form').reset();panel('signin');
+      status('Mot de passe modifié. Reconnectez-vous ici puis, si nécessaire, dans l’application.');
+    }catch(error){status(error.message)}
+    finally{button.disabled=false}
+  };
   $('signin-form').onsubmit=async e=>{
     e.preventDefault();const b=e.submitter;b.disabled=true;
     try{await api('/api/account/login','POST',{email:$('signin-email').value,password:$('signin-password').value});
@@ -386,6 +440,9 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         status('Profil public.')}
       catch{status('Profil indisponible.')}
       return;
+    }
+    if(resetToken){
+      panel('password-reset');status('Saisissez un nouveau mot de passe pour ce compte.');return;
     }
     try{await account()}catch(error){panel('signin');status(error.message)}
   })();
