@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 12 octobre 2026
+**Dernière mise à jour :** 13 octobre 2026
 
 ## 1. Qui sommes-nous
 
@@ -52,6 +52,8 @@ La connexion à Google/YouTube est facultative et distincte du compte facultatif
 - **Partage limité :** les playlists, leurs noms, leurs identifiants et les BPM importés ne sont pas publiés dans le catalogue BeatOnStep et ne sont ni vendus ni utilisés pour la publicité. Le serveur peut recevoir uniquement un compteur pseudonyme du nombre de playlists importées, sans identifiant Google ni détail de morceaux (§ 3.9). Un rapport technique volontaire peut inclure des identifiants de titres, jamais des jetons OAuth (§ 3.11).
 - **Conservation :** les jetons sont conservés localement tant que YouTube reste connecté (et renouvelés si nécessaire), puis effacés lors de la déconnexion ; la désinstallation efface les données locales de l'app. Les métadonnées et BPM déjà importés restent dans la bibliothèque locale jusqu'à leur suppression dans l'app ou sa désinstallation ; se déconnecter ne supprime pas automatiquement les morceaux importés. Aucune copie permanente de cette bibliothèque Google n'est conservée sur le serveur BeatOnStep.
 - **Suppression et retrait du consentement :** vous pouvez déconnecter YouTube dans BeatOnStep, supprimer les playlists/morceaux importés de votre bibliothèque et révoquer l'autorisation accordée à BeatOnStep depuis [votre compte Google](https://myaccount.google.com/connections). La révocation empêche les accès futurs mais ne supprime pas à elle seule les imports locaux. Pour les données de votre compte YouTube conservées par Google, les règles et contrôles Google s'appliquent.
+
+**Protection des données Google/YouTube (précisions) :** les permissions sont demandées uniquement lorsque vous connectez YouTube ou choisissez volontairement la création de playlists. L'autorisation de lecture ne permet pas à BeatOnStep de créer une playlist ; cette action nécessite un consentement supplémentaire distinct. Le flux OAuth utilise PKCE (méthode S256) et les échanges Google utilisent HTTPS. L'app ne reçoit jamais votre mot de passe Google. Les jetons sont conservés dans le stockage applicatif privé de l'appareil (AsyncStorage) : **il ne s'agit pas d'un coffre-fort matériel ni d'une promesse de chiffrement dédié**. Ils ne sont pas transmis au serveur BeatOnStep pour la bibliothèque YouTube, ne sont pas ajoutés aux rapports de diagnostic et sont supprimés de la session locale lors de la déconnexion. Les noms/identifiants des playlists importées restent locaux, sauf action explicite de partage autorisée par l'utilisateur (§ 3.4, § 3.11). Vous pouvez aussi révoquer l'accès depuis votre compte Google. Les données Google ne sont utilisées ni pour la publicité ni pour l'entraînement de modèles IA.
 
 ### 3.5 Apple Music (optionnel)
 
@@ -117,14 +119,18 @@ Le serveur conserve seulement le **dernier snapshot connu par installation** afi
 
 Ces données ne sont **ni vendues, ni utilisées pour la publicité, ni utilisées pour le suivi publicitaire (« tracking »), ni croisées avec des données provenant d'autres entreprises à des fins de profilage**.
 
-### 3.10 Garmin et forme du parcours (optionnel)
+### 3.10 GPS Garmin et mesure de distance sur iPhone (optionnels)
 
-Si vous utilisez une montre Garmin compatible avec BeatOnStep :
+**Montre Garmin.** Si vous utilisez une montre Garmin compatible avec BeatOnStep :
 
 - la montre utilise son GPS dans le cadre de l'activité Garmin enregistrée et peut transmettre temporairement à l'app BeatOnStep les positions nécessaires au récapitulatif ;
 - les coordonnées GPS brutes restent **uniquement en mémoire pendant la course** : BeatOnStep ne les persiste pas dans son stockage local et ne les envoie pas au serveur BeatOnStep ;
-- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours (un petit tracé sans latitude, longitude ni fond de carte) pour le récapitulatif et les visuels de partage ;
-- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse dans le visuel ou son brouillon ; les coordonnées GPS brutes ne sont jamais incluses dans l'URL de partage.
+- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours (sans latitude, longitude ni fond de carte) pour le récapitulatif et les visuels de partage ;
+- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse ; aucune coordonnée GPS brute ne figure dans l'URL de partage.
+
+**GPS du téléphone sur iPhone (fonction expérimentale, disponible uniquement dans certains builds).** Dans le panneau de test de distance, si celui-ci est activé dans votre version, vous choisissez explicitement de démarrer le GPS et pouvez l'arrêter ou mettre la mesure en pause. L'app peut alors demander l'autorisation iOS de localisation (pendant l'utilisation et, si vous le choisissez, en arrière-plan pour continuer à mesurer quand l'iPhone est verrouillé). La mesure sert à calculer les mètres et le temps écoulé ; elle ne démarre pas automatiquement à l'ouverture de BeatOnStep. Le parcours kilométrique avec musique n'est pas encore activé dans la course normale.
+
+Le module iOS traite les positions GPS brutes **uniquement en mémoire volatile sur l'iPhone** pendant cette mesure : pas de stockage d'historique de coordonnées, pas d'envoi de ces positions au serveur BeatOnStep ni aux services musicaux. Il calcule localement un cumul de distance et peut fournir une **silhouette relative du parcours**, sans latitude ni longitude, pour un récapitulatif local si la mesure est exploitable. Le suivi s'arrête à la fin du test ou lorsque vous quittez ce panneau ; les positions brutes sont effacées de la session. La désinstallation efface les éventuels récapitulatifs locaux. Sur les versions Android actuelles, ce pilote GPS du téléphone n'est pas disponible.
 
 ### 3.11 Rapport Help / diagnostic volontaire
 
@@ -154,11 +160,11 @@ Le serveur utilise ce rapport uniquement pour le **support technique et le diagn
 
 ### iOS (App Store)
 
-BeatOnStep demande uniquement l'accès aux **capteurs de mouvement** (accéléromètre) pour la détection de cadence. Sur iOS, cet accès est géré par le framework natif sans permission explicite demandée à l'utilisateur.
+Sur iOS, la **détection de cadence** utilise les capteurs de mouvement (accéléromètre), via le framework natif sans demande de permission explicite pour cette lecture.
 
 L'accès à la **médiathèque** (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.
 
-L'app mobile BeatOnStep ne demande **aucune permission de localisation GPS du téléphone**. Si vous utilisez l'app Garmin BeatOnStep, la montre peut utiliser sa propre permission de positionnement pour enregistrer l'activité et fournir le tracé relatif décrit au § 3.10. BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
+Dans les builds iPhone qui incluent le **pilote GPS expérimental**, iOS peut demander l'autorisation de localisation **pendant l'utilisation** et, pour le suivi pendant le verrouillage, une autorisation **Toujours / en arrière-plan** si vous la choisissez. La localisation n'est consultée qu'après démarrage volontaire du test (§ 3.10). Le pilote n'est pas actif au lancement de l'app. Sur Android, ce pilote de GPS du téléphone n'est pas disponible dans les versions actuelles. Le GPS d'une montre Garmin relève de ses propres autorisations (§ 3.10). BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
 
 ## 5. Données stockées localement
 
@@ -170,7 +176,7 @@ Sur votre appareil, dans l'espace privé de l'app :
 - Titres Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify dans cette version.
 - Titres Deezer dont vous avez collé le lien Partager (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Deezer dans cette version.
 - Identifiant d'installation aléatoire BeatOnStep et dernier état local de la mesure de playlists (§ 3.9).
-- Forme relative simplifiée du dernier parcours Garmin utilisée pour le récapitulatif/story, lorsqu'elle est disponible (§ 3.10) — **sans coordonnées GPS brutes**.
+- Forme relative simplifiée d'un parcours Garmin ou du pilote GPS iPhone, lorsqu'elle est disponible pour un récapitulatif local (§ 3.10) — **sans coordonnées GPS brutes**.
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l'app.
 
