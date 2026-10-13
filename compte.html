@@ -328,7 +328,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         ?new Date(summary.endedAtMs).toLocaleDateString('fr-FR'):'Date inconnue';
       const distance=Number.isFinite(summary.distanceMeters)
         ?(summary.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km':null;
-      meta.textContent=[date,distance,Math.round(summary.durationSeconds||0)/60+' min',
+      meta.textContent=[date,distance,Math.round((summary.durationSeconds||0)/60)+' min',
         summary.stepCount?summary.stepCount+' pas':null].filter(Boolean).join(' · ');
       li.append(title,meta);list.append(li);
     }
