@@ -3,6 +3,9 @@
   "name": "beatonstep-website",
   "main": "./worker/index.js",
   "compatibility_date": "2026-10-11",
+  "build": {
+    "command": "node scripts/build-static.mjs"
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
