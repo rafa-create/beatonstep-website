@@ -27,7 +27,6 @@
     "STRAVA_EXPORT_ENABLED": "true",
     "SPORT_WORLD_CARDS_ENABLED": "false",
     "SPORT_WORLD_GIFTS_ENABLED": "false",
-    "SPORT_TELEMETRY_ENABLED": "false",
     "SPORT_AUTO_AWARDS_ENABLED": "false"
   },
   "observability": {
@@ -49,7 +48,6 @@
       "DISTANCE_CHALLENGES_ENABLED": "false",
       "SPORT_WORLD_CARDS_ENABLED": "false",
       "SPORT_WORLD_GIFTS_ENABLED": "false",
-      "SPORT_TELEMETRY_ENABLED": "false",
       "SPORT_AUTO_AWARDS_ENABLED": "false"
     }
   }
