@@ -249,16 +249,10 @@ async function d1Request(request, env, url) {
       const info=people.get(id);
       if (info) {
         item.owner=info.owner; item.creator=info.creator;
-        const history=await db.prepare(`SELECT h.reason,h.changed_at,
-          previous.handle AS previousOwner,next.handle AS newOwner
-          FROM workout_card_history h
-          LEFT JOIN community_users previous ON previous.id=h.previous_owner_id
-          LEFT JOIN community_users next ON next.id=h.new_owner_id
-          WHERE h.share_id=? ORDER BY h.id DESC LIMIT 30`).bind(id).all();
-        item.ownershipHistory=(history.results||[]).map(h=>({
-          reason:h.reason,changedAt:h.changed_at,
-          previousOwner:h.previousOwner||null,newOwner:h.newOwner||null,
-        }));
+        // #449: a public share can show its current creator and owner, but
+        // past owners and gift/steal reasons are private account history.
+        // Never include ownershipHistory in an anonymous response (including
+        // cacheable catalogue previews).
       }
     }
     return json(item, 200, { 'cache-control': 'public, max-age=30' });
