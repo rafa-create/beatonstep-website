@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   SPORT_CARD_DISTANCES,SPORT_CARD_RULESET,SPORT_CARD_DIFFICULTY_RULESET,
   canonicalSportDistance,longestSportDistance,maxSubMinuteByTier,
-  effectiveSportSubMinute,difficultyForSportCard,evaluateSportCardCandidate,
+  effectiveSportSubMinute,effectiveSportSubSecond,difficultyForSportCard,evaluateSportCardCandidate,
 } from '../worker/sport-card-rules.js';
 
 const cm=km=>Math.round(km*100_000);
@@ -15,7 +15,7 @@ const result=(finalKm,crossings,finishedMinutes,verified=true)=>
     crossings:crossings.map(([km,m])=>({distanceCm:cm(km),elapsedMs:ms(m)})),
   });
 
-test('catalog: 400m plus EVERY km 1..200, exact half and full marathon',()=>{
+test('catalog: 400m with multiple second thresholds plus EVERY km 1..200',()=>{
   assert.equal(SPORT_CARD_DISTANCES.length,203);
   assert.deepEqual(SPORT_CARD_DISTANCES.map(x=>x.distanceCm),[
     cm(.4),...Array.from({length:200},(_,i)=>cm(i+1)),
@@ -84,7 +84,9 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
 test('novice 10km exactly 90:00 qualifies for beginner sub91',()=>{
   const p=result(10,[[10,90]],90);
   assert.equal(p.status,'candidate');
-  assert.equal(p.performanceKey,`${cm(10)}:91`);
+  assert.equal(p.performanceKey,`${cm(10)}:minute:91`);
+  assert.equal(p.timeUnit,'minute');
+  assert.equal(p.subSecond,null);
   assert.equal(p.difficulty,'beginner');
   assert.equal(p.skin,'difficulty_beginner_v1');
   assert.equal(effectiveSportSubMinute(ms(90)-1),90);
@@ -154,12 +156,47 @@ test('one candidate only at last recognized checkpoint, never fallback',()=>{
   assert.equal(result(43,[[42.195,250],[43,300]],305).distanceCm,cm(43));
 });
 
-test('400m sub1 only, superseded by subsequent 1km or longer',()=>{
-  assert.equal(result(.5,[[.4,59.999/60]],1).status,'candidate');
-  assert.equal(result(.5,[[.4,1]],1.5).status,'none');
+test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=>{
+  const tiers=[
+    [49.999,'world_elite',50],
+    [50,'legend',51],
+    [59.999,'legend',60],
+    [60,'expert',61],
+    [69.999,'expert',70],
+    [70,'intermediate',71],
+    [84.999,'intermediate',85],
+    [85,'regular',86],
+    [99.999,'regular',100],
+    [100,'amateur',101],
+    [124.999,'amateur',125],
+    [125,'beginner',126],
+    [179.999,'beginner',180],
+    [180,'beginner',181],
+  ];
+  for(const [seconds,difficulty,subSecond] of tiers){
+    const sec=Math.round(seconds*1000);
+    const p=evaluateSportCardCandidate({
+      finalized:true,evidenceVerified:true,
+      finalDistanceCm:cm(.4),finishedElapsedMs:sec,
+      crossings:[{distanceCm:cm(.4),elapsedMs:sec}],
+    });
+    assert.equal(p.status,'candidate',String(seconds));
+    assert.equal(p.difficulty,difficulty,String(seconds));
+    assert.equal(p.subSecond,subSecond,String(seconds));
+    assert.equal(p.subMinute,null);
+    assert.equal(p.timeUnit,'second');
+    assert.equal(p.performanceKey,`${cm(.4)}:second:${subSecond}`);
+    assert.equal('rarity' in p,false);
+  }
+  assert.equal(effectiveSportSubSecond(59_999),60);
+  assert.equal(effectiveSportSubSecond(60_000),61);
+  assert.equal(effectiveSportSubSecond(0),null);
+  assert.equal(difficultyForSportCard(cm(.4),181).difficulty,'beginner');
+  assert.equal(difficultyForSportCard(cm(.4),182),null);
+  assert.equal(result(.4,[[.4,181/60]],182/60).status,'none');
   assert.equal(result(1,[[.4,.5],[1,8]],9).distanceCm,cm(1));
-  assert.equal(difficultyForSportCard(cm(.4),1)?.difficulty,'expert');
-  assert.equal(difficultyForSportCard(cm(.4),2),null);
+  // A normal 400 m is a sprint; never use a minute-rounded sub1
+  // or silently reuse the per-minute 5km identity scheme.
 });
 
 test('unverified/fake samples are never eligible for cards',()=>{
