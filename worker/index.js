@@ -3,6 +3,7 @@ import { accountRequest, ensureCommunitySchema, devicePublisher, authorFor } fro
 import { sharePageResponse } from './share-preview.js';
 import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishUniqueWorkout } from './cards.js';
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
+import { stravaRequest } from './strava.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -279,6 +280,9 @@ export default {
       // Private moderation is isolated from the CORS-enabled public share API.
       if (url.pathname === '/api/admin' || url.pathname.startsWith('/api/admin/')) {
         return adminRequest(request, env, url);
+      }
+      if (url.pathname.startsWith('/api/strava/')) {
+        return stravaRequest(request, env, url);
       }
       if (url.pathname === '/api/account' || url.pathname.startsWith('/api/account/')) {
         return accountRequest(request, env, url);
