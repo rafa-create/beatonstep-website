@@ -3,7 +3,7 @@ import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
-import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift } from './pack.js';
+import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift,cardProfile } from './pack.js';
 
 // Optional community identities for the public catalogue.
 // Browser sessions and mobile publish-only grants are intentionally separate from admin.
@@ -293,6 +293,7 @@ export async function accountRequest(request,env,url,ctx) {
       const member=await devicePublisher(db,request);
       if (!member) return reply({error:'account_session_expired'},401);
       const rows=await db.prepare(`SELECT x.id,x.name,x.imports,x.created_at,
+          COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
           CASE WHEN c.owner_user_id=? THEN 1 ELSE 0 END AS currently_owned
         FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
         LEFT JOIN workout_cards c ON c.share_id=x.id
@@ -302,7 +303,8 @@ export async function accountRequest(request,env,url,ctx) {
         .bind(member.id,member.id).all();
       return reply({items:(rows.results||[]).map(x=>({
         id:x.id+1000000000000,name:x.name,imports:Number(x.imports)||0,
-        createdAt:x.created_at,owned:x.currently_owned===1
+        createdAt:x.created_at,owned:x.currently_owned===1,
+        profile:cardProfile(x.profile_json)
       }))});
     }
     if (path==='/api/account/device/me' && method==='GET') {
