@@ -357,25 +357,86 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       $('history-more').hidden=true;
     }
     try{
-      const sport=await api('/api/account/achievements');
-      $('history-challenges-items').replaceChildren();
-      const items=sport.items||[];
-      $('history-challenges-info').textContent=items.length
-        ?'Réussites sportives personnelles (indépendantes de la possession des cartes).'
-        :'Aucun défi sportif validé pour le moment.';
-      for(const card of items){
-        const li=document.createElement('li');li.className='deck-tile';
-        const title=document.createElement('h3'),meta=document.createElement('small');
-        title.textContent=card.name;
-        meta.textContent=(card.currentlyOwned?'Carte possédée':'Carte fantôme · réussite conservée')
-          +' · '+(card.successfulAttempts||0)+' réussite(s)';
-        li.append(title,meta);$('history-challenges-items').append(li);
+      // The new sport-world ledger is separate from the old musical cards.
+      const allDeck=[],allEvents=[];
+      let after=null,more=null;
+      let completedDeck=false,completedTimeline=false;
+      for(let page=0;page<100;page++){
+        const result=await api('/api/account/sport/deck'+
+          (after!=null?'?after='+encodeURIComponent(after):''));
+        if(!Array.isArray(result.items))throw Error('sport_deck_invalid');
+        allDeck.push(...result.items);
+        after=result.nextCursor;
+        if(after==null){completedDeck=true;break;}
       }
-      $('challenge-deck-cards').replaceChildren(...[...$('history-challenges-items').children]
-        .map(item=>item.cloneNode(true)));
+      for(let page=0;page<100;page++){
+        const suffix=more?'?beforeAt='+encodeURIComponent(more.beforeAt)+
+          '&beforeKey='+encodeURIComponent(more.beforeKey):'';
+        const result=await api('/api/account/sport/history'+suffix);
+        if(!Array.isArray(result.items))throw Error('sport_history_invalid');
+        allEvents.push(...result.items);
+        more=result.nextCursor;
+        if(!more){completedTimeline=true;break;}
+      }
+      if(!completedDeck||!completedTimeline)throw Error('incomplete_sport_ledger');
+      const history=$('history-challenges-items'),deck=$('challenge-deck-cards');
+      history.replaceChildren();deck.replaceChildren();
+      const date=ts=>Number.isSafeInteger(ts)
+        ?new Date(ts).toLocaleDateString('fr-FR'):'Date indisponible';
+      const tenure=ms=>ms==null?'Durée inconnue':
+        ms<86400000?'Moins d’un jour':
+        Math.floor(ms/86400000)+' jour(s)';
+      const reasons={
+        verified:'Défi sportivement réussi',won:'Carte gagnée',
+        gift_received:'Carte reçue en cadeau',given:'Carte offerte',lost:'Carte volée'
+      };
+      for(const event of allEvents){
+        const li=document.createElement('li');li.className='deck-tile';
+        const title=document.createElement('h3');title.textContent=event.name;
+        const meta=document.createElement('small');
+        meta.textContent=(reasons[event.eventType]||'Événement sportif')+
+          ' · '+date(event.at);
+        li.append(title,meta);history.append(li);
+      }
+      $('history-challenges-info').textContent=allEvents.length
+        ?'Réussites et transferts datés, indépendants de la propriété actuelle.'
+        :'Aucun événement sportif vérifié pour le moment.';
+      const owned=allDeck.filter(card=>card.currentlyOwned&&card.personallyValidated);
+      const gifts=allDeck.filter(card=>card.currentlyOwned&&!card.personallyValidated);
+      const ghosts=allDeck.filter(card=>card.ghost);
+      const addCard=(card,category)=>{
+        const li=document.createElement('li');li.className='deck-tile';
+        const title=document.createElement('h3');title.textContent=card.name;
+        const meta=document.createElement('small');
+        const note=category==='ghost'?'Carte fantôme · Ne vous appartient plus':
+          category==='gift'?'Carte reçue en cadeau':
+          card.verifiedAfterGiftAt?'Offerte puis réussie':'Carte gagnée';
+        meta.textContent=note+' · '+(card.difficulty||'')+
+          ' · '+(category==='ghost'?'Détenue pendant ':'Détenue depuis ')+
+          tenure(card.heldDurationMs);
+        li.append(title,meta);
+        if(card.verifiedAfterGiftAt){
+          const history=document.createElement('small');
+          history.textContent='Reçue le '+date(card.firstGiftAt)+
+            ' · Réussie le '+date(card.verifiedAfterGiftAt)+
+            (card.lostAt?' · Perdue le '+date(card.lostAt):'');
+          li.append(history);
+        }
+        deck.append(li);
+      };
+      for(const card of owned)addCard(card,'won');
+      for(const card of gifts)addCard(card,'gift');
+      for(const card of ghosts)addCard(card,'ghost');
+      if(!owned.length&&!gifts.length&&!ghosts.length){
+        const empty=document.createElement('li');
+        empty.textContent='Aucune carte sportive détenue ou perdue.';
+        deck.append(empty);
+      }
     }catch{
       $('history-challenges-info').textContent='Les défis sportifs seront accessibles après '
         +'activation de leur validation par le serveur.';
+      $('history-challenges-items').replaceChildren();
+      $('challenge-deck-cards').replaceChildren();
     }
   }
   $('history-more').onclick=()=>void refreshHistory(true);
