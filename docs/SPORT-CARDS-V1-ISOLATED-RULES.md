@@ -1,80 +1,101 @@
-# Cartes de performance V1 — moteur métier isolé (sans attribution)
+# Cartes sportives — prototype de calcul métier isolé
 
-**Date : 13 octobre 2026.** Branche d'étude indépendante du build iPhone
-TestFlight et du déploiement du Worker. Références produit :
-[BeatOnStep #420](https://github.com/rafa-create/BeatOnStep/issues/420),
-[#444](https://github.com/rafa-create/BeatOnStep/issues/444),
-[#448](https://github.com/rafa-create/BeatOnStep/issues/448),
-[#450](https://github.com/rafa-create/BeatOnStep/issues/450),
-[#451](https://github.com/rafa-create/BeatOnStep/issues/451),
-[#452](https://github.com/rafa-create/BeatOnStep/issues/452).
+**Mise à jour : 13 octobre 2026, après le nouvel arbitrage produit.**
+Code uniquement sur la branche de recherche du site, en PR draft #22.
+Aucune route Worker, aucune mutation D1, aucun octroi de carte, aucune
+modification du build iOS TestFlight en cours.
 
-## Fichiers ajoutés
+## Catalogue V1 et identité mondiale
 
-- `worker/sport-card-rules.js` : fonctions **pures** sans appels Worker,
-  GPS, D1, session utilisateur ni calcul de récompense authentifiée.
-- `tests/sport-card-rules.test.mjs` : catalogue fermé, dix distances,
-  frontières au demi-mètre, sept niveaux, seuils stricts de minute,
-  sélection du plus grand jalon et **aucun repli**. Inclus dans
-  `npm run build` pour les vérifications futures.
+- **400 m** : exception `sub1`, niveau Expert si preuve sportive fiable.
+- **Chaque kilomètre entier de 1 à 200 inclus** : 200 familles,
+  cartes par minute `sub N` réellement atteinte (pas de précréation).
+- **Semi-marathon exact** : 21 097,5 m, entre 21 km et 22 km.
+- **Marathon exact** : 42 195 m, entre 42 km et 43 km.
 
-## Contrat V1
+Soit **203 familles**, mais chaque `(distance_cm,sub_minute)` n'est
+créé qu'à la demande après une vraie course attestée. La distance
+centimétrique est une clé d'identité exacte, **pas une promesse de
+précision GPS au centimètre**.
 
-Dix distances explicites : **400 m sub1, 1/5/10/15/20 km,
-semi-marathon exactement 21 097,5 m, 30/40 km, marathon exactement
-42 195 m**. Les autres distances ne créent **aucune** carte. Les
-identités `distanceCm` en centimètres entiers évitent de perdre le
-demi-mètre du semi, sans promettre une précision GPS de 1 cm.
+La sortie finalisée ne peut produire **qu'une seule carte**, celle
+du **plus grand jalon reconnu franchi** avec un temps de passage
+continu et fiable **pauses comprises**. Aucune retombée sur les
+petits kilomètres si le plus grand jalon n'est pas admissible.
+Exemples : 14,7 km → candidature 14 km ; 21,5 km → semi ;
+22 km → 22 km ; 42,3 km → marathon ; 43 km → 43 km.
 
-Sur une activité **réellement finalisée et dont la preuve a été
-authentifiée et validée côté serveur**, le moteur choisit la plus
-grande distance de ce catalogue atteinte et horodatée, puis seulement
-son `subMinute=floor(elapsedMs/60000)+1` (chrono continu,
-**pauses comprises**). Si cette distance ne satisfait pas son plafond
-de qualification V1 : **0 carte, même si un 5 km antérieur était bon**.
-Le plafond et le niveau `difficulty_*_v1` suivent strictement les
-ancres marathon et l'exposant Riegel 1,06 de #451. Le 400 m reste
-l'exception `sub1` Expert.
+## Niveaux de difficulté accessibles et visuellement discrets
 
-Le résultat `status:'candidate'` est **un calcul**, pas une preuve
-cryptographique, pas une propriété mondiale et pas l'annonce d'un gain.
-Aucune route ne l'utilise. Les objets de sortie n'ont aucun champ de
-rareté ; les 7 codes de difficulté sont secondaires, **jamais des
-étiquettes dévalorisantes**. Les skins graphiques précis nécessitent
-validation visuelle avant déploiement.
+De **1 à 42 km**, ainsi que **semi** et **marathon**, la grille V1
+détermine **sept niveaux** sur chaque kilomètre. Tous les modèles
+sont valorisants : distance et temps dominent la carte; la couleur
+du niveau n'est qu'un petit détail discret et accessible. **Aucune
+rareté** ni style inférieur pour les Débutants.
 
-## Priorité Garmin : déjà vraie pour le récapitulatif, pas encore pour ce moteur
+Les six premiers seuils sportifs (Élite mondiale, Légende, Expert,
+Intermédiaire, Régulier et Amateur) suivent la formule de #451 :
+`round(ancre_marathon × (distance/42,195km)^1.06)`, avec
+progression stricte des tranches.
 
-Le récapitulatif mobile existant préfère une **distance Garmin
-récente ou finale** aux autres valeurs. Le nouveau pilote iPhone
-`DistanceGpsPilot` / `DistanceRunSession` est encore relié
-uniquement au GPS du téléphone. Une sélection Garmin prioritaire pour
-l'**attribution des cartes** devra réutiliser un enregistrement
-Garmin correctement horodaté (`runId`, split, pause, freshness),
-ne jamais prendre `timerMs` actif comme chronomètre officiel
-pauses comprises et ne pas additionner des portions issues de
-GPS différents. Sans preuve vérifiable : aucun gain.
+Le plafond **Débutant** est assoupli par la décision produit :
+`max(plafond_original,round(91 × (distance/10km)^1.06))`, toujours
+strictement au-dessus d'Amateur. À **10 km**, un parcours en
+**1h29:59 → sub90 Débutant**, **1h30:00 → sub91 Débutant**,
+**1h31:00 → sub92 non éligible**. Le plafond est une convention de
+jeu, **pas une mesure de la valeur du coureur ni un seuil médical**.
+À 14 km, 1h09:59 donne `sub70`, Intermédiaire.
 
-## Étapes bloquantes **avant toute activation**
+**À partir de 43 km et jusqu'à 200 km**, toute course crédible,
+authentifiée et dont les mesures sont fiables donne un candidat
+« **Légende longue distance** » indépendamment de sa vitesse.
+Cela ne dispense ni du contrôle anti-fraude, ni de la validation des
+pauses/horodatages, ni des obligations de sécurité et santé.
+Marathon 42,195 km conserve les sept niveaux ordinaires.
 
-1. Vérifier les capteurs iPhone et Garmin sur vrais appareils, puis
-   construire une preuve sportive cohérente et attestée côté serveur.
-2. Établir les règles de croisement avec les anciennes activités et
-   les imports Apple Santé; éviter que la même course soit revendiquée
-   plusieurs fois.
-3. Créer un schéma **sportif distinct** du registre historique
-   `workout_cards` musical, avec `UNIQUE(distance_cm,sub_minute)`,
-   `run_id`, historique privé et transactions D1 atomiques.
-4. Réaliser les gains automatiques, vols, notifications et liens
-   cadeau à invalidation irréversible, sous **feature flag désactivé**
-   jusqu'aux tests de concurrence et sécurité.
-5. Dessiner et faire approuver 7 skins **discrets et également
-   gratifiants**, puis ajouter collection, site, PNG, tests FR/EN.
-6. Tests D1/API, GPS réel/verrouillage, iOS/Android, cas hors ligne
-   avant toute fusion release, migration de production ou activation.
+Les codes de skin sont les identifiants fonctionnels de #451 :
+`difficulty_beginner_v1` à `difficulty_world_elite_v1`.
+Le rendu graphique réel, les couleurs, les textures et l'accessibilité
+doivent être approuvés **dans une étape visuelle séparée**.
 
-**Garde de sécurité :** `DISTANCE_CHALLENGES_ENABLED=false`
-dans la configuration Worker. Les migrations 0005 et 0006 ont été
-signalées comme déjà appliquées manuellement en production ; ne pas
-les rejouer. Aucune modification de la branche
-`release/v1.0.0` ni du workflow Codemagic en cours.
+## Pas de vol ni de gain avant vérification
+
+Le moteur `worker/sport-card-rules.js` expose un
+`evaluateSportCardCandidate(...)` **pur**. Le résultat positif est
+seulement `status:'candidate'`, **jamais** « attribué ».
+Il dépend d'une preuve de course finalisée, authentifiée et validée
+**par un serveur de confiance**, et de jalons sportifs horodatés,
+pas de simples données envoyées par le client.
+
+La règle de propriété mondiale reste **un seul exemplaire exact**
+par distance canonique × minute. Pour ce palier, une nouvelle course
+vérifiée peut voler automatiquement cette même carte au détenteur
+précédent. Si personne ne la possède, le coureur l'obtient sans vol.
+La multiplication des paliers favorise les occasions de gagner une
+carte, mais **ne garantit pas qu'un vol sera possible** : la carte
+exacte doit être déjà possédée par quelqu'un d'autre.
+
+## Distance Garmin prioritaire, sans confusion sur le pilote iPhone
+
+Les bilans actuels de courses mobiles préfèrent la distance Garmin
+quand une lecture récente et associée à la bonne course existe.
+Le pilote GPS iPhone du build 1.7.2 reste **phone_gps uniquement**.
+Pour les futures cartes, une distance Garmin fiable est prioritaire
+sur la distance du téléphone, mais une durée `timerMs` Garmin active
+n'est pas équivalente au **temps sportif réel pauses comprises**.
+Ne jamais assembler opportunément des fragments de deux sources.
+Le serveur doit vérifier activité, origine, jalons et anti-rejeu.
+
+## Contrôles et livraison
+
+Le lot ajoute les tests `tests/sport-card-rules.test.mjs` au
+`npm run build` : toutes les distances, 7 niveaux 1..42,
+plafonds accessibles, sub-minute strict, 400m, semi, marathon,
+ultras Légende, absence de repli, falsifications évidentes.
+Il ne valide **ni l'authenticité de preuves Garmin/GPS**, ni le
+Worker transactionnel, ni le design final, ni les transferts D1.
+
+**Ne pas fusionner sur la release iOS** pendant le TestFlight.
+`DISTANCE_CHALLENGES_ENABLED=false` reste impératif.
+Les migrations **0005/0006** ont été déclarées appliquées
+précédemment et ne doivent **pas** être rejouées.
