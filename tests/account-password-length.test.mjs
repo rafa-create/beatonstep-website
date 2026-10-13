@@ -49,31 +49,31 @@ async function register(password) {
   return {response,writes};
 }
 
-test('signup form documents eight characters without parentheses', () => {
-  assert.match(page, /id="signup-password"[^>]+minlength="8"/);
+test('signup form documents six characters without parentheses', () => {
+  assert.match(page, /id="signup-password"[^>]+minlength="6"/);
   assert.match(page, /<label for="signup-password">Mot de passe<\/label>/);
-  assert.match(page, /8 caractères minimum\./);
+  assert.match(page, /6 caractères minimum\./);
   assert.doesNotMatch(page, /Mot de passe \(/);
-  assert.match(page, /id="reset-new"[^>]+minlength="8"/);
-  assert.match(page, /id="reset-confirm"[^>]+minlength="8"/);
+  assert.match(page, /id="reset-new"[^>]+minlength="6"/);
+  assert.match(page, /id="reset-confirm"[^>]+minlength="6"/);
   assert.doesNotMatch(page, /minlength="12"/);
 });
 
-test('password shorter than eight characters is rejected', async () => {
-  const {response,writes} = await register('abcdef7');
+test('password shorter than six characters is rejected', async () => {
+  const {response,writes} = await register('abcde');
   assert.equal(response.status,400);
   assert.equal((await response.json()).error,'invalid_registration');
   assert.equal(writes.length,0);
 });
 
-test('exactly eight characters registers and stores a password hash, not plain text', async () => {
-  const {response,writes} = await register('abc12345');
+test('exactly six characters registers and stores a password hash, not plain text', async () => {
+  const {response,writes} = await register('abc123');
   assert.equal(response.status,200);
   assert.equal((await response.json()).handle,'runner');
   assert.match(response.headers.get('set-cookie') || '', /^__Host-bos_community=/);
   assert.equal(writes.length,2);
   assert.match(writes[0].sql,/INSERT INTO community_users/);
-  assert.notEqual(writes[0].args[4],'abc12345');
+  assert.notEqual(writes[0].args[4],'abc123');
   assert.match(writes[0].args[4],/^[a-f0-9]{64}$/);
   assert.match(writes[1].sql,/INSERT INTO community_sessions/);
 });
