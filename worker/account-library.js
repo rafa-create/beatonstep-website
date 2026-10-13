@@ -128,13 +128,17 @@ export async function accountLibraryRequest(request,db,url,userId){
     if(workouts){
       const cursor=clean(url.searchParams.get('after'),128);
       if(cursor&&!identity(cursor))return reply({error:'invalid_cursor'},400);
-      const rows=await db.prepare(`SELECT workout_id,snapshot_json,revision,updated_at,deleted_at
-        FROM account_workouts WHERE user_id=? AND workout_id>? ORDER BY workout_id ASC LIMIT 51`)
+      const rows=await db.prepare(`SELECT w.workout_id,w.snapshot_json,w.revision,w.updated_at,w.deleted_at,
+          (SELECT COUNT(*) FROM account_run_records r
+            WHERE r.user_id=w.user_id AND r.source_workout_id=w.workout_id) AS completed_count
+        FROM account_workouts w
+        WHERE w.user_id=? AND w.workout_id>? ORDER BY w.workout_id ASC LIMIT 51`)
         .bind(userId,cursor).all();
       const list=(rows.results||[]), page=list.slice(0,50);
       return reply({items:page.map(x=>({workoutId:x.workout_id,
         workout:x.deleted_at?null:JSON.parse(x.snapshot_json),
-        revision:x.revision,updatedAt:x.updated_at,deletedAt:x.deleted_at})),
+        revision:x.revision,updatedAt:x.updated_at,deletedAt:x.deleted_at,
+        completedCount:Number(x.completed_count)||0})),
         nextCursor:list.length>50?page.at(-1).workout_id:null});
     }
     const before=Number(url.searchParams.get('before')||0);
