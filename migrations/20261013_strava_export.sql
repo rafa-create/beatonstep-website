@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS strava_oauth_pending (
 );
 CREATE INDEX IF NOT EXISTS idx_strava_pending_expiry ON strava_oauth_pending(expires_at);
 CREATE TABLE IF NOT EXISTS strava_exports (
-  device_hash TEXT NOT NULL,
+  athlete_id TEXT NOT NULL,
   run_id TEXT NOT NULL,
   status TEXT NOT NULL CHECK(status IN ('pending','complete')),
   activity_id TEXT,
   created_at INTEGER NOT NULL,
   published_at INTEGER,
-  PRIMARY KEY(device_hash,run_id)
+  PRIMARY KEY(athlete_id,run_id)
 );
