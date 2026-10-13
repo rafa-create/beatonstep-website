@@ -275,11 +275,30 @@ export async function accountRequest(request,env,url,ctx) {
       if (!/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle)) return reply({error:'not_found'},404);
       const user=await db.prepare('SELECT id,handle FROM community_users WHERE handle=?').bind(handle).first();
       if (!user) return reply({error:'not_found'},404);
-      const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at
+      const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports
         FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
-        WHERE s.user_id=? ORDER BY x.id DESC LIMIT 100`).bind(user.id).all();
+        WHERE s.user_id=? ORDER BY CASE WHEN x.kind='workout' THEN 0 ELSE 1 END,
+          x.imports DESC,x.created_at DESC,x.id DESC LIMIT 100`).bind(user.id).all();
       return reply({handle:user.handle,items:(items.results||[]).map(x=>({
-        id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,createdAt:x.created_at
+        id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
+        createdAt:x.created_at,imports:Number(x.imports)||0,
+      }))});
+    }
+    // Owned musical cards and the original signed creations are different:
+    // an author keeps credit and import popularity after giving the card away.
+    if (path==='/api/account/device/created-cards' && method==='GET') {
+      const member=await devicePublisher(db,request);
+      if (!member) return reply({error:'account_session_expired'},401);
+      const rows=await db.prepare(`SELECT x.id,x.name,x.imports,x.created_at,
+          CASE WHEN c.owner_user_id=? THEN 1 ELSE 0 END AS currently_owned
+        FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
+        LEFT JOIN workout_cards c ON c.share_id=x.id
+        WHERE s.user_id=? AND x.kind='workout'
+        ORDER BY x.imports DESC,x.created_at DESC,x.id DESC LIMIT 200`)
+        .bind(member.id,member.id).all();
+      return reply({items:(rows.results||[]).map(x=>({
+        id:x.id+1000000000000,name:x.name,imports:Number(x.imports)||0,
+        createdAt:x.created_at,owned:x.currently_owned===1
       }))});
     }
     if (path==='/api/account/device/me' && method==='GET') {
