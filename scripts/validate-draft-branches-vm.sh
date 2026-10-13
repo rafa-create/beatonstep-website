@@ -17,7 +17,7 @@ BRANCHES=(
 
 echo "=== FETCH DRAFT BRANCHES (NO CHECKOUT MODIFICATION) ==="
 for branch in "${BRANCHES[@]}"; do
-  git -C "$SITE_REPO" fetch --no-tags origin "$branch"
+  git -C "$SITE_REPO" fetch --no-tags origin "+refs/heads/$branch:refs/remotes/origin/$branch"
 done
 
 TEMPROOT="$(mktemp -d /tmp/beatonstep-site-preflight-XXXXXX)"
@@ -40,7 +40,9 @@ for branch in "${BRANCHES[@]}"; do
   echo "=== BUILD + REGRESSIONS: $branch ==="
   echo "SOURCE_SHA=$sha"
   cd "$checkout"
-  npm ci
+  # This repository intentionally does not commit package-lock.json.
+  # npm ci would fail before the tests; install without a persistent lockfile.
+  npm install --no-audit --no-fund --no-package-lock
   npm run build
   if [ "$label" = '454-password-reset-email' ]; then
     node --test tests/password-reset.test.mjs
