@@ -28,9 +28,10 @@ const sqlCalls=()=>{
     }}},
     async batch(items){
       state.batches++;
-      assert.equal(items.length,3);
+      assert.equal(items.length,4);
       return [
         {meta:{changes:1}},
+        {results:[{id:17,current_owner_id:null,owner_epoch:0}]},
         {results:[{card_id:17}],meta:{changes:1}},
         {results:[{id:17,current_owner_id:'runner-a',owner_epoch:1}]},
       ];
@@ -46,15 +47,17 @@ test('finish-only Garmin report is authenticated by caller, not via GPS stream',
   assert.equal(result.performanceKey,'1000000:minute:40');
   assert.equal(result.worldStatus,'confirmed');
   assert.equal(result.awarded,true);
+  assert.equal(result.acquisition,'created');
   assert.equal(state.batches,1);
   assert.match(calls[0].sql,/INSERT INTO sport_world_cards/);
-  assert.match(calls[1].sql,/INSERT INTO sport_verified_runs/);
-  assert.match(calls[1].sql,/ON CONFLICT\(user_id,run_id\) DO NOTHING/);
-  assert.equal(calls[1].args[0],'runner-a');
-  assert.equal(calls[1].args[1],body().runId);
-  assert.equal(calls[1].args[6],1000000);
-  assert.equal(calls[1].args[8],40);
-  assert.equal(calls[1].args[5],'verified_import');
+  assert.match(calls[1].sql,/SELECT c.id,c.current_owner_id,c.owner_epoch/);
+  assert.match(calls[2].sql,/INSERT INTO sport_verified_runs/);
+  assert.match(calls[2].sql,/ON CONFLICT\(user_id,run_id\) DO NOTHING/);
+  assert.equal(calls[2].args[0],'runner-a');
+  assert.equal(calls[2].args[1],body().runId);
+  assert.equal(calls[2].args[6],1000000);
+  assert.equal(calls[2].args[8],40);
+  assert.equal(calls[2].args[5],'verified_import');
   assert.doesNotMatch(JSON.stringify(calls),/longitude|latitude|playlist/);
 });
 test('phone GPS without any pause record qualifies as well',async()=>{
@@ -62,7 +65,7 @@ test('phone GPS without any pause record qualifies as well',async()=>{
   const raw=body();raw.summary.distanceSource='phone_gps';
   const response=await reconcileOfflineSportResult(db,'runner-a',raw,{now});
   assert.equal(response.status,200);
-  assert.equal(calls[1].args[5],'attested_phone');
+  assert.equal(calls[2].args[5],'attested_phone');
 });
 test('invalid run ID and impossible average speed never reach D1',async()=>{
   const db={prepare(){throw Error('must not query')}};
@@ -75,6 +78,7 @@ test('a different runner can retroactively take a formerly confirmed tier',async
   const {db}=sqlCalls();
   db.batch=async()=>[
     {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-b',owner_epoch:2}]},
     {results:[{card_id:17}],meta:{changes:1}},
     {results:[{id:17,current_owner_id:'runner-b',owner_epoch:3}]},
   ];
@@ -82,6 +86,40 @@ test('a different runner can retroactively take a formerly confirmed tier',async
   const result=await response.json();
   assert.equal(result.worldStatus,'lost');
   assert.equal(result.ownerEpoch,3);
+  assert.equal(result.acquisition,'superseded');
+});
+test('an existing worldwide card is stolen when the prior owner differs',async()=>{
+  const {db}=sqlCalls();
+  db.batch=async()=>[
+    {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-b',owner_epoch:2}]},
+    {results:[{card_id:17}],meta:{changes:1}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+  ];
+  const result=await (await reconcileOfflineSportResult(db,'runner-a',body(),{now})).json();
+  assert.equal(result.acquisition,'stolen');
+  assert.equal(result.ownerEpoch,3);
+  assert.equal(JSON.stringify(result).includes('runner-b'),false,
+    'previous owner identity must remain private');
+});
+test('previously owned or replayed card does not celebrate a fresh capture',async()=>{
+  const {db}=sqlCalls();
+  db.batch=async()=>[
+    {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+    {results:[{card_id:17}],meta:{changes:1}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+  ];
+  const first=await (await reconcileOfflineSportResult(db,'runner-a',body(),{now})).json();
+  assert.equal(first.acquisition,'already_owned');
+  db.batch=async()=>[
+    {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+    {results:[],meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+  ];
+  const replay=await (await reconcileOfflineSportResult(db,'runner-a',body(),{now})).json();
+  assert.equal(replay.acquisition,'already_processed');
 });
 test('post-finish route stays opt-in; no continuous GPS, raw paths or guest claiming',()=>{
   const account=readFileSync(new URL('../worker/account.js',import.meta.url),'utf8');
