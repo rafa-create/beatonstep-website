@@ -40,10 +40,12 @@ test('client cannot claim a card by uploading won=true',async()=>{
     db,url('/api/account/device/library/runs'),'account');
   assert.equal(invalid.status,400);
 });
-test('workout creation is optimistic and refuses silently overwriting another revision',async()=>{
-  let lastStatement='',lastParams=[];
-  const db={prepare(sql){lastStatement=sql;return {bind(...args){
-    lastParams=args;return {async first(){return null}}}}}};
+test('workout creation is atomic, sanitised and never overwrites an existing row',async()=>{
+  const calls=[];
+  const db={prepare(sql){return {bind(...args){
+    calls.push({sql,args});
+    return {async first(){return null}};
+  }}}};
   const workout={id:'workout-123',name:'Playlist course',source:'spotify',
     segments:[{id:'warm',name:'Échauffement',durationSec:300,targetPpm:130}],
     playlistIds:[],selectedTracks:[{segmentId:'warm',track:{
@@ -51,14 +53,49 @@ test('workout creation is optimistic and refuses silently overwriting another re
       filePath:'/private/device/music/a.mp3',spotifyUri:'spotify:track:123',
       password:'not-a-track-field',
     }}]};
-  const r=await accountLibraryRequest(request('/api/account/device/library/workouts','PUT',
-    {workout,expectedRevision:0}),db,url('/api/account/device/library/workouts'),'u1');
-  assert.equal(r.status,409);
-  assert.match(lastStatement,/ON CONFLICT/);
-  assert.match(lastStatement,/WHERE account_workouts\.revision=\?/);
-  const stored=JSON.parse(lastParams[2]);
-  assert.equal(stored.selectedTracks[0].track.filePath,undefined);
-  assert.equal(stored.selectedTracks[0].track.password,undefined);
+  const endpoint='/api/account/device/library/workouts';
+
+  // Revision 0 = INSERT only. An existing or deleted ID cannot be overwritten
+  // or resurrected, even if another device created it concurrently.
+  const created=await accountLibraryRequest(request(endpoint,'PUT',
+    {workout,expectedRevision:0}),db,url(endpoint),'u1');
+  assert.equal(created.status,409);
+  assert.equal(calls.length,1);
+  assert.match(calls[0].sql,/INSERT INTO account_workouts/);
+  assert.match(calls[0].sql,/ON CONFLICT\(user_id,workout_id\) DO NOTHING/);
+  assert.doesNotMatch(calls[0].sql,/DO UPDATE/);
+  assert.deepEqual(calls[0].args.slice(0,2),['u1','workout-123']);
+  const safe=JSON.parse(calls[0].args[2]);
+  assert.equal(safe.selectedTracks[0].track.spotifyUri,'spotify:track:123');
+  assert.equal(safe.selectedTracks[0].track.filePath,undefined);
+  assert.equal(safe.selectedTracks[0].track.password,undefined);
+
+  // Revision > 0 = UPDATE with owner, exact revision and tombstone guard.
+  const updated=await accountLibraryRequest(request(endpoint,'PUT',
+    {workout,expectedRevision:7}),db,url(endpoint),'u1');
+  assert.equal(updated.status,409);
+  assert.equal(calls.length,2);
+  assert.match(calls[1].sql,/UPDATE account_workouts/);
+  assert.match(calls[1].sql,/user_id=\? AND workout_id=\? AND revision=\?/);
+  assert.match(calls[1].sql,/deleted_at IS NULL/);
+  assert.deepEqual(calls[1].args.slice(2),['u1','workout-123',7]);
+  assert.equal(JSON.parse(calls[1].args[0]).selectedTracks[0].track.filePath,undefined);
+});
+
+test('a current server revision can be updated, but only by the owning account',async()=>{
+  const calls=[];
+  const db={prepare(sql){return {bind(...args){
+    calls.push({sql,args});
+    return {async first(){return {revision:8}}};
+  }}}};
+  const workout={id:'w-1',name:'Progression',source:'local',
+    playlistIds:[],segments:[{id:'p1',name:'Départ',durationSec:300,targetPpm:140}]};
+  const endpoint='/api/account/device/library/workouts';
+  const response=await accountLibraryRequest(request(endpoint,'PUT',
+    {workout,expectedRevision:7}),db,url(endpoint),'owner-account');
+  assert.deepEqual(await response.json(),{saved:true,revision:8});
+  assert.equal(calls[0].args[2],'owner-account');
+  assert.equal(calls[0].args[4],7);
 });
 test('reading one account uses a user_id parameter not a user-supplied query',async()=>{
   let params;
