@@ -26,7 +26,7 @@ test('sport deck ranks true possession, gift-after-personal validation and ghost
     difficulty:'expert',owner_since:null,owner_epoch:2,owned:0,
     first_validated_at:null,successful_runs:0,last_received_at:null,
     last_received_reason:null,last_lost_at:null,first_gift_at:null,
-    verified_after_gift_at:null,...extra,
+    verified_gift_at:null,verified_after_gift_at:null,...extra,
   });
   const fake={rows:[
     sample(11,{owned:1,owner_since:started,owner_epoch:1,
@@ -35,22 +35,23 @@ test('sport deck ranks true possession, gift-after-personal validation and ghost
     sample(12,{owned:1,owner_since:started,owner_epoch:1,
       first_gift_at:started,last_received_at:started,
       last_received_reason:'gift_claim',first_validated_at:started+10_000,
-      successful_runs:1,verified_after_gift_at:started+10_000}),
+      successful_runs:1,verified_gift_at:started,verified_after_gift_at:started+10_000}),
     sample(13,{owned:0,last_received_at:started,last_lost_at:lost,
       first_gift_at:started,first_validated_at:started+12_000,
-      verified_after_gift_at:started+12_000,successful_runs:1}),
+      verified_gift_at:started,verified_after_gift_at:started+12_000,successful_runs:1}),
     sample(14,{owned:0,first_validated_at:started,successful_runs:1}),
   ]};
   const response=await readSportWorldCollection(compact(fake),'runner-001',
     url('/api/account/device/sport/deck'));
   assert.equal(response.status,200);
-  assert.deepEqual(fake.params.slice(0,8),Array(8).fill('runner-001'));
-  assert.equal(fake.params[8],0);
-  assert.deepEqual(fake.params.slice(9),Array(3).fill('runner-001'));
+  assert.deepEqual(fake.params.slice(0,10),Array(10).fill('runner-001'));
+  assert.equal(fake.params[10],0);
+  assert.deepEqual(fake.params.slice(11),Array(3).fill('runner-001'));
   const body=await response.json();
   assert.equal(body.items[0].currentlyOwned,true);
   assert.equal(body.items[0].personallyValidated,true);
   assert.equal(body.items[1].verifiedAfterGiftAt,started+10_000);
+  assert.equal(body.items[1].verifiedGiftAt,started);
   assert.equal(body.items[2].ghost,true);
   assert.equal(body.items[2].heldDurationMs,23*86400_000);
   assert.equal(body.items[3].ghost,false,
