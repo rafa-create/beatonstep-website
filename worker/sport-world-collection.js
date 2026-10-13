@@ -46,12 +46,26 @@ export async function readSportWorldCollection(db,userId,url){
       (SELECT MIN(e.changed_at) FROM sport_card_ownership_events e
        WHERE e.card_id=c.id AND e.new_owner_id=? AND e.reason='gift_claim')
        AS first_gift_at,
+      (SELECT MIN(g.changed_at) FROM sport_card_ownership_events g
+       WHERE g.card_id=c.id AND g.new_owner_id=? AND g.reason='gift_claim'
+       AND EXISTS(SELECT 1 FROM sport_verified_runs r
+         WHERE r.card_id=c.id AND r.user_id=?
+           AND r.verified_at>g.changed_at
+           AND r.verified_at<COALESCE((
+             SELECT MIN(x.changed_at) FROM sport_card_ownership_events x
+             WHERE x.card_id=g.card_id AND x.previous_epoch=g.new_epoch
+           ),4102444800000)
+       )) AS verified_gift_at,
       (SELECT MIN(r.verified_at) FROM sport_verified_runs r
+       JOIN sport_card_ownership_events g ON g.card_id=r.card_id
+       AND g.new_owner_id=? AND g.reason='gift_claim'
        WHERE r.card_id=c.id AND r.user_id=?
-       AND r.verified_at>(
-         SELECT MIN(g.changed_at) FROM sport_card_ownership_events g
-         WHERE g.card_id=c.id AND g.new_owner_id=? AND g.reason='gift_claim'
-       )) AS verified_after_gift_at
+         AND r.verified_at>g.changed_at
+         AND r.verified_at<COALESCE((
+           SELECT MIN(x.changed_at) FROM sport_card_ownership_events x
+           WHERE x.card_id=g.card_id AND x.previous_epoch=g.new_epoch
+         ),4102444800000)
+       ) AS verified_after_gift_at
      FROM sport_world_cards c
      LEFT JOIN sport_card_achievements a
        ON a.card_id=c.id AND a.user_id=?
@@ -62,7 +76,7 @@ export async function readSportWorldCollection(db,userId,url){
            (x.new_owner_id=? OR x.previous_owner_id=?)
        ))
      ORDER BY c.id ASC LIMIT 51`)
-      .bind(userId,userId,userId,userId,userId,userId,userId,
+      .bind(userId,userId,userId,userId,userId,userId,userId,userId,userId,
         userId,after,userId,userId,userId).all();
     const result=pageResult(rows,row=>{
       const currentlyOwned=bool(row.owned);
@@ -83,6 +97,7 @@ export async function readSportWorldCollection(db,userId,url){
         firstValidatedAt:validatedAt,
         successfulAttempts:Number(row.successful_runs)||0,
         firstGiftAt:date(row.first_gift_at),
+        verifiedGiftAt:date(row.verified_gift_at),
         lastReceivedAt:acquiredAt,
         lastReceivedReason:row.last_received_reason||null,
         verifiedAfterGiftAt:date(row.verified_after_gift_at),
