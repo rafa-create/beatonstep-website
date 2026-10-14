@@ -1,4 +1,4 @@
-// OAuth + manual Strava exports. Isolated from community identity and catalogue.
+// OAuth + Strava manual/TCX exports. Independent of community identity/catalogue.
 // Requires STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_ENCRYPTION_KEY and D1 migration.
 // No client-side Strava secret. Never log access/refresh tokens or authorization codes.
 const PREFIX = '/api/strava';
@@ -53,10 +53,10 @@ async function deviceHash(request) {
   const token = request.headers.get('x-bos-strava-key') || '';
   return /^[a-f0-9]{64}$/.test(token) ? sha256('strava-device-v1:' + token) : null;
 }
-async function jsonBody(request) {
+async function jsonBody(request, maxLength = 2048) {
   if (!(request.headers.get('content-type') || '').toLowerCase().startsWith('application/json')) return null;
   const raw = await request.text();
-  if (raw.length > 2048) return null;
+  if (raw.length > maxLength) return null;
   try {
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
@@ -163,27 +163,124 @@ async function accessToken(env, row) {
   }
   return next.access_token;
 }
+
+const metric=(value,min,max)=>
+  value==null ? null : typeof value==='number'&&Number.isFinite(value)&&
+  value>=min&&value<=max?value:NaN;
+
+function validGpsTrack(track,start,elapsed){
+  if(track==null)return null;
+  if(!Array.isArray(track)||track.length<2||track.length>768)return false;
+  const points=[];
+  let prev=0;
+  for(const p of track){
+    if(!Array.isArray(p)||p.length!==3||
+       p.some(v=>typeof v!=='number'||!Number.isFinite(v))||
+       p[0]<-90||p[0]>90||p[1]<-180||p[1]>180||
+       !Number.isSafeInteger(p[2])||p[2]<=prev||
+       p[2]<start-300000||p[2]>start+elapsed*1000+300000)return false;
+    points.push(p);
+    prev=p[2];
+  }
+  return points;
+}
+const xmlEsc=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+function descriptionForMetrics({pace,heart,maxHeart,cadence}){
+  const description=['Course avec BeatOnStep — la musique au rythme des pas.'];
+  if(pace!==null){
+    const rounded=Math.round(pace);
+    description.push('Allure moyenne : '+Math.floor(rounded/60)+':'+String(rounded%60).padStart(2,'0')+'/km');
+  }
+  if(heart!==null)description.push('FC moyenne : '+Math.round(heart)+' bpm');
+  if(maxHeart!==null)description.push('FC max : '+Math.round(maxHeart)+' bpm');
+  if(cadence!==null)description.push('Cadence moyenne : '+Math.round(cadence)+' pas/min');
+  return description.join(' | ');
+}
+// TCX preserves real geolocated, timestamped points. Aggregate HR/cadence/pace
+// remain Lap summaries: never duplicate them into imaginary per-fix samples.
+export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadence,pace}){
+  const iso=ms=>new Date(ms).toISOString();
+  const lap=[
+    '<Lap StartTime="'+iso(start)+'">',
+    '<TotalTimeSeconds>'+elapsed+'</TotalTimeSeconds>',
+    ...(distance!==null?['<DistanceMeters>'+distance+'</DistanceMeters>']:[]),
+    ...(heart!==null?['<AverageHeartRateBpm><Value>'+Math.round(heart)+'</Value></AverageHeartRateBpm>']:[]),
+    ...(maxHeart!==null?['<MaximumHeartRateBpm><Value>'+Math.round(maxHeart)+'</Value></MaximumHeartRateBpm>']:[]),
+    '<Intensity>Active</Intensity>',
+    ...(cadence!==null?['<Cadence>'+Math.round(cadence)+'</Cadence>']:[]),
+    '<TriggerMethod>Manual</TriggerMethod>',
+    '<Track>',
+    ...gps.map(([lat,lon,time])=>'<Trackpoint><Time>'+iso(time)+'</Time><Position>'+
+      '<LatitudeDegrees>'+lat+'</LatitudeDegrees><LongitudeDegrees>'+lon+
+      '</LongitudeDegrees></Position></Trackpoint>'),
+    '</Track>',
+    ...(pace!==null?['<Extensions><ns3:LX><ns3:AvgSpeed>'+(1000/pace)+
+      '</ns3:AvgSpeed></ns3:LX></Extensions>']:[]),
+    '</Lap>',
+  ].join('');
+  return '<?xml version="1.0" encoding="UTF-8"?>'+
+    '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" '+
+    'xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2">'+
+    '<Activities><Activity Sport="Running"><Id>'+iso(start)+'</Id>'+
+    lap+'</Activity></Activities></TrainingCenterDatabase>';
+}
+async function resolveUpload(env,athleteId,runId,uploadId,token){
+  // Upload is async at Strava. Only the returned activity ID confirms success.
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt>0)await new Promise(resolve=>setTimeout(resolve,700));
+    let res;
+    try{
+      res=await fetch('https://www.strava.com/api/v3/uploads/'+uploadId,{
+        headers:{authorization:'Bearer '+token},
+      });
+    }catch{return reply({error:'publication_pending_verify_strava'},503);}
+    if(!res.ok)return reply({error:'publication_pending_verify_strava'},503);
+    const data=await res.json();
+    const activityId=String(data?.activity_id||'');
+    if(/^[0-9]+$/.test(activityId)){
+      await env.DB.prepare(
+        "UPDATE strava_exports SET status='complete',activity_id=?,published_at=? "+
+        "WHERE athlete_id=? AND run_id=?"
+      ).bind(activityId,Date.now(),athleteId,runId).run();
+      return reply({ok:true,url:'https://www.strava.com/activities/'+activityId});
+    }
+    if(typeof data?.error==='string'&&data.error.trim()){
+      // Preserve the idempotency record: a duplicate/error is not permission
+      // to blindly repost geographical data.
+      return reply({error:'strava_upload_failed'},422);
+    }
+  }
+  return reply({pending:true,error:'publication_pending_verify_strava'},202);
+}
+
 async function publish(request, env, device, row) {
   if (!row) return reply({error:'not_connected'}, 401);
-  const b = await jsonBody(request);
+  const b = await jsonBody(request,65536);
   const runId = typeof b?.runId === 'string' ? b.runId : '';
   const startedAt = Number(b?.startedAtMs);
   const elapsedTime = Number(b?.elapsedTime);
   const distance = b?.distanceMeters == null ? null : Number(b.distanceMeters);
+  const heart=metric(b?.heartRateBpm,20,300);
+  const maxHeart=metric(b?.maxHeartRateBpm,20,300);
+  const cadence=metric(b?.cadencePpm,20,300);
+  const pace=metric(b?.paceSecPerKm,1,86400);
+  const gps=validGpsTrack(b?.gpsTrack,startedAt,elapsedTime);
   if (!/^bos-[0-9]{12,14}$/.test(runId) || !Number.isSafeInteger(startedAt) ||
     startedAt < Date.UTC(2020,0,1) || startedAt > Date.now()+300000 ||
     !Number.isSafeInteger(elapsedTime) || elapsedTime < 1 || elapsedTime > 604800 ||
-    (distance !== null && (!Number.isFinite(distance) || distance <= 0 || distance > 500000))) {
+    (distance !== null && (!Number.isFinite(distance) || distance <= 0 || distance > 500000)) ||
+    [heart,maxHeart,cadence,pace].some(Number.isNaN) || gps===false) {
     return reply({error:'invalid_run'}, 400);
   }
   // The mobile app's runId comes from the original session start time.
   if (runId !== 'bos-' + startedAt) return reply({error:'invalid_run_id'}, 400);
   const previous = await env.DB.prepare(
-    'SELECT status,activity_id FROM strava_exports WHERE athlete_id=? AND run_id=?'
+    'SELECT status,activity_id,upload_id FROM strava_exports WHERE athlete_id=? AND run_id=?'
   ).bind(row.athlete_id,runId).first();
-  if (previous) return previous.status === 'complete'
-    ? reply({ok:true,alreadyPublished:true,url:'https://www.strava.com/activities/'+previous.activity_id})
-    : reply({error:'publication_pending_verify_strava'},409);
+  if(previous?.status==='complete')
+    return reply({ok:true,alreadyPublished:true,url:'https://www.strava.com/activities/'+previous.activity_id});
+  if(previous && !previous.upload_id)return reply({error:'publication_pending_verify_strava'},409);
   let token;
   try {
     // Refresh/auth failure is safe to retry: no activity POST has happened yet.
@@ -191,23 +288,39 @@ async function publish(request, env, device, row) {
   } catch {
     return reply({error:'strava_token_unavailable'},503);
   }
+  if(previous?.upload_id) {
+    return resolveUpload(env,row.athlete_id,runId,String(previous.upload_id),token);
+  }
   const inserted = await env.DB.prepare(
     "INSERT INTO strava_exports (athlete_id,run_id,status,created_at) VALUES (?,?,'pending',?) " +
     'ON CONFLICT(athlete_id,run_id) DO NOTHING'
   ).bind(row.athlete_id,runId,Date.now()).run();
   if (!inserted.meta?.changes) return reply({error:'publication_pending_verify_strava'},409);
   try {
-    const form = new URLSearchParams({
-      name: 'Course BeatOnStep',
-      sport_type: 'Run',
-      start_date_local: new Date(startedAt).toISOString(),
-      elapsed_time: String(elapsedTime),
-      description: 'Course avec BeatOnStep — la musique au rythme des pas.',
-    });
-    if (distance !== null) form.set('distance', String(distance));
-    const res = await fetch('https://www.strava.com/api/v3/activities', {
-      method:'POST', headers:{authorization:'Bearer '+token,
-        'content-type':'application/x-www-form-urlencoded'}, body:form,
+    const description=descriptionForMetrics({pace,heart,maxHeart,cadence});
+    let form,endpoint,headers={authorization:'Bearer '+token};
+    if(gps){
+      const tcx=buildStravaTcx({start:startedAt,elapsed:elapsedTime,distance,
+        gps,heart,maxHeart,cadence,pace});
+      form=new FormData();
+      form.set('name','Course BeatOnStep');
+      form.set('description',description);
+      form.set('data_type','tcx');
+      form.set('external_id',runId+'.tcx');
+      form.set('file',new Blob([tcx],{type:'application/vnd.garmin.tcx+xml'}),runId+'.tcx');
+      endpoint='https://www.strava.com/api/v3/uploads';
+    }else{
+      form=new URLSearchParams({
+        name:'Course BeatOnStep',sport_type:'Run',
+        start_date_local:new Date(startedAt).toISOString(),
+        elapsed_time:String(elapsedTime),description,
+      });
+      if(distance!==null)form.set('distance',String(distance));
+      headers={...headers,'content-type':'application/x-www-form-urlencoded'};
+      endpoint='https://www.strava.com/api/v3/activities';
+    }
+    const res=await fetch(endpoint,{
+      method:'POST',headers,body:form,
     });
     if (!res.ok) {
       // A definitive 4xx refusal means Strava did not create an activity.
@@ -222,7 +335,7 @@ async function publish(request, env, device, row) {
         if (/^[a-z_]{1,36}$/.test(entry?.field || '')) faultField = entry.field;
         if (/^[a-z_]{1,36}$/.test(entry?.code || '')) faultCode = entry.code;
       } catch { /* Upstream may return a non-JSON error */ }
-      console.warn('Strava manual activity response',
+      console.warn('Strava activity response',
         'http_status=' + res.status + ';field=' + faultField + ';code=' + faultCode);
       if (res.status >= 400 && res.status < 500) {
         await env.DB.prepare(
@@ -236,8 +349,14 @@ async function publish(request, env, device, row) {
       return reply({error:'strava_publication_failed_verify'},502);
     }
     const data = await res.json();
-    const id = String(data?.id || '');
-    if (!/^[0-9]+$/.test(id)) return reply({error:'publication_pending_verify_strava'},502);
+    const id=String(data?.id||'');
+    if(!/^[0-9]+$/.test(id))return reply({error:'publication_pending_verify_strava'},502);
+    if(gps){
+      await env.DB.prepare(
+        "UPDATE strava_exports SET upload_id=? WHERE athlete_id=? AND run_id=? AND status='pending'"
+      ).bind(id,row.athlete_id,runId).run();
+      return resolveUpload(env,row.athlete_id,runId,id,token);
+    }
     await env.DB.prepare(
       "UPDATE strava_exports SET status='complete',activity_id=?,published_at=? WHERE athlete_id=? AND run_id=?"
     ).bind(id,Date.now(),row.athlete_id,runId).run();
