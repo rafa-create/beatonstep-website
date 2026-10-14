@@ -78,6 +78,13 @@ function safeRun(raw){
      !int(s.durationSeconds,0,604800)||
      !['measured','target'].includes(s.cadence)||
      !Array.isArray(s.tracks)||s.tracks.length>300)return null;
+  // The two optional clocks travel with the private history; the sporting
+  // elapsed duration remains the original wall-clock field. Old clients omit them.
+  const hasActiveTime=s.activeDurationSeconds!==undefined;
+  const hasPauseTime=s.pausedDurationSeconds!==undefined;
+  if(hasActiveTime!==hasPauseTime || (hasActiveTime &&
+    (!int(s.activeDurationSeconds,0,604800)||
+     !int(s.pausedDurationSeconds,0,604800))))return null;
   const trackList=[];
   for(const item of s.tracks){
     if(!item||!clean(item.title,160)||!int(item.listenedSeconds,1,604800))return null;
@@ -98,6 +105,10 @@ function safeRun(raw){
   const summary={
     cadence:s.cadence,startedAtMs:s.startedAtMs,endedAtMs:s.endedAtMs,
     durationSeconds:s.durationSeconds,
+    ...(hasActiveTime?{
+      activeDurationSeconds:s.activeDurationSeconds,
+      pausedDurationSeconds:s.pausedDurationSeconds,
+    }:{}),
     workoutName:clean(s.workoutName,80)||null,
     avgRunnerPpm:num(s.avgRunnerPpm,1,300),
     avgMusicBpm:num(s.avgMusicBpm,1,400),

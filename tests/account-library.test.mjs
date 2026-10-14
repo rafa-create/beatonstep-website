@@ -33,6 +33,33 @@ test('run archive is private, additive and never a sporting achievement',async()
   assert.deepEqual(safe.runRoute,[[0,500],[1000,500]]);
   assert.equal('spotifyAccessToken' in safe,false);
 });
+test('optional split run clocks survive account sync without changing sport elapsed time',async()=>{
+  let stored;
+  const db={prepare(){return {bind(...params){stored=JSON.parse(params[2]);
+    return {async run(){return {meta:{changes:1}};}};}}}};
+  const summary={...validSummary(),activeDurationSeconds:1740,pausedDurationSeconds:60};
+  const endpoint='/api/account/device/library/runs';
+  const result=await accountLibraryRequest(request(endpoint,'POST',{
+    run:{runId:'run-1791900000000-1791901800000',summary},
+  }),db,url(endpoint),'private-runner');
+  assert.equal(result.status,201);
+  assert.equal(stored.durationSeconds,1800,'elapsed time still includes the break');
+  assert.equal(stored.activeDurationSeconds,1740);
+  assert.equal(stored.pausedDurationSeconds,60);
+  assert.equal('spotifyAccessToken' in stored,false);
+  const old=await accountLibraryRequest(request(endpoint,'POST',{
+    run:{runId:'run-1791900000000-1791901800000',summary:validSummary()},
+  }),db,url(endpoint),'private-runner');
+  assert.equal(old.status,201,'older saved runs without pause metrics remain supported');
+  assert.equal(stored.activeDurationSeconds,undefined);
+  assert.equal(stored.pausedDurationSeconds,undefined);
+  const bad=await accountLibraryRequest(request(endpoint,'POST',{
+    run:{runId:'run-1791900000000-1791901800000',summary:{...summary,
+      pausedDurationSeconds:-1}},
+  }),db,url(endpoint),'private-runner');
+  assert.equal(bad.status,400,'invalid pause time cannot be stored');
+});
+
 test('client cannot claim a card by uploading won=true',async()=>{
   const db={prepare(){throw Error('Database must never be called')}};
   const invalid=await accountLibraryRequest(request('/api/account/device/library/runs','POST',
