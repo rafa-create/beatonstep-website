@@ -10,6 +10,16 @@ export const hashGiftToken=async token=>hex(new Uint8Array(
 ));
 export const validGiftToken=token=>typeof token==='string'&&/^[a-f0-9]{64}$/.test(token);
 const publicId=id=>id+CARD_ID_OFFSET;
+// Workout cards use the existing musical v1 shape: g/m describe an actual
+// GPS distance goal; they never imply a world sporting challenge trophy.
+export const workoutCardType=row=>({
+  goalMode:row.workout_goal==='distance'?'distance':'time',
+  ...(row.workout_goal==='distance' &&
+    Number.isSafeInteger(row.workout_distance_meters) &&
+    row.workout_distance_meters>=1000&&row.workout_distance_meters<=200000
+    ?{distanceMeters:row.workout_distance_meters}:{}),
+});
+
 
 export async function packState(db,userId) {
   await requireCardSchema(db);
@@ -42,11 +52,15 @@ export async function openPack(db,userId) {
     AND NOT EXISTS(SELECT 1 FROM workout_pack_claims WHERE user_id=?)
     RETURNING share_id`).bind(userId,now,userId).first();
   if (!card) return json({error:'pack_unavailable',...(await packState(db,userId))},409);
-  const share=await db.prepare("SELECT name,imports,COALESCE(profile_json,json_extract(payload_json,'$.p')) AS profile_json FROM shared_items WHERE id=?")
+  const share=await db.prepare(`SELECT name,imports,COALESCE(profile_json,json_extract(payload_json,'$.p')) AS profile_json,
+    json_extract(payload_json,'$.g') AS workout_goal,
+    CASE WHEN json_extract(payload_json,'$.g')='distance'
+      THEN (SELECT SUM(value) FROM json_each(payload_json,'$.m')) END AS workout_distance_meters
+    FROM shared_items WHERE id=?`)
     .bind(card.share_id).first();
   return json({opened:true,card:{
     id:publicId(card.share_id),name:share.name,imports:share.imports,
-    profile:cardProfile(share.profile_json),
+    profile:cardProfile(share.profile_json),...workoutCardType(share),
     url:'https://beatonstep.app/partages.html?id='+publicId(card.share_id),
   }});
 }
@@ -76,6 +90,9 @@ export const cardProfile=value=>{
 export async function myCollection(db,userId) {
   await requireCardSchema(db);
   const results=await db.prepare(`SELECT c.share_id,x.name,x.imports,x.created_at,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
+    json_extract(x.payload_json,'$.g') AS workout_goal,
+    CASE WHEN json_extract(x.payload_json,'$.g')='distance'
+      THEN (SELECT SUM(value) FROM json_each(x.payload_json,'$.m')) END AS workout_distance_meters,
     creator.handle AS creator,c.last_reason AS acquisition_reason
     FROM workout_cards c JOIN shared_items x ON x.id=c.share_id
     LEFT JOIN community_users creator ON creator.id=c.creator_user_id
@@ -85,7 +102,7 @@ export async function myCollection(db,userId) {
     id:publicId(r.share_id),name:r.name,imports:r.imports,
     createdAt:r.created_at,creator:r.creator||null,
     receivedAsGift:r.acquisition_reason==='gift' || r.acquisition_reason==='gift_claim',
-    profile:cardProfile(r.profile_json),
+    profile:cardProfile(r.profile_json),...workoutCardType(r),
   }))});
 }
 
@@ -167,7 +184,11 @@ export async function createGift(db,userId,id) {
 export async function giftStatus(db,token) {
   if (!validGiftToken(token)) return json({error:'invalid_gift'},400);
   await requireCardSchema(db);
-  const row=await db.prepare(`SELECT g.share_id,x.name,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,x.duration_sec,g.expires_at
+  const row=await db.prepare(`SELECT g.share_id,x.name,COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
+      json_extract(x.payload_json,'$.g') AS workout_goal,
+      CASE WHEN json_extract(x.payload_json,'$.g')='distance'
+        THEN (SELECT SUM(value) FROM json_each(x.payload_json,'$.m')) END AS workout_distance_meters,
+      x.duration_sec,g.expires_at
     FROM workout_card_gifts g JOIN shared_items x ON x.id=g.share_id
     JOIN workout_cards c ON c.share_id=g.share_id
     WHERE g.token_hash=? AND g.expires_at>? AND g.redeemed_at IS NULL
@@ -175,7 +196,7 @@ export async function giftStatus(db,token) {
     .bind(await hashGiftToken(token),Date.now()).first();
   return row?json({available:true,card:{
     id:publicId(row.share_id),name:row.name,profile:cardProfile(row.profile_json),
-    durationSec:row.duration_sec,expiresAt:row.expires_at,
+    ...workoutCardType(row),durationSec:row.duration_sec,expiresAt:row.expires_at,
   }}):json({error:'gift_unavailable'},404);
 }
 

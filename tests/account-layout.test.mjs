@@ -32,3 +32,14 @@ test('inline account interactions remain syntactically valid',()=>{
   assert.ok(source);
   assert.doesNotThrow(()=>new vm.Script(source));
 });
+
+test('musical cards are split by time or distance without mixing sporting trophies',()=>{
+  assert.match(html,/id="session-time" type="button"/);
+  assert.match(html,/id="session-distance" type="button"/);
+  assert.match(html,/cardKindLabel\(item\)/);
+  assert.match(html,/renderCollection\(savedOwnedCards\)/);
+  assert.match(html,/renderCards\(savedCreatedCards,\$\('items'\)\)/);
+  assert.match(html,/card\.ghost&&card\.personallyValidated/,
+    'ghost sporting trophies require a prior personal validated achievement');
+  assert.match(html,/\$\('session-type-filter'\)\.hidden=!sessions/);
+});

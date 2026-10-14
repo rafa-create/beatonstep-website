@@ -149,6 +149,10 @@ async function d1Request(request, env, url) {
     const predicates = [], args = [];
     if (cardsEnabled(env)) predicates.push('NOT EXISTS(SELECT 1 FROM workout_card_aliases a WHERE a.alias_share_id=shared_items.id)');
     if (kind !== 'all') { predicates.push('kind = ?'); args.push(kind); }
+    // The workout catalogue lists only PLAYABLE musical sessions. Historical
+    // V2 publishable sporting challenge rules never belong in this collection.
+    if (kind === 'workout') predicates.push(
+      "json_valid(payload_json) AND json_extract(payload_json,'$.v')=1");
     if (source !== 'all') { predicates.push('source = ?'); args.push(source); }
     // Filter before sorting/page 1. Legacy v1 workout shares are timed.
     // Distinct from the existing v2 sporting challenge cards.
