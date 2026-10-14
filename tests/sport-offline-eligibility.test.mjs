@@ -65,16 +65,22 @@ test('a trustworthy local source can supply measured splits without requiring st
   assert.equal(result.splitTiming,'recorded');
 });
 test('sporting telemetry anomalies warn but structurally invalid measurements do not qualify',()=>{
-  assert.equal(evaluateOfflineSportSummary(run('phone_gps',10000,120000)).reason,
-    'implausible_average_speed');
-  assert.equal(evaluateOfflineSportSummary(run('garmin_watch_saved',5000,600000,{
+  const speed=evaluateOfflineSportSummary(run('phone_gps',10000,120000));
+  assert.equal(speed.status,'candidate');
+  assert.equal(speed.needsReviewWarning,true);
+  const pause=evaluateOfflineSportSummary(run('garmin_watch_saved',5000,600000,{
     pausedDurationMs:700000,
-  })).reason,'invalid_pause_duration');
+  }));
+  assert.equal(pause.status,'candidate');
+  assert.equal(pause.needsReviewWarning,true);
   assert.equal(evaluateOfflineSportSummary(run('manual',10000,2400000)).reason,
     'invalid_summary');
-  assert.equal(evaluateOfflineSportSummary(run('garmin_watch_saved',10000,2400000,{
+  const splits=evaluateOfflineSportSummary(run('garmin_watch_saved',10000,2400000,{
     sportCrossings:[{distanceCm:500000,elapsedMs:1100000}],
-  })).reason,'missing_final_split');
+  }));
+  assert.equal(splits.status,'candidate');
+  assert.equal(splits.splitTiming,'conservative_finish');
+  assert.equal(splits.needsReviewWarning,true);
 });
 test('there is no running-time server dependency or telemetry schema',()=>{
   const path=new URL('../worker/account.js',import.meta.url);
