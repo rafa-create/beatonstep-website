@@ -68,7 +68,7 @@ test('phone GPS without any pause record qualifies as well',async()=>{
   assert.equal(response.status,200);
   assert.equal(calls[2].args[5],'attested_phone');
 });
-test('invalid run ID and impossible average speed never reach D1',async()=>{
+test('invalid run ID is refused, suspicious running speed still earns a card',async()=>{
   const db={prepare(){throw Error('must not query')}};
   const id=body();id.runId='run-other-123456789';
   assert.equal((await reconcileOfflineSportResult(db,'runner-a',id,{now})).status,400);
