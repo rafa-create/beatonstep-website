@@ -4,7 +4,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const html=fs.readFileSync(path.resolve(__dirname,'../partages.html'),'utf8');
-const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script=fs.readFileSync(path.resolve(__dirname,'../sport-card-face.js'),'utf8')+'\n'+
+  html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const example={
   id:1,kind:'workout',source:'spotify',name:'Course progressive 40 min',
   durationSec:2400,tracks:2,phases:2,imports:3,views:4,
