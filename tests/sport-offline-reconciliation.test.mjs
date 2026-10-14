@@ -24,7 +24,7 @@ const sqlCalls=()=>{
       return {...stmt,async first(){
         state.reads++;
         return {distance_cm:1000000,time_unit:'minute',sub_value:40,
-          evidence_digest:calls.find(call=>call.sql.includes('INSERT INTO sport_verified_runs'))?.args[5]};
+          evidence_digest:calls.find(call=>call.sql.includes('INSERT INTO sport_verified_runs'))?.args[4]};
       }};
     }}},
     async batch(items){
