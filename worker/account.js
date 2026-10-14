@@ -3,7 +3,8 @@ import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
-import {enqueueSportTelemetryReview} from './sport-card-telemetry.js';
+import {enqueueSportTelemetryReview,ensureSportTelemetrySchema,
+  processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift,cardProfile } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -365,9 +366,12 @@ export async function accountRequest(request,env,url,ctx) {
       return reconcileOfflineSportResult(db,member.id,payload,{
         onAward:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
           ?review=>{
-              const task=enqueueSportTelemetryReview(db,review.cardId,
-                review.ownerEpoch,review.needsWarning,{now:review.now})
-                .catch(()=>{console.warn('sport review enqueue unavailable');});
+              const task=(async()=>{
+                await ensureSportTelemetrySchema(db);
+                await enqueueSportTelemetryReview(db,review.cardId,
+                  review.ownerEpoch,review.needsWarning,{now:review.now});
+                await processPendingSportTelemetryReviews(db);
+              })().catch(()=>{console.warn('sport review processing unavailable');});
               if(ctx?.waitUntil)ctx.waitUntil(task);
               else void task;
             }
