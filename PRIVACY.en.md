@@ -132,7 +132,7 @@ These data are **not sold, not used for advertising, not used for advertising tr
 
 **Public sporting-card records.** When the server accepts a result and awards your account a worldwide sporting card, the public catalogue may display **your handle**, distance, SUB threshold, difficulty and dated ownership changes (win, gift or release). The card may also identify its first holder and longest continuous holder. GPS coordinates, run evidence, email addresses and private account identifiers are never published. After account deletion, your handle no longer appears in this history.
 
-**Optional sharing.** At your request, a recap, performance card or Strava activity may use **workout results** (for example distance, duration, start time and measurement source). Strava exports send those results through the BeatOnStep API to Strava with your permission; **no raw GPS coordinate sequence is sent**. A shared image may include the relative route silhouette when available. The product analytics in § 3.9 include neither GPS locations nor route data.
+**Optional sharing.** Strava exports can be requested manually or run automatically after you save a workout, **only if you have enabled Auto-share in Settings** (off by default) and connected Strava. Start time, duration, measured distance, average pace, average/maximum heart rate and measured cadence in steps/min are included **only when available**. Optional statistics are placed in the Strava description. The export goes through BeatOnStep’s API, and **no raw GPS track is sent in this version**. Recaps and sporting cards remain independent from Strava. Product analytics in § 3.9 contain no locations or route data.
 
 ### 3.11 Voluntary Bug / feedback diagnostic report
 
