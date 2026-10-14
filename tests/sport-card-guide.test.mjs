@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 import {SPORT_CARD_DISTANCES,SPORT_CARD_400M_TIERS,
   maxSubMinuteByTier,difficultyForSportCard} from '../worker/sport-card-rules.js';
 
@@ -15,9 +16,42 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/id="levels-rows"/);
   assert.match(page,/id="threshold-rows"/);
   assert.match(page,/id="individual-rows"/);
-  assert.match(page,/id="time-input"/);
+  for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
+    assert.match(page,new RegExp('id="'+id+'"'));
+    assert.match(page,new RegExp('for="'+id+'"'),
+      'each dropdown has its own accessible label');
+  }
+  assert.match(page,/role="group" aria-labelledby="chrono-label"/);
+  assert.doesNotMatch(page,/id="time-input"/);
   assert.match(page,/sport-card-paliers\.json/);
   assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
+});
+
+test('chrono dropdowns preserve hours, minutes, seconds and 400m hundredths',()=>{
+  const script=page.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(script);
+  assert.doesNotThrow(()=>new vm.Script(script),'guide JavaScript must parse');
+  assert.match(script,/\['time-hours',199,false\]/);
+  assert.match(script,/\['time-minutes',59,false\]/);
+  assert.match(script,/\['time-seconds',59,true\]/);
+  assert.match(script,/\['time-centiseconds',99,false\]/);
+  assert.match(script,/\$\('time-centiseconds-part'\)\.hidden=row\.unit!=='second'/);
+  assert.match(script,/resetTime\(\);\s*renderThresholds\(\)/,
+    'switching distance resets the previous time');
+  assert.match(script,/\$\('time-minutes'\)\.value='24'/,
+    '5km opens with the existing 24:35 example');
+  const source=script.match(/function elapsedFromParts\(hours,minutes,seconds,centiseconds=0\)\{[\s\S]*?\n  \}/)?.[0];
+  assert.ok(source,'converter is present');
+  const elapsed=new Function(source+'\nreturn elapsedFromParts;')();
+  assert.equal(elapsed(0,24,35),24*60_000+35_000);
+  assert.equal(elapsed(1,30,0),90*60_000);
+  assert.equal(elapsed(0,0,59,80),59_800);
+  assert.equal(elapsed(0,1,2,40),62_400);
+  assert.equal(elapsed(0,25,0),25*60_000);
+  for(const time of [[0,0,0,0],[0,24,60,0],[0,60,0,0],
+    [1,30,-1,0],[0,0,59,100],[200,0,0,0]]){
+    assert.equal(elapsed(...time),null,'invalid time '+time.join(':'));
+  }
 });
 
 test('guide JSON covers all 203 canonical sporting distances with no duplicate',()=>{
