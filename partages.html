@@ -849,14 +849,26 @@
     $('kind-filter').value=kind;
     $('sort-filter').value=sort;
     $('source-filter').value=musicSource;
+    $('distance-filter').value=sportDistance;
+    $('difficulty-filter').value=sportDifficulty;
+    $('sub-filter').value=sportSub;
     try{
-      const data=await get(API+'?kind='+encodeURIComponent(kind)+'&source='+
-        encodeURIComponent(musicSource)+'&sort='+sort+'&page='+page);
+      const target=kind==='challenge'
+        ?SPORT_API+'?distance='+encodeURIComponent(sportDistance)+
+          '&difficulty='+encodeURIComponent(sportDifficulty)+
+          (sportDistance!=='all'&&sportSub?'&sub='+encodeURIComponent(sportSub):'')+
+          '&page='+page
+        :API+'?kind='+encodeURIComponent(kind)+'&source='+
+          encodeURIComponent(musicSource)+'&sort='+sort+'&page='+page;
+      const data=await get(target);
       if(request!==listTicket)return;
       empty(result);
       catalogItems=data.items;
-      if(!data.items.length)result.append(el('p','error',fr('Aucun partage pour le moment.','No shares yet.')));
-      data.items.forEach(x=>result.append(createCard(x,false)));
+      if(!data.items.length)result.append(el('p','error',kind==='challenge'
+        ?fr('Aucune carte sportive validée pour ces critères.','No verified sport cards match these filters.')
+        :fr('Aucun partage pour le moment.','No shares yet.')));
+      data.items.forEach(x=>result.append(
+        kind==='challenge'?createSportCard(x,false):createCard(x,false)));
       if(data.total>20){
         const previous=el('button','',fr('← Précédent','← Previous'));
         previous.disabled=page===1;
@@ -872,6 +884,20 @@
       result.append(el('p','error',fr('Catalogue indisponible. Réessayez plus tard.','Catalog unavailable. Try again later.')));
     }
   }
+  function updateCatalogFilters(){
+    const sport=kind==='challenge';
+    $('sort-picker').hidden=sport;
+    $('source-picker').hidden=sport;
+    for(const name of ['distance-picker','difficulty-picker','sub-picker'])
+      $(name).hidden=!sport;
+    $('sub-filter').disabled=!sport||sportDistance==='all';
+    $('sub-label').textContent=sportDistance==='40000'
+      ?fr('SUB maximal (secondes)','Maximum SUB (seconds)')
+      :fr('SUB maximal (minutes)','Maximum SUB (minutes)');
+    $('sub-filter').placeholder=sportDistance==='40000'
+      ?fr('SUB max. (s)','Max SUB (s)')
+      :fr('SUB max. (min)','Max SUB (min)');
+  }
   async function showDetail(){
     $('catalog').hidden=true;
     const target=$('detail');
@@ -879,12 +905,12 @@
     empty(target);
     target.append(el('p','sub',fr('Chargement du partage…','Loading share…')));
     try{
-      const item=await getDetail(id);
+      const item=sportId?await getSportDetail(sportId):await getDetail(id);
       empty(target);
-      target.append(createCard(item,true));
-      document.title=item.name+' — BeatOnStep';
-      // A re-render (e.g. changing language) must not recount a visit.
-      if(!document.hidden && !countedViews.has(id)){
+      target.append(sportId?createSportCard(item,true):createCard(item,true));
+      document.title=(sportId?sportName(item):item.name)+' — BeatOnStep';
+      // Viewing public sport cards never increments the musical import counter.
+      if(!sportId&&!document.hidden && !countedViews.has(id)){
         countedViews.add(id);
         fetch(API+'/'+id+'/view',{method:'POST'}).catch(()=>{});
       }
@@ -898,38 +924,80 @@
     document.documentElement.lang=lang;
     $('fr').setAttribute('aria-pressed',String(lang==='fr'));
     $('en').setAttribute('aria-pressed',String(lang==='en'));
-    $('back').hidden=!id;
-    if(id){
-      $('back').href='partages.html';
+    $('back').hidden=!id&&!sportId;
+    if(id||sportId){
+      $('back').href=sportId?'partages.html?kind=challenge':'partages.html';
       $('back').textContent=fr('← Catalogue','← Catalog');
     }
-    $('title').textContent=id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
+    $('title').textContent=sportId?fr('Carte de défi','Challenge card'):
+      id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
-    $('intro').hidden=Boolean(id);
-    $('intro').textContent=fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
+    $('intro').hidden=Boolean(id||sportId);
+    $('intro').textContent=kind==='challenge'
+      ?fr('Cartes sportives obtenues après validation des courses.',
+          'Sport cards earned from validated runs.')
+      :fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));
     $('footer-privacy-label').textContent=fr('Confidentialité','Privacy');
     $('kind-label').textContent=fr('Type','Type');
     document.querySelector('#kind-filter option[value=all]').textContent=fr('Types','Types');
     document.querySelector('#kind-filter option[value=workout]').textContent=fr('Séances','Workouts');
     document.querySelector('#kind-filter option[value=runmix]').textContent=fr('Playlists','Playlists');
+    document.querySelector('#kind-filter option[value=challenge]').textContent=fr('Défis','Challenges');
     $('sort-label').textContent=fr('Classement','Sort order');
     document.querySelector('#sort-filter option[value=recent]').textContent=fr('Récentes','Newest');
     document.querySelector('#sort-filter option[value=popular]').textContent=fr('Populaires','Popular');
     $('source-label').textContent=fr('Source','Source');
     document.querySelector('#source-filter option[value=all]').textContent=fr('Sources','Sources');
-    if(id)showDetail();else showList();
+    $('distance-label').textContent=fr('Distance','Distance');
+    document.querySelector('#distance-filter option[value=all]').textContent=
+      fr('Toutes distances','All distances');
+    $('difficulty-label').textContent=fr('Difficulté','Difficulty');
+    const levels={all:['Toutes difficultés','All difficulties'],beginner:['Débutant','Beginner'],
+      amateur:['Amateur','Amateur'],regular:['Régulier','Regular'],
+      intermediate:['Intermédiaire','Intermediate'],expert:['Expert','Expert'],
+      legend:['Légende','Legend'],world_elite:['Élite mondiale','World elite']};
+    for(const [key,label] of Object.entries(levels))
+      document.querySelector('#difficulty-filter option[value='+key+']').textContent=
+        fr(label[0],label[1]);
+    updateCatalogFilters();
+    if(id||sportId)showDetail();else showList();
   }
   $('kind-filter').onchange=()=>{
-    kind=$('kind-filter').value;page=1;showList();
+    kind=$('kind-filter').value;page=1;
+    updateCatalogFilters();showList();
+    $('intro').textContent=kind==='challenge'
+      ?fr('Cartes sportives obtenues après validation des courses.',
+          'Sport cards earned from validated runs.')
+      :fr('Séances et playlists de la communauté.','Workouts and playlists from the community.');
   };
   $('sort-filter').onchange=()=>{
     sort=$('sort-filter').value;page=1;showList();
   };
   $('source-filter').onchange=()=>{
     musicSource=$('source-filter').value;
+    page=1;
+    showList();
+  };
+  $('distance-filter').onchange=()=>{
+    sportDistance=$('distance-filter').value;
+    sportSub='';
+    $('sub-filter').value='';
+    page=1;
+    updateCatalogFilters();
+    showList();
+  };
+  $('difficulty-filter').onchange=()=>{
+    sportDifficulty=$('difficulty-filter').value;
+    page=1;
+    showList();
+  };
+  $('sub-filter').onchange=()=>{
+    const value=$('sub-filter').value.trim();
+    sportSub=/^[1-9][0-9]{0,5}$/.test(value)?value:'';
+    $('sub-filter').value=sportSub;
     page=1;
     showList();
   };
