@@ -210,8 +210,20 @@ async function publish(request, env, device, row) {
         'content-type':'application/x-www-form-urlencoded'}, body:form,
     });
     if (!res.ok) {
-      console.warn('Strava manual activity response',res.status);
-      return reply({error:res.status===429?'strava_rate_limited':'strava_publication_failed_verify'},502);
+      // A definitive 4xx refusal means Strava did not create an activity.
+      // Release ONLY that rejected attempt; retain pending for ambiguous
+      // 5xx responses/network failures, which might have created an activity.
+      console.warn('Strava manual activity response', 'http_status=' + res.status);
+      if (res.status >= 400 && res.status < 500) {
+        await env.DB.prepare(
+          "DELETE FROM strava_exports WHERE athlete_id=? AND run_id=? AND status='pending'"
+        ).bind(row.athlete_id, runId).run();
+        const error = res.status === 429 ? 'strava_rate_limited'
+          : res.status === 401 || res.status === 403 ? 'strava_permission_denied'
+          : 'strava_activity_rejected';
+        return reply({error, upstreamStatus: res.status}, 502);
+      }
+      return reply({error:'strava_publication_failed_verify'},502);
     }
     const data = await res.json();
     const id = String(data?.id || '');
