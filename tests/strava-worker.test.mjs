@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { stravaRequest } from '../worker/strava.js';
+import { stravaRequest, buildStravaTcx } from '../worker/strava.js';
 
 const ROOT = 'https://beatonstep.app';
 const SECRET = 'a'.repeat(64);
@@ -142,7 +142,7 @@ async function publishingFixture() {
         bind(...values){args=values;return this;},
         async first(){
           if(sql.startsWith('SELECT * FROM strava_connections')) return row;
-          if(sql.startsWith('SELECT status,activity_id FROM strava_exports'))
+          if(sql.startsWith('SELECT status,activity_id,upload_id FROM strava_exports'))
             return exports.get(args[0]+'|'+args[1])||null;
           throw Error('Unexpected SQL first: '+sql);
         },
@@ -159,6 +159,13 @@ async function publishingFixture() {
             exports.delete(identity);
             return {meta:{changes:1}};
           }
+          if(sql.startsWith('UPDATE strava_exports SET upload_id=')){
+            const identity=args[1]+'|'+args[2];
+            const record=exports.get(identity);
+            if(!record)throw Error('missing export');
+            record.upload_id=args[0];
+            return {meta:{changes:1}};
+          }
           if(sql.startsWith('UPDATE strava_exports')){
             const identity=args[2]+'|'+args[3];
             exports.set(identity,{status:'complete',activity_id:args[0]});
@@ -171,10 +178,10 @@ async function publishingFixture() {
   };
   const startedAtMs=Date.now()-120000;
   const payload={runId:'bos-'+startedAtMs,startedAtMs,elapsedTime:90,distanceMeters:null};
-  const call=()=>stravaRequest(new Request(ROOT+'/api/strava/publish',{
+  const call=(changes={})=>stravaRequest(new Request(ROOT+'/api/strava/publish',{
     method:'POST',
     headers:{'x-bos-strava-key':DEVICE,'content-type':'application/json'},
-    body:JSON.stringify(payload),
+    body:JSON.stringify({...payload,...changes}),
   }),env(db),new URL(ROOT+'/api/strava/publish'));
   return {db,call};
 }
@@ -333,4 +340,72 @@ test('Strava 403 during revoke preserves the connection until explicit local unl
     assert.equal(calls,1,'local-only fallback must not access inactive Strava API');
     assert.equal(fixture.exports.size,1,'pending run must stay protected against re-post');
   }finally{globalThis.fetch=originalFetch;}
+});
+
+test('real GPS samples use TCX upload with available lap summaries only',async()=>{
+  const {db,call}=await publishingFixture();
+  const now=Date.now()-180000;
+  const gpsTrack=[
+    [48.85660,2.35220,now],
+    [48.85670,2.35230,now+10000],
+    [48.85680,2.35240,now+20000],
+  ];
+  const realFetch=globalThis.fetch;
+  let posted=0,polled=0;
+  globalThis.fetch=async(url,init)=>{
+    if(String(url)==='https://www.strava.com/api/v3/uploads'){
+      posted++;
+      assert.equal(init.headers.authorization,'Bearer mock-access-token');
+      assert.equal(init.headers['content-type'],undefined,'FormData must own boundary');
+      assert.equal(init.body.get('data_type'),'tcx');
+      assert.match(init.body.get('external_id'),/^bos-\d+\.tcx$/);
+      const tcx=await init.body.get('file').text();
+      assert.match(tcx,/<LatitudeDegrees>48\.8566<\/LatitudeDegrees>/);
+      assert.match(tcx,/<AverageHeartRateBpm><Value>145<\/Value><\/AverageHeartRateBpm>/);
+      assert.match(tcx,/<Cadence>172<\/Cadence>/);
+      assert.doesNotMatch(tcx,/<MaximumHeartRateBpm>/);
+      return {ok:true,status:201,json:async()=>({id:456})};
+    }
+    if(String(url)==='https://www.strava.com/api/v3/uploads/456'){
+      polled++;
+      return {ok:true,status:200,json:async()=>({activity_id:7890})};
+    }
+    throw Error('Unexpected '+url);
+  };
+  try{
+    const result=await call({
+      startedAtMs:now,runId:'bos-'+now,elapsedTime:60,
+      distanceMeters:350,heartRateBpm:145,cadencePpm:172,
+      paceSecPerKm:245,gpsTrack,
+    });
+    assert.equal(result.status,200);
+    assert.deepEqual(await result.json(),{ok:true,url:'https://www.strava.com/activities/7890'});
+    const duplicate=await call({startedAtMs:now,runId:'bos-'+now,gpsTrack});
+    assert.equal((await duplicate.json()).alreadyPublished,true);
+    assert.equal(posted,1,'idempotent GPS upload');
+    assert.equal(polled,1);
+    assert.equal(db.exports.size,1);
+  }finally{globalThis.fetch=realFetch;}
+});
+
+test('invalid GPS cannot masquerade as map points',async()=>{
+  const {call}=await publishingFixture();
+  const now=Date.now()-120000;
+  const bad=await call({
+    startedAtMs:now,runId:'bos-'+now,gpsTrack:[[200,2,now],[201,2,now+1]],
+  });
+  assert.equal(bad.status,400);
+  assert.deepEqual(await bad.json(),{error:'invalid_run'});
+});
+
+test('TCX builder never invents missing heart-rate or cadence measurements',()=>{
+  const start=Date.now()-120000;
+  const tcx=buildStravaTcx({
+    start,elapsed:60,distance:250,gps:[[48.0,2.0,start],[48.01,2.01,start+60000]],
+    heart:null,maxHeart:null,cadence:null,pace:null,
+  });
+  assert.match(tcx,/<DistanceMeters>250<\/DistanceMeters>/);
+  assert.doesNotMatch(tcx,/<AverageHeartRateBpm>/);
+  assert.doesNotMatch(tcx,/<Cadence>/);
+  assert.match(tcx,/<Trackpoint>/);
 });
