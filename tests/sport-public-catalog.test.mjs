@@ -46,7 +46,7 @@ test('default view lists only verified world cards without personal identifiers'
   const body=await r.json();
   assert.deepEqual(body.items,[{kind:'challenge',id:17,distanceCm:500000,
     timeUnit:'minute',subValue:25,difficulty:'amateur',
-    createdAt:1000,owner:'runner_b'}]);
+    createdAt:1000,owner:'runner_b',performanceWarning:false}]);
   assert.equal(body.total,1);
   assert.equal(body.page,1);
   assert(queries.every(q=>q.sql.includes('sport_world_cards')),
