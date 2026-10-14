@@ -402,13 +402,22 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       const tenure=ms=>ms==null?'Durée inconnue':
         ms<86400000?'Moins d’un jour':
         Math.floor(ms/86400000)+' jour(s)';
+      // Display only; keep the canonical server card name and world key unchanged.
+      const displaySportName=name=>String(name||'').replace(
+        /\\bSUB\\s+(\\d+)\\s+s\\b/gi,(_,raw)=>{
+          const seconds=Number(raw),minutes=Math.floor(seconds/60);
+          const remainder=seconds%60;
+          return 'SUB '+(minutes
+            ?minutes+' min'+(remainder?' '+String(remainder).padStart(2,'0')+' s':'')
+            :seconds+' s');
+        });
       const reasons={
         verified:'Défi sportivement réussi',won:'Carte gagnée',
         gift_received:'Carte reçue en cadeau',given:'Carte offerte',lost:'Carte volée'
       };
       for(const event of allEvents){
         const li=document.createElement('li');li.className='deck-tile';
-        const title=document.createElement('h3');title.textContent=event.name;
+        const title=document.createElement('h3');title.textContent=displaySportName(event.name);
         const meta=document.createElement('small');
         meta.textContent=(reasons[event.eventType]||'Événement sportif')+
           ' · '+date(event.at);
@@ -422,7 +431,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       const ghosts=allDeck.filter(card=>card.ghost);
       const addCard=(card,category)=>{
         const li=document.createElement('li');li.className='deck-tile';
-        const title=document.createElement('h3');title.textContent=card.name;
+        const title=document.createElement('h3');title.textContent=displaySportName(card.name);
         const meta=document.createElement('small');
         const note=category==='ghost'?'Carte fantôme · Ne vous appartient plus':
           category==='gift'?'Carte reçue en cadeau':
