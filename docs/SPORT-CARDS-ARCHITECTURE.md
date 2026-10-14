@@ -1,6 +1,6 @@
 # Cartes sportives — principes et architecture cible
 
-**Décision produit — 14 octobre 2026.** Ce document décrit le fonctionnement visé. Les écarts avec le code actuel sont indiqués ci-dessous ; ils ne doivent pas être présentés comme déjà livrés.
+**Décision produit — 14 octobre 2026.** Contrat des cartes sportives ; les changements committés ne sont pas une preuve de déploiement Cloudflare ni de validation terrain.
 
 ## Principe
 
@@ -28,8 +28,8 @@ Le catalogue public expose uniquement la carte, la difficulté, les pseudos publ
 ## État technique au 14 octobre 2026
 
 - **Codé sur GitHub :** carte locale hors ligne ; synchronisation Cloudflare `/api/account/device/sport/reconcile` ; registre mondial D1 ; catalogue public ; anomalies de vitesse/pauses/jalons non bloquantes ; file de revue asynchrone `worker/sport-card-telemetry.js`, exécutée par Cloudflare (cron de 15 minutes) ; avertissement associé au seul `owner_epoch` et exposé sur le site et dans le deck personnel.
-- **Activation sécurisée restante :** appliquer manuellement `migrations/0011_sport_card_telemetry_reviews.sql` sur D1 après sauvegarde, puis activer `SPORT_ASYNC_TELEMETRY_ENABLED=true` dans Cloudflare. Ce drapeau est **false** dans le dépôt tant que la migration et les tests d'intégration n'ont pas été vérifiés. Sans table ni drapeau, l'attribution demeure indépendante et aucun avertissement ne bloque la carte.
+- **Activation demandée :** `SPORT_ASYNC_TELEMETRY_ENABLED=true` dans la configuration production du dépôt. Le Worker prépare de façon idempotente le schéma additif de `0011` dans D1 à partir d'une tâche différée après gain ou du cron. En cas d'absence ou d'échec de cette table, les consultations reviennent à l'affichage des cartes sans avertissement et l'attribution reste indépendante. La présence effective du schéma et le déploiement Cloudflare doivent encore être vérifiés sur l'environnement réel.
 - **Validation encore nécessaire :** exécuter l'ensemble des tests et vérifier sur appareil réel le gain, l'alerte différée, la donation sans alerte, le catalogue et la VM arrêtée. Une migration native n'est pas nécessaire aux simples textes de warning, sous réserve de vérification OTA/runtime.
 - **Conservé temporairement :** l'ancien code V2 désactivé pour compatibilité, sans apparition dans le catalogue « Défis ».
 
-Le déploiement doit être validé par les tests de synchronisation, d'unicité mondiale, de donation, d'anti-rejeu, de panne de télémétrie et de confidentialité avant activation en production.
+Le code est activé dans `wrangler.jsonc` mais sa publication et la validation terrain ne sont pas confirmées. Vérifier la synchronisation, l'unicité mondiale, la donation, l'anti-rejeu, la panne de télémétrie et la confidentialité, sans manipuler les cartes ni les utilisateurs réels.
