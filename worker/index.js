@@ -406,7 +406,7 @@ export default {
           // A new advisory table may not exist until the first review/cron.
           // Never make already-earned world cards disappear because of it.
           if(env.SPORT_ASYNC_TELEMETRY_ENABLED==='true' &&
-             String(error).includes('sport_card_telemetry_reviews')){
+             String(error).includes('sport_card_telemetry_')){
             try{return await readPublicSportCards(env.DB,url,{telemetryEnabled:false});}
             catch{ /* preserve the normal API failure below */ }
           }
