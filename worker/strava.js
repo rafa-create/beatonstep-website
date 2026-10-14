@@ -284,19 +284,42 @@ export async function stravaRequest(request, env, url) {
       return publish(request,env,device,await connection(env.DB,device));
     }
     if (path === PREFIX+'/disconnect' && request.method === 'POST') {
+      const body=await jsonBody(request);
+      const localOnly=body?.localOnly === true;
       const row=await connection(env.DB,device);
-      if (!row) return reply({ok:true});
-      const token=await accessToken(env,row);
-      const deauth=await fetch('https://www.strava.com/oauth/deauthorize', {
-        method:'POST',headers:{authorization:'Bearer '+token},
-      });
-      if (!deauth.ok) return reply({error:'strava_disconnect_failed'},502);
-      // The runner is opting out: drop export metadata together with credentials.
-      await env.DB.batch([
-        env.DB.prepare('DELETE FROM strava_exports WHERE athlete_id=?').bind(row.athlete_id),
-        env.DB.prepare('DELETE FROM strava_connections WHERE device_hash=?').bind(device),
-      ]);
-      return reply({ok:true});
+      if (!row) return reply({ok:true,remoteRevoked:false,manualRevocationRequired:localOnly});
+      if (!localOnly) {
+        // Since 2026-06-01 Strava recommends /oauth/revoke (Basic application
+        // auth + form token) over the legacy /oauth/deauthorize endpoint.
+        // Use the encrypted refresh token directly; refreshing it first could
+        // fail for inactive Strava applications and block account removal.
+        const key=await cryptoKey(env);
+        const token=await unseal(key,row.refresh_nonce,row.refresh_cipher);
+        const basic=btoa(String(env.STRAVA_CLIENT_ID)+':'+env.STRAVA_CLIENT_SECRET);
+        let revoked;
+        try {
+          revoked=await fetch('https://www.strava.com/oauth/revoke', {
+            method:'POST',
+            headers:{authorization:'Basic '+basic,
+              'content-type':'application/x-www-form-urlencoded'},
+            body:new URLSearchParams({token,token_type_hint:'refresh_token'}),
+          });
+        } catch {
+          return reply({error:'strava_disconnect_remote_failed'},503);
+        }
+        if (!revoked.ok) {
+          console.warn('Strava revoke response', 'http_status=' + revoked.status);
+          return reply({error:'strava_disconnect_remote_failed'},502);
+        }
+      }
+      // Delete access/refresh credentials in both paths. Retain only the
+      // minimal export idempotency ledger: otherwise reconnecting this same
+      // athlete would permit duplicate publication, including pending runs.
+      await env.DB.prepare(
+        'DELETE FROM strava_connections WHERE device_hash=?'
+      ).bind(device).run();
+      return reply({ok:true,remoteRevoked:!localOnly,
+        manualRevocationRequired:localOnly});
     }
     return reply({error:'not_found'},404);
   } catch (error) {
