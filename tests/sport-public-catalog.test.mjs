@@ -6,7 +6,7 @@ const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
   difficulty:'amateur',created_at:1000,owner_handle:'runner_b'};
 
-function mockDb(){
+function mockDb(overrides={}){
   const queries=[];
   const db={prepare(sql){
     return {bind(...args){
@@ -14,7 +14,7 @@ function mockDb(){
       return {
         async first(){
           if(sql.startsWith('SELECT COUNT(*)'))return {total:1};
-          if(sql.includes('WHERE c.id=?'))return sport;
+          if(sql.includes('WHERE c.id=?'))return {...sport,...overrides};
           if(sql.includes('next.changed_at AS ended_at'))
             return {handle:'runner_a',started_at:1000,ended_at:4000};
           if(sql.includes('WHERE e.card_id=? AND e.reason='))
@@ -23,7 +23,7 @@ function mockDb(){
         },
         async all(){
           if(sql.includes('ORDER BY c.distance_cm'))
-            return {results:[sport]};
+            return {results:[{...sport,...overrides}]};
           if(sql.includes('FROM sport_card_ownership_events e'))
             return {results:[
               {reason:'gift_claim',changed_at:4000,
@@ -98,4 +98,21 @@ test('legacy share identifiers and missing sports cards remain distinct',async()
   const {db}=mockDb();
   const r=await readPublicSportCards(db,url('/api/sport/cards/nope'));
   assert.equal(r.status,404);
+});
+
+test('owner epoch separates an old flagged performance from a clean gift',async()=>{
+  const warned=mockDb({performance_warning:1});
+  const r=await readPublicSportCards(warned.db,url('/api/sport/cards'),{
+    telemetryEnabled:true,
+  });
+  assert.equal((await r.json()).items[0].performanceWarning,true);
+  const q=warned.queries.find(x=>x.sql.includes('ORDER BY c.distance_cm'));
+  assert.match(q.sql,/tr.owner_epoch=c.owner_epoch/);
+  const gifted=mockDb({performance_warning:0,owner_handle:'recipient'});
+  const clean=await readPublicSportCards(gifted.db,url('/api/sport/cards/17'),{
+    telemetryEnabled:true,
+  });
+  const newHolder=await clean.json();
+  assert.equal(newHolder.owner,'recipient');
+  assert.equal(newHolder.performanceWarning,false);
 });
