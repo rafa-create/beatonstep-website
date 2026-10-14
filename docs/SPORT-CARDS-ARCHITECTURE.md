@@ -25,6 +25,8 @@ Une suspicion sportive (par exemple vitesse invraisemblable) doit devenir un **s
 
 Un signalement concerne **la performance qui a entraîné le gain**, pas la carte transférable dans son ensemble. Il est rattaché exclusivement à l'**époque de propriété** (`card_id`, `owner_epoch`) de ce gain. **Une donation, une fermeture de compte ou une nouvelle acquisition ne transmet jamais l'ancienne alerte** : le nouveau détenteur commence sans avertissement. L'historique de propriété demeure inchangé.
 
+**Motifs dans l'historique des détenteurs :** chaque événement `sport_win` peut afficher un avertissement et ses motifs enregistrés séparément pour cette époque (vitesse moyenne supérieure à 45 km/h, pause incohérente, passages incohérents). Une ligne de donation reste distincte et n'hérite jamais de l'alerte. Le détail est un ensemble de codes normalisés, traduit FR/EN au rendu ; aucune trace GPS ni donnée sensible n'est exposée. Les anciens warnings sans motif conservé affichent explicitement « Motif non conservé ». Même si le détenteur perd la carte avant l'analyse différée, le warning doit rester visible sur **son ancienne ligne de gain**. Le schéma additif `0012_sport_card_telemetry_reason_details.sql` est créé automatiquement par le processus de revue sans modifier le registre de propriété.
+
 Le catalogue public expose uniquement la carte, la difficulté, les pseudos publics, les dates de transfert et un éventuel avertissement. Les coordonnées GPS brutes, rapports détaillés de télémétrie, identifiants privés et données de connexion n'y figurent jamais. En cas de suppression de compte, les pseudos historiques sont anonymisés.
 
 ## État technique au 14 octobre 2026
