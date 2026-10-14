@@ -20,7 +20,7 @@ Le code mobile et Worker accepte maintenant une allure anormale, une pause incoh
 
 Une revue facultative est mise en file **après** l'attribution dans `sport_card_telemetry_reviews`, puis traitée par un cron Cloudflare. Son indicateur « Performance non validée » est visible seulement durant la période de propriété `owner_epoch` concernée : **un nouveau détenteur par donation n'hérite pas du warning**. Aucun résultat de revue ne peut modifier la propriété D1.
 
-**Activation non effectuée** : la migration `0011_sport_card_telemetry_reviews.sql` reste à appliquer manuellement après sauvegarde D1 ; `SPORT_ASYNC_TELEMETRY_ENABLED=false` protège l'existant en attendant. Les tests d'intégration Cloudflare/D1 et les validations sur iOS/Android avec VM éteinte ne sont pas encore confirmés. Tant que l'option est inactive, l'attribution continue sans attendre l'analyse.
+**Activation demandée — 14 octobre 2026 :** le dépôt configure `SPORT_ASYNC_TELEMETRY_ENABLED=true` en production. La table additive `0011_sport_card_telemetry_reviews.sql` peut être initialisée de façon idempotente par le cron Cloudflare ou une tâche post-attribution, sans VM ; si l'initialisation échoue, l'attribution et l'affichage des cartes restent disponibles sans warning. Le déploiement Cloudflare effectif, le schéma D1 et les tests sur appareils doivent encore être confirmés.
 
 Le code historique V2 de publication kilométrique reste désactivé et exclu du produit ; son retrait requiert un inventaire de compatibilité des anciennes données.
 
