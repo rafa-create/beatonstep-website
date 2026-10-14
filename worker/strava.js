@@ -215,14 +215,19 @@ function descriptionForMetrics({pace,heart,maxHeart,cadence}){
 // remain Lap summaries: never duplicate them into imaginary per-fix samples.
 export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadence,pace,cadenceSamples=null}){
   const iso=ms=>new Date(ms).toISOString();
+  const samples=cadenceSamples||[];
+  let cadenceIndex=0;
   const trackPoint=([lat,lon,time])=>{
-    // Match only real measured PPM samples recorded within 3 seconds.
+    // Both sequences are chronological: match measured sensor PPM in O(N+M).
     // TCX RunCadence is strides/min, while BeatOnStep measures steps/min.
-    let nearest=null,delta=3001;
-    for(const sample of cadenceSamples||[]){
-      const difference=Math.abs(sample[0]-time);
-      if(difference<delta){nearest=sample;delta=difference;}
-    }
+    while(cadenceIndex+1<samples.length && samples[cadenceIndex+1][0]<=time)
+      cadenceIndex++;
+    const left=samples[cadenceIndex]||null;
+    const right=samples[cadenceIndex+1]||null;
+    let nearest=left;
+    if(right&&(!nearest||Math.abs(right[0]-time)<Math.abs(nearest[0]-time)))
+      nearest=right;
+    if(nearest&&Math.abs(nearest[0]-time)>3000)nearest=null;
     const cadenceXml=nearest
       ?'<Extensions><ns3:TPX><ns3:RunCadence>'+Math.round(nearest[1]/2)+
         '</ns3:RunCadence></ns3:TPX></Extensions>'
