@@ -6,7 +6,6 @@ import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
 import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
-import { sportCardRulesManifest } from './sport-card-rules.js';
 import {ensureSportTelemetrySchema,processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
@@ -390,12 +389,6 @@ export default {
       }
       if (url.pathname.startsWith('/api/strava/')) {
         return stravaRequest(request, env, url);
-      }
-      // Public canonical difficulty thresholds, accessible even before D1
-      // starts; never cache forever on a device.
-      if(url.pathname==='/api/sport/rules'){
-        if(request.method!=='GET')return json({error:'method_not_allowed'},405);
-        return json(sportCardRulesManifest());
       }
       // Public trophy catalogue: only server-confirmed cards, never V2
       // publishable workout challenges or authenticated private histories.
