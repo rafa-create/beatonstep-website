@@ -380,7 +380,9 @@ export async function accountRequest(request,env,url,ctx) {
               const task=(async()=>{
                 await ensureSportTelemetrySchema(db);
                 await enqueueSportTelemetryReview(db,review.cardId,
-                  review.ownerEpoch,review.needsWarning,{now:review.now});
+                  review.ownerEpoch,review.needsWarning,{
+                    now:review.now,reasonCodes:review.warningReasons,
+                  });
                 await processPendingSportTelemetryReviews(db);
               })().catch(()=>{console.warn('sport review processing unavailable');});
               if(ctx?.waitUntil)ctx.waitUntil(task);
