@@ -13,6 +13,7 @@ const resetRequest=(route,body)=>new Request(ORIGIN+'/api/account/password-reset
 function fixture({known=true,expired=false,configured=true}={}){
   const user={id:'u1',email:'runner@example.test'};
   const tokens=new Map();
+  const rateCounts=new Map();
   const recorded={writes:[],batch:[],mail:[],queries:[],revoked:false};
   const DB={
     prepare(sql){
@@ -21,7 +22,12 @@ function fixture({known=true,expired=false,configured=true}={}){
         async first(){
           recorded.queries.push({sql,args});
           if(sql.startsWith('SELECT id FROM community_users LIMIT'))return {id:'u1'};
-          if(sql.startsWith('INSERT INTO community_auth_limits'))return {count:1};
+          if(sql.startsWith('INSERT INTO community_auth_limits')){
+            const bucket=args[0];
+            const count=(rateCounts.get(bucket)||0)+1;
+            rateCounts.set(bucket,count);
+            return {count};
+          }
           if(sql.startsWith('SELECT id FROM community_users WHERE email'))return known?{id:user.id}:null;
           if(sql.startsWith('SELECT user_id FROM community_password_reset_tokens')){
             const [digest,now]=args;
@@ -192,4 +198,104 @@ test('weak password, invalid token and expiration fail without changing credenti
     assert.equal(r.status,400);
   }
   assert.equal(f.recorded.batch.length,0);
+});
+
+test('reset accepts 20 requests per address per day, then skips sending without changing generic response',async()=>{
+  const originalFetch=globalThis.fetch;
+  const originalInfo=console.info,originalWarn=console.warn;
+  const logs=[];
+  let sends=0;
+  globalThis.fetch=async()=>{sends++;return new Response('{}',{status:200})};
+  console.info=(...args)=>logs.push(args.join(' '));
+  console.warn=(...args)=>logs.push(args.join(' '));
+  try{
+    const f=fixture();
+    for(let i=0;i<20;i++){
+      const r=await dispatch(f,'request',{email:'runner@example.test'});
+      assert.equal(r.status,200);
+      assert.deepEqual(await r.json(),{accepted:true});
+      await Promise.all(f.recorded.mail.splice(0));
+    }
+    assert.equal(sends,20);
+    const blocked=await dispatch(f,'request',{email:'runner@example.test'});
+    assert.equal(blocked.status,200);
+    assert.deepEqual(await blocked.json(),{accepted:true});
+    assert.equal(f.recorded.mail.length,0);
+    assert.equal(sends,20);
+    assert.ok(logs.includes('password reset request skipped: address_rate_limit'));
+    assert.equal(logs.filter(x=>x==='password reset delivery: queued').length,20);
+    assert.equal(logs.filter(x=>x==='password reset delivery: provider_accepted').length,20);
+  }finally{
+    globalThis.fetch=originalFetch;
+    console.info=originalInfo;
+    console.warn=originalWarn;
+  }
+});
+
+test('IP limiter allows 25 requests per hour, then returns 429 with a stage log',async()=>{
+  const originalInfo=console.info,originalWarn=console.warn;
+  const logs=[];
+  console.info=(...args)=>logs.push(args.join(' '));
+  console.warn=(...args)=>logs.push(args.join(' '));
+  try{
+    const f=fixture({known:false});
+    for(let i=0;i<25;i++){
+      const r=await dispatch(f,'request',{email:'visitor'+i+'@example.test'});
+      assert.equal(r.status,200);
+    }
+    const blocked=await dispatch(f,'request',{email:'visitor25@example.test'});
+    assert.equal(blocked.status,429);
+    assert.deepEqual(await blocked.json(),{error:'retry_later'});
+    assert.ok(logs.includes('password reset request skipped: ip_rate_limit'));
+    assert.equal(f.recorded.mail.length,0);
+  }finally{
+    console.info=originalInfo;
+    console.warn=originalWarn;
+  }
+});
+
+test('Resend HTTP rejection logs status and removes the unusable reset token',async()=>{
+  const originalFetch=globalThis.fetch;
+  const originalInfo=console.info,originalError=console.error;
+  const errors=[];
+  globalThis.fetch=async()=>new Response('rejected',{status:401});
+  console.info=()=>{};
+  console.error=(...args)=>errors.push(args.join(' '));
+  try{
+    const f=fixture();
+    const r=await dispatch(f,'request',{email:'runner@example.test'});
+    assert.equal(r.status,200);
+    assert.deepEqual(await r.json(),{accepted:true});
+    assert.equal(f.tokens.size,1);
+    await Promise.all(f.recorded.mail);
+    assert.equal(f.tokens.size,0);
+    assert.deepEqual(errors,['password reset delivery failed: reset_email_provider_http_401']);
+    assert.equal(errors.join(' ').includes('runner@example.test'),false);
+    assert.equal(errors.join(' ').includes('dummy-not-real'),false);
+  }finally{
+    globalThis.fetch=originalFetch;
+    console.info=originalInfo;
+    console.error=originalError;
+  }
+});
+
+test('Resend network failure is logged without exposing request details',async()=>{
+  const originalFetch=globalThis.fetch;
+  const originalInfo=console.info,originalError=console.error;
+  const errors=[];
+  globalThis.fetch=async()=>{throw Error('network unavailable')};
+  console.info=()=>{};
+  console.error=(...args)=>errors.push(args.join(' '));
+  try{
+    const f=fixture();
+    const r=await dispatch(f,'request',{email:'runner@example.test'});
+    assert.equal(r.status,200);
+    await Promise.all(f.recorded.mail);
+    assert.equal(f.tokens.size,0);
+    assert.deepEqual(errors,['password reset delivery failed: network_or_unknown']);
+  }finally{
+    globalThis.fetch=originalFetch;
+    console.info=originalInfo;
+    console.error=originalError;
+  }
 });

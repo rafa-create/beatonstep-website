@@ -129,6 +129,8 @@ async function signin(db,env,req) {
 // exists. E-mail sends run after the generic response in the Worker context.
 // A verified sender/domain and provider credentials must be configured first.
 const RESET_MS = 20 * 60 * 1000;
+const RESET_ADDRESS_LIMIT = 20; // Per e-mail address, per 24 hours.
+const RESET_IP_LIMIT = 25; // Per IP, per hour; allows 20 same-hour requests.
 const RESET_LINK_ORIGIN = 'https://beatonstep.app';
 const resetGeneric = () => reply({accepted:true});
 const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=254;
@@ -153,6 +155,7 @@ async function sendResetMail(env,email,token) {
     }),
   });
   if(!response.ok)throw Error('reset_email_provider_http_'+response.status);
+  console.info('password reset delivery: provider_accepted');
 }
 
 async function requestPasswordReset(db,env,req,ctx) {
@@ -160,22 +163,31 @@ async function requestPasswordReset(db,env,req,ctx) {
   if(typeof env.RESEND_API_KEY!=='string'||!env.RESEND_API_KEY||
      typeof env.PASSWORD_RESET_EMAIL_FROM!=='string'||
      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.PASSWORD_RESET_EMAIL_FROM)){
+    console.error('password reset request skipped: provider_not_configured');
     return reply({error:'password_reset_unavailable'},503);
   }
-  if(!(await limited(db,env,req,'password-reset-ip',8,60*60*1000))){
+  if(!(await limited(db,env,req,'password-reset-ip',RESET_IP_LIMIT,60*60*1000))){
+    console.warn('password reset request skipped: ip_rate_limit');
     return reply({error:'retry_later'},429);
   }
   const b=await jsonBody(req);
   const email=typeof b?.email==='string'?b.email.trim().toLowerCase():'';
-  if(!validEmail(email))return resetGeneric();
+  if(!validEmail(email)){
+    console.info('password reset request skipped: invalid_email');
+    return resetGeneric();
+  }
   // A salted identity bucket protects mailboxes against distributed abuse;
   // neither this hash nor the account ID is sent to clients.
-  if(!(await limited(db,env,req,'password-reset-address',3,DAY,email))){
+  if(!(await limited(db,env,req,'password-reset-address',RESET_ADDRESS_LIMIT,DAY,email))){
+    console.warn('password reset request skipped: address_rate_limit');
     return resetGeneric();
   }
   const user=await db.prepare('SELECT id FROM community_users WHERE email=?')
     .bind(email).first();
-  if(!user)return resetGeneric();
+  if(!user){
+    console.info('password reset request skipped: account_not_found');
+    return resetGeneric();
+  }
   const token=randomToken();
   const tokenHash=await hash(token);
   const now=Date.now();
@@ -188,6 +200,7 @@ async function requestPasswordReset(db,env,req,ctx) {
 
   // Route timing and response do not disclose account existence. Never log
   // the e-mail address, secret token or reset URL.
+  console.info('password reset delivery: queued');
   const delivery=sendResetMail(env,email,token).catch(async(error)=>{
     // Report only a numeric provider HTTP status; never log an e-mail,
     // token, provider response body, or authorization credentials.
