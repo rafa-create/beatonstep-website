@@ -11,6 +11,7 @@
   <meta property="og:image" content="https://beatonstep.app/assets/brand/logo-400.jpg">
   <meta name="theme-color" content="#0a0a08">
   <link rel="icon" href="assets/brand/logo-400.jpg">
+  <link rel="stylesheet" href="/sport-card-face.css">
   <style>
     :root {color-scheme:dark; --bg:#0a0a08;--panel:#171711;--border:#353429;--text:#f4f1e0;--muted:#b7b3a3;--yellow:#fcea07}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -323,6 +324,7 @@
     </a>
   </footer>
 </main>
+<script src="/sport-card-face.js"></script>
 <script>
 (function(){
   'use strict';
@@ -661,10 +663,11 @@
     identity.append(el('span','collection-brand','BeatOnStep'),
       el('span','collection-number','#'+item.id));
     head.append(identity,el('span','badge',fr('Défi','Challenge')));
-    const art=el('div','collection-art');
-    art.setAttribute('aria-hidden','true');
-    art.append(el('span','collection-glyph','✦'),
-      el('span','collection-art-label',fr('Performance sportive','Sports performance')));
+    // One face for catalogue, account and sport-gift views.
+    const face=BeatOnStepSportCards.createFace(document,{
+      title:sportName(item),distanceCm:item.distanceCm,difficulty:item.difficulty,
+    },lang);
+    const copy=el('div','bos-sport-copy');
     const title=el('h2','',sportName(item));
     const level=difficultyLabels[item.difficulty]||null;
     const levelLabel=level?fr(level[0],level[1]):fr('Non précisée','Not specified');
@@ -672,9 +675,10 @@
     const owner=el('p','sport-ownership');
     owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),
       el('strong','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
-    summary.append(head,art,title,difficulty,owner);
+    copy.append(head,title,difficulty,owner);
+    summary.append(face,copy);
     if(item.performanceWarning===true)
-      summary.append(el('p','sport-warning',
+      copy.append(el('p','sport-warning',
         fr('⚠ Performance non validée','⚠ Performance not validated')));
     if(!detailed&&!inFocus){
       summary.tabIndex=0;
