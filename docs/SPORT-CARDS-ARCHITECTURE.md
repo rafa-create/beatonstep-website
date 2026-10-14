@@ -8,6 +8,36 @@ BeatOnStep propose des séances à programmer et des cartes sportives à gagner 
 
 Une course enregistrée peut générer une carte pour la plus grande distance canonique éligible et son seuil SUB réellement atteint. L'identité mondiale de la carte est définie par `(distance_cm, time_unit, sub_value)` : un seul détenteur à la fois. Réussites personnelles, donations et périodes de possession restent distinctes.
 
+## Barème officiel hébergé sur le site, sans dépendance au Worker
+
+Le fichier statique **`sport-card-rules.json` à la racine du site** est la
+**seule source modifiable** pour les seuils de niveau par distance. Le Worker
+l'importe directement depuis le dépôt au moment de sa compilation : chaque
+future attribution D1 applique ces mêmes valeurs sans appeler de serveur distant,
+de catalogue public ni de service de télémétrie. Le guide public
+`sport-card-paliers.json` est **généré** par `scripts/build-static.mjs` à
+partir des fonctions qui lisent ce fichier, et n'est pas un barème indépendant.
+
+Pour modifier, par exemple, la limite **Expert du marathon**, changer
+`capsByDistance["4219500"].expert` dans **ce fichier uniquement**, puis
+augmenter `revision`. Les sept plafonds doivent rester strictement croissants,
+de `world_elite` à `beginner` ; le palier suivant doit rester supérieur.
+Le code du Worker et le code de l'application n'ont aucun nombre sportif
+à modifier manuellement.
+
+L'application récupère **`https://beatonstep.app/sport-card-rules.json`**
+par HTTP statique hors des séances, valide son contenu et le conserve localement.
+Les trophées restent gagnables sans Internet avec la dernière copie connue.
+Un instantané initial livré dans l'application sert uniquement à une première
+installation totalement hors ligne, et ne constitue pas une seconde source
+à maintenir. Aucun déploiement natif n'est nécessaire pour recevoir une
+nouvelle version publiée du barème après reconnexion.
+
+Le niveau des **cartes mondiales déjà créées est conservé dans D1**, même si
+le barème change : les valeurs mises à jour concernent les nouvelles cartes.
+Lors de la synchronisation, l'application conserve le niveau officiel enregistré
+avec une carte mondiale existante, plutôt que de la reclassifier localement.
+
 ## Attribution indépendante de la télémétrie
 
 1. L'application termine la course hors ligne ou en ligne et conserve immédiatement le résultat et la carte locale.
