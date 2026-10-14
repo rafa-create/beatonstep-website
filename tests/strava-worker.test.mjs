@@ -121,3 +121,125 @@ test('two concurrent callbacks at 9/10 cannot admit an eleventh athlete', async 
     assert.equal(deauthorizations,1);
   } finally { globalThis.fetch=nativeFetch; }
 });
+
+async function publishingFixture() {
+  const iv = new Uint8Array(12).fill(7);
+  const key = await crypto.subtle.importKey('raw',new Uint8Array(32).fill(0xaa),
+    {name:'AES-GCM'},false,['encrypt']);
+  const cipher = new Uint8Array(await crypto.subtle.encrypt(
+    {name:'AES-GCM',iv},key,new TextEncoder().encode('mock-access-token')));
+  const row = {
+    athlete_id:'athlete-123',device_hash:DEVICE,
+    access_nonce:hex(iv),access_cipher:hex(cipher),
+    expires_at:Math.floor(Date.now()/1000)+3600,
+  };
+  const exports = new Map();
+  const db = {
+    exports,
+    prepare(sql) {
+      let args=[];
+      return {
+        bind(...values){args=values;return this;},
+        async first(){
+          if(sql.startsWith('SELECT * FROM strava_connections')) return row;
+          if(sql.startsWith('SELECT status,activity_id FROM strava_exports'))
+            return exports.get(args[0]+'|'+args[1])||null;
+          throw Error('Unexpected SQL first: '+sql);
+        },
+        async run(){
+          if(sql.startsWith('INSERT INTO strava_exports')){
+            const identity=args[0]+'|'+args[1];
+            if(exports.has(identity))return {meta:{changes:0}};
+            exports.set(identity,{status:'pending',activity_id:null});
+            return {meta:{changes:1}};
+          }
+          if(sql.startsWith('DELETE FROM strava_exports')){
+            const identity=args[0]+'|'+args[1];
+            if(exports.get(identity)?.status!=='pending')return {meta:{changes:0}};
+            exports.delete(identity);
+            return {meta:{changes:1}};
+          }
+          if(sql.startsWith('UPDATE strava_exports')){
+            const identity=args[2]+'|'+args[3];
+            exports.set(identity,{status:'complete',activity_id:args[0]});
+            return {meta:{changes:1}};
+          }
+          throw Error('Unexpected SQL run: '+sql);
+        },
+      };
+    },
+  };
+  const startedAtMs=Date.now()-120000;
+  const payload={runId:'bos-'+startedAtMs,startedAtMs,elapsedTime:90,distanceMeters:null};
+  const call=()=>stravaRequest(new Request(ROOT+'/api/strava/publish',{
+    method:'POST',
+    headers:{'x-bos-strava-key':DEVICE,'content-type':'application/json'},
+    body:JSON.stringify(payload),
+  }),env(db),new URL(ROOT+'/api/strava/publish'));
+  return {db,call};
+}
+
+test('a definite Strava 400 refusal releases the pending marker and allows a later successful retry',async()=>{
+  const {db,call}=await publishingFixture();
+  const realFetch=globalThis.fetch;
+  let attempts=0;
+  globalThis.fetch=async(url,request)=>{
+    assert.equal(String(url),'https://www.strava.com/api/v3/activities');
+    const form=new URLSearchParams(request.body);
+    assert.equal(form.get('sport_type'),'Run');
+    assert.equal(form.get('distance'),null,'unmeasured distance must not be invented');
+    attempts++;
+    if(attempts===1)return {ok:false,status:400};
+    return {ok:true,status:201,json:async()=>({id:123456789})};
+  };
+  try{
+    const rejected=await call();
+    assert.equal(rejected.status,502);
+    assert.deepEqual(await rejected.json(),{error:'strava_activity_rejected',upstreamStatus:400});
+    assert.equal(db.exports.size,0,'definitely rejected activity must not remain stuck');
+    const success=await call();
+    assert.equal(success.status,200);
+    assert.deepEqual(await success.json(),{
+      ok:true,url:'https://www.strava.com/activities/123456789',
+    });
+    const duplicate=await call();
+    assert.deepEqual(await duplicate.json(),{
+      ok:true,alreadyPublished:true,url:'https://www.strava.com/activities/123456789',
+    });
+    assert.equal(attempts,2,'completed activity must never be posted twice');
+  }finally{globalThis.fetch=realFetch;}
+});
+
+test('Strava 429/403 refusals safely release the pending record with a distinct error',async()=>{
+  for(const status of [429,403]){
+    const {db,call}=await publishingFixture();
+    const realFetch=globalThis.fetch;
+    globalThis.fetch=async()=>({ok:false,status});
+    try{
+      const response=await call();
+      assert.equal(response.status,502);
+      assert.deepEqual(await response.json(),{
+        error:status===429?'strava_rate_limited':'strava_permission_denied',
+        upstreamStatus:status,
+      });
+      assert.equal(db.exports.size,0,'rejected activity must not leave a pending marker');
+    }finally{globalThis.fetch=realFetch;}
+  }
+});
+
+test('ambiguous Strava 503 response remains pending and blocks duplicate submissions',async()=>{
+  const {db,call}=await publishingFixture();
+  const realFetch=globalThis.fetch;
+  let attempts=0;
+  globalThis.fetch=async()=>{attempts++;return {ok:false,status:503};};
+  try{
+    const first=await call();
+    assert.equal(first.status,502);
+    assert.deepEqual(await first.json(),{error:'strava_publication_failed_verify'});
+    assert.equal(db.exports.size,1);
+    const repeated=await call();
+    assert.equal(repeated.status,409);
+    assert.deepEqual(await repeated.json(),{error:'publication_pending_verify_strava'});
+    assert.equal(attempts,1,'potentially created activity must not be retried blindly');
+  }finally{globalThis.fetch=realFetch;}
+});
