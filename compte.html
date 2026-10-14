@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0a0a08">
 <title>Mon compte — BeatOnStep</title>
-<style>
+<link rel="stylesheet" href="/sport-card-face.css"><style>
 :root{color-scheme:dark;--bg:#0a0a08;--panel:#1b1b14;--line:#48412d;--ink:#f5f2e4;--accent:#fcea07;--sub:#bcb6a5}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif}
 main{max-width:720px;padding:24px 18px 65px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -168,6 +168,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 </div>
 <section id="public-profile" hidden><h2 id="public-handle"></h2><ul id="public-items"></ul></section>
 </main>
+<script src="/sport-card-face.js"></script>
 <script>
 (() => {
   'use strict';
@@ -439,13 +440,20 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         meta.textContent=note+' · '+(card.difficulty||'')+
           ' · '+(category==='ghost'?'Détenue pendant ':'Détenue depuis ')+
           tenure(card.heldDurationMs);
-        li.append(title,meta);
+        const face=BeatOnStepSportCards.createFace(document,{
+          title:displaySportName(card.name),distanceCm:card.distanceCm,
+          difficulty:card.difficulty,variant:category==='ghost'?'ghost':'owned',
+        },'fr');
+        const copy=document.createElement('div');copy.className='sport-deck-copy';
+        copy.append(title,meta);
+        li.className='deck-tile sport-deck-tile';
+        li.append(face,copy);
         if(card.verifiedAfterGiftAt){
           const history=document.createElement('small');
           history.textContent='Reçue le '+date(card.verifiedGiftAt||card.firstGiftAt)+
             ' · Réussie le '+date(card.verifiedAfterGiftAt)+
             (card.lostAt?' · Perdue le '+date(card.lostAt):'');
-          li.append(history);
+          copy.append(history);
         }
         deck.append(li);
       };
