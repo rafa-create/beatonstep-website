@@ -12,6 +12,8 @@ GitHub Pages n'est pas utilisé pour la production. Les publications de l'applic
 
 Les modalités de déploiement et de vérification sont décrites dans [CLOUDFLARE.md](CLOUDFLARE.md).
 
+Les cartes de défis sportifs sont attribuées après une course, sans publication manuelle de défi. Leur registre public repose sur Cloudflare Workers et D1 ; une analyse télémétrique éventuelle est distincte de l'attribution. Voir [les principes des cartes sportives](docs/SPORT-CARDS-ARCHITECTURE.md).
+
 ## Pages principales
 
 - [Accueil](https://beatonstep.app/)
