@@ -64,6 +64,20 @@ test('a trustworthy local source can supply measured splits without requiring st
   assert.equal(result.subValue,40);
   assert.equal(result.splitTiming,'recorded');
 });
+test('final Pause at 400m uses measured pause time; earlier pauses remain included',()=>{
+  const withPause=run('phone_gps',410,315000,{
+    sportCrossings:[{distanceCm:40000,elapsedMs:175000}],
+  });
+  const result=evaluateOfflineSportSummary(withPause);
+  assert.equal(result.status,'candidate');
+  assert.equal(result.subValue,176);
+  assert.equal(result.splitTiming,'recorded');
+  assert.equal(result.elapsedIncludesPauses,true);
+  const noCutoff=evaluateOfflineSportSummary(run('phone_gps',410,315000));
+  assert.equal(noCutoff.status,'none',
+    'without measured pause distance, do not fabricate a winning 400m split');
+});
+
 test('sporting telemetry anomalies warn but structurally invalid measurements do not qualify',()=>{
   const speed=evaluateOfflineSportSummary(run('phone_gps',10000,120000));
   assert.equal(speed.status,'candidate');
