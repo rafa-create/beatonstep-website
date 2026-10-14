@@ -132,6 +132,22 @@ test('v2 public listing exposes distance and deadline, never a private GPS trace
   assert.equal(Object.hasOwn(item,'latitude'),false);
   assert.equal(Object.hasOwn(item,'longitude'),false);
   assert.equal(Object.hasOwn(item,'owner_user_id'),false);
+  // V1 musical workouts now expose an explicit mode so time and distance
+  // session cards remain distinguishable in the public catalogue.
   const time=publicRow({...row,payload_v:1,goal_mode:null});
-  assert.equal(Object.hasOwn(time,'goalMode'),false);
+  assert.equal(time.goalMode,'time');
+  assert.equal(Object.hasOwn(time,'targetMeters'),false);
+  assert.equal(Object.hasOwn(time,'deadlineSec'),false);
+  assert.equal(Object.hasOwn(time,'latitude'),false);
+  assert.equal(Object.hasOwn(time,'longitude'),false);
+  const distanceWorkout=publicRow({
+    ...row,payload_v:1,goal_mode:null,
+    workout_goal:'distance',workout_distance_meters:5000,
+    latitude:48.85,longitude:2.3,owner_user_id:'private',
+  });
+  assert.equal(distanceWorkout.goalMode,'distance');
+  assert.equal(distanceWorkout.distanceMeters,5000);
+  assert.equal(Object.hasOwn(distanceWorkout,'latitude'),false);
+  assert.equal(Object.hasOwn(distanceWorkout,'longitude'),false);
+  assert.equal(Object.hasOwn(distanceWorkout,'owner_user_id'),false);
 });
