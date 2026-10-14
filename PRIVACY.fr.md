@@ -121,7 +121,7 @@ Ces données ne sont **ni vendues, ni utilisées pour la publicité, ni utilisé
 
 ### 3.10 Suivi GPS des courses sur iOS, Android et Garmin (facultatif)
 
-**GPS du téléphone (BeatOnStep 1.7.2).** Lorsque vous démarrez volontairement une course ou une séance à objectif kilométrique avec GPS, BeatOnStep peut demander l'accès à la localisation pour mesurer la **distance parcourue**, calculer l'allure lorsqu'elle est disponible et suivre la progression des phases. Le GPS ne démarre pas à l'ouverture de l'application. Vous pouvez refuser l'accès ; les fonctionnalités nécessitant une distance GPS fiable seront alors indisponibles ou limitées. Mettre la séance en pause suspend le suivi ; terminer la séance l'arrête.
+**GPS du téléphone (si vous activez cette fonction).** Lorsque vous démarrez volontairement une course ou une séance à objectif kilométrique avec GPS, BeatOnStep peut demander l'accès à la localisation pour mesurer la **distance parcourue**, calculer l'allure lorsqu'elle est disponible et suivre la progression des phases. Le GPS ne démarre pas à l'ouverture de l'application. Vous pouvez refuser l'accès ; les fonctionnalités nécessitant une distance GPS fiable seront alors indisponibles ou limitées. Mettre la séance en pause suspend le suivi ; terminer la séance l'arrête.
 
 - **Sur iPhone**, iOS peut demander la localisation pendant l'utilisation et l'autorisation nécessaire à la poursuite d'une séance lorsque le téléphone est verrouillé ou que l'application passe en arrière-plan.
 - **Sur Android**, la mesure nécessite la permission de localisation et, pendant une séance active, peut utiliser un service de premier plan avec une notification visible pour continuer sous écran verrouillé. BeatOnStep ne demande pas la permission Android distincte `ACCESS_BACKGROUND_LOCATION`.
@@ -213,13 +213,17 @@ La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant
 - **Compte Apple / Apple Music** : exercez vos droits auprès d'Apple selon leurs procédures.
 - **Spotify** : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l'appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.
 - **Deezer** : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l'appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.
-- **Serveur BeatOnStep** : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Help sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **Serveur BeatOnStep** : un compte de catalogue est facultatif (§ 2). Pour la mesure pseudonyme des playlists, le serveur ne conserve que le dernier état par installation, sans historique détaillé des envois (§ 3.9). Les rapports de diagnostic ne sont transmis qu'à votre demande (§ 3.11). Pour toute demande relative à vos données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
 
 Cette politique peut être mise à jour. La date en haut du document reflète la dernière révision. La version en vigueur est disponible à l'adresse communiquée sur la fiche **Google Play** et dans l'app (*Réglages → À propos*) :
 
 **https://beatonstep.app/privacy.html**
+
+**Historique des principales évolutions**
+
+- **14 octobre 2026 — version 1.7.2 :** précisions sur le GPS des séances iOS/Android, les permissions associées et les partages facultatifs de résultats sportifs. Les versions précédentes restent consultables dans [l'historique public du dépôt](https://github.com/rafa-create/beatonstep-website/commits/main/PRIVACY.fr.md).
 
 ## 10. Contact
 
