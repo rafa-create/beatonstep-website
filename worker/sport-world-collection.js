@@ -20,7 +20,7 @@ const pageResult=(rows,mapper)=>{
   const list=rows.results||[],page=list.slice(0,50);
   return {items:page.map(mapper),hasMore:list.length>50,last:page.at(-1)||null};
 };
-export async function readSportWorldCollection(db,userId,url){
+export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=false}={}){
   const path=url.pathname;
   if(!['/api/account/device/sport/deck',
        '/api/account/device/sport/history'].includes(path))
@@ -33,6 +33,10 @@ export async function readSportWorldCollection(db,userId,url){
     const rows=await db.prepare(`SELECT
       c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,c.owner_since,
       c.owner_epoch,CASE WHEN c.current_owner_id=? THEN 1 ELSE 0 END AS owned,
+      ${telemetryEnabled ? `(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
+         FROM sport_card_telemetry_reviews tr
+         WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch)
+      ` : '0'} AS performance_warning,
       a.first_validated_at,a.successful_runs,
       (SELECT e.changed_at FROM sport_card_ownership_events e
        WHERE e.card_id=c.id AND e.new_owner_id=?
@@ -93,6 +97,7 @@ export async function readSportWorldCollection(db,userId,url){
         distanceCm:row.distance_cm,timeUnit:row.time_unit,
         subValue:row.sub_value,difficulty:row.difficulty,
         currentlyOwned,ghost:!currentlyOwned&&acquiredAt!=null,
+        performanceWarning:currentlyOwned&&bool(row.performance_warning),
         personallyValidated:validatedAt!=null,
         firstValidatedAt:validatedAt,
         successfulAttempts:Number(row.successful_runs)||0,
