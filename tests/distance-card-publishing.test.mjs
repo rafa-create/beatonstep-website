@@ -135,3 +135,50 @@ test('v2 public listing exposes distance and deadline, never a private GPS trace
   const time=publicRow({...row,payload_v:1,goal_mode:null});
   assert.equal(Object.hasOwn(time,'goalMode'),false);
 });
+
+const music5k={
+  v:3,n:'Endurance musicale 5 km',s:'spotify',goalMode:'distance',
+  targetMeters:5000,
+  p:[['Warm up',1000,145,140,600],['Endurance',4000,160,160,1200]],
+  t:[{p:0,n:'First Song',a:'Artist A'}, {p:1,n:'Second Song',a:'Artist B'}],
+};
+
+test('v3 GPS distance workout publishes real kilometres without claiming a sporting reward',()=>{
+  const meta=validate('workout',music5k);
+  assert.equal(meta.name,'Endurance musicale 5 km');
+  assert.equal(meta.source,'spotify');
+  assert.equal(meta.tracks,2);
+  assert.equal(meta.durationSec,1800,'the music estimate remains distinct from GPS distance');
+  assert.deepEqual(meta.profile,[[600,145],[1200,160]]);
+  for(const invalid of [
+    {...music5k,targetMeters:10000},
+    {...music5k,p:[['Warm up',600,145,140,600]]},
+    {...music5k,t:[{p:0,n:'No artist',a:''}]},
+    {...music5k,goalMode:'time'},
+  ])assert.equal(validate('workout',invalid),null);
+  const card=publicRow({id:10,kind:'workout',source:'spotify',name:meta.name,
+    duration_sec:1800,tracks:2,phases:2,views:1,imports:5,
+    profile_json:JSON.stringify(meta.profile),created_at:123,
+    payload_v:3,goal_mode:'distance',target_meters:5000});
+  assert.equal(card.goalMode,'distance');
+  assert.equal(card.targetMeters,5000);
+  assert.equal(card.imports,5);
+  assert.equal(card.deadlineSec,undefined);
+});
+
+test('v3 musical distance card belongs to its creator, unlike retired V2 challenge',async()=>{
+  let created=false,card=null;
+  const db={
+    prepare(sql){return {bind(...args){return {sql,args,first:async()=>{
+      if(sql==='SELECT share_id FROM workout_cards WHERE fingerprint=?')
+        return created?{share_id:81}:null;
+      throw Error('unexpected select');
+    }};}}},
+    async batch(entries){card=entries[1];created=true;return [{meta:{last_row_id:81}}];},
+  };
+  const result=await publishUniqueWorkout(db,music5k,validate('workout',music5k),{id:'runner'});
+  assert.deepEqual(result,{id:81,created:true});
+  assert.equal(card.args[1],'runner');
+  assert.equal(card.args[2],'runner','publishing musician owns the musical card');
+  assert.equal(card.args[4],'created');
+});
