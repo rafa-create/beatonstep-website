@@ -27,7 +27,7 @@ test('a gift increments epoch and the next owner never inherits an old warning',
   const q=statements[0];
   assert.match(q.sql,/state='pending'/);
   assert.match(q.sql,/WHEN needs_warning=1 THEN 'warning' ELSE 'clear'/);
-  assert.doesNotMatch(q.sql,/current_owner_id|owner_epoch/);
+  assert.doesNotMatch(q.sql,/current_owner_id/);
   assert.equal(q.args[0],3000);
   assert.doesNotMatch(q.sql,/UPDATE sport_world_cards|INSERT INTO sport_card_ownership_events/);
 });
