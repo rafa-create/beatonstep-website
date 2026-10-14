@@ -6,7 +6,7 @@ const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
   difficulty:'amateur',created_at:1000,owner_handle:'runner_b'};
 
-function mockDb(overrides={}){
+function mockDb(overrides={},historyRows=null){
   const queries=[];
   const db={prepare(sql){
     return {bind(...args){
@@ -25,7 +25,7 @@ function mockDb(overrides={}){
           if(sql.includes('ORDER BY c.distance_cm'))
             return {results:[{...sport,...overrides}]};
           if(sql.includes('FROM sport_card_ownership_events e'))
-            return {results:[
+            return {results:historyRows??[
               {reason:'gift_claim',changed_at:4000,
                 from_handle:'runner_a',to_handle:'runner_b'},
               {reason:'sport_win',changed_at:1000,
@@ -115,4 +115,40 @@ test('owner epoch separates an old flagged performance from a clean gift',async(
   const newHolder=await clean.json();
   assert.equal(newHolder.owner,'recipient');
   assert.equal(newHolder.performanceWarning,false);
+});
+
+test('each historic sporting winner keeps their OWN warning after later transfers',async()=>{
+  const rows=[
+    {reason:'sport_win',changed_at:7000,
+      from_handle:'runner_b',to_handle:'runner_c',
+      performance_warning:1,
+      warning_reasons:'["implausible_speed","inconsistent_crossings"]'},
+    {reason:'gift_claim',changed_at:4000,
+      from_handle:'runner_a',to_handle:'runner_b',
+      performance_warning:0,warning_reasons:null},
+    {reason:'sport_win',changed_at:1000,
+      from_handle:null,to_handle:'runner_a',
+      performance_warning:1,warning_reasons:null},
+  ];
+  const {db,queries}=mockDb({owner_handle:'runner_c',performance_warning:1},rows);
+  const response=await readPublicSportCards(db,url('/api/sport/cards/17'),{
+    now:8000,telemetryEnabled:true,
+  });
+  assert.equal(response.status,200);
+  const body=await response.json();
+  assert.equal(body.history.length,3);
+  assert.deepEqual(body.history[0].warningReasons,
+    ['implausible_speed','inconsistent_crossings']);
+  assert.equal(body.history[0].performanceWarning,true);
+  assert.equal(body.history[1].performanceWarning,undefined,
+    'gift must not inherit a sporting review');
+  assert.equal(body.history[2].performanceWarning,true,
+    'historical warning persists for the first holder');
+  assert.deepEqual(body.history[2].warningReasons,[],
+    'old warnings without saved motives must not fabricate details');
+  const query=queries.find(q=>q.sql.includes('LIMIT 101'));
+  assert.match(query.sql,/tr.owner_epoch=e.new_epoch/);
+  assert.match(query.sql,/rd.owner_epoch=e.new_epoch/);
+  assert.match(query.sql,/e.reason='sport_win'/);
+  assert.doesNotMatch(JSON.stringify(body),/latitude|longitude|evidence_digest|user_id/);
 });
