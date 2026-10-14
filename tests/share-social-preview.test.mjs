@@ -97,7 +97,10 @@ test('deleted and nonexistent shares retain honest generic preview', async () =>
   ), env);
   const html = await response.text();
   assert.equal(html, PAGE);
-  assert.match(html, /Partages BeatOnStep — Séances et playlists/);
+  assert.match(html, /<title>Séances musicales et défis — BeatOnStep<\/title>/);
+  assert.match(html, /<meta property="og:title" content="BeatOnStep — Séances musicales et défis">/);
+  assert.doesNotMatch(html, /Course progressive 40 min — BeatOnStep/,
+    'a deleted card must not keep personalized metadata');
   assert.equal(queries.length, 1);
 });
 
