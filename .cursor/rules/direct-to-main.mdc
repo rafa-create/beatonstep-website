@@ -20,3 +20,7 @@ Ce site est en production via `main`. Ne pas créer de pull request ni de branch
 - `git checkout -b …` pour ce dépôt
 - Ouvrir / maintenir une PR “pour review”
 - Laisser des branches `cursor/*` sur le remote après le travail
+
+## Maintenance du code et compatibilité mobile
+
+Appliquer les [consignes IA du site](../../.github/copilot-instructions.md) : si une évolution touche une page ou un module API volumineux, contribuer **lorsque c'est pertinent** à un découpage ciblé, avec **tests de non-régression**. Ne pas découper uniquement pour réduire le nombre de lignes. Protéger les contrats Cloudflare/D1 consommés par l'application mobile.
