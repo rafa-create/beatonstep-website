@@ -28,7 +28,7 @@
     "SPORT_WORLD_CARDS_ENABLED": "true",
     "SPORT_WORLD_GIFTS_ENABLED": "true",
     "SPORT_AUTO_AWARDS_ENABLED": "true",
-    "SPORT_ASYNC_TELEMETRY_ENABLED": "false"
+    "SPORT_ASYNC_TELEMETRY_ENABLED": "true"
   },
   "triggers": {
     "crons": ["*/15 * * * *"]
