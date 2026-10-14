@@ -96,3 +96,26 @@ test('world sport API stays read-only, opt-in, and authenticated',()=>{
   assert.match(code,/const member=await webUser\(db,request\)/);
   assert.doesNotMatch(code,/method==='POST' && path\.startsWith\('\/api\/account\/device\/sport\//);
 });
+
+test('private history explains only the runner own sporting wins, not the winner who displaced them',async()=>{
+  const db={rows:[
+    {happened_at:1790000003000,event_key:'ownership:30',card_id:42,
+      event_type:'lost',run_id:null,distance_cm:500000,time_unit:'minute',
+      sub_value:19,performance_warning:1,
+      warning_reasons:'["implausible_speed"]'},
+    {happened_at:1790000001000,event_key:'ownership:10',card_id:42,
+      event_type:'won',run_id:null,distance_cm:500000,time_unit:'minute',
+      sub_value:19,performance_warning:1,
+      warning_reasons:'["invalid_pause_duration"]'},
+  ]};
+  const response=await readSportWorldCollection(compact(db),'test-member',
+    url('/api/account/device/sport/history'),{telemetryEnabled:true});
+  assert.equal(response.status,200);
+  const body=await response.json();
+  assert.equal(body.items[0].performanceWarning,undefined);
+  assert.equal(body.items[1].performanceWarning,true);
+  assert.deepEqual(body.items[1].warningReasons,['invalid_pause_duration']);
+  assert.match(db.sql,/tr.owner_epoch=e.new_epoch/);
+  assert.match(db.sql,/rd.owner_epoch=e.new_epoch/);
+  assert.match(db.sql,/NULL AS warning_reasons/);
+});
