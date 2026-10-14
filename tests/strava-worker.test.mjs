@@ -189,7 +189,7 @@ test('a definite Strava 400 refusal releases the pending marker and allows a lat
     assert.equal(form.get('sport_type'),'Run');
     assert.equal(form.get('distance'),null,'unmeasured distance must not be invented');
     attempts++;
-    if(attempts===1)return {ok:false,status:400};
+    if(attempts===1)return {ok:false,status:400,json:async()=>({message:'not logged',errors:[{field:'elapsed_time',code:'invalid'}]})};
     return {ok:true,status:201,json:async()=>({id:123456789})};
   };
   try{
