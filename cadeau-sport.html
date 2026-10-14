@@ -8,6 +8,7 @@
 <title>Cadeau sportif · BeatOnStep</title>
 <meta name="description" content="Un défi sportif BeatOnStep à découvrir et à accepter librement.">
 <link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/sport-card-face.css">
 <style>
 body{margin:0;min-height:100vh;background:#10100c;color:#eee;font-family:system-ui,Arial,sans-serif}
 main{max-width:760px;margin:auto;padding:32px 19px 60px;text-align:center}
@@ -40,9 +41,9 @@ border:1px solid #b6ac63;cursor:pointer;text-decoration:none}
 <a class="back" href="/compte.html">← Mon compte</a>
 <p class="eyebrow">BeatOnStep · Défi sportif</p>
 <h1>On t'offre une carte sportive !</h1>
-<section class="trophy" aria-labelledby="card-title">
+<section class="trophy sport-gift-panel" aria-labelledby="card-title">
   <small>CARTE MONDIALE</small>
-  <div class="icon" aria-hidden="true">🏆</div>
+  <div id="card-face" class="sport-gift-face" aria-live="polite"></div>
   <h2 id="card-title">Défi à découvrir</h2>
   <p id="card-difficulty"></p>
   <small id="card-donor"></small>
@@ -62,6 +63,7 @@ Seul le premier coureur connecté qui l'accepte pendant que le donateur
 possède encore cette carte peut la recevoir. « Prouver qu'il a tort »
 ouvre la course normale, sans démarrage automatique.</p>
 </main>
+<script src="/sport-card-face.js"></script>
 <script>
 (()=>{
   'use strict';
@@ -94,6 +96,10 @@ ouvre la course normale, sans démarrage automatique.</p>
       if(!ok||!result.card)throw Error('unavailable');
       const card=result.card;
       $('card-title').textContent=displaySportName(card.name);
+      $('card-face').replaceChildren(BeatOnStepSportCards.createFace(document,{
+        title:displaySportName(card.name),distanceCm:card.distanceCm,
+        difficulty:card.difficulty,
+      },'fr'));
       $('card-difficulty').textContent='Niveau '+String(card.difficulty||'—').replaceAll('_',' ');
       $('card-donor').textContent=result.donorHandle
         ?'Offert par @'+result.donorHandle:'Cadeau d’un coureur BeatOnStep';
