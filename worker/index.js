@@ -33,6 +33,29 @@ const positive = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
 export function validate(kind, payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
       new TextEncoder().encode(JSON.stringify(payload)).length > 512 * 1024) return null;
+  // v3: public musical distance workout. Unlike retired v2 distance
+  // challenges, this is a playable session with phases and songs.
+  if (kind === 'workout' && payload.v === 3) {
+    if (payload.goalMode !== 'distance' ||
+        !PUBLIC_SOURCES.includes(payload.s) ||
+        !Array.isArray(payload.p) || !payload.p.length || payload.p.length > 32 ||
+        !Array.isArray(payload.t) || !payload.t.length || payload.t.length > 600 ||
+        !Number.isSafeInteger(payload.targetMeters) ||
+        payload.targetMeters < 100 || payload.targetMeters > 200000 ||
+        payload.p.some(p=>!Array.isArray(p)||p.length!==5||!clean(p[0])||
+          !Number.isSafeInteger(p[1])||p[1]<50||p[1]>200000||
+          !Number.isSafeInteger(p[2])||p[2]<30||p[2]>300||
+          !(p[3]===null||(Number.isSafeInteger(p[3])&&p[3]>0))||
+          !Number.isSafeInteger(p[4])||p[4]<30||p[4]>14400) ||
+        payload.p.reduce((total,p)=>total+p[1],0)!==payload.targetMeters ||
+        payload.t.some(t=>!t||!Number.isInteger(t.p)||t.p<0||
+          t.p>=payload.p.length||!clean(t.n,160)||!clean(t.a,120))) return null;
+    const duration=payload.p.reduce((total,p)=>total+p[4],0);
+    if(duration<60||duration>14400)return null;
+    return {name:clean(payload.n)||'Séance kilométrique',source:payload.s,
+      durationSec:duration,bpm:null,tracks:payload.t.length,
+      phases:payload.p.length,profile:payload.p.map(p=>[p[4],p[2]])};
+  }
   if (kind === 'workout' && payload.v === 2) {
     const rule=challengeRule(payload);
     // A public canonical card never stores anybody's personal playlist,
@@ -88,6 +111,9 @@ export function publicRow(row) {
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
     phases: row.phases, ...(profile ? { profile } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
+    ...(row.payload_v===3 && row.goal_mode==='distance' &&
+        Number.isSafeInteger(row.target_meters)
+      ? {goalMode:'distance',targetMeters:row.target_meters} : {}),
     ...(row.payload_v===2 && row.goal_mode==='distance' &&
         Number.isSafeInteger(row.target_meters) &&
         Number.isSafeInteger(row.deadline_sec)
@@ -124,6 +150,10 @@ async function d1Request(request, env, url) {
   if (path === '/api/shared' && request.method === 'GET') {
     const kind = ['runmix', 'workout'].includes(url.searchParams.get('kind'))
       ? url.searchParams.get('kind') : 'all';
+    // Keep the old Run Mix endpoint and direct URLs, but let the new catalogue
+    // filter timed and GPS distance workouts without touching old IDs.
+    const goal=['time','distance'].includes(url.searchParams.get('goal'))
+      ?url.searchParams.get('goal'):'all';
     const source = PUBLIC_SOURCES.includes(url.searchParams.get('source'))
       ? url.searchParams.get('source') : 'all';
     const sort = url.searchParams.get('sort') === 'popular' ? 'popular' : 'recent';
@@ -132,6 +162,12 @@ async function d1Request(request, env, url) {
     const predicates = [], args = [];
     if (cardsEnabled(env)) predicates.push('NOT EXISTS(SELECT 1 FROM workout_card_aliases a WHERE a.alias_share_id=shared_items.id)');
     if (kind !== 'all') { predicates.push('kind = ?'); args.push(kind); }
+    if(kind==='workout'){
+      // Exclude retired V2 publishable challenges from musical discovery.
+      const version="CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.v') END";
+      predicates.push(version+' IN (1,3)');
+      if(goal!=='all')predicates.push(version+' = '+(goal==='distance'?'3':'1'));
+    }
     if (source !== 'all') { predicates.push('source = ?'); args.push(source); }
     const where = predicates.length ? ' WHERE ' + predicates.join(' AND ') : '';
     const count = await db.prepare('SELECT COUNT(*) AS total FROM shared_items' + where)
