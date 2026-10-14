@@ -377,7 +377,7 @@ test('OTA: reject forged out-of-range optional metrics before posting to Strava'
   globalThis.fetch=async()=>{throw Error('Strava must not be called');};
   try{
     for(const bad of [{cadencePpm:990},{heartRateBpm:'145'},
-                      {paceSecPerKm:-2},{maxHeartRateBpm:Infinity}]){
+                      {paceSecPerKm:-2},{maxHeartRateBpm:true}]){
       const response=await call(bad);
       assert.equal(response.status,400,JSON.stringify(bad));
       assert.deepEqual(await response.json(),{error:'invalid_run'});
