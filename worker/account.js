@@ -3,6 +3,7 @@ import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
+import {enqueueSportTelemetryReview} from './sport-card-telemetry.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift,cardProfile } from './pack.js';
 
 // Optional community identities for the public catalogue.
@@ -361,7 +362,17 @@ export async function accountRequest(request,env,url,ctx) {
         return reply({error:'retry_later'},429);
       const payload=await jsonBody(request);
       if(!payload)return reply({error:'invalid_payload'},400);
-      return reconcileOfflineSportResult(db,member.id,payload);
+      return reconcileOfflineSportResult(db,member.id,payload,{
+        onAward:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
+          ?review=>{
+              const task=enqueueSportTelemetryReview(db,review.cardId,
+                review.ownerEpoch,review.needsWarning,{now:review.now})
+                .catch(()=>{console.warn('sport review enqueue unavailable');});
+              if(ctx?.waitUntil)ctx.waitUntil(task);
+              else void task;
+            }
+          :null,
+      });
     }
     // Separate #447 sport gift APIs: no musical TTL, token always held
     // in fragment / POST body, anonymous preview remains viewable after loss.
@@ -402,7 +413,8 @@ export async function accountRequest(request,env,url,ctx) {
       if (!member) return reply({error:'account_session_expired'},401);
       if (env.SPORT_WORLD_CARDS_ENABLED!=='true')
         return reply({error:'world_sport_cards_not_ready'},503);
-      return readSportWorldCollection(db,member.id,url);
+      return readSportWorldCollection(db,member.id,url,{
+         telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'});
     }
     if (path.startsWith('/api/account/sport/') && method==='GET') {
       const member=await webUser(db,request);
@@ -412,7 +424,8 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/sport/',
         '/api/account/device/sport/');
-      return readSportWorldCollection(db,member.id,forwarded);
+      return readSportWorldCollection(db,member.id,forwarded,{
+         telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'});
     }
     // Only the authenticated runner sees their durable sporting achievements.
     // This reads ledger 0005; no challenge-result submission is enabled here.
