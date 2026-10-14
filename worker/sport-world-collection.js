@@ -1,4 +1,5 @@
 // #445/#449: private read-only world-sport collection; independent of music.
+import {readSportWarningReasons} from './sport-card-telemetry.js';
 // Not an award endpoint. No client can turn an account_run_records recap into
 // verified sporting success or a world-unique ownership transfer.
 const respond=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
@@ -127,15 +128,25 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
          CASE WHEN e.reason='gift_claim' THEN 'gift_received' ELSE 'won' END
        WHEN e.reason='gift_claim' THEN 'given'
        ELSE 'lost' END AS event_type,
-      NULL AS run_id
+      NULL AS run_id,
+      ${telemetryEnabled ? `CASE WHEN e.reason='sport_win' AND tr.state='warning'
+        THEN 1 ELSE 0 END AS performance_warning,
+        rd.reason_codes AS warning_reasons`
+        : '0 AS performance_warning,NULL AS warning_reasons'}
     FROM sport_card_ownership_events e
+    ${telemetryEnabled ? `LEFT JOIN sport_card_telemetry_reviews tr
+      ON tr.card_id=e.card_id AND tr.owner_epoch=e.new_epoch
+      LEFT JOIN sport_card_telemetry_reason_details rd
+      ON rd.card_id=e.card_id AND rd.owner_epoch=e.new_epoch` : ''}
     WHERE e.previous_owner_id=? OR e.new_owner_id=?
     UNION ALL
     SELECT r.verified_at AS happened_at,'run:'||r.run_id AS event_key,
-      r.card_id,'verified' AS event_type,r.run_id
+      r.card_id,'verified' AS event_type,r.run_id,
+      0 AS performance_warning,NULL AS warning_reasons
     FROM sport_verified_runs r WHERE r.user_id=?
   )
   SELECT e.happened_at,e.event_key,e.card_id,e.event_type,e.run_id,
+    e.performance_warning,e.warning_reasons,
     c.distance_cm,c.time_unit,c.sub_value
   FROM event_feed e JOIN sport_world_cards c ON c.id=e.card_id
   WHERE ?=0 OR e.happened_at<? OR
@@ -148,6 +159,10 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
     name:displaySportCard(row.distance_cm,row.time_unit,row.sub_value),
     eventType:row.event_type,at:date(row.happened_at),
     runId:row.run_id||null,
+    ...(row.event_type==='won'&&bool(row.performance_warning)
+      ?{performanceWarning:true,
+        warningReasons:readSportWarningReasons(row.warning_reasons)}
+      :{}),
   }));
   return respond({items:result.items,
     nextCursor:result.hasMore?{
