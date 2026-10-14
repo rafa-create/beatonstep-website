@@ -144,7 +144,7 @@ test('sport card faces keep seven difficulty finishes and honour marathon at eve
     'MARATHON');
   assert.equal(walk(marathon).find(n=>n.className==='bos-sport-unique').textContent,
     'CARTE UNIQUE AU MONDE');
-  assert.doesNotMatch(walk(marathon).map(n=>n.textContent).join(' '),/1\\s*\\/\\s*1/);
+  assert.doesNotMatch(walk(marathon).map(n=>n.textContent).join(' '),/1\s*\/\s*1/);
   const legend=api.createFace(document,{
     title:'Marathon · SUB 180 min',distanceCm:4219500,difficulty:'legend',
   },'fr');
@@ -163,8 +163,8 @@ test('sport card faces keep seven difficulty finishes and honour marathon at eve
   }
   for(const file of ['partages.html','compte.html','cadeau-sport.html']){
     const html=read(file);
-    assert.match(html,/sport-card-face\\.css/);
-    assert.match(html,/sport-card-face\\.js/);
-    assert.match(html,/BeatOnStepSportCards\\.createFace/);
+    assert.match(html,/sport-card-face\.css/);
+    assert.match(html,/sport-card-face\.js/);
+    assert.match(html,/BeatOnStepSportCards\.createFace/);
   }
 });
