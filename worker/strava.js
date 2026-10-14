@@ -213,7 +213,17 @@ async function publish(request, env, device, row) {
       // A definitive 4xx refusal means Strava did not create an activity.
       // Release ONLY that rejected attempt; retain pending for ambiguous
       // 5xx responses/network failures, which might have created an activity.
-      console.warn('Strava manual activity response', 'http_status=' + res.status);
+      // Strava Faults expose resource/field/code. Log only a small allowlisted
+      // field and code, never the raw response body or human-readable message.
+      let faultField = 'none', faultCode = 'none';
+      try {
+        const fault = await res.json();
+        const entry = Array.isArray(fault?.errors) ? fault.errors[0] : null;
+        if (/^[a-z_]{1,36}$/.test(entry?.field || '')) faultField = entry.field;
+        if (/^[a-z_]{1,36}$/.test(entry?.code || '')) faultCode = entry.code;
+      } catch { /* Upstream may return a non-JSON error */ }
+      console.warn('Strava manual activity response',
+        'http_status=' + res.status + ';field=' + faultField + ';code=' + faultCode);
       if (res.status >= 400 && res.status < 500) {
         await env.DB.prepare(
           "DELETE FROM strava_exports WHERE athlete_id=? AND run_id=? AND status='pending'"
