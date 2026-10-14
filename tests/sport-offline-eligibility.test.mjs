@@ -82,11 +82,13 @@ test('sporting telemetry anomalies warn but structurally invalid measurements do
   const speed=evaluateOfflineSportSummary(run('phone_gps',10000,120000));
   assert.equal(speed.status,'candidate');
   assert.equal(speed.needsReviewWarning,true);
+  assert.deepEqual(speed.warningReasons,['implausible_speed']);
   const pause=evaluateOfflineSportSummary(run('garmin_watch_saved',5000,600000,{
     pausedDurationMs:700000,
   }));
   assert.equal(pause.status,'candidate');
   assert.equal(pause.needsReviewWarning,true);
+  assert.deepEqual(pause.warningReasons,['invalid_pause_duration']);
   assert.equal(evaluateOfflineSportSummary(run('manual',10000,2400000)).reason,
     'invalid_summary');
   const splits=evaluateOfflineSportSummary(run('garmin_watch_saved',10000,2400000,{
@@ -95,6 +97,7 @@ test('sporting telemetry anomalies warn but structurally invalid measurements do
   assert.equal(splits.status,'candidate');
   assert.equal(splits.splitTiming,'conservative_finish');
   assert.equal(splits.needsReviewWarning,true);
+  assert.deepEqual(splits.warningReasons,['inconsistent_crossings']);
 });
 test('there is no running-time server dependency or telemetry schema',()=>{
   const path=new URL('../worker/account.js',import.meta.url);
