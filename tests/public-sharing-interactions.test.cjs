@@ -47,7 +47,9 @@ function setup(search,data=example){
   const elements={};
   for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages',
     'kind-label','kind-filter','sort-label','sort-filter','source-label','source-filter',
-    'footer-privacy','footer-privacy-label','community-link'])
+    'sort-picker','source-picker','distance-picker','distance-label','distance-filter',
+    'difficulty-picker','difficulty-label','difficulty-filter',
+    'sub-picker','sub-label','sub-filter','footer-privacy','footer-privacy-label','community-link'])
     elements[name]=new Node(name);
   // Mirror the actual accessible profile label inside #community-link.
   const communityLabel=new Node('span');
@@ -56,9 +58,11 @@ function setup(search,data=example){
   elements['sort-filter'].value='recent';
   const options={};
   for(const [id,values] of [
-    ['kind-filter',['all','workout','runmix']],
+    ['kind-filter',['all','workout','runmix','challenge']],
     ['sort-filter',['recent','popular']],
     ['source-filter',['all']],
+    ['distance-filter',['all']],
+    ['difficulty-filter',['all','beginner','amateur','regular','intermediate','expert','legend','world_elite']],
   ])for(const value of values)options[`#${id} option[value=${value}]`]=new Node('option');
   const body=new Node('body');
   const apiCalls=[];
@@ -86,6 +90,42 @@ function setup(search,data=example){
   return {elements,options,apiCalls,body};
 }
 (async()=>{
+  // The landing page now opens verified sporting challenges, without filters.
+  const sport={id:17,kind:'challenge',distanceCm:500000,timeUnit:'minute',
+    subValue:25,difficulty:'amateur',owner:'runner_b',createdAt:1000,
+    firstHolder:'runner_a',longestHolder:'runner_a',longestHeldMs:86400000,
+    history:[{reason:'sport_win',at:1000,from:null,to:'runner_a'},
+      {reason:'gift_claim',at:2000,from:'runner_a',to:'runner_b'}],
+    historyHasMore:false};
+  const landing=setup('',sport);
+  await flush();
+  assert.equal(landing.elements['kind-filter'].value,'challenge');
+  assert.equal(landing.elements['distance-filter'].value,'all');
+  assert.equal(landing.elements['difficulty-filter'].value,'all');
+  assert.equal(landing.elements['sub-filter'].value,'');
+  assert.equal(landing.elements['sort-picker'].hidden,true);
+  assert.equal(landing.elements['source-picker'].hidden,true);
+  assert.equal(landing.elements['sub-filter'].disabled,true);
+  assert.match(landing.apiCalls[0],/^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/);
+  assert.match(landing.elements.results.textContent,/SUB 25 min/);
+  assert.match(landing.elements.results.textContent,/@runner_b/);
+  const history=walk(landing.elements.results,x=>x.className==='sport-details')[0];
+  assert(history&&!history.open,'history is folded by default');
+  landing.elements['distance-filter'].value='500000';
+  landing.elements['distance-filter'].onchange();
+  await flush();
+  landing.elements['sub-filter'].value='25';
+  landing.elements['sub-filter'].onchange();
+  await flush();
+  assert.match(landing.apiCalls.at(-1),/distance=500000&difficulty=all&sub=25/);
+  history.open=true;
+  history.events.toggle();
+  await flush();
+  assert.match(history.textContent,/@runner_a/);
+  assert.match(history.textContent,/Donation/);
+  assert(!landing.apiCalls.some(url=>url.includes('/api/shared/17')),
+    'sport cards must not invoke legacy musical share APIs');
+
   // Individual workout: one collapsed workout, then independently expandable
   // phase branches; only the songs from the selected phase become visible.
   const detail=setup('?id=1');
@@ -195,7 +235,7 @@ function setup(search,data=example){
     'changing language must not increment views');
 
   // The catalog only fetches compact records until the workout itself expands.
-  const catalog=setup('');
+  const catalog=setup('?kind=workout');
   await flush();
   assert.equal(catalog.elements.back.hidden,true,
     'the catalog does not show a back-to-workouts link');
@@ -214,7 +254,7 @@ function setup(search,data=example){
   assert.match(catalog.apiCalls[0],/source=all&sort=popular/,
     'catalogue initially requests popular ranking');
   assert.equal(catalog.elements['sort-filter'].value,'popular');
-  const recentCatalog=setup('?sort=recent');
+  const recentCatalog=setup('?kind=workout&sort=recent');
   await flush();
   assert.match(recentCatalog.apiCalls[0],/sort=recent/,
     'explicit newest ranking still overrides the default');
@@ -279,7 +319,7 @@ function setup(search,data=example){
   assert.equal(catalog.options['#sort-filter option[value=recent]'].textContent,'Newest');
 
   // Catalog summaries open the focus viewer, navigating only matching types.
-  const gallery=setup('',[example,{...example,id:9,name:'Other workout'}]);
+  const gallery=setup('?kind=workout',[example,{...example,id:9,name:'Other workout'}]);
   await flush();
   const firstSummary=walk(gallery.elements.results.children[0],x=>x.className==='share-summary')[0];
   let prevented=false;
@@ -322,7 +362,7 @@ function setup(search,data=example){
   assert.equal(walk(playlistCard,x=>x.className==='effort-segment').length,1,
     'Run Mix shows a real BPM segment, not a fictional cadence profile');
   assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Profil BPM/);
-  const playlistCatalog=setup('',youtube);
+  const playlistCatalog=setup('?kind=runmix',youtube);
   await flush();
   assert.equal(walk(playlistCatalog.elements.results,x=>x.className==='effort-segment').length,1,
     'Run Mix cards render BPM immediately from compact API metadata, without a detail fetch');
