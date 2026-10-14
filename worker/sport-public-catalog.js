@@ -21,9 +21,12 @@ const card=row=>({
   timeUnit:row.time_unit,subValue:row.sub_value,
   difficulty:row.difficulty,createdAt:row.created_at,
   owner:safeHandle(row.owner_handle),
+  performanceWarning:row.performance_warning===1,
 });
 
-export async function readPublicSportCards(db,url,{now=Date.now()}={}){
+export async function readPublicSportCards(db,url,{
+  now=Date.now(),telemetryEnabled=false,
+}={}){
   const path=url.pathname;
   if(path==='/api/sport/cards'){
     const distanceRaw=url.searchParams.get('distance');
@@ -49,7 +52,10 @@ export async function readPublicSportCards(db,url,{now=Date.now()}={}){
       .bind(...args).first();
     const rows=await db.prepare(
       'SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,c.created_at,'+
-      'u.handle AS owner_handle FROM sport_world_cards c '+
+      (telemetryEnabled?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
+        FROM sport_card_telemetry_reviews tr
+        WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
+      'AS performance_warning,u.handle AS owner_handle FROM sport_world_cards c '+
       'LEFT JOIN community_users u ON u.id=c.current_owner_id'+where+
       ' ORDER BY c.distance_cm ASC,c.sub_value DESC,c.id ASC LIMIT 20 OFFSET ?'
     ).bind(...args,(page-1)*20).all();
@@ -62,7 +68,10 @@ export async function readPublicSportCards(db,url,{now=Date.now()}={}){
   if(!validId(id))return response({error:'invalid_card'},400);
   const row=await db.prepare(
     'SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,c.created_at,'+
-    'u.handle AS owner_handle FROM sport_world_cards c '+
+    (telemetryEnabled?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
+      FROM sport_card_telemetry_reviews tr
+      WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
+    'AS performance_warning,u.handle AS owner_handle FROM sport_world_cards c '+
     'LEFT JOIN community_users u ON u.id=c.current_owner_id WHERE c.id=?'
   ).bind(id).first();
   if(!row)return response({error:'card_not_found'},404);
