@@ -141,6 +141,22 @@ test('replay with changed evidence in the same tier is refused',async()=>{
     {results:[],meta:{changes:0}},
     {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
   ];
+  const original=body();
+  const canonical=JSON.stringify([
+    'runner-a',original.runId,'1000000:minute:40',
+    original.summary.distanceSource,original.summary.startedAtMs,
+    original.summary.endedAtMs,original.summary.distanceMeters,
+  ]);
+  const digest=Buffer.from(await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode(canonical))).toString('hex');
+  const originalPrepare=db.prepare.bind(db);
+  db.prepare=sql=>{
+    const prepared=originalPrepare(sql);
+    if(!sql.includes('SELECT c.distance_cm,c.time_unit,c.sub_value'))return prepared;
+    return {bind:()=>({first:async()=>({
+      distance_cm:1000000,time_unit:'minute',sub_value:40,evidence_digest:digest,
+    })})};
+  };
   const changed=body();
   changed.summary.distanceMeters=10001;
   const response=await reconcileOfflineSportResult(db,'runner-a',changed,{now});
