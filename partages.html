@@ -114,6 +114,7 @@
     .sport-timeline li{position:relative;padding:0 0 15px 14px;color:#d9d4c3}
     .sport-timeline li::before{content:'';position:absolute;left:-20px;top:7px;background:var(--yellow);width:8px;height:8px;border-radius:50%}
     .sport-date{display:block;color:var(--muted);font-size:11px}
+    .sport-history-warning{display:block;width:fit-content;margin:7px 0 0;white-space:normal}
     /* Reading a shared workout: session > phase cards > songs, never an editor. */
     .tree-content--workout{padding:12px 4px 0}
     .workout-phases{padding:14px 13px 16px;border:1px solid #665c38;border-radius:16px;background:linear-gradient(180deg,#242319,#1b1b15);box-shadow:inset 0 1px 0 #ffffff08}
@@ -678,6 +679,23 @@
     return Number.isFinite(value)
       ?new Date(value).toLocaleDateString(lang==='fr'?'fr-FR':'en-US'):'—';
   }
+  function sportWarningDetails(event){
+    if(event.performanceWarning!==true)return null;
+    const names={
+      implausible_speed:fr('Vitesse moyenne supérieure à 45 km/h',
+                            'Average speed above 45 km/h'),
+      invalid_pause_duration:fr('Durée des pauses incohérente',
+                                'Inconsistent pause duration'),
+      inconsistent_crossings:fr('Points de passage incohérents',
+                                'Inconsistent distance crossings'),
+    };
+    const reasons=Array.isArray(event.warningReasons)
+      ?event.warningReasons.filter(code=>Object.hasOwn(names,code)).map(code=>names[code])
+      :[];
+    return fr('⚠ Performance non validée : ','⚠ Performance not validated: ')+
+      (reasons.length?reasons.join(' · '):
+        fr('Motif non conservé','Reason not retained'));
+  }
   function createSportCard(item,detailed,inFocus=false){
     const card=el('article','card sport-card');
     const summary=el('div','share-summary sport-summary');
@@ -737,6 +755,8 @@
               ?fr('Gain sportif : ','Sports win: ')+sportHandle(event.to)
               :fr('Carte libérée','Card released');
           line.append(el('span','',change),el('span','sport-date',sportDate(event.at)));
+          const warning=sportWarningDetails(event);
+          if(warning)line.append(el('p','sport-warning sport-history-warning',warning));
           timeline.append(line);
         }
         if(!timeline.children.length)content.append(el('p','',
