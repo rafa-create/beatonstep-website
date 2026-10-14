@@ -83,13 +83,18 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   if(recorded.length===0){
     // An idempotent replay MUST belong to this same exact tier. The PK is
     // per-user run: never turn a previous 5 km run into a second 10 km card.
-    const previous=await db.prepare(`SELECT c.distance_cm,c.time_unit,c.sub_value
+    const previous=await db.prepare(`SELECT c.distance_cm,c.time_unit,c.sub_value,
+        r.evidence_digest
       FROM sport_verified_runs r JOIN sport_world_cards c ON c.id=r.card_id
       WHERE r.user_id=? AND r.run_id=?`).bind(userId,runId).first();
+    // The run ID alone is not enough: reject a replay that changes the
+    // measurement, source or timestamps while retaining the same tier.
+    // The first committed evidence is immutable; no second ownership event.
     if(!previous||previous.distance_cm!==candidate.distanceCm||
        previous.time_unit!==candidate.timeUnit||
-       previous.sub_value!==candidate.subValue)
-      return reply({error:'run_already_used_for_different_card'},409);
+       previous.sub_value!==candidate.subValue||
+       previous.evidence_digest!==digest)
+      return reply({error:'run_already_used_for_different_evidence'},409);
   }
   const owned=current[0].current_owner_id===userId;
   const newRun=recorded.length===1;
