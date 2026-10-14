@@ -23,7 +23,8 @@ const sqlCalls=()=>{
       calls.push(stmt);
       return {...stmt,async first(){
         state.reads++;
-        return {distance_cm:1000000,time_unit:'minute',sub_value:40};
+        return {distance_cm:1000000,time_unit:'minute',sub_value:40,
+          evidence_digest:calls.find(call=>call.sql.includes('INSERT INTO sport_verified_runs'))?.args[5]};
       }};
     }}},
     async batch(items){
@@ -131,6 +132,20 @@ test('previously owned or replayed card does not celebrate a fresh capture',asyn
   ];
   const replay=await (await reconcileOfflineSportResult(db,'runner-a',body(),{now})).json();
   assert.equal(replay.acquisition,'already_processed');
+});
+test('replay with changed evidence in the same tier is refused',async()=>{
+  const {db}=sqlCalls();
+  db.batch=async()=>[
+    {meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+    {results:[],meta:{changes:0}},
+    {results:[{id:17,current_owner_id:'runner-a',owner_epoch:3}]},
+  ];
+  const changed=body();
+  changed.summary.distanceMeters=10001;
+  const response=await reconcileOfflineSportResult(db,'runner-a',changed,{now});
+  assert.equal(response.status,409);
+  assert.equal((await response.json()).error,'run_already_used_for_different_evidence');
 });
 test('post-finish route stays opt-in; no continuous GPS, raw paths or guest claiming',()=>{
   const account=readFileSync(new URL('../worker/account.js',import.meta.url),'utf8');
