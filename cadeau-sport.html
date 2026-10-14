@@ -71,7 +71,7 @@ ouvre la course normale, sans démarrage automatique.</p>
   const valid=/^[a-f0-9]{64}$/.test(code);
   // Friendly SUB display never changes the world-card identifier.
   const displaySportName=name=>String(name||'').replace(
-    /\\bSUB\\s+(\\d+)\\s+s\\b/gi,(_,raw)=>{
+    /\bSUB\s+(\d+)\s+s\b/gi,(_,raw)=>{
       const seconds=Number(raw),minutes=Math.floor(seconds/60);
       const remainder=seconds%60;
       return 'SUB '+(minutes
