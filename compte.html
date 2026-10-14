@@ -404,7 +404,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         Math.floor(ms/86400000)+' jour(s)';
       // Display only; keep the canonical server card name and world key unchanged.
       const displaySportName=name=>String(name||'').replace(
-        /\\bSUB\\s+(\\d+)\\s+s\\b/gi,(_,raw)=>{
+        /\bSUB\s+(\d+)\s+s\b/gi,(_,raw)=>{
           const seconds=Number(raw),minutes=Math.floor(seconds/60);
           const remainder=seconds%60;
           return 'SUB '+(minutes
