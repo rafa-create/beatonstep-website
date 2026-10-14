@@ -973,9 +973,9 @@
       $('back').textContent=fr('← Catalogue','← Catalog');
     }
     $('title').textContent=sportId?fr('Carte de défi','Challenge card'):
+      id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('sport-guide-link').href='cartes-guide.html?lang='+lang;
     $('sport-guide-label').textContent=fr('Comment gagner une carte ?','How do I earn a card?');
-      id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
