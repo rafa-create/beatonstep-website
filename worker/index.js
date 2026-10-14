@@ -5,6 +5,7 @@ import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishU
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
 import { challengeRule } from './distance-challenge.js';
+import { readPublicSportCards } from './sport-public-catalog.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -339,6 +340,21 @@ export default {
       }
       if (url.pathname.startsWith('/api/strava/')) {
         return stravaRequest(request, env, url);
+      }
+      // Public trophy catalogue: only server-confirmed cards, never V2
+      // publishable workout challenges or authenticated private histories.
+      if (url.pathname === '/api/sport/cards' ||
+          url.pathname.startsWith('/api/sport/cards/')) {
+        if (request.method !== 'GET') return json({error:'method_not_allowed'},405);
+        if (env.SPORT_WORLD_CARDS_ENABLED !== 'true' || !env.DB ||
+            env.CATALOG_BACKEND !== 'd1')
+          return json({error:'sport_catalog_unavailable'},503);
+        try {
+          return await readPublicSportCards(env.DB,url);
+        } catch (error) {
+          console.error('sport catalogue read failure',String(error?.name||'unknown'));
+          return json({error:'sport_catalog_unavailable'},503);
+        }
       }
       if (url.pathname === '/api/account' || url.pathname.startsWith('/api/account/')) {
         return accountRequest(request, env, url, ctx);
