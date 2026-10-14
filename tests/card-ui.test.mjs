@@ -114,3 +114,57 @@ test('sport card presentations use mm:ss SUB above a minute without blue mobile 
   assert.equal(vm.runInNewContext(giftFn+';displaySportName("400 m · SUB 134 s")'),
     '400 m · SUB 2 min 14 s');
 });
+
+
+test('sport card faces keep seven difficulty finishes and honour marathon at every level',()=>{
+  const helper=read('sport-card-face.js');
+  const css=read('sport-card-face.css');
+  const ctx={};
+  vm.runInNewContext(helper,ctx);
+  const api=ctx.BeatOnStepSportCards;
+  assert.equal(typeof api.createFace,'function');
+  for(const difficulty of ['beginner','amateur','regular','intermediate',
+    'expert','legend','world_elite']){
+    assert.match(css,new RegExp('\\.sport-skin--'+difficulty+'\\{'));
+    assert.ok(api.levels[difficulty]);
+  }
+  const document={
+    createElement(tag){return {tag,className:'',textContent:'',children:[],attrs:{},
+      setAttribute(k,v){this.attrs[k]=v},
+      append(...nodes){this.children.push(...nodes)}}},
+  };
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const marathon=api.createFace(document,{
+    title:'Marathon · SUB 320 min',distanceCm:4219500,difficulty:'beginner',
+  },'fr');
+  assert.match(marathon.className,/sport-skin--beginner/);
+  assert.match(marathon.className,/sport-featured/);
+  assert.equal(walk(marathon).find(n=>n.className==='bos-sport-crest').textContent,'42K');
+  assert.equal(walk(marathon).find(n=>n.className==='bos-sport-signature').textContent,
+    'MARATHON');
+  assert.equal(walk(marathon).find(n=>n.className==='bos-sport-unique').textContent,
+    'CARTE UNIQUE AU MONDE');
+  assert.doesNotMatch(walk(marathon).map(n=>n.textContent).join(' '),/1\\s*\\/\\s*1/);
+  const legend=api.createFace(document,{
+    title:'Marathon · SUB 180 min',distanceCm:4219500,difficulty:'legend',
+  },'fr');
+  assert.match(legend.className,/sport-skin--legend/);
+  assert.equal(walk(legend).find(n=>n.className==='bos-sport-signature').textContent,
+    'MARATHON');
+  const elite=api.createFace(document,{
+    title:'Marathon · SUB 150 min',distanceCm:4219500,difficulty:'world_elite',
+  },'en');
+  assert.equal(walk(elite).find(n=>n.className==='bos-sport-unique').textContent,
+    'ONE CARD WORLDWIDE');
+  for(const [distanceCm,label] of [[40000,'SPRINT'],[500000,'5 KILOMÈTRES'],
+    [1000000,'10 KILOMÈTRES'],[2109750,'SEMI-MARATHON'],
+    [4300000,'ULTRA-DISTANCE']]){
+    assert.equal(api.signature(distanceCm)[1],label);
+  }
+  for(const file of ['partages.html','compte.html','cadeau-sport.html']){
+    const html=read(file);
+    assert.match(html,/sport-card-face\\.css/);
+    assert.match(html,/sport-card-face\\.js/);
+    assert.match(html,/BeatOnStepSportCards\\.createFace/);
+  }
+});
