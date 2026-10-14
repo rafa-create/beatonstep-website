@@ -17,6 +17,8 @@ Une course enregistrée peut générer une carte pour la plus grande distance ca
 
 Le système d'analyse, qu'il fonctionne sur la VM ou ailleurs, n'est jamais une dépendance des écritures de propriété, de la synchronisation des cartes ni de leur consultation publique. Le service doit pouvoir fonctionner, puis reprendre ses analyses en retard, sans rendre les cartes indisponibles.
 
+**Chronométrage des distances et pause finale.** Le SUB se calcule à la distance réellement atteinte, avec les pauses intermédiaires incluses. Si le coureur a **déjà franchi sa distance avant la dernière pause**, reste en pause puis termine/enregistre plus tard, l'attente après cette pause ne doit pas dégrader son SUB. Le client ne peut appliquer ce raccourci que s'il a capturé **une distance GPS/montre valide à l'instant du début de cette dernière pause**, avec la même source de mesure que la séance finale. La durée réelle de la séance, les timestamps d'origine et l'identifiant anti-rejeu restent inchangés ; le serveur reçoit uniquement un jalon `sportCrossings` calculé sur cette preuve temporelle et métrique. Si l'on reprend la séance après cette pause, ou si la distance n'était pas atteinte lors de la pause, aucune réduction n'est appliquée. Les anciennes séances sans cet instantané ne sont pas recalculées par extrapolation.
+
 Une suspicion sportive (par exemple vitesse invraisemblable) doit devenir un **signalement non bloquant**. En revanche, l'absence d'une distance ou durée exploitable, un identifiant de séance invalide ou une tentative de réutilisation contradictoire restent des erreurs techniques : elles ne permettent pas de déterminer ou d'attribuer une carte mondiale fiable.
 
 ## Portée et confidentialité de l'avertissement
