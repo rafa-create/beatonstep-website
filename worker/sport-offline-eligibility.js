@@ -41,12 +41,12 @@ export function evaluateOfflineSportSummary(summary){
 
   // Sporting plausibility is advisory; keep identity and base measurements
   // mandatory, but do not withhold a usable card for telemetry anomalies.
-  let needsReviewWarning=false;
+  const warningReasons=[];
   if(summary.pausedDurationMs!=null&&
      !finite(summary.pausedDurationMs,0,elapsedMs))
-    needsReviewWarning=true;
+    warningReasons.push('invalid_pause_duration');
   if(summary.distanceMeters/(elapsedMs/1000)>12.5)
-    needsReviewWarning=true;
+    warningReasons.push('implausible_speed');
 
   // Downward only: floating-point noise must never manufacture an extra cm.
   const distanceCm=Math.floor(summary.distanceMeters*100+0.00001);
@@ -75,7 +75,7 @@ export function evaluateOfflineSportSummary(summary){
     }
     if(valid&&verified.at(-1).distanceCm===maxDistance){
       crossings=verified;hasRecordedSplit=true;
-    }else needsReviewWarning=true;
+    }else warningReasons.push('inconsistent_crossings');
   }
   const eligibility=evaluateSportCardCandidate({
     finalized:true,evidenceVerified:true,
@@ -86,5 +86,6 @@ export function evaluateOfflineSportSummary(summary){
     elapsedIncludesPauses:true,
     splitTiming:hasRecordedSplit?'recorded':'conservative_finish',
     // Advisory and internal; never a gate on the D1 transfer.
-    needsReviewWarning,autoAwarded:false};
+    needsReviewWarning:warningReasons.length>0,warningReasons,
+    autoAwarded:false};
 }
