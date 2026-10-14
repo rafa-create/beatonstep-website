@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { workoutMusicSequence, workoutMusicFingerprint } from '../worker/workout-identity.js';
+import { workoutMusicSequence, workoutMusicFingerprint, workoutCardFingerprint } from '../worker/workout-identity.js';
 
 const original = {
   v: 1, n: 'Premier titre', s: 'spotify',
@@ -59,4 +59,17 @@ test('refuses to merge cards with missing or incomplete song metadata', async ()
     assert.equal(workoutMusicSequence(payload), null);
     assert.equal(await workoutMusicFingerprint(payload), null);
   }
+});
+
+test('time and distance workouts sharing songs do not merge their public cards',async()=>{
+  const timed=await workoutCardFingerprint(original);
+  const fiveKm={...original,g:'distance',m:[1000,4000]};
+  const tenKm={...original,g:'distance',m:[2000,8000]};
+  const a=await workoutCardFingerprint(fiveKm);
+  const b=await workoutCardFingerprint(tenKm);
+  assert.ok(a&&b);
+  assert.notEqual(a,timed,'a time plan is not a GPS-distance session');
+  assert.notEqual(b,timed);
+  assert.notEqual(a,b,'5 km and 10 km plans retain distinct identities');
+  assert.equal(await workoutCardFingerprint({...fiveKm,m:[1000]}),null);
 });
