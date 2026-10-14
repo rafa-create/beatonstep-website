@@ -100,7 +100,7 @@ ouvre la course normale, sans démarrage automatique.</p>
         title:displaySportName(card.name),distanceCm:card.distanceCm,
         difficulty:card.difficulty,
       },'fr'));
-      $('card-difficulty').textContent='Niveau '+String(card.difficulty||'—').replaceAll('_',' ');
+      $('card-difficulty').textContent='Niveau '+(BeatOnStepSportCards.levels[card.difficulty]?.[0]||'—');
       $('card-donor').textContent=result.donorHandle
         ?'Offert par @'+result.donorHandle:'Cadeau d’un coureur BeatOnStep';
       $('open-app').href='beatonstep://sport-gift?code='+encodeURIComponent(code);
