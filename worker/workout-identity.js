@@ -48,9 +48,26 @@ export async function workoutMusicFingerprint(payload) {
   return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Legacy v1 stays song-based. A v2 distance challenge deliberately uses
-// a different namespace, independent of songs or streaming platform.
+// v3 is a MUSICAL distance workout, not the retired v2 competitive challenge.
+// The music identity and real distances/PPM targets identify the card; changing
+// an estimated music duration does not turn a 5 km run into a time workout.
+export async function workoutDistanceMusicFingerprint(payload) {
+  const tracks=workoutMusicSequence(payload);
+  if(!tracks || !Array.isArray(payload?.p) || !payload.p.length ||
+    payload.p.some(phase=>!Array.isArray(phase) ||
+      !Number.isSafeInteger(phase[1]) || phase[1]<=0 ||
+      !Number.isSafeInteger(phase[2]) || phase[2]<=0)) return null;
+  const signature=['workout-music-distance-v3',tracks,
+    payload.p.map(phase=>[phase[1],phase[2]])];
+  const digest=await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode(JSON.stringify(signature)));
+  return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Legacy v1 stays song-based. Retired v2 challenges have a separate namespace.
 export async function workoutCardFingerprint(payload) {
+  if (payload?.v===3 && payload?.goalMode==='distance')
+    return workoutDistanceMusicFingerprint(payload);
   if (payload?.v===2) return distanceChallengeFingerprint(payload);
   if (payload?.v===1 || payload?.v===undefined)
     return workoutMusicFingerprint(payload);
