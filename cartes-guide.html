@@ -122,8 +122,8 @@
         </div>
       </div>
       <div class="rule-note">
-        <span data-fr>Une course finalisée donne au maximum <strong>une carte</strong>, après synchronisation et contrôles techniques. Courir plus vite à l'intérieur d'un même SUB ne change pas la carte. Gagner une carte ne garantit pas de conserver sa propriété à vie : un autre coureur peut ensuite atteindre le même palier.</span>
-        <span data-en hidden>A finished run awards at most <strong>one card</strong>, after sync and technical checks. Running faster within the same SUB does not change the card. Ownership is not permanent: another runner may later match that same threshold.</span>
+        <span data-fr>Une course finalisée donne au maximum <strong>une carte</strong>. Courir plus vite à l'intérieur d'un même SUB ne change pas la carte. Gagner une carte ne garantit pas de conserver sa propriété à vie : un autre coureur peut ensuite atteindre le même palier.</span>
+        <span data-en hidden>A finished run awards at most <strong>one card</strong>. Running faster within the same SUB does not change the card. Ownership is not permanent: another runner may later match that same threshold.</span>
       </div>
     </section>
 
@@ -183,8 +183,6 @@
         </div>
         <p id="calc-result" role="status" aria-live="polite"></p>
       </div>
-      <p class="fine" data-fr>Le tableau décrit les cartes possibles, pas les cartes déjà gagnées dans le catalogue. Une performance doit être réellement enregistrée, terminée et synchronisée ; l'exemple de chrono ci-dessus ne permet pas de créer de carte.</p>
-      <p class="fine" data-en hidden>The table describes possible cards, not cards already earned in the catalog. A performance must be genuinely recorded, finished and synced; entering a time here does not create a card.</p>
     </section>
     <p class="footer"><a href="partages.html?kind=challenge"><span data-fr>← Parcourir les cartes gagnées</span><span data-en hidden>← Browse earned cards</span></a></p>
   </main>
@@ -371,9 +369,7 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?t('Légende longue distance','Long-distance legend'):
       levelNames[difficulty][lang==='fr'?0:1];
-    target.textContent=title+' · '+name+' ('+levelNames[difficulty][2]+'/7 ★). '+
-      t('Carte potentielle, sous réserve d’une course réelle et synchronisée.',
-        'Potential card, subject to a real, synced run.');
+    target.textContent=title+' · '+name+' ('+levelNames[difficulty][2]+'/7 ★).';
   }
   function setLanguage(next){
     lang=next;document.documentElement.lang=lang;
