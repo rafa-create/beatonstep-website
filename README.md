@@ -1,37 +1,29 @@
-﻿# BeatOnStep — site public
+# BeatOnStep — site officiel
 
-Live : https://rafa-create.github.io/beatonstep-website/
+**Site web : [beatonstep.app](https://beatonstep.app/)**
 
-Repo **public** GitHub Pages. Le dépôt privé `BeatOnStep` contient l’app et la doc interne — **pas** une copie de ce site.
+BeatOnStep accompagne la course et la marche en associant rythme des pas et musique. Ce dépôt public contient les pages et ressources du site officiel.
 
-## Pages
+## Hébergement et mises à jour
 
-- Accueil : `/`
-- Garmin et Apple Watch : `/garmin.html` (FR/EN ; Garmin Connect IQ : https://apps.garmin.com/fr-FR/apps/629977fe-fe3e-452e-856c-a379be6d5880 ; Apple Watch bêta via l’App Store : https://apps.apple.com/fr/app/beatonstep/id6803512375)
-- Politique : `/privacy.html` (`PRIVACY.fr.md` / `PRIVACY.en.md`, switch FR/EN)
-- Crédits mix : `/music-credits.html` (`MUSIC-CREDITS.fr.md` / `MUSIC-CREDITS.en.md`)
-- Canonique FR brut : `PRIVACY.md`, `MUSIC-CREDITS.md`
+Le site est hébergé et publié par **Cloudflare Workers** à partir du code versionné ici sur GitHub (branche `main`). GitHub sert à gérer les versions du site ; **GitHub Pages n'est plus utilisé** comme hébergement ou moyen de déploiement.
 
-## Structure
+Pour consulter BeatOnStep, utiliser uniquement **[beatonstep.app](https://beatonstep.app/)**. L'ancienne adresse `github.io` n'est plus maintenue.
 
-```
-index.html, garmin.html, site.css, i18n.js   — site
-assets/                         — images du site (brand, hero, screenshots)
-badges/                         — badges store
-store/apple/                    — captures App Store (voir store/apple/NOTES.md)
-store/google/                   — image de présentation Play (voir store/google/NOTES.md)
-screenshots-archive/            — anciennes captures site (hors stores)
-```
+## Pages principales
 
-Éditer **ici**. Un push sur `main` met le site en ligne.
+- [Accueil](https://beatonstep.app/)
+- [Garmin et Apple Watch](https://beatonstep.app/garmin.html)
+- [Politique de confidentialité](https://beatonstep.app/privacy.html)
+- [Crédits musicaux](https://beatonstep.app/music-credits.html)
 
+## Contenu du dépôt
 
-## Manifeste versions Store
+- `index.html`, `garmin.html`, `site.css`, `i18n.js` : pages et présentation.
+- `assets/`, `badges/` : visuels et badges.
+- `store/` : éléments de présentation des applications.
+- `PRIVACY.fr.md`, `PRIVACY.en.md`, `MUSIC-CREDITS.fr.md`, `MUSIC-CREDITS.en.md` : textes publics.
 
-`/app-update.json` est la source de vérité publique des versions BeatOnStep disponibles sur l’App Store et Google Play.
+Le fichier public `app-update.json` renseigne les versions de l'application disponibles sur les boutiques. Il est mis à jour lorsque ces versions sont effectivement publiées.
 
-Il est consommé par :
-- l’app mobile pour décider si une mise à jour native est recommandée ou obligatoire ;
-- le bandeau de l’accueil pour afficher automatiquement les versions iOS et Android.
-
-Le manifeste ne contient aucun secret ni URL de redirection Store. Les liens App Store / Google Play restent figés dans les clients. Lors d’une publication Store, mettre à jour `latestVersion` uniquement quand la nouvelle version est réellement publique.
+Pour la configuration du déploiement Cloudflare, consulter la [documentation technique](CLOUDFLARE.md).
