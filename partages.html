@@ -93,7 +93,8 @@
     .effort-segment--unknown{background:repeating-linear-gradient(135deg,#737568 0 4px,#494b43 4px 8px);box-shadow:none;opacity:.5}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
-    .sport-card .sport-summary{cursor:pointer}
+    .sport-card .sport-summary{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .sport-card .sport-summary:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .sport-card .collection-art{background:radial-gradient(ellipse at 50% 100%,#61532b91,transparent 65%),linear-gradient(130deg,#2b281a,#161710);border-color:#776532}
     .sport-card .collection-glyph{font-size:55px}
     .sport-ownership{font-size:14px;color:#dfd9bc;margin:12px 0 4px}
@@ -586,7 +587,7 @@
     focusPrevious.setAttribute('aria-label',fr('Carte précédente','Previous card'));
     focusNext.setAttribute('aria-label',fr('Carte suivante','Next card'));
     focusDialog.querySelector('.focus-close').setAttribute('aria-label',fr('Fermer','Close'));
-    focusDialog.setAttribute('aria-label',item.name);
+    focusDialog.setAttribute('aria-label',item.kind==='challenge'?sportName(item):item.name);
     const card=item.kind==='challenge'?createSportCard(item,false,true):createCard(item,false,true);
     focusStage.replaceChildren(card);
     const tree=card.querySelector('details.share-tree');
@@ -630,9 +631,14 @@
     if(cm===4219500)return fr('Marathon','Marathon');
     return number(cm/100000)+' km';
   }
+  function sportSubLabel(value,unit){
+    if(unit!=='second')return value+' min';
+    const minutes=Math.floor(value/60),seconds=value%60;
+    return minutes?(minutes+' min'+(seconds?' '+String(seconds).padStart(2,'0')+' s':'')):seconds+' s';
+  }
   function sportName(item){
-    return sportDistanceLabel(item.distanceCm)+' · SUB '+item.subValue+
-      (item.timeUnit==='second'?' s':' min');
+    return sportDistanceLabel(item.distanceCm)+' · SUB '+
+      sportSubLabel(item.subValue,item.timeUnit);
   }
   const sportHandle=handle=>handle?'@'+handle:fr('Compte indisponible','Unavailable account');
   function sportPeriod(ms){
