@@ -266,7 +266,9 @@ test('Resend HTTP rejection logs status and removes the unusable reset token',as
     const r=await dispatch(f,'request',{email:'runner@example.test'});
     assert.equal(r.status,200);
     assert.deepEqual(await r.json(),{accepted:true});
-    assert.equal(f.tokens.size,1);
+    // A fast provider rejection may already have cleaned up the token.
+    // Assert it was created, then wait for the delivery cleanup to finish.
+    assert.equal(f.recorded.writes.filter(x=>x.sql.startsWith('INSERT INTO community_password_reset_tokens')).length,1);
     await Promise.all(f.recorded.mail);
     assert.equal(f.tokens.size,0);
     assert.deepEqual(errors,['password reset delivery failed: reset_email_provider_http_401']);
