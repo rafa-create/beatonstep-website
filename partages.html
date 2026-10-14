@@ -99,6 +99,7 @@
     .sport-ownership{font-size:14px;color:#dfd9bc;margin:12px 0 4px}
     .sport-ownership strong{color:var(--yellow)}
     .sport-difficulty{font-size:12px;color:var(--muted);margin:5px 0}
+    .sport-warning{display:inline-flex;align-items:center;gap:6px;border:1px solid #94783d;background:#413117;border-radius:9px;padding:7px 10px;color:#ffd990;font-size:12px;font-weight:700;margin:10px 0 0}
     .sport-details{margin-top:14px;border:1px solid #625a3d;border-radius:14px;background:#1d1d18;overflow:hidden}
     .sport-details>summary{padding:12px 14px;cursor:pointer;color:var(--yellow);font-weight:650;list-style-position:inside}
     .sport-detail-content{padding:0 15px 15px;font-size:13px;line-height:1.6}
@@ -666,6 +667,9 @@
     owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),
       el('strong','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
     summary.append(head,art,title,difficulty,owner);
+    if(item.performanceWarning===true)
+      summary.append(el('p','sport-warning',
+        fr('⚠ Performance non validée','⚠ Performance not validated')));
     if(!detailed&&!inFocus){
       summary.tabIndex=0;
       summary.setAttribute('role','button');
