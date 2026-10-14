@@ -51,7 +51,8 @@ function setup(search,data=example){
     'session-mode-picker','sort-label','sort-filter','source-label','source-filter',
     'sort-picker','source-picker','distance-picker','distance-label','distance-filter',
     'difficulty-picker','difficulty-label','difficulty-filter',
-    'sub-picker','sub-label','sub-filter','footer-privacy','footer-privacy-label','community-link'])
+    'sub-picker','sub-label','sub-filter','footer-privacy','footer-privacy-label','community-link',
+    'sport-guide-link','sport-guide-label'])
     elements[name]=new Node(name);
   // Mirror the actual accessible profile label inside #community-link.
   const communityLabel=new Node('span');
