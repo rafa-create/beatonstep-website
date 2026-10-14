@@ -906,6 +906,8 @@
   function updateCatalogFilters(){
     const sport=kind==='challenge';
     $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
+    $('sport-guide-link').href='cartes-guide.html?lang='+lang+
+      (sportDistance!=='all'?'&distance='+encodeURIComponent(sportDistance):'');
     $('sort-picker').hidden=sport;
     $('source-picker').hidden=sport;
     for(const name of ['distance-picker','difficulty-picker','sub-picker'])
