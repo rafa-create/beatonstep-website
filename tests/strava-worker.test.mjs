@@ -171,10 +171,10 @@ async function publishingFixture() {
   };
   const startedAtMs=Date.now()-120000;
   const payload={runId:'bos-'+startedAtMs,startedAtMs,elapsedTime:90,distanceMeters:null};
-  const call=()=>stravaRequest(new Request(ROOT+'/api/strava/publish',{
+  const call=(changes={})=>stravaRequest(new Request(ROOT+'/api/strava/publish',{
     method:'POST',
     headers:{'x-bos-strava-key':DEVICE,'content-type':'application/json'},
-    body:JSON.stringify(payload),
+    body:JSON.stringify({...payload,...changes}),
   }),env(db),new URL(ROOT+'/api/strava/publish'));
   return {db,call};
 }
@@ -333,4 +333,54 @@ test('Strava 403 during revoke preserves the connection until explicit local unl
     assert.equal(calls,1,'local-only fallback must not access inactive Strava API');
     assert.equal(fixture.exports.size,1,'pending run must stay protected against re-post');
   }finally{globalThis.fetch=originalFetch;}
+});
+
+test('OTA: only available measured pace, heart rate and PPM appear in manual activity',async()=>{
+  const {call}=await publishingFixture();
+  const realFetch=globalThis.fetch;
+  globalThis.fetch=async(url,init)=>{
+    assert.equal(String(url),'https://www.strava.com/api/v3/activities',
+      'OTA never invokes the GPS TCX upload endpoint');
+    const form=new URLSearchParams(init.body);
+    const text=form.get('description');
+    assert.match(text,/Allure moyenne : 5:20\/km/);
+    assert.match(text,/FC moyenne : 142 bpm/);
+    assert.match(text,/FC max : 171 bpm/);
+    assert.match(text,/Cadence moyenne : 168 pas\/min/);
+    assert.equal(form.get('distance'),null,'no source-backed distance must mean no distance');
+    return {ok:true,status:201,json:async()=>({id:101112})};
+  };
+  try{
+    const response=await call({
+      paceSecPerKm:320,heartRateBpm:142,maxHeartRateBpm:171,cadencePpm:168,
+    });
+    assert.equal(response.status,200);
+    assert.match((await response.json()).url,/\/activities\/101112$/);
+  }finally{globalThis.fetch=realFetch;}
+});
+
+test('OTA: missing metrics stay omitted, not invented',async()=>{
+  const {call}=await publishingFixture();
+  const realFetch=globalThis.fetch;
+  globalThis.fetch=async(_url,init)=>{
+    const description=new URLSearchParams(init.body).get('description');
+    assert.doesNotMatch(description,/Allure moyenne|FC moyenne|FC max|Cadence moyenne/);
+    return {ok:true,status:201,json:async()=>({id:8888})};
+  };
+  try{const response=await call(); assert.equal(response.status,200);}
+  finally{globalThis.fetch=realFetch;}
+});
+
+test('OTA: reject forged out-of-range optional metrics before posting to Strava',async()=>{
+  const {call}=await publishingFixture();
+  const realFetch=globalThis.fetch;
+  globalThis.fetch=async()=>{throw Error('Strava must not be called');};
+  try{
+    for(const bad of [{cadencePpm:990},{heartRateBpm:'145'},
+                      {paceSecPerKm:-2},{maxHeartRateBpm:Infinity}]){
+      const response=await call(bad);
+      assert.equal(response.status,400,JSON.stringify(bad));
+      assert.deepEqual(await response.json(),{error:'invalid_run'});
+    }
+  }finally{globalThis.fetch=realFetch;}
 });
