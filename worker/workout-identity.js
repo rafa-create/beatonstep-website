@@ -48,12 +48,25 @@ export async function workoutMusicFingerprint(payload) {
   return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Legacy v1 stays song-based. A v2 distance challenge deliberately uses
-// a different namespace, independent of songs or streaming platform.
+// Legacy timed v1 shares stay song-based. A v1 distance *workout* is a
+// different playable session even with identical songs, and a 5 km plan is
+// not interchangeable with a 10 km plan. Keep both distinct from the v2
+// music-free sporting challenge card namespace.
 export async function workoutCardFingerprint(payload) {
   if (payload?.v===2) return distanceChallengeFingerprint(payload);
+  if (payload?.v===1 && payload?.g==='distance') {
+    const tracks=workoutMusicSequence(payload);
+    if (!tracks || !Array.isArray(payload.m) ||
+        payload.m.length!==payload.p.length ||
+        payload.m.some(m=>!Number.isSafeInteger(m)||m<50||m>100000))
+      return null;
+    const bytes=new TextEncoder().encode(
+      JSON.stringify(['workout-music-distance-v1',tracks,payload.m]));
+    const digest=await crypto.subtle.digest('SHA-256',bytes);
+    return [...new Uint8Array(digest)]
+      .map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
   if (payload?.v===1 || payload?.v===undefined)
     return workoutMusicFingerprint(payload);
-  // Never reuse a v1 fingerprint for an unsupported future schema.
   return null;
 }
