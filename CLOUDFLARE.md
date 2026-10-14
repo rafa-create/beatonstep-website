@@ -1,3 +1,23 @@
+# Déploiement officiel du site — Cloudflare Workers
+
+**Configuration confirmée le 14/10/2026 :** [beatonstep.app](https://beatonstep.app/) est servi en production par Cloudflare Workers, et non par GitHub Pages. Le dépôt GitHub `rafa-create/beatonstep-website` reste la source du code public ; un push sur `main` déclenche le build et le déploiement par l'intégration Git **Cloudflare Workers Builds**.
+
+### Retrait de GitHub Pages
+
+- GitHub Pages était un ancien mode d'hébergement ; il provoquait encore les runs automatiques `pages build and deployment`, indépendants de Cloudflare.
+- Le propriétaire a retiré la branche de publication de Pages dans **GitHub → Settings → Pages** (sélection `None` / aucune branche). Il n'y a **aucun workflow GitHub Actions de déploiement du site** à lancer ni à recréer.
+- Les anciens runs `pages build and deployment` restent dans l'historique de GitHub. Si de nouveaux runs apparaissent après cette désactivation, vérifier les paramètres Pages du dépôt et ne pas les confondre avec une publication Cloudflare.
+- L'ancienne URL `rafa-create.github.io/beatonstep-website/` ne doit plus être considérée comme une adresse de production. Les liens publics, les tests et les documents du site doivent viser `https://beatonstep.app/`.
+- **Ne pas désactiver** la connexion GitHub de Cloudflare Workers : elle est nécessaire pour que Cloudflare construise et déploie `main` automatiquement.
+
+### Chaîne de publication
+
+`push GitHub (main) → Cloudflare Workers Builds (npm run build) → Wrangler deploy → beatonstep.app`.
+
+Une validation complète nécessite une exécution Cloudflare réussie et un smoke HTTP du domaine public ; un commit Git ou un run historique GitHub Pages ne suffit pas. L'application mobile et ses OTA VM iOS/Android constituent une chaîne de publication distincte.
+
+---
+
 ## Build de Preview #421 : compatibilité Wrangler (12 octobre 2026)
 
 Le build Cloudflare d'une branche de travail affichait
@@ -126,8 +146,9 @@ Smoke test the Cloudflare `*.workers.dev` address **before changing DNS**:
 - `/api/health` returns `{"status":"ok","catalog":"legacy","database":false}`;
 - `/api/shared` still forwards to the existing API until the D1 cutover.
 
-GitHub Pages may continue serving the old domain until DNS is deliberately
-moved. **No automatic DNS change is made by this repository.**
+Historical note (before the migration): GitHub Pages previously served
+the public site. **Current production is Cloudflare Workers**; GitHub Pages is
+no longer a deployment target. DNS is configured separately from this repository.
 
 ## D1: new empty catalogue, no migration
 
