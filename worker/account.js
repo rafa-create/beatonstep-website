@@ -417,8 +417,16 @@ export async function accountRequest(request,env,url,ctx) {
       if (!member) return reply({error:'account_session_expired'},401);
       if (env.SPORT_WORLD_CARDS_ENABLED!=='true')
         return reply({error:'world_sport_cards_not_ready'},503);
-      return readSportWorldCollection(db,member.id,url,{
-         telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'});
+      const enabled=env.SPORT_ASYNC_TELEMETRY_ENABLED==='true';
+      try{return await readSportWorldCollection(db,member.id,url,{
+        telemetryEnabled:enabled});}
+      catch(error){
+        if(!enabled||!String(error).includes('sport_card_telemetry_reviews'))
+          throw error;
+        // Schema initialization is asynchronous; a missing optional table
+        // must never take the user's actual collection offline.
+        return readSportWorldCollection(db,member.id,url,{telemetryEnabled:false});
+      }
     }
     if (path.startsWith('/api/account/sport/') && method==='GET') {
       const member=await webUser(db,request);
@@ -428,8 +436,14 @@ export async function accountRequest(request,env,url,ctx) {
       const forwarded=new URL(request.url);
       forwarded.pathname=path.replace('/api/account/sport/',
         '/api/account/device/sport/');
-      return readSportWorldCollection(db,member.id,forwarded,{
-         telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'});
+      const enabled=env.SPORT_ASYNC_TELEMETRY_ENABLED==='true';
+      try{return await readSportWorldCollection(db,member.id,forwarded,{
+        telemetryEnabled:enabled});}
+      catch(error){
+        if(!enabled||!String(error).includes('sport_card_telemetry_reviews'))
+          throw error;
+        return readSportWorldCollection(db,member.id,forwarded,{telemetryEnabled:false});
+      }
     }
     // Only the authenticated runner sees their durable sporting achievements.
     // This reads ledger 0005; no challenge-result submission is enabled here.
