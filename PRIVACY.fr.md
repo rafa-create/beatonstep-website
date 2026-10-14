@@ -1,6 +1,6 @@
 # Politique de confidentialité — BeatOnStep
 
-**Dernière mise à jour :** 13 octobre 2026
+**Dernière mise à jour :** 14 octobre 2026
 
 ## 1. Qui sommes-nous
 
@@ -119,18 +119,17 @@ Le serveur conserve seulement le **dernier snapshot connu par installation** afi
 
 Ces données ne sont **ni vendues, ni utilisées pour la publicité, ni utilisées pour le suivi publicitaire (« tracking »), ni croisées avec des données provenant d'autres entreprises à des fins de profilage**.
 
-### 3.10 GPS Garmin et mesure de distance sur iPhone (optionnels)
+### 3.10 Suivi GPS des courses sur iOS, Android et Garmin (facultatif)
 
-**Montre Garmin.** Si vous utilisez une montre Garmin compatible avec BeatOnStep :
+**GPS du téléphone (BeatOnStep 1.7.2).** Lorsque vous démarrez volontairement une course ou une séance à objectif kilométrique avec GPS, BeatOnStep peut demander l'accès à la localisation pour mesurer la **distance parcourue**, calculer l'allure lorsqu'elle est disponible et suivre la progression des phases. Le GPS ne démarre pas à l'ouverture de l'application. Vous pouvez refuser l'accès ; les fonctionnalités nécessitant une distance GPS fiable seront alors indisponibles ou limitées. Mettre la séance en pause suspend le suivi ; terminer la séance l'arrête.
 
-- la montre utilise son GPS dans le cadre de l'activité Garmin enregistrée et peut transmettre temporairement à l'app BeatOnStep les positions nécessaires au récapitulatif ;
-- les coordonnées GPS brutes restent **uniquement en mémoire pendant la course** : BeatOnStep ne les persiste pas dans son stockage local et ne les envoie pas au serveur BeatOnStep ;
-- à la fin de la course, BeatOnStep peut conserver localement une **forme relative simplifiée** du parcours (sans latitude, longitude ni fond de carte) pour le récapitulatif et les visuels de partage ;
-- si vous partagez une story BeatOnStep, seule cette forme relative non géographique peut être incluse ; aucune coordonnée GPS brute ne figure dans l'URL de partage.
+- **Sur iPhone**, iOS peut demander la localisation pendant l'utilisation et l'autorisation nécessaire à la poursuite d'une séance lorsque le téléphone est verrouillé ou que l'application passe en arrière-plan.
+- **Sur Android**, la mesure nécessite la permission de localisation et, pendant une séance active, peut utiliser un service de premier plan avec une notification visible pour continuer sous écran verrouillé. BeatOnStep ne demande pas la permission Android distincte `ACCESS_BACKGROUND_LOCATION`.
+- **Protection des positions :** les coordonnées GPS brutes du téléphone sont traitées temporairement en mémoire par le module natif ; elles ne sont pas enregistrées comme historique de positions, ni transmises au serveur BeatOnStep ou aux services musicaux. Le module produit des mesures cumulées (notamment distance et durée) et peut générer sur iPhone une silhouette **relative et non géolocalisée** du parcours pour le récapitulatif. Les positions brutes sont effacées de la session après l'arrêt du suivi.
 
-**GPS du téléphone sur iPhone (fonction expérimentale, disponible uniquement dans certains builds).** Dans le panneau de test de distance, si celui-ci est activé dans votre version, vous choisissez explicitement de démarrer le GPS et pouvez l'arrêter ou mettre la mesure en pause. L'app peut alors demander l'autorisation iOS de localisation (pendant l'utilisation et, si vous le choisissez, en arrière-plan pour continuer à mesurer quand l'iPhone est verrouillé). La mesure sert à calculer les mètres et le temps écoulé ; elle ne démarre pas automatiquement à l'ouverture de BeatOnStep. Le parcours kilométrique avec musique n'est pas encore activé dans la course normale.
+**Montres Garmin compatibles.** Si vous activez une montre Garmin, elle peut transmettre temporairement les métriques de course et les positions nécessaires au récapitulatif. Les coordonnées brutes reçues restent en mémoire pendant la course ; seule une silhouette relative, dépourvue de latitude et longitude, peut être conservée localement pour le bilan ou un visuel partagé.
 
-Le module iOS traite les positions GPS brutes **uniquement en mémoire volatile sur l'iPhone** pendant cette mesure : pas de stockage d'historique de coordonnées, pas d'envoi de ces positions au serveur BeatOnStep ni aux services musicaux. Il calcule localement un cumul de distance et peut fournir une **silhouette relative du parcours**, sans latitude ni longitude, pour un récapitulatif local si la mesure est exploitable. Le suivi s'arrête à la fin du test ou lorsque vous quittez ce panneau ; les positions brutes sont effacées de la session. La désinstallation efface les éventuels récapitulatifs locaux. Sur les versions Android actuelles, ce pilote GPS du téléphone n'est pas disponible.
+**Partages facultatifs.** À votre demande, un récapitulatif, une carte de performance ou une activité Strava peut utiliser des **résultats de séance** (par exemple distance, durée, heure de départ et source de mesure). Pour l'export Strava, ces résultats passent par l'API BeatOnStep avant d'être envoyés à Strava avec votre autorisation ; **aucune suite de coordonnées GPS brutes n'est transmise**. Un visuel partagé peut contenir la silhouette relative du parcours, si elle existe. La mesure d'usage analytique du § 3.9 ne contient ni position GPS ni parcours.
 
 ### 3.11 Rapport Help / diagnostic volontaire
 
@@ -155,7 +154,11 @@ Le serveur utilise ce rapport uniquement pour le **support technique et le diagn
 | Permission | Raison |
 |------------|--------|
 | `HIGH_SAMPLING_RATE_SENSORS` | Lecture de l'accéléromètre à haute fréquence pour détecter la cadence de pas (pas/min). |
-| `FOREGROUND_SERVICE` | Maintenir la lecture musicale et la détection de cadence en arrière-plan (téléphone verrouillé). |
+| `FOREGROUND_SERVICE` | Exécuter les services de premier plan nécessaires pendant une séance. |
+| `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION` | Demander l'accès à la localisation pour mesurer la distance d'une séance GPS lancée volontairement. |
+| `FOREGROUND_SERVICE_LOCATION` | Continuer le suivi GPS d'une séance active avec notification visible, notamment sous écran verrouillé. |
+| `FOREGROUND_SERVICE_HEALTH` | Maintenir les mesures liées à l'activité physique pendant la séance. |
+| `FOREGROUND_SERVICE_MEDIA_PLAYBACK` | Poursuivre la lecture audio pendant la séance. |
 | `WAKE_LOCK` | Limiter la mise en veille du capteur pendant une session. |
 
 ### iOS (App Store)
@@ -164,7 +167,7 @@ Sur iOS, la **détection de cadence** utilise les capteurs de mouvement (accél�
 
 L'accès à la **médiathèque** (Musiques téléphone) déclenche une demande de permission système standard lorsque vous importez de la musique depuis votre appareil.
 
-Dans les builds iPhone qui incluent le **pilote GPS expérimental**, iOS peut demander l'autorisation de localisation **pendant l'utilisation** et, pour le suivi pendant le verrouillage, une autorisation **Toujours / en arrière-plan** si vous la choisissez. La localisation n'est consultée qu'après démarrage volontaire du test (§ 3.10). Le pilote n'est pas actif au lancement de l'app. Sur Android, ce pilote de GPS du téléphone n'est pas disponible dans les versions actuelles. Le GPS d'une montre Garmin relève de ses propres autorisations (§ 3.10). BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
+Pour les séances avec GPS, iOS peut demander la localisation **pendant l'utilisation** et l'accès nécessaire au suivi sous écran verrouillé ; Android utilise une permission de localisation et un service de premier plan pendant la séance (§ 3.10). Le suivi ne démarre pas à l'ouverture de l'app. Les montres Garmin ont leurs autorisations propres. BeatOnStep n'accède pas à vos contacts, votre appareil photo ou votre microphone.
 
 ## 5. Données stockées localement
 
@@ -176,7 +179,7 @@ Sur votre appareil, dans l'espace privé de l'app :
 - Titres Spotify dont vous avez collé le lien (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Spotify dans cette version.
 - Titres Deezer dont vous avez collé le lien Partager (identifiant, titre, BPM saisi ou détecté) — **pas** de jeton de compte Deezer dans cette version.
 - Identifiant d'installation aléatoire BeatOnStep et dernier état local de la mesure de playlists (§ 3.9).
-- Forme relative simplifiée d'un parcours Garmin ou du pilote GPS iPhone, lorsqu'elle est disponible pour un récapitulatif local (§ 3.10) — **sans coordonnées GPS brutes**.
+- Mesures de séance et éventuelle silhouette relative simplifiée du parcours GPS téléphone/Garmin, lorsqu'elles sont conservées pour un récapitulatif local (§ 3.10) — **sans historique de coordonnées GPS brutes**.
 
 La **désinstallation** de l'application supprime ces données. La déconnexion d'un service (YouTube, Apple Music) efface les jetons correspondants sans désinstaller l'app.
 
@@ -237,4 +240,4 @@ Le catalogue « Mix démo » est composé exclusivement de morceaux libres de dr
 Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 
 **Liste complète des titres (obligatoire pour l'attribution CC-BY) :**  
-[Crédits musicaux — Mix démo](https://rafa-create.github.io/beatonstep-website/music-credits.html)
+[Crédits musicaux — Mix démo](https://beatonstep.app/music-credits.html)
