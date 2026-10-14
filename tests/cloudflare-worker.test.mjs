@@ -31,7 +31,7 @@ test('worker reports mode without requiring a D1 binding', async () => {
 
 test('time and distance popular workouts are separately ranked by verified imports', async () => {
   const timed={v:1,n:'Fractionné',s:'spotify',
-    p:[['Effort',600,160,null]],t:[]};
+    p:[['Effort',600,160,null]],t:[{p:0,n:'Morceau test',a:'Artiste test'}]};
   const distance={...timed,n:'5 km endurance',g:'distance',m:[5000]};
   assert.equal(validate('workout',timed).goalMode,'time');
   assert.deepEqual({
@@ -39,6 +39,7 @@ test('time and distance popular workouts are separately ranked by verified impor
     distanceMeters:validate('workout',distance).distanceMeters,
   },{goalMode:'distance',distanceMeters:5000});
   for(const invalid of [
+    {...distance,t:[]},{...distance,t:[{p:0,n:'Morceau sans artiste'}]},
     {...distance,m:[]},{...distance,m:[5]},
     {...distance,m:[200001]},{...timed,m:[5000]},
     {...distance,g:'time'},
