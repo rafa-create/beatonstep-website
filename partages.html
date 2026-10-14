@@ -35,6 +35,10 @@
     .lang button[aria-pressed=true]{background:var(--yellow);color:#151510;border-color:var(--yellow)}
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
+    .sport-guide-link{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:8px 12px;border:1px solid #70663a;border-radius:999px;background:#262318;color:var(--text);font-size:13px;font-weight:700;text-decoration:none}
+    .sport-guide-link:hover{color:var(--yellow);border-color:var(--yellow)}
+    .sport-guide-link:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .sport-guide-link[hidden]{display:none}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 16px}
     .pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .filter-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
@@ -235,6 +239,7 @@
   <a class="back" href="partages.html" id="back" hidden>← Catalogue</a>
   <h1 id="title">Catalogue</h1>
   <p class="sub" id="intro">Cartes sportives obtenues après validation des courses.</p>
+  <a class="sport-guide-link" id="sport-guide-link" href="cartes-guide.html?lang=fr"><span aria-hidden="true">ⓘ</span><span id="sport-guide-label">Comment gagner une carte ?</span><span aria-hidden="true">→</span></a>
   <div id="catalog">
     <div class="toolbar">
       <div class="filter-picker">
@@ -900,6 +905,7 @@
   }
   function updateCatalogFilters(){
     const sport=kind==='challenge';
+    $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
     $('sort-picker').hidden=sport;
     $('source-picker').hidden=sport;
     for(const name of ['distance-picker','difficulty-picker','sub-picker'])
@@ -948,6 +954,8 @@
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
+    $('sport-guide-link').href='cartes-guide.html?lang='+lang;
+    $('sport-guide-label').textContent=fr('Comment gagner une carte ?','How do I earn a card?');
     $('intro').hidden=Boolean(id||sportId);
     $('intro').textContent=kind==='challenge'
       ?fr('Cartes sportives obtenues après validation des courses.',
