@@ -437,7 +437,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         const note=category==='ghost'?'Carte fantôme · Ne vous appartient plus':
           category==='gift'?'Carte reçue en cadeau':
           card.verifiedAfterGiftAt?'Offerte puis réussie':'Carte gagnée';
-        meta.textContent=note+' · '+(card.difficulty||'')+
+        meta.textContent=note+' · '+(BeatOnStepSportCards.levels[card.difficulty]?.[0]||card.difficulty||'')+
           ' · '+(category==='ghost'?'Détenue pendant ':'Détenue depuis ')+
           tenure(card.heldDurationMs);
         const face=BeatOnStepSportCards.createFace(document,{
