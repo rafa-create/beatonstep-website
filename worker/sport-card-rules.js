@@ -12,7 +12,7 @@ const BEGINNER_10K_MAX_SUB_MINUTE=91; // 10 km in exactly 1h30 -> sub91 eligible
 // Product-only 400m difficulty caps, not official World Athletics rankings.
 // Caps use strict sub-second thresholds. 400m 59.999s = sub60 Legend;
 // at exactly 60.000s the candidate is sub61 Expert.
-const FOUR_HUNDRED_METER_TIERS=Object.freeze([
+export const SPORT_CARD_400M_TIERS=Object.freeze([
   ['world_elite',50],['legend',60],['expert',70],
   ['intermediate',85],['regular',100],['amateur',125],
   ['beginner',181], // Allows exactly 3 minutes on the 400m.
@@ -96,7 +96,7 @@ export function difficultyForSportCard(distanceCm,subValue){
   if(canonicalSportDistance(distanceCm)===null||
      !Number.isSafeInteger(subValue)||subValue<1)return null;
   if(distanceCm===40_000){
-    const found=FOUR_HUNDRED_METER_TIERS.find(
+    const found=SPORT_CARD_400M_TIERS.find(
       tier=>subValue<=tier.maxSubSecond);
     return found?Object.freeze({
       difficulty:found.difficulty,
