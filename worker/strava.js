@@ -184,8 +184,6 @@ function validGpsTrack(track,start,elapsed){
   }
   return points;
 }
-const xmlEsc=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
 function descriptionForMetrics({pace,heart,maxHeart,cadence}){
   const description=['Course avec BeatOnStep — la musique au rythme des pas.'];
   if(pace!==null){
@@ -204,7 +202,9 @@ export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadenc
   const lap=[
     '<Lap StartTime="'+iso(start)+'">',
     '<TotalTimeSeconds>'+elapsed+'</TotalTimeSeconds>',
-    ...(distance!==null?['<DistanceMeters>'+distance+'</DistanceMeters>']:[]),
+    '<DistanceMeters>'+(distance??0)+'</DistanceMeters>',
+    // Required by the TCX v2 schema; zero indicates no measured calorie estimate.
+    '<Calories>0</Calories>',
     ...(heart!==null?['<AverageHeartRateBpm><Value>'+Math.round(heart)+'</Value></AverageHeartRateBpm>']:[]),
     ...(maxHeart!==null?['<MaximumHeartRateBpm><Value>'+Math.round(maxHeart)+'</Value></MaximumHeartRateBpm>']:[]),
     '<Intensity>Active</Intensity>',
