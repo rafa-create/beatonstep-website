@@ -2,6 +2,7 @@
 // Independent of historical musical shares and retired publishable V2 challenges.
 // Only public handles and transfer motives leave D1; never account IDs or run proofs.
 import {canonicalSportDistance} from './sport-card-rules.js';
+import {readSportWarningReasons} from './sport-card-telemetry.js';
 
 const DIFFICULTIES=new Set([
   'beginner','amateur','regular','intermediate','expert','legend','world_elite',
@@ -97,8 +98,18 @@ export async function readPublicSportCards(db,url,{
   // Reverse chronology, bounded. No GPS, email, IDs, device or evidence data.
   const historyRows=await db.prepare(
     'SELECT e.reason,e.changed_at,prior.handle AS from_handle,'+
-    'recipient.handle AS to_handle '+
+    'recipient.handle AS to_handle,'+
+    (telemetryEnabled
+      ? "CASE WHEN e.reason='sport_win' AND tr.state='warning' THEN 1 ELSE 0 END "
+        +"AS performance_warning,rd.reason_codes AS warning_reasons "
+      : '0 AS performance_warning,NULL AS warning_reasons ')+
     'FROM sport_card_ownership_events e '+
+    (telemetryEnabled
+      ? 'LEFT JOIN sport_card_telemetry_reviews tr ON tr.card_id=e.card_id '+
+        'AND tr.owner_epoch=e.new_epoch '+
+        'LEFT JOIN sport_card_telemetry_reason_details rd ON rd.card_id=e.card_id '+
+        'AND rd.owner_epoch=e.new_epoch '
+      : '')+
     'LEFT JOIN community_users prior ON prior.id=e.previous_owner_id '+
     'LEFT JOIN community_users recipient ON recipient.id=e.new_owner_id '+
     'WHERE e.card_id=? ORDER BY e.new_epoch DESC LIMIT 101'
@@ -111,5 +122,9 @@ export async function readPublicSportCards(db,url,{
     history:events.slice(0,100).map(e=>({
       reason:e.reason,at:safeTime(e.changed_at),
       from:safeHandle(e.from_handle),to:safeHandle(e.to_handle),
+      ...(e.reason==='sport_win'&&Number(e.performance_warning)===1
+        ?{performanceWarning:true,
+          warningReasons:readSportWarningReasons(e.warning_reasons)}
+        :{}),
     })),historyHasMore:events.length>100});
 }
