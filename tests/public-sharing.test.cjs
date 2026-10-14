@@ -12,6 +12,11 @@ assert.match(page, /<select id="sort-filter"/);
 assert.match(page, /<select id="source-filter"/);
 assert.match(page, /<option value="workout">Séances<\/option>/);
 assert.match(page, /<option value="runmix">Playlists<\/option>/);
+assert.match(page, /<option value="challenge" selected>Défis<\/option>/);
+assert.match(page, /id="distance-filter"/);
+assert.match(page, /id="difficulty-filter"/);
+assert.match(page, /id="sub-filter"/);
+assert.match(page, /kind==='challenge'\?createSportCard/);
 assert.match(page, /<option value="popular">Populaires<\/option>/);
 assert.match(page, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,
   'mobile filters must share one compact row');
