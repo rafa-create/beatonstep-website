@@ -310,11 +310,11 @@ function setup(search,data=example){
   catalog.elements['session-mode-filter'].value='distance';
   catalog.elements['session-mode-filter'].onchange();
   await flush();
-  assert.match(catalog.apiCalls.at(-1),/kind=workout&goal=distance&source=spotify/);
+  assert.match(catalog.apiCalls.at(-1),/kind=workout&goalMode=distance&source=spotify/);
   catalog.elements['sort-filter'].value='popular';
   catalog.elements['sort-filter'].onchange();
   await flush();
-  assert.match(catalog.apiCalls.at(-1),/goal=distance&source=spotify&sort=popular/);
+  assert.match(catalog.apiCalls.at(-1),/goalMode=distance&source=spotify&sort=popular/);
   assert.equal(catalog.elements['kind-filter'].value,'workout');
   assert.equal(catalog.elements['session-mode-filter'].value,'distance');
   assert.equal(catalog.elements['sort-filter'].value,'popular');
@@ -393,7 +393,7 @@ function setup(search,data=example){
   await flush();
   assert.equal(playlistCatalog.elements['kind-filter'].value,'workout',
     'an obsolete playlist category redirects to the musical workouts category');
-  assert.match(playlistCatalog.apiCalls[0],/kind=workout&goal=all/,
+  assert.match(playlistCatalog.apiCalls[0],/kind=workout&goalMode=all/,
     'playlist discovery is not queried even from an old bookmarked URL');
   assert.equal(playlistCatalog.apiCalls.filter(url=>url.endsWith('/2')).length,0,
     'historical playlist detail remains separately accessible by direct ID');
