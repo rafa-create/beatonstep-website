@@ -1,6 +1,24 @@
 // #98: Asynchronous optional review. Ownership is NEVER contingent on this.
 // Each warning is scoped to the epoch that earned the trophy; gifts reset it.
 // No GPS routes, user identifiers or detailed diagnostics are stored.
+// Idempotent additive initialization for an independently deployed Worker.
+// A scheduled task or post-award background task can initialize the new table
+// without VM access. Migration 0011 remains the canonical, declarative schema.
+export async function ensureSportTelemetrySchema(db){
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sport_card_telemetry_reviews (
+    card_id INTEGER NOT NULL REFERENCES sport_world_cards(id) ON DELETE CASCADE,
+    owner_epoch INTEGER NOT NULL CHECK(owner_epoch>=1),
+    needs_warning INTEGER NOT NULL CHECK(needs_warning IN (0,1)),
+    state TEXT NOT NULL DEFAULT 'pending'
+      CHECK(state IN ('pending','clear','warning')),
+    created_at INTEGER NOT NULL CHECK(created_at>0),
+    reviewed_at INTEGER,
+    PRIMARY KEY(card_id,owner_epoch)
+  )`).run();
+  await db.prepare(`CREATE INDEX IF NOT EXISTS sport_telemetry_review_pending
+    ON sport_card_telemetry_reviews(state,created_at)`).run();
+}
+
 export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{now=Date.now()}={}){
   if(!Number.isSafeInteger(cardId)||cardId<1||!Number.isSafeInteger(epoch)||epoch<1)
     return false;
