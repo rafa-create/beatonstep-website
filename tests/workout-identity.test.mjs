@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { workoutMusicSequence, workoutMusicFingerprint } from '../worker/workout-identity.js';
+import { workoutMusicSequence, workoutMusicFingerprint,
+  workoutCardFingerprint } from '../worker/workout-identity.js';
 
 const original = {
   v: 1, n: 'Premier titre', s: 'spotify',
@@ -59,4 +60,27 @@ test('refuses to merge cards with missing or incomplete song metadata', async ()
     assert.equal(workoutMusicSequence(payload), null);
     assert.equal(await workoutMusicFingerprint(payload), null);
   }
+});
+
+test('a GPS musical distance card differs from timed cards and retired V2 challenges', async () => {
+  const distance={
+    v:3,n:'Endurance 5 km',s:'spotify',goalMode:'distance',targetMeters:5000,
+    p:[['Start',1000,145,140,600],['Finish',4000,160,160,1200]],
+    t:clone(original.t),
+  };
+  const hash=await workoutCardFingerprint(distance);
+  assert.ok(hash);
+  assert.notEqual(hash,await workoutCardFingerprint(original));
+  const same=clone(distance);
+  same.n='Other name';same.s='youtube';same.p[0][4]=700;
+  same.p[1][4]=1100;
+  assert.equal(await workoutCardFingerprint(same),hash,
+    'estimated music times and title do not change the real goal or the card');
+  const tenKm=clone(distance);
+  tenKm.p[1][1]=9000;tenKm.targetMeters=10000;
+  assert.notEqual(await workoutCardFingerprint(tenKm),hash);
+  const changedSong=clone(distance);changedSong.t[0].n='Another track';
+  assert.notEqual(await workoutCardFingerprint(changedSong),hash);
+  const noArtist=clone(distance);noArtist.t[0].a='';
+  assert.equal(await workoutCardFingerprint(noArtist),null);
 });
