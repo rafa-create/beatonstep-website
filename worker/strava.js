@@ -184,6 +184,22 @@ function validGpsTrack(track,start,elapsed){
   }
   return points;
 }
+function validCadenceSamples(samples,start,elapsed){
+  if(samples==null)return null;
+  if(!Array.isArray(samples)||samples.length<1||samples.length>2048)return false;
+  const valid=[];
+  let previousTime=0;
+  for(const sample of samples){
+    if(!Array.isArray(sample)||sample.length!==2||
+       !Number.isSafeInteger(sample[0])||sample[0]<=previousTime||
+       sample[0]<start-300000||sample[0]>start+elapsed*1000+300000||
+       typeof sample[1]!=='number'||!Number.isFinite(sample[1])||
+       sample[1]<35||sample[1]>260)return false;
+    valid.push(sample);
+    previousTime=sample[0];
+  }
+  return valid;
+}
 function descriptionForMetrics({pace,heart,maxHeart,cadence}){
   const description=['Course avec BeatOnStep — la musique au rythme des pas.'];
   if(pace!==null){
@@ -197,8 +213,24 @@ function descriptionForMetrics({pace,heart,maxHeart,cadence}){
 }
 // TCX preserves real geolocated, timestamped points. Aggregate HR/cadence/pace
 // remain Lap summaries: never duplicate them into imaginary per-fix samples.
-export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadence,pace}){
+export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadence,pace,cadenceSamples=null}){
   const iso=ms=>new Date(ms).toISOString();
+  const trackPoint=([lat,lon,time])=>{
+    // Match only real measured PPM samples recorded within 3 seconds.
+    // TCX RunCadence is strides/min, while BeatOnStep measures steps/min.
+    let nearest=null,delta=3001;
+    for(const sample of cadenceSamples||[]){
+      const difference=Math.abs(sample[0]-time);
+      if(difference<delta){nearest=sample;delta=difference;}
+    }
+    const cadenceXml=nearest
+      ?'<Extensions><ns3:TPX><ns3:RunCadence>'+Math.round(nearest[1]/2)+
+        '</ns3:RunCadence></ns3:TPX></Extensions>'
+      :'';
+    return '<Trackpoint><Time>'+iso(time)+'</Time><Position>'+
+      '<LatitudeDegrees>'+lat+'</LatitudeDegrees><LongitudeDegrees>'+lon+
+      '</LongitudeDegrees></Position>'+cadenceXml+'</Trackpoint>';
+  };
   const lap=[
     '<Lap StartTime="'+iso(start)+'">',
     '<TotalTimeSeconds>'+elapsed+'</TotalTimeSeconds>',
@@ -211,9 +243,7 @@ export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadenc
     ...(cadence!==null?['<Cadence>'+Math.round(cadence)+'</Cadence>']:[]),
     '<TriggerMethod>Manual</TriggerMethod>',
     '<Track>',
-    ...gps.map(([lat,lon,time])=>'<Trackpoint><Time>'+iso(time)+'</Time><Position>'+
-      '<LatitudeDegrees>'+lat+'</LatitudeDegrees><LongitudeDegrees>'+lon+
-      '</LongitudeDegrees></Position></Trackpoint>'),
+    ...gps.map(trackPoint),
     '</Track>',
     ...(pace!==null?['<Extensions><ns3:LX><ns3:AvgSpeed>'+(1000/pace)+
       '</ns3:AvgSpeed></ns3:LX></Extensions>']:[]),
@@ -256,7 +286,7 @@ async function resolveUpload(env,athleteId,runId,uploadId,token){
 
 async function publish(request, env, device, row) {
   if (!row) return reply({error:'not_connected'}, 401);
-  const b = await jsonBody(request,65536);
+  const b = await jsonBody(request,131072);
   const runId = typeof b?.runId === 'string' ? b.runId : '';
   const startedAt = Number(b?.startedAtMs);
   const elapsedTime = Number(b?.elapsedTime);
@@ -266,11 +296,12 @@ async function publish(request, env, device, row) {
   const cadence=metric(b?.cadencePpm,20,300);
   const pace=metric(b?.paceSecPerKm,1,86400);
   const gps=validGpsTrack(b?.gpsTrack,startedAt,elapsedTime);
+  const cadenceSamples=validCadenceSamples(b?.cadenceSamples,startedAt,elapsedTime);
   if (!/^bos-[0-9]{12,14}$/.test(runId) || !Number.isSafeInteger(startedAt) ||
     startedAt < Date.UTC(2020,0,1) || startedAt > Date.now()+300000 ||
     !Number.isSafeInteger(elapsedTime) || elapsedTime < 1 || elapsedTime > 604800 ||
     (distance !== null && (!Number.isFinite(distance) || distance <= 0 || distance > 500000)) ||
-    [heart,maxHeart,cadence,pace].some(Number.isNaN) || gps===false) {
+    [heart,maxHeart,cadence,pace].some(Number.isNaN) || gps===false || cadenceSamples===false) {
     return reply({error:'invalid_run'}, 400);
   }
   // The mobile app's runId comes from the original session start time.
@@ -301,7 +332,7 @@ async function publish(request, env, device, row) {
     let form,endpoint,headers={authorization:'Bearer '+token};
     if(gps){
       const tcx=buildStravaTcx({start:startedAt,elapsed:elapsedTime,distance,
-        gps,heart,maxHeart,cadence,pace});
+        gps,heart,maxHeart,cadence,pace,cadenceSamples});
       form=new FormData();
       form.set('name','Course BeatOnStep');
       form.set('description',description);
