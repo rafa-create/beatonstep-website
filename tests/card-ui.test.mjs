@@ -17,6 +17,28 @@ test('account pack is collectible with an animated reveal, not a reserve invento
   assert.doesNotMatch(html,/Réserve : '\+pack\.remaining/);
   assert.doesNotMatch(html,/une nouvelle carte de séance anonyme attend un propriétaire/i);
 });
+test('account opens challenge deck first, with sessions on the right',()=>{
+  const html=read('compte.html');
+  const challengeButton=html.indexOf('id="deck-challenges"');
+  const sessionButton=html.indexOf('id="deck-sessions"');
+  assert.ok(challengeButton>0&&sessionButton>challengeButton,
+    'challenge control must be the first option');
+  assert.match(html,/id="deck-challenges" aria-pressed="true"/);
+  assert.match(html,/id="deck-sessions" aria-pressed="false"/);
+  assert.match(html,/let selectedDeck='challenges'/,
+    'a signed-in account defaults to its sporting challenges');
+  assert.match(html,/id="challenge-deck"><h2>Mes défis sportifs/,
+    'challenge deck must be visible before hydration');
+  assert.match(html,/id="session-deck" hidden/,
+    'workout cards stay available on the second tab');
+  assert.match(html,/id="history-challenges-panel"><p/,
+    'sporting history is the initial timeline');
+  assert.match(html,/id="history-sessions-panel" hidden/,
+    'session history is only visible when its tab is selected');
+  assert.match(html,/\$\('deck-sessions'\)\.onclick=\(\)=>\{selectedDeck='sessions';showDecks\(\)\}/,
+    'switching back to music must still update deck and history');
+});
+
 test('catalogue shows an accessible crown, not the proprietor word, and an icon-only phone profile',()=>{
   const html=read('partages.html');
   assert.match(html,/class="community-icon"/);
