@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0a0a08">
+  <title>Comment gagner une carte Défi ? — BeatOnStep</title>
+  <meta name="description" content="Comprendre les cartes Défis BeatOnStep, leurs 7 difficultés et tous les paliers SUB par distance, du 400 m au 200 km.">
+  <link rel="icon" href="assets/brand/logo-400.jpg">
+  <style>
+    :root{color-scheme:dark;--bg:#0a0a08;--surface:#181812;--raised:#222118;--line:#514b34;--text:#f5f1e4;--muted:#c3bdab;--yellow:#fcea07}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    a{color:inherit}
+    a:hover{color:var(--yellow)}
+    button,select,input{font:inherit}
+    :focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .shell{width:min(100% - 32px,960px);margin:auto}
+    .top{display:flex;align-items:center;gap:14px;padding:20px 0 14px;flex-wrap:wrap}
+    .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-weight:800;font-size:20px}
+    .brand img{width:35px;height:35px;border-radius:9px}
+    .back{margin-left:auto;color:var(--muted);font-size:13px;text-decoration:none}
+    .lang{display:flex;gap:5px}
+    .lang button{border-radius:20px;border:1px solid var(--line);background:var(--raised);color:var(--text);padding:6px 11px;cursor:pointer}
+    .lang button[aria-pressed=true]{background:var(--yellow);color:#17160c;border-color:var(--yellow)}
+    main{padding-bottom:45px}
+    .hero{margin:13px 0 22px;padding:clamp(22px,5vw,42px);border:1px solid #5d5331;border-radius:23px;background:radial-gradient(ellipse at 88% 0,#514b2380,transparent 50%),linear-gradient(150deg,#262318,#14140f)}
+    .eyebrow{color:var(--yellow);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+    h1{font-size:clamp(30px,6vw,48px);line-height:1.13;letter-spacing:-.035em;margin:10px 0 16px;max-width:680px}
+    h2{font-size:clamp(23px,4vw,29px);line-height:1.25;letter-spacing:-.025em;margin:0 0 10px}
+    p{margin:8px 0}
+    .hero p{max-width:680px;color:#ddd7c3;font-size:16px}
+    .jump{display:inline-flex;margin-top:14px;border:1px solid var(--yellow);color:#14140d;background:var(--yellow);font-weight:800;text-decoration:none;padding:11px 17px;border-radius:999px}
+    section.panel{margin:18px 0;padding:clamp(18px,4vw,28px);border:1px solid var(--line);background:var(--surface);border-radius:19px}
+    .lead{color:var(--muted);margin-bottom:18px}
+    .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:19px 0 0}
+    .step{background:var(--raised);border:1px solid #514a34;border-radius:15px;padding:17px}
+    .number{width:32px;height:32px;display:grid;place-items:center;background:#4c4526;border-radius:50%;color:var(--yellow);font-weight:800}
+    .step h3{font-size:16px;margin:11px 0 6px}
+    .step p{font-size:13px;color:var(--muted);margin:0}
+    .rule-note{margin-top:16px;padding:13px 16px;border-left:3px solid var(--yellow);background:#272417;border-radius:5px 11px 11px 5px;color:#e8e0c4}
+    .table-scroll{overflow:auto;border:1px solid #514b38;border-radius:12px;margin:14px 0}
+    table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}
+    th,td{padding:11px 13px;border-bottom:1px solid #39372c;vertical-align:middle}
+    tr:last-child td{border-bottom:0}
+    th{background:#27251a;color:#eae2c2;font-size:12px;font-weight:750;letter-spacing:.03em}
+    tbody tr:nth-child(2n){background:#1d1d17}
+    .stars{white-space:nowrap;color:var(--yellow);letter-spacing:1px;font-size:14px}
+    .stars span{color:#827c66}
+    .tier-name{font-weight:750}
+    .fine{font-size:12px;color:var(--muted)}
+    .selector{display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:20px 0 12px}
+    .selector label,.calculator label{display:block;font-weight:700;font-size:13px;margin-bottom:7px}
+    select,input{color:var(--text);background:#28261c;border:1px solid #736a49;padding:11px 13px;border-radius:11px;min-width:0}
+    select{min-width:220px;max-width:100%}
+    input{width:min(100%,225px)}
+    .selector-hint{color:var(--muted);font-size:13px;padding-bottom:10px}
+    #selected-title{font-weight:750;font-size:17px;margin-top:15px}
+    details{border:1px solid #635b40;border-radius:12px;padding:12px 14px;margin:14px 0;background:#201f18}
+    summary{cursor:pointer;font-weight:750}
+    details .table-scroll{max-height:440px;overflow:auto}
+    .calculator{margin:24px 0 10px;padding:17px;background:#292518;border:1px solid #6a5a31;border-radius:14px}
+    .calculator-inner{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .calculate{padding:11px 17px;border:0;border-radius:11px;background:var(--yellow);color:#17160c;font-weight:800;cursor:pointer}
+    #calc-result{min-height:25px;margin-top:14px;font-weight:650}
+    #calc-result.error{color:#ffd0b0}
+    .muted{color:var(--muted)}
+    .footer{margin:25px 0;text-align:center;color:var(--muted);font-size:13px}
+    [hidden]{display:none!important}
+    @media(max-width:700px){.steps{grid-template-columns:1fr}.top{gap:10px}.back{margin-left:0}.lang{margin-left:auto}th,td{padding:9px 10px;font-size:12px}.stars{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="./"><img src="assets/brand/logo-400.jpg" alt="">BeatOnStep</a>
+    <a class="back" href="partages.html?kind=challenge"><span data-fr>← Retour au catalogue</span><span data-en hidden>← Back to catalog</span></a>
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button type="button" id="fr" aria-pressed="true">FR</button>
+      <button type="button" id="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main>
+    <div class="hero">
+      <div class="eyebrow" data-fr>Le guide des cartes Défis</div>
+      <div class="eyebrow" data-en hidden>Challenge card guide</div>
+      <h1 data-fr>Ta course. Ton chrono. Une carte à conquérir.</h1>
+      <h1 data-en hidden>Your run. Your time. A card to win.</h1>
+      <p data-fr>Chaque carte sportive BeatOnStep représente une distance et un palier de temps précis. Découvre comment la gagner et quel niveau correspond à ton objectif.</p>
+      <p data-en hidden>Each BeatOnStep sport card represents a distance and a precise time threshold. Learn how to win it and which level matches your goal.</p>
+      <a class="jump" href="#paliers"><span data-fr>Voir les paliers par distance ↓</span><span data-en hidden>Find thresholds by distance ↓</span></a>
+    </div>
+
+    <section class="panel" aria-labelledby="how-title">
+      <h2 id="how-title"><span data-fr>Comment gagne-t-on une carte ?</span><span data-en hidden>How do you earn a card?</span></h2>
+      <div class="steps">
+        <div class="step">
+          <span class="number">1</span>
+          <h3 data-fr>Tu cours pour de vrai</h3><h3 data-en hidden>Run for real</h3>
+          <p data-fr>Termine une course enregistrée. Le système retient la plus grande distance officielle du catalogue atteinte, avec un temps de passage exploitable, pauses intermédiaires incluses.</p>
+          <p data-en hidden>Finish a recorded run. The system uses the longest catalog distance reached with a usable crossing time, including intermediate pauses.</p>
+        </div>
+        <div class="step">
+          <span class="number">2</span>
+          <h3 data-fr>Ton temps fixe ton SUB</h3><h3 data-en hidden>Your time sets your SUB</h3>
+          <p data-fr>Exemple : 5 km en 24 min 35 s donnent la carte « 5 km · SUB 25 ». Le seuil est strict : exactement 25 min donnent « SUB 26 ».</p>
+          <p data-en hidden>Example: 5 km in 24 min 35 s earns a “5 km · SUB 25” card. Thresholds are strict: exactly 25 minutes means “SUB 26”.</p>
+        </div>
+        <div class="step">
+          <span class="number">3</span>
+          <h3 data-fr>Tu crées ou conquières la carte</h3><h3 data-en hidden>Create or claim the card</h3>
+          <p data-fr>Si cette carte exacte n'existe pas, ta performance la crée. Si elle a déjà un détenteur, tu la lui prends en reproduisant ce même palier. Si tu fais mieux et changes de SUB, tu vises une autre carte.</p>
+          <p data-en hidden>If the exact card does not exist, your run creates it. If someone owns it, matching that SUB takes the card. If you improve into a new SUB, you target a different card.</p>
+        </div>
+      </div>
+      <div class="rule-note">
+        <span data-fr>Une course finalisée donne au maximum <strong>une carte</strong>, après synchronisation et contrôles techniques. Courir plus vite à l'intérieur d'un même SUB ne change pas la carte. Gagner une carte ne garantit pas de conserver sa propriété à vie : un autre coureur peut ensuite atteindre le même palier.</span>
+        <span data-en hidden>A finished run awards at most <strong>one card</strong>, after sync and technical checks. Running faster within the same SUB does not change the card. Ownership is not permanent: another runner may later match that same threshold.</span>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="levels-title">
+      <h2 id="levels-title"><span data-fr>Les 7 niveaux de difficulté</span><span data-en hidden>The 7 difficulty levels</span></h2>
+      <p class="lead" data-fr>Les étoiles t'aident à repérer la difficulté sans alourdir la carte. Le niveau dépend de la <strong>distance et du SUB</strong> : ce sont des niveaux du jeu BeatOnStep, pas des classifications sportives officielles.</p>
+      <p class="lead" data-en hidden>Stars show difficulty without cluttering the card. A level depends on <strong>distance and SUB</strong>; these are BeatOnStep game levels, not official athletics rankings.</p>
+      <div class="table-scroll">
+        <table aria-label="Niveaux des cartes" id="levels-table">
+          <thead><tr><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>À retenir</span><span data-en hidden>Meaning</span></th></tr></thead>
+          <tbody id="levels-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="paliers" aria-labelledby="threshold-title">
+      <h2 id="threshold-title"><span data-fr>Les paliers pour chaque distance</span><span data-en hidden>Thresholds for every distance</span></h2>
+      <p class="lead" data-fr>Sélectionne ta distance, par exemple <strong>5 km</strong>, pour voir précisément les SUB qui correspondent à chaque difficulté. Les seuils proviennent directement du barème utilisé pour attribuer les cartes.</p>
+      <p class="lead" data-en hidden>Choose your distance, for example <strong>5 km</strong>, to see which SUB thresholds match each difficulty. These thresholds come directly from the rules used to award cards.</p>
+      <div class="selector">
+        <div><label for="distance"><span data-fr>Ma distance</span><span data-en hidden>My distance</span></label><select id="distance" disabled><option>Chargement…</option></select></div>
+        <span class="selector-hint" id="family-count" aria-live="polite"></span>
+      </div>
+      <p id="selected-title" aria-live="polite"></p>
+      <p class="fine" id="threshold-note"></p>
+      <div class="table-scroll">
+        <table aria-label="Paliers par difficulté">
+          <thead><tr><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Paliers de cartes</span><span data-en hidden>Card thresholds</span></th></tr></thead>
+          <tbody id="threshold-rows"><tr><td colspan="3"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
+        </table>
+      </div>
+      <details id="individual-details">
+        <summary><span data-fr>Voir chaque palier SUB, un par un</span><span data-en hidden>See every SUB threshold individually</span></summary>
+        <p class="fine" data-fr>Chaque valeur SUB correspond à une carte distincte. La grille indique sa difficulté, même si personne n'a encore créé cette carte en courant.</p>
+        <p class="fine" data-en hidden>Each SUB value is a separate card. The table shows its difficulty even if no runner has created the card yet.</p>
+        <div class="table-scroll">
+          <table aria-label="Tous les paliers SUB">
+            <thead><tr><th>SUB</th><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th></tr></thead>
+            <tbody id="individual-rows"></tbody>
+          </table>
+        </div>
+      </details>
+      <div class="calculator">
+        <h2><span data-fr>Et avec mon chrono ?</span><span data-en hidden>What about my time?</span></h2>
+        <p class="fine" id="time-help"></p>
+        <div class="calculator-inner">
+          <div><label for="time-input"><span data-fr>Mon temps à cette distance</span><span data-en hidden>My time over this distance</span></label><input id="time-input" inputmode="decimal" placeholder="24:35" autocomplete="off"></div>
+          <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>Check my card</span></button>
+        </div>
+        <p id="calc-result" role="status" aria-live="polite"></p>
+      </div>
+      <p class="fine" data-fr>Le tableau décrit les cartes possibles, pas les cartes déjà gagnées dans le catalogue. Une performance doit être réellement enregistrée, terminée et synchronisée ; l'exemple de chrono ci-dessus ne permet pas de créer de carte.</p>
+      <p class="fine" data-en hidden>The table describes possible cards, not cards already earned in the catalog. A performance must be genuinely recorded, finished and synced; entering a time here does not create a card.</p>
+    </section>
+    <p class="footer"><a href="partages.html?kind=challenge"><span data-fr>← Parcourir les cartes gagnées</span><span data-en hidden>← Browse earned cards</span></a></p>
+  </main>
+</div>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const params=new URLSearchParams(location.search);
+  let lang=params.get('lang')==='en'?'en':params.get('lang')==='fr'?'fr':
+    (navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
+  let guide=null;
+  const levelNames={
+    world_elite:['Élite mondiale','World elite',7,'Performances les plus rapides','Fastest performances'],
+    legend:['Légende','Legend',6,'Très haute difficulté','Very high difficulty'],
+    expert:['Expert','Expert',5,'Performance exigeante','Demanding performance'],
+    intermediate:['Intermédiaire','Intermediate',4,'Objectif soutenu','Strong target'],
+    regular:['Régulier','Regular',3,'Progression confirmée','Established progress'],
+    amateur:['Amateur','Amateur',2,'Objectif accessible','Accessible target'],
+    beginner:['Débutant','Beginner',1,'Premier palier de la collection','First collection tier'],
+  };
+  const t=(fr,en)=>lang==='fr'?fr:en;
+  const make=(tag,cls,value)=>{
+    const el=document.createElement(tag);
+    if(cls)el.className=cls;
+    if(value!==undefined)el.textContent=String(value);
+    return el;
+  };
+  function stars(n){
+    const span=make('span','stars');
+    span.textContent='★'.repeat(n);
+    span.append(make('span','', '☆'.repeat(7-n)));
+    span.setAttribute('aria-label',t(n+' étoiles sur 7',n+' out of 7 stars'));
+    return span;
+  }
+  function distanceName(cm){
+    if(cm===40000)return '400 m';
+    if(cm===2109750)return t('Semi-marathon','Half marathon');
+    if(cm===4219500)return t('Marathon','Marathon');
+    return (cm/100000).toLocaleString(lang==='fr'?'fr-FR':'en-US')+' km';
+  }
+  function selected(){
+    return guide?.distances.find(row=>String(row.distanceCm)===$('distance').value);
+  }
+  function timeLabel(n,unit){
+    if(unit==='second'){
+      return n<60?n+' s':Math.floor(n/60)+' min '+String(n%60).padStart(2,'0')+' s';
+    }
+    const hours=Math.floor(n/60),minutes=n%60;
+    return hours?hours+' h '+String(minutes).padStart(2,'0')+' min':n+' min';
+  }
+  function subLabel(n,unit){return 'SUB '+timeLabel(n,unit);}
+  function renderLevels(){
+    const body=$('levels-rows');body.replaceChildren();
+    for(const key of guide.levels.slice().reverse()){
+      const info=levelNames[key],tr=make('tr');
+      const a=make('td'),b=make('td','tier-name',info[lang==='fr'?0:1]);
+      a.append(stars(info[2]));
+      tr.append(a,b,make('td','muted',info[lang==='fr'?3:4]));
+      body.append(tr);
+    }
+  }
+  function renderThresholds(){
+    const row=selected();
+    if(!row)return;
+    $('selected-title').textContent=distanceName(row.distanceCm);
+    $('threshold-note').textContent=row.ultra
+      ?t('De 43 à 200 km, toutes les performances attestées sont « Légende longue distance », indépendamment du rythme.',
+           'From 43 to 200 km, every validated performance is “Long-distance legend”, regardless of pace.')
+      :t('SUB N signifie un temps strictement inférieur à N '+(row.unit==='second'?'secondes.':'minutes.')+' Exactement N:00 donne le palier SUB suivant.',
+           'SUB N means a time strictly below N '+(row.unit==='second'?'seconds.':'minutes.')+' Exactly N:00 leads to the next SUB.');
+    const body=$('threshold-rows');body.replaceChildren();
+    if(row.ultra){
+      const tr=make('tr');
+      tr.append(make('td','tier-name',t('Légende longue distance','Long-distance legend')));
+      const cell=make('td');cell.append(stars(6));tr.append(cell);
+      tr.append(make('td','',t('Tous les SUB validés (sans plafond de vitesse)','All validated SUBs (no pace cap)')));
+      body.append(tr);
+    }else{
+      let previous=0;
+      for(const key of guide.levels){
+        const max=row.caps[key];
+        if(!Number.isInteger(max)||max<=previous)continue;
+        const first=previous+1;
+        const tr=make('tr');
+        tr.append(make('td','tier-name',levelNames[key][lang==='fr'?0:1]));
+        const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
+        tr.append(make('td','',first===max?subLabel(max,row.unit):
+          subLabel(first,row.unit)+' — '+subLabel(max,row.unit)));
+        body.append(tr);
+        previous=max;
+      }
+    }
+    if($('individual-details').open)renderIndividuals();else $('individual-rows').replaceChildren();
+    $('time-help').textContent=row.unit==='second'
+      ?t('400 m : saisis par exemple 59.8 (secondes) ou 1:02.4 (minutes:secondes).',
+           '400 m: enter e.g. 59.8 (seconds) or 1:02.4 (minutes:seconds).')
+      :t('Exemples : 24:35 (minutes:secondes) ou 1:30:00 (heures:minutes:secondes).',
+           'Examples: 24:35 (minutes:seconds) or 1:30:00 (hours:minutes:seconds).');
+    $('time-input').placeholder=row.unit==='second'?'59.8':'24:35';
+    $('calc-result').textContent='';
+    $('calc-result').classList.remove('error');
+  }
+  function renderIndividuals(){
+    const row=selected();if(!row)return;
+    const body=$('individual-rows');body.replaceChildren();
+    if(row.ultra){
+      const tr=make('tr');
+      tr.append(make('td','',t('Tout SUB vérifié','Any validated SUB')));
+      tr.append(make('td','',t('Légende longue distance','Long-distance legend')));
+      const cell=make('td');cell.append(stars(6));tr.append(cell);
+      body.append(tr);return;
+    }
+    const fragment=document.createDocumentFragment();
+    let previous=0;
+    for(const key of guide.levels){
+      const limit=row.caps[key];
+      if(!Number.isInteger(limit))continue;
+      for(let n=previous+1;n<=limit;n++){
+        const tr=make('tr');
+        tr.append(make('td','',subLabel(n,row.unit)));
+        tr.append(make('td','',levelNames[key][lang==='fr'?0:1]));
+        const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
+        fragment.append(tr);
+      }
+      previous=limit;
+    }
+    body.append(fragment);
+  }
+  function parseElapsed(input,unit){
+    const parts=input.trim().replace(',','.').split(':');
+    if(parts.length>3||parts.length===0||(unit==='minute'&&parts.length<2))return null;
+    if(parts.some((part,index)=>!new RegExp(index===parts.length-1?'^\\d+(?:\\.\\d{1,3})?$':'^\\d+$').test(part)))return null;
+    const n=parts.map(Number);
+    if(parts.length>=2&&n[n.length-1]>=60)return null;
+    if(parts.length===3&&n[1]>=60)return null;
+    const seconds=parts.length===1?n[0]:parts.length===2?n[0]*60+n[1]:n[0]*3600+n[1]*60+n[2];
+    const ms=Math.round(seconds*1000);
+    return Number.isSafeInteger(ms)&&ms>0?ms:null;
+  }
+  function checkTime(){
+    const row=selected();if(!row)return;
+    const target=$('calc-result');
+    target.classList.remove('error');
+    const ms=parseElapsed($('time-input').value,row.unit);
+    if(ms===null){
+      target.classList.add('error');
+      target.textContent=t('Indique un chrono valide au format proposé.',
+                            'Enter a valid time in the suggested format.');
+      return;
+    }
+    const sub=Math.floor(ms/(row.unit==='second'?1000:60000))+1;
+    const difficulty=row.ultra?'legend':guide.levels.find(key=>sub<=row.caps[key]);
+    if(!difficulty){
+      target.classList.add('error');
+      target.textContent=t('Ce temps dépasse le dernier palier Débutant pour cette distance : aucune carte à ce SUB.',
+                            'This time exceeds the last Beginner threshold for this distance: no card at that SUB.');
+      return;
+    }
+    const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
+    const name=row.ultra?t('Légende longue distance','Long-distance legend'):
+      levelNames[difficulty][lang==='fr'?0:1];
+    target.textContent=title+' · '+name+' ('+levelNames[difficulty][2]+'/7 ★). '+
+      t('Carte potentielle, sous réserve d’une course réelle et synchronisée.',
+        'Potential card, subject to a real, synced run.');
+  }
+  function setLanguage(next){
+    lang=next;document.documentElement.lang=lang;
+    for(const element of document.querySelectorAll('[data-fr],[data-en]'))
+      element.hidden=element.hasAttribute(lang==='fr'?'data-en':'data-fr');
+    $('fr').setAttribute('aria-pressed',String(lang==='fr'));
+    $('en').setAttribute('aria-pressed',String(lang==='en'));
+    document.title=t('Comment gagner une carte Défi ? — BeatOnStep',
+                     'How to earn a challenge card — BeatOnStep');
+    if(guide){
+      const current=$('distance').value;
+      const select=$('distance');select.replaceChildren();
+      for(const row of guide.distances){
+        const option=make('option','',distanceName(row.distanceCm));
+        option.value=String(row.distanceCm);
+        select.append(option);
+      }
+      select.value=current;
+      $('family-count').textContent=t(guide.distances.length+' distances reconnues',
+        guide.distances.length+' recognized distances');
+      renderLevels();renderThresholds();
+      if($('time-input').value)checkTime();
+    }
+  }
+  async function initialize(){
+    try{
+      const response=await fetch('sport-card-paliers.json',{cache:'no-store'});
+      if(!response.ok)throw Error('guide_unavailable');
+      const data=await response.json();
+      if(data?.ruleset!=='sport-cards-v1'||!Array.isArray(data.distances)||
+         data.distances.length!==203||!Array.isArray(data.levels))throw Error('invalid_ruleset');
+      guide=data;
+      const preferred=params.get('distance');
+      const exists=guide.distances.some(row=>String(row.distanceCm)===preferred);
+      $('distance').disabled=false;
+      $('distance').replaceChildren();
+      for(const row of guide.distances){
+        const option=make('option','',distanceName(row.distanceCm));
+        option.value=String(row.distanceCm);
+        $('distance').append(option);
+      }
+      $('distance').value=exists?preferred:'500000';
+      setLanguage(lang);
+      if($('distance').value==='500000'){
+        $('time-input').value='24:35';
+        checkTime();
+      }
+    }catch(_){
+      $('family-count').textContent=t('Barème indisponible pour le moment.','Thresholds temporarily unavailable.');
+      $('threshold-rows').replaceChildren(make('tr'));
+      $('threshold-rows').firstChild.append(make('td','',
+        t('Impossible de charger les paliers. Réessaie plus tard.','Could not load thresholds. Please try later.')));
+      $('distance').disabled=true;$('check-time').disabled=true;
+    }
+  }
+  $('distance').addEventListener('change',()=>{
+    $('time-input').value='';
+    renderThresholds();
+    const url=new URL(location.href);
+    url.searchParams.set('distance',$('distance').value);
+    history.replaceState(null,'',url);
+  });
+  $('individual-details').addEventListener('toggle',()=>{
+    if(guide&&$('individual-details').open)renderIndividuals();
+  });
+  $('check-time').addEventListener('click',checkTime);
+  $('time-input').addEventListener('keydown',event=>{if(event.key==='Enter')checkTime();});
+  $('fr').addEventListener('click',()=>setLanguage('fr'));
+  $('en').addEventListener('click',()=>setLanguage('en'));
+  setLanguage(lang);
+  initialize();
+})();
+</script>
+</body>
+</html>
