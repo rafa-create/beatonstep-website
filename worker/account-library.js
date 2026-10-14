@@ -123,7 +123,8 @@ export async function accountLibraryRequest(request,db,url,userId){
   const workouts=path.endsWith('/workouts');
   const runs=path.endsWith('/runs');
   const deleting=/\/workouts\/([a-zA-Z0-9_.:-]{1,128})$/.exec(path);
-  if(!workouts&&!runs&&!deleting)return reply({error:'not_found'},404);
+  const deletingRun=/\/runs\/([a-zA-Z0-9_.:-]{1,128})$/.exec(path);
+  if(!workouts&&!runs&&!deleting&&!deletingRun)return reply({error:'not_found'},404);
   if(method==='GET'&&(workouts||runs)){
     if(workouts){
       const cursor=clean(url.searchParams.get('after'),128);
@@ -186,6 +187,14 @@ export async function accountLibraryRequest(request,db,url,userId){
       .bind(Date.now(),Date.now(),userId,deleting[1],rev).first();
     return row?reply({deleted:true,revision:row.revision})
       :reply({error:'revision_conflict'},409);
+  }
+  if(deletingRun&&method==='DELETE'){
+    // Personal memories only. World-sport trophies, validation and public
+    // musical cards have separate ownership/history ledgers.
+    const deleted=await db.prepare(`DELETE FROM account_run_records
+      WHERE user_id=? AND run_id=? RETURNING run_id`)
+      .bind(userId,deletingRun[1]).first();
+    return reply({deleted:Boolean(deleted)});
   }
   if(runs&&method==='POST'){
     const input=await inputJson(request),run=safeRun(input?.run);

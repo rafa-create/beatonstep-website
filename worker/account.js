@@ -318,9 +318,11 @@ export async function accountRequest(request,env,url,ctx) {
       if (!member) return reply({error:'account_session_expired'},401);
       return accountLibraryRequest(request,db,url,member.id);
     }
-    // Browser account sees the same private archive, using its own session.
-    // Writes remain device-only in V1 to avoid cookie-CSRF write paths.
-    if (path.startsWith('/api/account/library/') && method==='GET') {
+    // Browser account has the same private archive. Only individual run
+    // deletion is writable under its cookie, protected by same-origin checks.
+    if (path.startsWith('/api/account/library/') &&
+        (method==='GET'||method==='DELETE'&&path.startsWith('/api/account/library/runs/'))) {
+      if (method==='DELETE'&&!sameOrigin(request))return reply({error:'origin_forbidden'},403);
       const member=await webUser(db,request);
       if (!member) return reply({error:'login_required'},401);
       const forwarded=new URL(request.url);

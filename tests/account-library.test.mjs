@@ -131,3 +131,27 @@ test('private workout listing counts only the account owner’s saved run record
   assert.match(statements[0].sql,/r\.source_workout_id=w\.workout_id/);
   assert.deepEqual(statements[0].args,['private-runner','']);
 });
+
+test('runner may delete only their own saved history entry',async()=>{
+  const calls=[];
+  const db={prepare(sql){return {bind(...args){
+    calls.push({sql,args});return {async first(){return {run_id:args[1]};}};
+  }}}};
+  const p='/api/account/device/library/runs/run-1791900000000-1791901800000';
+  const response=await accountLibraryRequest(request(p,'DELETE'),db,url(p),'owner-A');
+  assert.equal(response.status,200);
+  assert.deepEqual(await response.json(),{deleted:true});
+  assert.match(calls[0].sql,/DELETE FROM account_run_records/);
+  assert.match(calls[0].sql,/WHERE user_id=\? AND run_id=\?/);
+  assert.doesNotMatch(calls[0].sql,/sport_|workout_cards|shared_items/);
+  assert.deepEqual(calls[0].args,['owner-A','run-1791900000000-1791901800000']);
+});
+test('repeat deletion is idempotent and invalid identifiers are rejected',async()=>{
+  const db={prepare(){return {bind(){return {async first(){return null;}};}};}};
+  const p='/api/account/device/library/runs/run-1791900000000-1791901800000';
+  const gone=await accountLibraryRequest(request(p,'DELETE'),db,url(p),'owner-A');
+  assert.deepEqual(await gone.json(),{deleted:false});
+  const invalid='/api/account/device/library/runs/invalid%20run';
+  const rejected=await accountLibraryRequest(request(invalid,'DELETE'),db,url(invalid),'owner-A');
+  assert.equal(rejected.status,404);
+});

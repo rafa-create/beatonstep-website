@@ -21,6 +21,12 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .deck-toggles button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .deck-tile{border:1px solid var(--line);border-radius:14px;background:#100f0b;padding:16px;margin-bottom:12px}
 .deck-tile h3{color:var(--ink);margin:0 0 6px;font-size:16px}
+.history-run{position:relative;padding-right:52px}
+.history-remove{position:absolute;top:8px;right:8px;width:36px;height:36px;min-height:36px;
+  padding:0;border:1px solid transparent;border-radius:50%;background:transparent;
+  color:var(--sub);font-size:24px;font-weight:400;line-height:1}
+.history-remove:hover,.history-remove:focus-visible{color:var(--ink);border-color:var(--line);background:#312c21}
+.history-remove:disabled{opacity:.35}
 .deck-tile small{color:var(--sub)}
 .deck-tile a{color:var(--accent);font-weight:700}
 .collection-item{display:block;position:relative;width:160px;min-height:208px;border:1.5px solid var(--accent);border-radius:17px;background:radial-gradient(ellipse at 55% 39%,#66551d50,transparent 54%),linear-gradient(145deg,#282619,#10100d 75%);box-shadow:0 12px 30px #0006;padding:14px;transform:rotate(-1deg);transition:transform .25s,box-shadow .25s}
@@ -316,7 +322,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     const list=$('history-sessions-items');
     for(const run of items){
       const summary=run.summary||{},li=document.createElement('li');
-      li.className='deck-tile';
+      li.className='deck-tile history-run';
       const title=document.createElement('h3'),meta=document.createElement('small');
       title.textContent=summary.workoutName||'Course libre';
       const date=Number.isFinite(summary.endedAtMs)
@@ -325,7 +331,27 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         ?(summary.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km':null;
       meta.textContent=[date,distance,Math.round((summary.durationSeconds||0)/60)+' min',
         summary.stepCount?summary.stepCount+' pas':null].filter(Boolean).join(' · ');
-      li.append(title,meta);list.append(li);
+      const remove=document.createElement('button');
+      remove.type='button';remove.className='history-remove';remove.textContent='×';
+      remove.title='Supprimer cette séance';
+      remove.setAttribute('aria-label','Supprimer la séance « '+title.textContent+' » du '+date);
+      remove.addEventListener('click',async()=>{
+        if(!confirm('Supprimer définitivement « '+title.textContent+' » de votre historique ?'))return;
+        remove.disabled=true;
+        try{
+          await api('/api/account/library/runs/'+encodeURIComponent(run.runId),'DELETE');
+          li.remove();
+          $('history-sessions-info').textContent='Séance supprimée de votre historique.';
+          if(!list.children.length)await refreshHistory();
+          // Counts linked to a saved workout now reflect the removed run.
+          const me=await api('/api/account/me');
+          if(me.authenticated){
+            const profile=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
+            await refreshSavedWorkouts(profile.items);
+          }
+        }catch(error){remove.disabled=false;status(error.message);}
+      });
+      li.append(title,meta,remove);list.append(li);
     }
   }
   async function refreshHistory(append=false){
