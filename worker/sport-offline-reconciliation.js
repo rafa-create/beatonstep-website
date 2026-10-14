@@ -109,7 +109,8 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   // A failure or delay in telemetry never revokes or prevents ownership.
   if(transferred&&typeof onAward==='function'){
     try{onAward({cardId:current[0].id,ownerEpoch:current[0].owner_epoch,
-      needsWarning:candidate.needsReviewWarning===true,now});}
+      needsWarning:candidate.needsReviewWarning===true,
+      warningReasons:candidate.warningReasons||[],now});}
     catch{ /* optional telemetry is non-blocking */ }
   }
   const acquisition=!newRun?'already_processed':!owned?'superseded':
