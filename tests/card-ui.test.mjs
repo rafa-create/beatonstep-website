@@ -96,20 +96,20 @@ test('website allows owners to share their cards and sign-in keeps gift tokens',
 
 test('sport card presentations use mm:ss SUB above a minute without blue mobile tap highlight',()=>{
   const catalog=read('partages.html');
-  const sportSub=catalog.match(/  function sportSubLabel[\\s\\S]*?(?=  function sportName)/)?.[0];
+  const sportSub=catalog.match(/  function sportSubLabel[\s\S]*?(?=  function sportName)/)?.[0];
   assert.ok(sportSub,'catalog sport SUB formatter present');
   assert.equal(vm.runInNewContext(sportSub+';sportSubLabel(130,"second")'),'2 min 10 s');
   assert.equal(vm.runInNewContext(sportSub+';sportSubLabel(120,"second")'),'2 min');
   assert.equal(vm.runInNewContext(sportSub+';sportSubLabel(134,"second")'),'2 min 14 s');
   assert.match(catalog,/-webkit-tap-highlight-color:transparent/);
-  assert.match(catalog,/\\.sport-card \\.sport-summary:focus-visible\\{outline:2px solid var\\(--yellow\\)/);
+  assert.match(catalog,/\.sport-card \.sport-summary:focus-visible\{outline:2px solid var\(--yellow\)/);
   const account=read('compte.html');
-  const accountFn=account.match(/      const displaySportName=[\\s\\S]*?(?=      const reasons=)/)?.[0];
+  const accountFn=account.match(/      const displaySportName=[\s\S]*?(?=      const reasons=)/)?.[0];
   assert.ok(accountFn);
   assert.equal(vm.runInNewContext(accountFn+';displaySportName("400 m · SUB 130 s")'),
     '400 m · SUB 2 min 10 s');
   const gift=read('cadeau-sport.html');
-  const giftFn=gift.match(/  const displaySportName=[\\s\\S]*?(?=  const api=)/)?.[0];
+  const giftFn=gift.match(/  const displaySportName=[\s\S]*?(?=  const api=)/)?.[0];
   assert.ok(giftFn);
   assert.equal(vm.runInNewContext(giftFn+';displaySportName("400 m · SUB 134 s")'),
     '400 m · SUB 2 min 14 s');
