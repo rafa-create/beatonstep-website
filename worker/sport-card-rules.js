@@ -9,6 +9,15 @@ const MARATHON_CM=4_219_500;
 const HALF_MARATHON_CM=2_109_750;
 const ULTRA_START_CM=4_300_000;
 const BEGINNER_10K_MAX_SUB_MINUTE=91; // 10 km in exactly 1h30 -> sub91 eligible.
+// The ONLY editable thresholds live here. For a single distance (e.g.
+// marathon Expert), add an override here rather than changing the entire curve.
+// Increment the revision when modifying this table or the formula/anchors.
+// Deployed mobile apps fetch its authoritative computed snapshot; their bundled
+// snapshot is strictly an offline bootstrap, not a second policy source.
+export const SPORT_CARD_TIER_REVISION='2026-10-15.1';
+const EXACT_DISTANCE_CAP_OVERRIDES=Object.freeze({
+  // [MARATHON_CM]: Object.freeze({expert:210}),
+});
 // Product-only 400m difficulty caps, not official World Athletics rankings.
 // Caps use strict sub-second thresholds. 400m 59.999s = sub60 Legend;
 // at exactly 60.000s the candidate is sub61 Expert.
@@ -73,10 +82,37 @@ export function maxSubMinuteByTier(distanceCm){
       cap=Math.max(cap,inclusiveTenKmCap);
     }
     cap=Math.max(1,cap,previous+1);
+    const override=EXACT_DISTANCE_CAP_OVERRIDES[distanceCm]?.[tier];
+    if(override!==undefined){
+      if(!Number.isSafeInteger(override)||override<=previous)
+        throw Error('invalid_sport_tier_override');
+      cap=override;
+    }
     out[tier]=cap;
     previous=cap;
   }
   return out;
+}
+
+// Public read-only projection of THE SAME functions used to grant cards in D1.
+// Contains computed caps, so clients never reimplement the curve or override
+// precedence. Nothing here exposes runners, GPS or unpublished results.
+export function sportCardRulesManifest(){
+  const capsByDistance={};
+  capsByDistance[40_000]=SPORT_CARD_400M_TIERS.map(x=>x.maxSubSecond);
+  for(const {distanceCm} of SPORT_CARD_DISTANCES){
+    if(distanceCm===40_000||distanceCm>=ULTRA_START_CM)continue;
+    const caps=maxSubMinuteByTier(distanceCm);
+    capsByDistance[distanceCm]=ANCHORS.map(({tier})=>caps[tier]);
+  }
+  return {
+    schema:1,revision:SPORT_CARD_TIER_REVISION,
+    ruleset:SPORT_CARD_RULESET,
+    difficultyRuleset:SPORT_CARD_DIFFICULTY_RULESET,
+    tierOrder:ANCHORS.map(({tier})=>tier),
+    distancesCm:SPORT_CARD_DISTANCES.map(({distanceCm})=>distanceCm),
+    capsByDistance,ultraStartCm:ULTRA_START_CM,ultraDifficulty:'legend',
+  };
 }
 
 // At exactly N:00 the eligible threshold is always sub(N+1).
