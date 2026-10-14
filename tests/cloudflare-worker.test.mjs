@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import worker from '../worker/index.js';
+import worker, { validate, publicRow } from '../worker/index.js';
 import { existsSync, readFileSync } from 'node:fs';
 
 test('site header profile entry and catalogue popular default', () => {
@@ -27,6 +27,58 @@ test('worker reports mode without requiring a D1 binding', async () => {
   const data = await response.json();
   assert.equal(data.status, 'ok');
   assert.equal(data.catalog, 'legacy');
+});
+
+test('time and distance popular workouts are separately ranked by verified imports', async () => {
+  const timed={v:1,n:'Fractionné',s:'spotify',
+    p:[['Effort',600,160,null]],t:[]};
+  const distance={...timed,n:'5 km endurance',g:'distance',m:[5000]};
+  assert.equal(validate('workout',timed).goalMode,'time');
+  assert.deepEqual({
+    goalMode:validate('workout',distance).goalMode,
+    distanceMeters:validate('workout',distance).distanceMeters,
+  },{goalMode:'distance',distanceMeters:5000});
+  for(const invalid of [
+    {...distance,m:[]},{...distance,m:[5]},
+    {...distance,m:[200001]},{...timed,m:[5000]},
+    {...distance,g:'time'},
+  ])assert.equal(validate('workout',invalid),null,
+    'an invalid or ambiguous sporting goal is not a distance recommendation');
+  const sample={
+    id:5,kind:'workout',source:'spotify',name:'5 km endurance',duration_sec:1800,
+    bpm:null,tracks:0,phases:1,profile_json:null,created_at:1,views:0,imports:7,
+    payload_v:1,workout_goal:'distance',workout_distance_meters:5000,
+  };
+  const compact=publicRow(sample);
+  assert.equal(compact.goalMode,'distance');
+  assert.equal(compact.distanceMeters,5000);
+  assert.equal(compact.imports,7);
+  const timedLegacy=publicRow({...sample,workout_goal:null,workout_distance_meters:null});
+  assert.equal(timedLegacy.goalMode,'time');
+  const statements=[];
+  const env={
+    CATALOG_BACKEND:'d1',
+    DB:{prepare(sql){
+      statements.push(sql);
+      return {bind(){return {
+        first:async()=>({total:1}),
+        all:async()=>({results:[sample]}),
+      }}};
+    }},
+    ASSETS:{fetch:()=>new Response('STATIC')},
+  };
+  const response=await worker.fetch(new Request(
+    'https://beatonstep.app/api/shared?kind=workout&sort=popular&goalMode=distance&page=1'
+  ),env);
+  assert.equal(response.status,200);
+  const result=await response.json();
+  assert.equal(result.items[0].goalMode,'distance');
+  assert.equal(result.items[0].distanceMeters,5000);
+  assert.ok(statements.filter(s=>s.includes('FROM shared_items')).every(s=>
+    s.includes("json_extract(payload_json,'$.g')='distance'")),
+    'the goal filter must apply before sorting and pagination, including count');
+  assert.ok(statements.some(s=>s.includes('ORDER BY imports DESC, id DESC')),
+    'the community rank is the actual import count');
 });
 
 test('missing D1 binding never silently creates a new catalogue', async () => {
