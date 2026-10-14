@@ -21,14 +21,15 @@ Une suspicion sportive (par exemple vitesse invraisemblable) doit devenir un **s
 
 ## Portée et confidentialité de l'avertissement
 
-Un signalement concerne **la performance qui a entraîné le gain**, pas la valeur sportive de toutes les autres performances du détenteur. Il doit être rattaché de manière stable à la séance acceptée et à l'événement d'attribution, afin de survivre à une consultation ultérieure sans modifier l'historique de propriété.
+Un signalement concerne **la performance qui a entraîné le gain**, pas la carte transférable dans son ensemble. Il est rattaché exclusivement à l'**époque de propriété** (`card_id`, `owner_epoch`) de ce gain. **Une donation, une fermeture de compte ou une nouvelle acquisition ne transmet jamais l'ancienne alerte** : le nouveau détenteur commence sans avertissement. L'historique de propriété demeure inchangé.
 
 Le catalogue public expose uniquement la carte, la difficulté, les pseudos publics, les dates de transfert et un éventuel avertissement. Les coordonnées GPS brutes, rapports détaillés de télémétrie, identifiants privés et données de connexion n'y figurent jamais. En cas de suppression de compte, les pseudos historiques sont anonymisés.
 
 ## État technique au 14 octobre 2026
 
-- **Déjà codé :** carte locale hors ligne ; endpoint Cloudflare `/api/account/device/sport/reconcile` ; registre mondial D1 ; catalogue sportif public indépendant du catalogue musical.
-- **Reste à implémenter :** remplacer les refus liés à la plausibilité sportive dans les parcours mobile/Worker ; stocker le résultat d'analyse séparément et de façon idempotente ; exposer le warning dans l'API publique, le catalogue et le deck personnel ; tester l'attribution avec la VM éteinte et l'analyse différée.
-- **Conservé temporairement :** le code V2 désactivé pour compatibilité, sans apparition dans le catalogue « Défis ».
+- **Codé sur GitHub :** carte locale hors ligne ; synchronisation Cloudflare `/api/account/device/sport/reconcile` ; registre mondial D1 ; catalogue public ; anomalies de vitesse/pauses/jalons non bloquantes ; file de revue asynchrone `worker/sport-card-telemetry.js`, exécutée par Cloudflare (cron de 15 minutes) ; avertissement associé au seul `owner_epoch` et exposé sur le site et dans le deck personnel.
+- **Activation sécurisée restante :** appliquer manuellement `migrations/0011_sport_card_telemetry_reviews.sql` sur D1 après sauvegarde, puis activer `SPORT_ASYNC_TELEMETRY_ENABLED=true` dans Cloudflare. Ce drapeau est **false** dans le dépôt tant que la migration et les tests d'intégration n'ont pas été vérifiés. Sans table ni drapeau, l'attribution demeure indépendante et aucun avertissement ne bloque la carte.
+- **Validation encore nécessaire :** exécuter l'ensemble des tests et vérifier sur appareil réel le gain, l'alerte différée, la donation sans alerte, le catalogue et la VM arrêtée. Une migration native n'est pas nécessaire aux simples textes de warning, sous réserve de vérification OTA/runtime.
+- **Conservé temporairement :** l'ancien code V2 désactivé pour compatibilité, sans apparition dans le catalogue « Défis ».
 
 Le déploiement doit être validé par les tests de synchronisation, d'unicité mondiale, de donation, d'anti-rejeu, de panne de télémétrie et de confidentialité avant activation en production.
