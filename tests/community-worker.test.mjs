@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import worker from '../worker/index.js';
 
 const ROOT='https://beatonstep.app';
@@ -95,4 +96,49 @@ test('account endpoints stay isolated from the admin login',async()=>{
     {CATALOG_BACKEND:'legacy',ASSETS:{fetch:()=>new Response('STATIC')}});
   assert.equal(response.status,503);
   assert.equal((await response.json()).error,'account_unavailable');
+});
+
+test('mobile account pairing issues a permanent revocable device grant',async()=>{
+  const verifier='V'.repeat(43), code='c'.repeat(64);
+  const challenge=createHash('sha256').update(verifier).digest('base64url');
+  let saved=null, consumed=false;
+  const db={
+    prepare(sql){
+      return {
+        args:[],
+        bind(...values){this.args=values;return this;},
+        async first(){
+          if(sql==='SELECT id FROM community_users LIMIT 1')return {id:'user1'};
+          if(sql.includes('FROM community_link_codes WHERE code_hash='))
+            return {user_id:'user1',challenge};
+          if(sql==='SELECT handle FROM community_users WHERE id=?')
+            return {handle:'runner'};
+          throw Error('Unexpected SQL: '+sql);
+        },
+        async run(){
+          if(sql.startsWith('DELETE FROM community_link_codes')){
+            consumed=true;return {meta:{changes:1}};
+          }
+          if(sql.startsWith('INSERT INTO community_devices')){
+            saved=this.args;return {meta:{changes:1}};
+          }
+          throw Error('Unexpected SQL: '+sql);
+        },
+      };
+    },
+  };
+  const response=await worker.fetch(new Request(ROOT+'/api/account/exchange',{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({code,verifier}),
+  }),env(db));
+  assert.equal(response.status,200);
+  const data=await response.json();
+  assert.match(data.token,/^[a-f0-9]{64}$/);
+  assert.equal(data.handle,'runner');
+  assert.equal(data.expiresAt,Number.MAX_SAFE_INTEGER,
+    'older mobile clients already understand a finite expiresAt');
+  assert.ok(consumed,'the one-time link is consumed');
+  assert.equal(saved?.[1],'user1');
+  assert.equal(saved?.[2],Number.MAX_SAFE_INTEGER,
+    'D1 must not invalidate the device after 30 days');
 });

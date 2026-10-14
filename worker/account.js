@@ -13,6 +13,10 @@ const enc = new TextEncoder();
 const COOKIE = '__Host-bos_community';
 const DAY = 86400000;
 const SESSION_MS = 30 * DAY;
+// App-only: no scheduled expiry for device grants. Explicit logout, password
+// reset and account deletion still revoke the hashed token server-side.
+// The mobile app already accepts this finite expiresAt without an app update.
+const DEVICE_SESSION_EXPIRES_AT = Number.MAX_SAFE_INTEGER;
 const LINK_MS = 3 * 60 * 1000;
 // The schema is installed manually with migrations/0003_community_profiles.sql.
 // Never mutate production D1 schema during a public HTTP request.
@@ -275,9 +279,9 @@ async function exchange(db,req) {
   if (!safeEqual(challenge,row.challenge)) return reply({error:'invalid_code'},401);
   const token=randomToken();
   await db.prepare('INSERT INTO community_devices(token_hash,user_id,expires_at) VALUES(?,?,?)')
-    .bind(await hash(token),row.user_id,Date.now()+SESSION_MS).run();
+    .bind(await hash(token),row.user_id,DEVICE_SESSION_EXPIRES_AT).run();
   const user=await db.prepare('SELECT handle FROM community_users WHERE id=?').bind(row.user_id).first();
-  return reply({token,handle:user.handle,expiresAt:Date.now()+SESSION_MS});
+  return reply({token,handle:user.handle,expiresAt:DEVICE_SESSION_EXPIRES_AT});
 }
 export async function authorFor(db, shareIds) {
   if (!shareIds.length) return new Map();
