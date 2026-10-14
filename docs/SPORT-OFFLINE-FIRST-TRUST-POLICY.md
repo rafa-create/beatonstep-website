@@ -14,11 +14,13 @@ Le Worker Cloudflare authentifie les résultats terminés, protège l'anti-rejeu
 
 La télémétrie est **non bloquante** dans l'architecture cible. Une analyse tardive pourra uniquement faire apparaître « Performance non validée » sur la fiche du détenteur et dans le catalogue. Elle ne retire pas la carte. Les contrôles de structure, d'identité et d'unicité restent nécessaires.
 
-## Différences à résorber
+## Statut et validation
 
-Le code actuel `worker/sport-offline-eligibility.js` peut encore retourner `unverified` lors d'une anomalie de vitesse ou de jalons. `worker/sport-offline-reconciliation.js` convertit ce statut en refus, et l'application peut alors marquer la carte `rejected`. Ce fonctionnement doit être remplacé avant de considérer l'architecture cible comme livrée.
+Le code mobile et Worker accepte maintenant une allure anormale, une pause incohérente ou des jalons inutilisables **sans refuser une carte calculable**. La mesure de distance et le temps de départ/fin doivent malgré tout être exploitables. Les jalons incohérents sont ignorés et le temps final est utilisé par prudence.
 
-La persistance des avertissements, leur association aux événements de gain, leur affichage public et privé, ainsi que les tests sans VM restent également à réaliser. L'accès au catalogue des cartes sportives est déjà séparé de l'ancien catalogue de partages musicaux.
+Une revue facultative est mise en file **après** l'attribution dans `sport_card_telemetry_reviews`, puis traitée par un cron Cloudflare. Son indicateur « Performance non validée » est visible seulement durant la période de propriété `owner_epoch` concernée : **un nouveau détenteur par donation n'hérite pas du warning**. Aucun résultat de revue ne peut modifier la propriété D1.
 
-La suppression technique de l'ancien V2 doit attendre un inventaire des usages et des données : il est désactivé et hors parcours produit, mais son code reste référencé.
+**Activation non effectuée** : la migration `0011_sport_card_telemetry_reviews.sql` reste à appliquer manuellement après sauvegarde D1 ; `SPORT_ASYNC_TELEMETRY_ENABLED=false` protège l'existant en attendant. Les tests d'intégration Cloudflare/D1 et les validations sur iOS/Android avec VM éteinte ne sont pas encore confirmés. Tant que l'option est inactive, l'attribution continue sans attendre l'analyse.
+
+Le code historique V2 de publication kilométrique reste désactivé et exclu du produit ; son retrait requiert un inventaire de compatibilité des anciennes données.
 
