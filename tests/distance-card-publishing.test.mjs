@@ -137,6 +137,29 @@ test('v2 public listing exposes distance and deadline, never a private GPS trace
   assert.equal(time.goalMode,'time');
 });
 
+test('GPS musical sharing is fail-closed unless a real collectible can be minted',async()=>{
+  const distance={v:1,n:'Music 5k',s:'spotify',g:'distance',m:[1000,4000],
+    p:[['Warm-up',300,130,null],['Run',900,160,null]],
+    t:[{p:0,n:'Track',a:'Artist'}]};
+  assert.equal(validate('workout',{...distance,t:[]}),null,
+    'no music means no card identity');
+  assert.equal(validate('workout',{...distance,t:[{p:0,n:'Track',a:''}]}),null,
+    'missing artist cannot be fingerprinted');
+  const request=()=>new Request(ROOT+'/api/shared',{method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({kind:'workout',payload:distance})});
+  const disabled=await worker.fetch(request(),{
+    CATALOG_BACKEND:'d1',DB:{},CARDS_ENABLED:'false',
+  });
+  assert.equal(disabled.status,503);
+  assert.equal((await disabled.json()).error,'collection_not_ready');
+  const unsigned=await worker.fetch(request(),{
+    CATALOG_BACKEND:'d1',DB:{},CARDS_ENABLED:'true',
+  });
+  assert.equal(unsigned.status,401);
+  assert.equal((await unsigned.json()).error,'login_required');
+});
+
 test('published musical 5 km creates an owned session card without a sporting reward',async()=>{
   const music5k={v:1,n:'Endurance 5 km',s:'spotify',g:'distance',
     m:[1000,4000],p:[['Échauffement',300,140,140],['Endurance',900,165,160]],
