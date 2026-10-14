@@ -40,7 +40,8 @@ var BeatOnStepSportCards=(function(){
     face.setAttribute('role','img');
     face.setAttribute('aria-label',say('Carte Défi unique au monde : ',
       'Worldwide unique challenge card: ',lang)+title+', '+
-      say(level[0],level[1],lang));
+      say(level[0],level[1],lang)+', '+level[3]+' '+
+      say('étoiles sur 7','stars out of 7',lang));
     const top=create('div','bos-sport-top');
     top.append(create('span','', 'BEATONSTEP'),
       create('span','bos-tier-icon',level[2]));
@@ -51,12 +52,17 @@ var BeatOnStepSportCards=(function(){
     art.append(bars,create('div','bos-sport-crest',mark),
       create('div','bos-sport-signature',milestoneName),
       create('div','bos-sport-symbols',level[2]+(level[3]>=5?'  ✦  '+level[2]:'')));
+    const stars=create('div','bos-sport-stars');
+    stars.setAttribute('aria-hidden','true');
+    for(let index=0;index<7;index++){
+      const filled=index<level[3];
+      stars.append(create('span',filled?'is-filled':'is-outline',
+        filled?'★':'☆'));
+    }
     const foot=create('div','bos-sport-foot');
     foot.append(create('span','bos-sport-category',say('CARTE DÉFI','CHALLENGE CARD',lang)),
-      create('strong','bos-sport-name',title),
-      create('span','bos-sport-unique',say('CARTE UNIQUE AU MONDE','ONE CARD WORLDWIDE',lang)),
-      create('span','bos-sport-level',say('Difficulté : ','Difficulty: ',lang)+
-        say(level[0],level[1],lang)));
+      create('strong','bos-sport-name',title),stars,
+      create('span','bos-sport-unique',say('CARTE UNIQUE AU MONDE','ONE CARD WORLDWIDE',lang)));
     face.append(top,art,foot);
     return face;
   }
