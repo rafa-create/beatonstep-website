@@ -47,7 +47,8 @@ function setup(search,data=example){
   const items=Array.isArray(data)?data:[data];
   const elements={};
   for(const name of ['fr','en','back','title','intro','notice','catalog','detail','results','pages',
-    'kind-label','kind-filter','sort-label','sort-filter','source-label','source-filter',
+    'kind-label','kind-filter','session-mode-label','session-mode-filter',
+    'session-mode-picker','sort-label','sort-filter','source-label','source-filter',
     'sort-picker','source-picker','distance-picker','distance-label','distance-filter',
     'difficulty-picker','difficulty-label','difficulty-filter',
     'sub-picker','sub-label','sub-filter','footer-privacy','footer-privacy-label','community-link'])
@@ -59,7 +60,8 @@ function setup(search,data=example){
   elements['sort-filter'].value='recent';
   const options={};
   for(const [id,values] of [
-    ['kind-filter',['all','workout','runmix','challenge']],
+    ['kind-filter',['workout','challenge']],
+    ['session-mode-filter',['all','time','distance']],
     ['sort-filter',['recent','popular']],
     ['source-filter',['all']],
     ['distance-filter',['all']],
@@ -241,7 +243,7 @@ function setup(search,data=example){
   assert.equal(catalog.elements.back.hidden,true,
     'the catalog does not show a back-to-workouts link');
   assert.equal(catalog.elements.title.textContent,'Catalogue');
-  assert.equal(catalog.elements.intro.textContent,'Séances et playlists de la communauté.');
+  assert.equal(catalog.elements.intro.textContent,'Séances musicales à découvrir, en durée ou en distance.');
   assert.equal(catalog.elements.intro.hidden,false);
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Confidentialité');
   catalog.elements.en.onclick();
@@ -249,7 +251,7 @@ function setup(search,data=example){
   assert.equal(catalog.elements.back.hidden,true,
     'changing language must not reveal a back link on the catalog');
   assert.equal(catalog.elements.title.textContent,'Catalog');
-  assert.equal(catalog.elements.intro.textContent,'Workouts and playlists from the community.');
+  assert.equal(catalog.elements.intro.textContent,'Discover timed and distance-based musical workouts.');
   assert.equal(catalog.elements['footer-privacy-label'].textContent,'Privacy');
   assert.equal(catalog.elements['footer-privacy'].attributes['aria-label'],'Privacy');
   assert.match(catalog.apiCalls[0],/source=all&sort=popular/,
@@ -305,19 +307,43 @@ function setup(search,data=example){
   catalog.elements['source-filter'].onchange();
   await flush();
   assert.match(catalog.apiCalls.at(-1),/source=spotify/);
-  catalog.elements['kind-filter'].value='runmix';
-  catalog.elements['kind-filter'].onchange();
+  catalog.elements['session-mode-filter'].value='distance';
+  catalog.elements['session-mode-filter'].onchange();
   await flush();
-  assert.match(catalog.apiCalls.at(-1),/kind=runmix&source=spotify/);
+  assert.match(catalog.apiCalls.at(-1),/kind=workout&goal=distance&source=spotify/);
   catalog.elements['sort-filter'].value='popular';
   catalog.elements['sort-filter'].onchange();
   await flush();
-  assert.match(catalog.apiCalls.at(-1),/kind=runmix&source=spotify&sort=popular/);
-  assert.equal(catalog.elements['kind-filter'].value,'runmix');
+  assert.match(catalog.apiCalls.at(-1),/goal=distance&source=spotify&sort=popular/);
+  assert.equal(catalog.elements['kind-filter'].value,'workout');
+  assert.equal(catalog.elements['session-mode-filter'].value,'distance');
   assert.equal(catalog.elements['sort-filter'].value,'popular');
   assert.equal(catalog.elements['source-filter'].value,'spotify');
-  assert.equal(catalog.options['#kind-filter option[value=workout]'].textContent,'Workouts');
+  assert.equal(catalog.options['#kind-filter option[value=workout]'].textContent,'Musical workouts');
+  assert.equal(catalog.options['#session-mode-filter option[value=distance]'].textContent,'Distance');
   assert.equal(catalog.options['#sort-filter option[value=recent]'].textContent,'Newest');
+
+  // Distance musical cards display real GPS targets, not estimated minutes.
+  const gps={...example,id:8,name:'Endurance musicale 5 km',
+    goalMode:'distance',targetMeters:5000,durationSec:1800,
+    profile:[[600,140],[1200,160]],payload:{
+      v:3,n:'Endurance musicale 5 km',s:'spotify',goalMode:'distance',
+      targetMeters:5000,
+      p:[['Échauffement',1000,140,140,600],['Course',4000,160,160,1200]],
+      t:example.payload.t,
+    }};
+  const distanceDetail=setup('?id=8',gps);
+  await flush();
+  const gpsCard=distanceDetail.elements.detail.children[0];
+  assert.match(walk(gpsCard,x=>x.className==='stat-duration')[0].textContent,/5 km/);
+  assert.doesNotMatch(walk(gpsCard,x=>x.className==='stat-duration')[0].textContent,/30 min/);
+  const gpsTree=walk(gpsCard,x=>x.className==='share-tree')[0];
+  gpsTree.open=true;gpsTree.events.toggle();
+  await flush();
+  const gpsPhases=walk(gpsCard,x=>x.className==='phase-branch');
+  assert.equal(gpsPhases.length,2);
+  assert.match(gpsPhases[0].textContent,/1 km/);
+  assert.match(gpsPhases[1].textContent,/4 km/);
 
   // Catalog summaries open the focus viewer, navigating only matching types.
   const gallery=setup('?kind=workout',[example,{...example,id:9,name:'Other workout'}]);
