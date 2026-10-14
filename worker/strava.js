@@ -1,4 +1,5 @@
-// OAuth + manual Strava exports. Isolated from community identity and catalogue.
+// OAuth + manual Strava exports; OTA-safe optional workout metrics.
+// No raw geographic fixes or native GPS upload in the OTA delivery.
 // Requires STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_ENCRYPTION_KEY and D1 migration.
 // No client-side Strava secret. Never log access/refresh tokens or authorization codes.
 const PREFIX = '/api/strava';
@@ -163,6 +164,23 @@ async function accessToken(env, row) {
   }
   return next.access_token;
 }
+function optionalMetric(value,min,max){
+  if(value==null)return null;
+  return typeof value==='number'&&Number.isFinite(value)&&value>=min&&value<=max
+    ?value:NaN;
+}
+function metricDescription({pace,averageHeartRate,maxHeartRate,cadence}){
+  const fields=['Course avec BeatOnStep — la musique au rythme des pas.'];
+  if(pace!==null){
+    const seconds=Math.round(pace);
+    fields.push('Allure moyenne : '+Math.floor(seconds/60)+':' +
+      String(seconds%60).padStart(2,'0')+'/km');
+  }
+  if(averageHeartRate!==null)fields.push('FC moyenne : '+Math.round(averageHeartRate)+' bpm');
+  if(maxHeartRate!==null)fields.push('FC max : '+Math.round(maxHeartRate)+' bpm');
+  if(cadence!==null)fields.push('Cadence moyenne : '+Math.round(cadence)+' pas/min');
+  return fields.join(' | ');
+}
 async function publish(request, env, device, row) {
   if (!row) return reply({error:'not_connected'}, 401);
   const b = await jsonBody(request);
@@ -170,10 +188,15 @@ async function publish(request, env, device, row) {
   const startedAt = Number(b?.startedAtMs);
   const elapsedTime = Number(b?.elapsedTime);
   const distance = b?.distanceMeters == null ? null : Number(b.distanceMeters);
+  const pace = optionalMetric(b?.paceSecPerKm,1,86400);
+  const averageHeartRate = optionalMetric(b?.heartRateBpm,20,300);
+  const maxHeartRate = optionalMetric(b?.maxHeartRateBpm,20,300);
+  const cadence = optionalMetric(b?.cadencePpm,20,300);
   if (!/^bos-[0-9]{12,14}$/.test(runId) || !Number.isSafeInteger(startedAt) ||
     startedAt < Date.UTC(2020,0,1) || startedAt > Date.now()+300000 ||
     !Number.isSafeInteger(elapsedTime) || elapsedTime < 1 || elapsedTime > 604800 ||
-    (distance !== null && (!Number.isFinite(distance) || distance <= 0 || distance > 500000))) {
+    (distance !== null && (!Number.isFinite(distance) || distance <= 0 || distance > 500000)) ||
+    [pace,averageHeartRate,maxHeartRate,cadence].some(Number.isNaN)) {
     return reply({error:'invalid_run'}, 400);
   }
   // The mobile app's runId comes from the original session start time.
@@ -202,7 +225,7 @@ async function publish(request, env, device, row) {
       sport_type: 'Run',
       start_date_local: new Date(startedAt).toISOString(),
       elapsed_time: String(elapsedTime),
-      description: 'Course avec BeatOnStep — la musique au rythme des pas.',
+      description: metricDescription({pace,averageHeartRate,maxHeartRate,cadence}),
     });
     if (distance !== null) form.set('distance', String(distance));
     const res = await fetch('https://www.strava.com/api/v3/activities', {
