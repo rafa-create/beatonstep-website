@@ -62,7 +62,12 @@
     summary{cursor:pointer;font-weight:750}
     details .table-scroll{max-height:440px;overflow:auto}
     .calculator{margin:24px 0 10px;padding:17px;background:#292518;border:1px solid #6a5a31;border-radius:14px}
-    .calculator-inner{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .calculator-inner{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin-top:10px}
+    .chrono-label{font-size:13px;font-weight:700;margin:0 0 8px}
+    .chrono-picker{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+    .time-part{flex:0 1 86px;min-width:66px}
+    .time-part label{font-size:12px;font-weight:650;margin-bottom:5px}
+    .time-part select{min-width:0;width:100%;padding:11px 9px;font-variant-numeric:tabular-nums}
     .calculate{padding:11px 17px;border:0;border-radius:11px;background:var(--yellow);color:#17160c;font-weight:800;cursor:pointer}
     #calc-result{min-height:25px;margin-top:14px;font-weight:650}
     #calc-result.error{color:#ffd0b0}
@@ -165,7 +170,15 @@
         <h2><span data-fr>Et avec mon chrono ?</span><span data-en hidden>What about my time?</span></h2>
         <p class="fine" id="time-help"></p>
         <div class="calculator-inner">
-          <div><label for="time-input"><span data-fr>Mon temps à cette distance</span><span data-en hidden>My time over this distance</span></label><input id="time-input" inputmode="decimal" placeholder="24:35" autocomplete="off"></div>
+          <div class="chrono">
+            <p class="chrono-label" id="chrono-label"><span data-fr>Mon temps à cette distance</span><span data-en hidden>My time over this distance</span></p>
+            <div class="chrono-picker" role="group" aria-labelledby="chrono-label">
+              <div class="time-part"><label for="time-hours"><span data-fr>Heures</span><span data-en hidden>Hours</span></label><select id="time-hours"></select></div>
+              <div class="time-part"><label for="time-minutes"><span data-fr>Minutes</span><span data-en hidden>Minutes</span></label><select id="time-minutes"></select></div>
+              <div class="time-part"><label for="time-seconds"><span data-fr>Secondes</span><span data-en hidden>Seconds</span></label><select id="time-seconds"></select></div>
+              <div class="time-part" id="time-centiseconds-part" hidden><label for="time-centiseconds"><span data-fr>Centièmes</span><span data-en hidden>Hundredths</span></label><select id="time-centiseconds"></select></div>
+            </div>
+          </div>
           <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>Check my card</span></button>
         </div>
         <p id="calc-result" role="status" aria-live="polite"></p>
@@ -267,11 +280,11 @@
     }
     if($('individual-details').open)renderIndividuals();else $('individual-rows').replaceChildren();
     $('time-help').textContent=row.unit==='second'
-      ?t('400 m : saisis par exemple 59.8 (secondes) ou 1:02.4 (minutes:secondes).',
-           '400 m: enter e.g. 59.8 (seconds) or 1:02.4 (minutes:seconds).')
-      :t('Exemples : 24:35 (minutes:secondes) ou 1:30:00 (heures:minutes:secondes).',
-           'Examples: 24:35 (minutes:seconds) or 1:30:00 (hours:minutes:seconds).');
-    $('time-input').placeholder=row.unit==='second'?'59.8':'24:35';
+      ?t('Choisis les heures, minutes, secondes et centièmes (ex. 59,80 s).',
+           'Choose hours, minutes, seconds and hundredths (e.g. 59.80 s).')
+      :t('Choisis ton chrono : 24:35 = 0 h 24 min 35 s ; 1:30:00 = 1 h 30 min 00 s.',
+           'Choose your time: 24:35 = 0 h 24 min 35 s; 1:30:00 = 1 h 30 min 00 s.');
+    $('time-centiseconds-part').hidden=row.unit!=='second';
     $('calc-result').textContent='';
     $('calc-result').classList.remove('error');
   }
@@ -301,22 +314,46 @@
     }
     body.append(fragment);
   }
-  function parseElapsed(input,unit){
-    const parts=input.trim().replace(',','.').split(':');
-    if(parts.length>3||parts.length===0||(unit==='minute'&&parts.length<2))return null;
-    if(parts.some((part,index)=>!new RegExp(index===parts.length-1?'^\\d+(?:\\.\\d{1,3})?$':'^\\d+$').test(part)))return null;
-    const n=parts.map(Number);
-    if(parts.length>=2&&n[n.length-1]>=60)return null;
-    if(parts.length===3&&n[1]>=60)return null;
-    const seconds=parts.length===1?n[0]:parts.length===2?n[0]*60+n[1]:n[0]*3600+n[1]*60+n[2];
-    const ms=Math.round(seconds*1000);
+  // Native dropdowns prevent malformed time strings while preserving 400 m precision.
+  function populateTimeSelect(id,max,placeholder=false){
+    const select=$(id);
+    select.replaceChildren();
+    if(placeholder){
+      const option=make('option','','—');
+      option.value='';
+      select.append(option);
+    }
+    for(let value=0;value<=max;value++){
+      const option=make('option','',String(value).padStart(2,'0'));
+      option.value=String(value);
+      select.append(option);
+    }
+  }
+  function resetTime(){
+    $('time-hours').value='0';
+    $('time-minutes').value='0';
+    $('time-seconds').value='';
+    $('time-centiseconds').value='0';
+  }
+  function elapsedFromParts(hours,minutes,seconds,centiseconds=0){
+    const inRange=(value,max)=>Number.isInteger(value)&&value>=0&&value<=max;
+    if(!inRange(hours,199)||!inRange(minutes,59)||
+       !inRange(seconds,59)||!inRange(centiseconds,99))return null;
+    const ms=(hours*3600+minutes*60+seconds)*1000+centiseconds*10;
     return Number.isSafeInteger(ms)&&ms>0?ms:null;
+  }
+  function selectedTime(unit){
+    if($('time-seconds').value==='')return null;
+    return elapsedFromParts(
+      Number($('time-hours').value),Number($('time-minutes').value),
+      Number($('time-seconds').value),
+      unit==='second'?Number($('time-centiseconds').value):0);
   }
   function checkTime(){
     const row=selected();if(!row)return;
     const target=$('calc-result');
     target.classList.remove('error');
-    const ms=parseElapsed($('time-input').value,row.unit);
+    const ms=selectedTime(row.unit);
     if(ms===null){
       target.classList.add('error');
       target.textContent=t('Indique un chrono valide au format proposé.',
@@ -358,7 +395,7 @@
       $('family-count').textContent=t(guide.distances.length+' distances reconnues',
         guide.distances.length+' recognized distances');
       renderLevels();renderThresholds();
-      if($('time-input').value)checkTime();
+      if($('time-seconds').value!=='')checkTime();
     }
   }
   async function initialize(){
@@ -381,7 +418,9 @@
       $('distance').value=exists?preferred:'500000';
       setLanguage(lang);
       if($('distance').value==='500000'){
-        $('time-input').value='24:35';
+        $('time-hours').value='0';
+        $('time-minutes').value='24';
+        $('time-seconds').value='35';
         checkTime();
       }
     }catch(_){
@@ -393,7 +432,7 @@
     }
   }
   $('distance').addEventListener('change',()=>{
-    $('time-input').value='';
+    resetTime();
     renderThresholds();
     const url=new URL(location.href);
     url.searchParams.set('distance',$('distance').value);
@@ -402,8 +441,18 @@
   $('individual-details').addEventListener('toggle',()=>{
     if(guide&&$('individual-details').open)renderIndividuals();
   });
+  for(const [id,max,placeholder] of [
+    ['time-hours',199,false],['time-minutes',59,false],
+    ['time-seconds',59,true],['time-centiseconds',99,false],
+  ])populateTimeSelect(id,max,placeholder);
+  resetTime();
   $('check-time').addEventListener('click',checkTime);
-  $('time-input').addEventListener('keydown',event=>{if(event.key==='Enter')checkTime();});
+  for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
+    $(id).addEventListener('change',()=>{
+      $('calc-result').textContent='';
+      $('calc-result').classList.remove('error');
+    });
+  }
   $('fr').addEventListener('click',()=>setLanguage('fr'));
   $('en').addEventListener('click',()=>setLanguage('en'));
   setLanguage(lang);
