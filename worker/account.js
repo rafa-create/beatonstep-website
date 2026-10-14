@@ -152,7 +152,7 @@ async function sendResetMail(env,email,token) {
         'Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.\n',
     }),
   });
-  if(!response.ok)throw Error('reset_email_provider_rejected');
+  if(!response.ok)throw Error('reset_email_provider_http_'+response.status);
 }
 
 async function requestPasswordReset(db,env,req,ctx) {
@@ -188,8 +188,12 @@ async function requestPasswordReset(db,env,req,ctx) {
 
   // Route timing and response do not disclose account existence. Never log
   // the e-mail address, secret token or reset URL.
-  const delivery=sendResetMail(env,email,token).catch(async()=>{
-    console.error('password reset delivery failed');
+  const delivery=sendResetMail(env,email,token).catch(async(error)=>{
+    // Report only a numeric provider HTTP status; never log an e-mail,
+    // token, provider response body, or authorization credentials.
+    const reason=error instanceof Error&&/^reset_email_provider_http_[0-9]{3}$/.test(error.message)
+      ?error.message:'network_or_unknown';
+    console.error('password reset delivery failed: '+reason);
     try{
       await db.prepare('DELETE FROM community_password_reset_tokens WHERE token_hash=?')
         .bind(tokenHash).run();
