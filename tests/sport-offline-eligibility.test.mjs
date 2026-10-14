@@ -64,7 +64,7 @@ test('a trustworthy local source can supply measured splits without requiring st
   assert.equal(result.subValue,40);
   assert.equal(result.splitTiming,'recorded');
 });
-test('implausible runs and forged metadata are rejected rather than awarded',()=>{
+test('sporting telemetry anomalies warn but structurally invalid measurements do not qualify',()=>{
   assert.equal(evaluateOfflineSportSummary(run('phone_gps',10000,120000)).reason,
     'implausible_average_speed');
   assert.equal(evaluateOfflineSportSummary(run('garmin_watch_saved',5000,600000,{
