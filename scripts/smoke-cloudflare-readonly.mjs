@@ -24,9 +24,9 @@ try{
     '0010/0009/0008 sport D1 tables/triggers are not all ready');
   for(const field of [
     'worldCardsEnabled','giftsEnabled','autoAwardsEnabled',
-  ])assert.equal(health.sport[field],false,field+' was enabled too early');
+  ])assert.equal(health.sport[field],true,field+' must be enabled in production');
   console.log('PASS deployed Cloudflare Worker + production D1 sport schema');
-  console.log('PASS sport rewards and gifts remain explicitly DISABLED');
+  console.log('PASS sport rewards, gifts and automatic awards are enabled in production');
   const page=await fetch(base+'/cadeau-sport.html',{
     cache:'no-store',signal:controller.signal,
   });
