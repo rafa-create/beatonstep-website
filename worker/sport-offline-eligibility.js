@@ -39,17 +39,14 @@ export function evaluateOfflineSportSummary(summary){
   if(!finite(elapsedMs,1,7*86400000))
     return failure('invalid_elapsed_time');
 
-  // Pauses are optional information. Missing or zero pauses are NOT a
-  // negative signal; if present, they cannot exceed wall-clock elapsed.
+  // Sporting plausibility is advisory; keep identity and base measurements
+  // mandatory, but do not withhold a usable card for telemetry anomalies.
+  let needsReviewWarning=false;
   if(summary.pausedDurationMs!=null&&
-    !finite(summary.pausedDurationMs,0,elapsedMs))
-    return failure('invalid_pause_duration');
-
-  // Use reasonably generous upper speed for plausibility only: GPS error
-  // and short running intervals occur, but 10 km in two minutes is invalid.
-  // Do not require a location trace, manual split, pause, or provider API.
+     !finite(summary.pausedDurationMs,0,elapsedMs))
+    needsReviewWarning=true;
   if(summary.distanceMeters/(elapsedMs/1000)>12.5)
-    return failure('implausible_average_speed');
+    needsReviewWarning=true;
 
   // Downward only: floating-point noise must never manufacture an extra cm.
   const distanceCm=Math.floor(summary.distanceMeters*100+0.00001);
@@ -58,28 +55,27 @@ export function evaluateOfflineSportSummary(summary){
     return {status:'none',reason:'below_first_distance'};
 
   let crossings=[{distanceCm:maxDistance,elapsedMs}];
+  let hasRecordedSplit=false;
   if(Array.isArray(summary.sportCrossings)&&summary.sportCrossings.length){
-    let previousDistance=0,previousTime=0;
+    let previousDistance=0,previousTime=0,valid=true;
     const verified=[];
-    for(const crossing of summary.sportCrossings){
+    if(summary.sportCrossings.length>203)valid=false;
+    if(valid)for(const crossing of summary.sportCrossings){
       if(!crossing||!Number.isSafeInteger(crossing.distanceCm)||
          !Number.isSafeInteger(crossing.elapsedMs)||
          crossing.distanceCm<=previousDistance||
          crossing.elapsedMs<=previousTime||
          crossing.elapsedMs>elapsedMs||
-         crossing.distanceCm>distanceCm)
-        return failure('invalid_splits');
+         crossing.distanceCm>distanceCm){
+        valid=false;break;
+      }
       previousDistance=crossing.distanceCm;
       previousTime=crossing.elapsedMs;
-      verified.push({
-        distanceCm:crossing.distanceCm,elapsedMs:crossing.elapsedMs,
-      });
+      verified.push({distanceCm:crossing.distanceCm,elapsedMs:crossing.elapsedMs});
     }
-    // Never backfill a claimed exact crossing from arithmetic or BPM. If the
-    // source actually recorded splits, they must include the furthest tier.
-    if(verified.at(-1).distanceCm!==maxDistance)
-      return failure('missing_final_split');
-    crossings=verified;
+    if(valid&&verified.at(-1).distanceCm===maxDistance){
+      crossings=verified;hasRecordedSplit=true;
+    }else needsReviewWarning=true;
   }
   const eligibility=evaluateSportCardCandidate({
     finalized:true,evidenceVerified:true,
@@ -87,7 +83,8 @@ export function evaluateOfflineSportSummary(summary){
   });
   if(eligibility.status!=='candidate')return eligibility;
   return {...eligibility,source:summary.distanceSource,
-    elapsedIncludesPauses:true,splitTiming:
-      summary.sportCrossings?.length?'recorded':'conservative_finish',
-    autoAwarded:false};
+    elapsedIncludesPauses:true,
+    splitTiming:hasRecordedSplit?'recorded':'conservative_finish',
+    // Advisory and internal; never a gate on the D1 transfer.
+    needsReviewWarning,autoAwarded:false};
 }
