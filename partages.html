@@ -345,7 +345,9 @@
   const VALID_KINDS=['workout','challenge'];
   const VALID_SOURCES=['all','spotify','apple','deezer','youtube','amazon'];
   let lang=(navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
-  let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):'challenge';
+  // Old playlist catalogue URLs land on sessions rather than a vanished tab.
+  let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):
+    ['all','runmix'].includes(params.get('kind'))?'workout':'challenge';
   let sportDistance='all',sportDifficulty='all',sportSub='';
   let musicGoal=['all','time','distance'].includes(params.get('goal'))?
     params.get('goal'):'all';
