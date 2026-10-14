@@ -2,13 +2,15 @@
 
 **Site web : [beatonstep.app](https://beatonstep.app/)**
 
-BeatOnStep accompagne la course et la marche en associant rythme des pas et musique. Ce dépôt public contient les pages et ressources du site officiel.
+BeatOnStep accompagne la marche et la course en associant musique et rythme des pas. Ce dépôt public rassemble les pages et ressources du site officiel.
 
-## Hébergement et mises à jour
+## Publication du site
 
-Le site est hébergé et publié par **Cloudflare Workers** à partir du code versionné ici sur GitHub (branche `main`). GitHub sert à gérer les versions du site ; **GitHub Pages n'est plus utilisé** comme hébergement ou moyen de déploiement.
+Le code source est versionné sur **GitHub** (`main`). **Cloudflare Workers** construit et déploie automatiquement le site après chaque mise à jour de cette branche.
 
-Pour consulter BeatOnStep, utiliser uniquement **[beatonstep.app](https://beatonstep.app/)**. L'ancienne adresse `github.io` n'est plus maintenue.
+GitHub Pages n'est pas utilisé pour la production. Les publications de l'application mobile suivent un processus distinct.
+
+Les modalités de déploiement et de vérification sont décrites dans [CLOUDFLARE.md](CLOUDFLARE.md).
 
 ## Pages principales
 
@@ -19,11 +21,8 @@ Pour consulter BeatOnStep, utiliser uniquement **[beatonstep.app](https://beaton
 
 ## Contenu du dépôt
 
-- `index.html`, `garmin.html`, `site.css`, `i18n.js` : pages et présentation.
-- `assets/`, `badges/` : visuels et badges.
-- `store/` : éléments de présentation des applications.
-- `PRIVACY.fr.md`, `PRIVACY.en.md`, `MUSIC-CREDITS.fr.md`, `MUSIC-CREDITS.en.md` : textes publics.
+- `index.html`, `garmin.html`, `site.css`, `i18n.js` : pages et interface.
+- `assets/`, `badges/`, `store/` : éléments visuels et supports de présentation.
+- `PRIVACY.fr.md`, `PRIVACY.en.md`, `MUSIC-CREDITS.fr.md`, `MUSIC-CREDITS.en.md` : informations publiques.
 
-Le fichier public `app-update.json` renseigne les versions de l'application disponibles sur les boutiques. Il est mis à jour lorsque ces versions sont effectivement publiées.
-
-Pour la configuration du déploiement Cloudflare, consulter la [documentation technique](CLOUDFLARE.md).
+Le fichier `app-update.json` indique les versions mobiles disponibles sur les boutiques officielles. Il est actualisé après leur publication effective.
