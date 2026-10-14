@@ -363,7 +363,11 @@ test('real GPS samples use TCX upload with available lap summaries only',async()
       assert.match(tcx,/<LatitudeDegrees>48\.8566<\/LatitudeDegrees>/);
       assert.match(tcx,/<AverageHeartRateBpm><Value>145<\/Value><\/AverageHeartRateBpm>/);
       assert.match(tcx,/<Cadence>172<\/Cadence>/);
+      assert.match(tcx,/<RunCadence>86<\/RunCadence>/);
+      assert.match(tcx,/<RunCadence>89<\/RunCadence>/);
       assert.doesNotMatch(tcx,/<MaximumHeartRateBpm>/);
+      assert.equal((tcx.match(/<RunCadence>/g)||[]).length,2,
+        'no fabricated cadence value on third GPS point');
       return {ok:true,status:201,json:async()=>({id:456})};
     }
     if(String(url)==='https://www.strava.com/api/v3/uploads/456'){
@@ -377,6 +381,7 @@ test('real GPS samples use TCX upload with available lap summaries only',async()
       startedAtMs:now,runId:'bos-'+now,elapsedTime:60,
       distanceMeters:350,heartRateBpm:145,cadencePpm:172,
       paceSecPerKm:245,gpsTrack,
+      cadenceSamples:[[now,172],[now+10000,178]],
     });
     assert.equal(result.status,200);
     assert.deepEqual(await result.json(),{ok:true,url:'https://www.strava.com/activities/7890'});
