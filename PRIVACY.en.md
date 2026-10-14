@@ -122,7 +122,7 @@ These data are **not sold, not used for advertising, not used for advertising tr
 
 ### 3.10 GPS tracking for runs on iOS, Android and Garmin (optional)
 
-**Phone GPS (BeatOnStep 1.7.2).** When you voluntarily start a run or a distance-based workout with GPS, BeatOnStep may request location access to measure **distance travelled**, calculate pace when available, and advance the workout phases. GPS tracking does not start when the app opens. You can refuse permission; features requiring reliable GPS distance will then be unavailable or limited. Pausing suspends tracking; finishing the workout stops it.
+**Phone GPS (when you enable this feature).** When you voluntarily start a run or a distance-based workout with GPS, BeatOnStep may request location access to measure **distance travelled**, calculate pace when available, and advance the workout phases. GPS tracking does not start when the app opens. You can refuse permission; features requiring reliable GPS distance will then be unavailable or limited. Pausing suspends tracking; finishing the workout stops it.
 
 - **On iPhone**, iOS may request location access while the app is in use and the permission needed to continue an active workout while the phone is locked or the app is in the background.
 - **On Android**, tracking requires location permission and may use a foreground service with a visible notification during an active workout to continue while the screen is locked. BeatOnStep does not request the separate Android `ACCESS_BACKGROUND_LOCATION` permission.
@@ -210,13 +210,17 @@ The app is not directed at children under 13 (16 in the EU) and does not knowing
 - **Apple / Apple Music account**: exercise your rights with Apple under their procedures.
 - **Spotify**: no BeatOnStep account linked to Spotify; pasted links stay on the device. For your Spotify account, exercise your rights with Spotify.
 - **Deezer**: no BeatOnStep account linked to Deezer; pasted links stay on the device. For your Deezer account, exercise your rights with Deezer.
-- **BeatOnStep server**: no user account. The pseudonymous measurement keeps only the latest known state per installation, without detailed submission history. Bug / feedback reports are sent only at your request for technical support (§ 3.11); for any question, use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
+- **BeatOnStep server**: a catalogue account is optional (§ 2). Playlist analytics retain only the latest state per installation, without detailed submission history (§ 3.9). Technical reports are sent only at your request (§ 3.11). For data enquiries, please use the [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Changes
 
 This policy may be updated. The date at the top reflects the latest revision. The current version is available at the address listed on **Google Play** and in the app (*Settings → About*):
 
 **https://beatonstep.app/privacy.html**
+
+**Summary of key changes**
+
+- **October 14, 2026 — version 1.7.2:** clarified iOS/Android workout GPS, related permissions and optional sharing of workout results. Earlier revisions remain available in the [public repository history](https://github.com/rafa-create/beatonstep-website/commits/main/PRIVACY.en.md).
 
 ## 10. Contact
 
