@@ -8,8 +8,8 @@ const at = marker => html.indexOf(marker);
 
 test('account uses just two category choices above deck and history',()=>{
   assert.ok(at('id="deck-navigation"') >= 0);
-  assert.ok(at('id="deck-sessions"') > at('id="deck-navigation"'));
-  assert.ok(at('id="deck-challenges"') > at('id="deck-sessions"'));
+  assert.ok(at('id="deck-challenges"') > at('id="deck-navigation"'));
+  assert.ok(at('id="deck-sessions"') > at('id="deck-challenges"'));
   assert.ok(at('id="deck-heading"') > at('id="deck-challenges"'));
   assert.ok(at('id="history-deck"') > at('id="challenge-deck"'));
   assert.doesNotMatch(html, /id="view-decks"|id="view-history"/);
