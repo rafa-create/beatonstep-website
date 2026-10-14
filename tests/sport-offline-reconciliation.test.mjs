@@ -72,8 +72,17 @@ test('invalid run ID is refused, suspicious running speed still earns a card',as
   const db={prepare(){throw Error('must not query')}};
   const id=body();id.runId='run-other-123456789';
   assert.equal((await reconcileOfflineSportResult(db,'runner-a',id,{now})).status,400);
-  const impossible=body();impossible.summary.distanceMeters=100000;
-  assert.equal((await reconcileOfflineSportResult(db,'runner-a',impossible,{now})).status,422);
+  const {db:awardDb}=sqlCalls();
+  const suspicious=body();suspicious.summary.startedAtMs=now-2000;
+  suspicious.runId='run-'+suspicious.summary.startedAtMs+'-'+suspicious.summary.endedAtMs;
+  let queued=null;
+  const response=await reconcileOfflineSportResult(awardDb,'runner-a',suspicious,{
+    now,onAward:review=>{queued=review;},
+  });
+  assert.equal(response.status,200);
+  assert.equal((await response.json()).awarded,true);
+  assert.equal(queued.needsWarning,true);
+  assert.equal(queued.ownerEpoch,1);
 });
 test('a different runner can retroactively take a formerly confirmed tier',async()=>{
   const {db}=sqlCalls();
