@@ -6,6 +6,7 @@ import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
 import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
+import {processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -350,7 +351,9 @@ export default {
             env.CATALOG_BACKEND !== 'd1')
           return json({error:'sport_catalog_unavailable'},503);
         try {
-          return await readPublicSportCards(env.DB,url);
+          return await readPublicSportCards(env.DB,url,{
+            telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true',
+          });
         } catch (error) {
           console.error('sport catalogue read failure',String(error?.name||'unknown'));
           return json({error:'sport_catalog_unavailable'},503);
@@ -390,5 +393,10 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
     return env.ASSETS.fetch(request);
+  },
+  async scheduled(_event,env,ctx){
+    if(env.SPORT_ASYNC_TELEMETRY_ENABLED!=='true' || !env.DB)return;
+    ctx.waitUntil(processPendingSportTelemetryReviews(env.DB)
+      .catch(()=>{console.warn('sport telemetry review queue unavailable');}));
   },
 };
