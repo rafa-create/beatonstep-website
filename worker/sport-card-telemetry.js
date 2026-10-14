@@ -2,6 +2,18 @@
 // Each warning is scoped to the epoch that earned the trophy; gifts reset it.
 // No GPS routes, user identifiers or detailed diagnostics are stored.
 // Idempotent additive initialization for an independently deployed Worker.
+// Warning reasons use a small, stable public vocabulary, not raw GPS data.
+const REASON_CODES=new Set([
+  'implausible_speed','invalid_pause_duration','inconsistent_crossings',
+]);
+export function readSportWarningReasons(raw){
+  try{
+    const values=Array.isArray(raw)?raw:JSON.parse(raw||'[]');
+    return Array.isArray(values)
+      ?[...new Set(values.filter(value=>REASON_CODES.has(value)))].slice(0,3)
+      :[];
+  }catch{return [];}
+}
 // A scheduled task or post-award background task can initialize the new table
 // without VM access. Migration 0011 remains the canonical, declarative schema.
 export async function ensureSportTelemetrySchema(db){
@@ -17,18 +29,40 @@ export async function ensureSportTelemetrySchema(db){
   )`).run();
   await db.prepare(`CREATE INDEX IF NOT EXISTS sport_telemetry_review_pending
     ON sport_card_telemetry_reviews(state,created_at)`).run();
+  // Additive companion table works even when the original 0011 table already exists.
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sport_card_telemetry_reason_details (
+    card_id INTEGER NOT NULL,
+    owner_epoch INTEGER NOT NULL,
+    reason_codes TEXT NOT NULL DEFAULT '[]',
+    PRIMARY KEY(card_id,owner_epoch),
+    FOREIGN KEY(card_id,owner_epoch)
+      REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
+  )`).run();
 }
 
-export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{now=Date.now()}={}){
+export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{
+  now=Date.now(),reasonCodes=[],
+}={}){
   if(!Number.isSafeInteger(cardId)||cardId<1||!Number.isSafeInteger(epoch)||epoch<1)
     return false;
+  // Attach the review to the original SPORT WIN, even if a later runner
+  // acquired the card while this asynchronous review was being queued.
   const result=await db.prepare(`INSERT INTO sport_card_telemetry_reviews
       (card_id,owner_epoch,needs_warning,state,created_at)
-      SELECT c.id,c.owner_epoch,?,'pending',?
-      FROM sport_world_cards c
-      WHERE c.id=? AND c.owner_epoch=? AND c.current_owner_id IS NOT NULL
+      SELECT e.card_id,e.new_epoch,?,'pending',?
+      FROM sport_card_ownership_events e
+      WHERE e.card_id=? AND e.new_epoch=? AND e.reason='sport_win'
       ON CONFLICT(card_id,owner_epoch) DO NOTHING`)
     .bind(needsWarning?1:0,now,cardId,epoch).run();
+  const reasons=readSportWarningReasons(reasonCodes);
+  if(needsWarning&&reasons.length){
+    // Immutable first explanation, retried if the base review was inserted
+    // but the optional detail write failed. Never overwrite historical proof.
+    await db.prepare(`INSERT INTO sport_card_telemetry_reason_details
+      (card_id,owner_epoch,reason_codes) VALUES(?,?,?)
+      ON CONFLICT(card_id,owner_epoch) DO NOTHING`)
+      .bind(cardId,epoch,JSON.stringify(reasons)).run();
+  }
   return (result?.meta?.changes||0)>0;
 }
 
@@ -37,13 +71,7 @@ export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{
 // a gift recipient's epoch or revoke their card.
 export async function processPendingSportTelemetryReviews(db,{now=Date.now()}={}){
   const result=await db.prepare(`UPDATE sport_card_telemetry_reviews
-    SET state=CASE
-      WHEN needs_warning=1 AND EXISTS(
-        SELECT 1 FROM sport_world_cards c
-        WHERE c.id=sport_card_telemetry_reviews.card_id
-          AND c.owner_epoch=sport_card_telemetry_reviews.owner_epoch
-          AND c.current_owner_id IS NOT NULL
-      ) THEN 'warning' ELSE 'clear' END,
+    SET state=CASE WHEN needs_warning=1 THEN 'warning' ELSE 'clear' END,
       reviewed_at=?
     WHERE (card_id,owner_epoch) IN (
       SELECT card_id,owner_epoch FROM sport_card_telemetry_reviews
