@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="index,follow">
   <title>Séances et playlists partagées — BeatOnStep</title>
-  <meta name="description" content="Découvrez et importez les séances musicales et Run Mix partagés anonymement dans BeatOnStep.">
+  <meta name="description" content="Consultez les cartes de défis sportifs validés et découvrez les séances musicales et playlists BeatOnStep.">
   <meta property="og:title" content="Partages BeatOnStep — Séances et playlists">
   <meta property="og:description" content="Des séances musicales et Run Mix à découvrir et importer.">
   <meta property="og:image" content="https://beatonstep.app/assets/brand/logo-400.jpg">
@@ -28,7 +28,9 @@
     .lang button,.pagination button{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 14px;cursor:pointer;font:inherit}
     .filter-picker{display:flex;align-items:center;flex:0 1 170px;min-width:0}
     .filter-picker select{appearance:auto;width:100%;min-width:0;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;font-size:13px;cursor:pointer}
-    .filter-picker select:focus-visible,summary:focus-visible,.card-title:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .filter-picker input{width:100%;min-width:0;border:1px solid var(--border);border-radius:24px;background:var(--panel);color:var(--text);padding:9px 12px;font:inherit;font-size:13px}
+    .filter-picker select:focus-visible,.filter-picker input:focus-visible,summary:focus-visible,.card-title:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .filter-picker[hidden]{display:none!important}
     .lang button[aria-pressed=true]{background:var(--yellow);color:#151510;border-color:var(--yellow)}
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
@@ -91,6 +93,20 @@
     .effort-segment--unknown{background:repeating-linear-gradient(135deg,#737568 0 4px,#494b43 4px 8px);box-shadow:none;opacity:.5}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
+    .sport-card .sport-summary{cursor:pointer}
+    .sport-card .collection-art{background:radial-gradient(ellipse at 50% 100%,#61532b91,transparent 65%),linear-gradient(130deg,#2b281a,#161710);border-color:#776532}
+    .sport-card .collection-glyph{font-size:55px}
+    .sport-ownership{font-size:14px;color:#dfd9bc;margin:12px 0 4px}
+    .sport-ownership strong{color:var(--yellow)}
+    .sport-difficulty{font-size:12px;color:var(--muted);margin:5px 0}
+    .sport-details{margin-top:14px;border:1px solid #625a3d;border-radius:14px;background:#1d1d18;overflow:hidden}
+    .sport-details>summary{padding:12px 14px;cursor:pointer;color:var(--yellow);font-weight:650;list-style-position:inside}
+    .sport-detail-content{padding:0 15px 15px;font-size:13px;line-height:1.6}
+    .sport-detail-content p{margin:7px 0}
+    .sport-timeline{list-style:none;margin:12px 0 0;padding:0 0 0 15px;border-left:2px solid #696039}
+    .sport-timeline li{position:relative;padding:0 0 15px 14px;color:#d9d4c3}
+    .sport-timeline li::before{content:'';position:absolute;left:-20px;top:7px;background:var(--yellow);width:8px;height:8px;border-radius:50%}
+    .sport-date{display:block;color:var(--muted);font-size:11px}
     /* Reading a shared workout: session > phase cards > songs, never an editor. */
     .tree-content--workout{padding:12px 4px 0}
     .workout-phases{padding:14px 13px 16px;border:1px solid #665c38;border-radius:16px;background:linear-gradient(180deg,#242319,#1b1b15);box-shadow:inset 0 1px 0 #ffffff08}
@@ -159,6 +175,8 @@
     @media(max-width:600px){
       #results{grid-template-columns:minmax(0,1fr);gap:14px}
       #results .share-summary{min-height:295px}
+      #results .sport-summary{min-height:275px}
+      .filter-picker input{padding:9px 7px}
       #results .collection-art{height:148px}
       main{margin-top:18px}
       header{margin-bottom:16px;gap:7px}
@@ -213,7 +231,7 @@
   </header>
   <a class="back" href="partages.html" id="back" hidden>← Catalogue</a>
   <h1 id="title">Catalogue</h1>
-  <p class="sub" id="intro">Séances et playlists de la communauté.</p>
+  <p class="sub" id="intro">Cartes sportives obtenues après validation des courses.</p>
   <div id="catalog">
     <div class="toolbar">
       <div class="filter-picker">
@@ -222,16 +240,17 @@
           <option value="all">Types</option>
           <option value="workout">Séances</option>
           <option value="runmix">Playlists</option>
+          <option value="challenge" selected>Défis</option>
         </select>
       </div>
-      <div class="filter-picker">
+      <div class="filter-picker" id="sort-picker">
         <label id="sort-label" for="sort-filter">Classement</label>
         <select id="sort-filter" aria-labelledby="sort-label">
           <option value="recent">Récentes</option>
           <option value="popular" selected>Populaires</option>
         </select>
       </div>
-      <div class="filter-picker source-picker">
+      <div class="filter-picker source-picker" id="source-picker">
         <label id="source-label" for="source-filter">Source</label>
         <select id="source-filter" aria-labelledby="source-label">
           <option value="all">Sources</option>
@@ -241,6 +260,38 @@
           <option value="youtube">YouTube Music</option>
           <option value="amazon">Amazon Music</option>
         </select>
+      </div>
+      <div class="filter-picker" id="distance-picker">
+        <label id="distance-label" for="distance-filter">Distance</label>
+        <select id="distance-filter" aria-labelledby="distance-label">
+          <option value="all">Toutes distances</option>
+          <option value="40000">400 m</option>
+          <option value="100000">1 km</option>
+          <option value="500000">5 km</option>
+          <option value="1000000">10 km</option>
+          <option value="2109750">Semi-marathon</option>
+          <option value="4219500">Marathon</option>
+          <option value="5000000">50 km</option>
+          <option value="10000000">100 km</option>
+        </select>
+      </div>
+      <div class="filter-picker" id="difficulty-picker">
+        <label id="difficulty-label" for="difficulty-filter">Difficulté</label>
+        <select id="difficulty-filter" aria-labelledby="difficulty-label">
+          <option value="all">Toutes difficultés</option>
+          <option value="beginner">Débutant</option>
+          <option value="amateur">Amateur</option>
+          <option value="regular">Régulier</option>
+          <option value="intermediate">Intermédiaire</option>
+          <option value="expert">Expert</option>
+          <option value="legend">Légende</option>
+          <option value="world_elite">Élite mondiale</option>
+        </select>
+      </div>
+      <div class="filter-picker" id="sub-picker">
+        <label id="sub-label" for="sub-filter">SUB maximal</label>
+        <input id="sub-filter" type="number" min="1" max="1000000" step="1"
+          inputmode="numeric" placeholder="SUB max." disabled>
       </div>
     </div>
     <div id="results" aria-live="polite">Chargement…</div>
@@ -274,16 +325,21 @@
 (function(){
   'use strict';
   const API='/api/shared';
+  const SPORT_API='/api/sport/cards';
   const params=new URLSearchParams(location.search);
   const parsedId=params.get('id');
   const id=parsedId && /^[1-9]\d{0,14}$/.test(parsedId) ? Number(parsedId) : null;
-  const VALID_KINDS=['all','workout','runmix'];
+  const parsedSport=params.get('sport');
+  const sportId=!id&&parsedSport&&/^[1-9]\d{0,14}$/.test(parsedSport)?Number(parsedSport):null;
+  const VALID_KINDS=['all','workout','runmix','challenge'];
   const VALID_SOURCES=['all','spotify','apple','deezer','youtube','amazon'];
   let lang=(navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
-  let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):'all';
+  let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):'challenge';
+  let sportDistance='all',sportDifficulty='all',sportSub='';
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
   let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
   const cache=new Map();
+  const sportCache=new Map();
   const countedViews=new Set();
   const $=key=>document.getElementById(key);
   const fr=(a,b)=>lang==='fr'?a:b;
@@ -307,6 +363,14 @@
     const response=await fetch(url);
     if(!response.ok)throw Error('not_found');
     return response.json();
+  }
+  function getSportDetail(cardId){
+    if(!sportCache.has(cardId)){
+      sportCache.set(cardId,get(SPORT_API+'/'+cardId).catch(error=>{
+        sportCache.delete(cardId);throw error;
+      }));
+    }
+    return sportCache.get(cardId);
   }
   function getDetail(id){
     if(!cache.has(id)){
@@ -522,7 +586,7 @@
     focusNext.setAttribute('aria-label',fr('Carte suivante','Next card'));
     focusDialog.querySelector('.focus-close').setAttribute('aria-label',fr('Fermer','Close'));
     focusDialog.setAttribute('aria-label',item.name);
-    const card=createCard(item,false,true);
+    const card=item.kind==='challenge'?createSportCard(item,false,true):createCard(item,false,true);
     focusStage.replaceChildren(card);
     const tree=card.querySelector('details.share-tree');
     if(tree)tree.open=true;
@@ -552,6 +616,111 @@
     else focusDialog.setAttribute('open','');
     const close=focusDialog.querySelector('.focus-close');
     if(close&&typeof close.focus==='function')close.focus();
+  }
+  const difficultyLabels={
+    beginner:['Débutant','Beginner'],amateur:['Amateur','Amateur'],
+    regular:['Régulier','Regular'],intermediate:['Intermédiaire','Intermediate'],
+    expert:['Expert','Expert'],legend:['Légende','Legend'],
+    world_elite:['Élite mondiale','World elite'],
+  };
+  function sportDistanceLabel(cm){
+    if(cm===40000)return '400 m';
+    if(cm===2109750)return fr('Semi-marathon','Half marathon');
+    if(cm===4219500)return fr('Marathon','Marathon');
+    return number(cm/100000)+' km';
+  }
+  function sportName(item){
+    return sportDistanceLabel(item.distanceCm)+' · SUB '+item.subValue+
+      (item.timeUnit==='second'?' s':' min');
+  }
+  const sportHandle=handle=>handle?'@'+handle:fr('Compte indisponible','Unavailable account');
+  function sportPeriod(ms){
+    if(!Number.isFinite(ms))return '—';
+    const days=Math.floor(ms/86400000);
+    if(days>=1)return days+' '+(days===1?fr('jour','day'):fr('jours','days'));
+    const hours=Math.floor(ms/3600000);
+    if(hours>=1)return hours+' h';
+    return Math.max(0,Math.floor(ms/60000))+' min';
+  }
+  function sportDate(value){
+    return Number.isFinite(value)
+      ?new Date(value).toLocaleDateString(lang==='fr'?'fr-FR':'en-US'):'—';
+  }
+  function createSportCard(item,detailed,inFocus=false){
+    const card=el('article','card sport-card');
+    const summary=el('div','share-summary sport-summary');
+    const head=el('div','card-head');
+    const identity=el('span','collection-identity');
+    identity.append(el('span','collection-brand','BeatOnStep'),
+      el('span','collection-number','#'+item.id));
+    head.append(identity,el('span','badge',fr('Défi','Challenge')));
+    const art=el('div','collection-art');
+    art.setAttribute('aria-hidden','true');
+    art.append(el('span','collection-glyph','✦'),
+      el('span','collection-art-label',fr('Performance sportive','Sports performance')));
+    const title=el('h2','',sportName(item));
+    const level=difficultyLabels[item.difficulty]||null;
+    const levelLabel=level?fr(level[0],level[1]):fr('Non précisée','Not specified');
+    const difficulty=el('p','sport-difficulty',fr('Difficulté : ','Difficulty: ')+levelLabel);
+    const owner=el('p','sport-ownership');
+    owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),
+      el('strong','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
+    summary.append(head,art,title,difficulty,owner);
+    if(!detailed&&!inFocus){
+      summary.tabIndex=0;
+      summary.setAttribute('role','button');
+      summary.setAttribute('aria-label',fr('Voir la carte ','View card ')+sportName(item));
+      summary.addEventListener('click',()=>openFocus(item.id,summary));
+      summary.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){event.preventDefault();openFocus(item.id,summary);}
+      });
+    }
+    card.append(summary);
+    const details=el('details','sport-details');
+    const heading=el('summary','',fr('Historique des détenteurs','Holder history'));
+    const content=el('div','sport-detail-content');
+    details.append(heading,content);
+    details.addEventListener('toggle',async()=>{
+      if(!details.open||details.dataset.loaded==='yes'||details.dataset.loaded==='loading')return;
+      details.dataset.loaded='loading';
+      content.textContent=fr('Chargement…','Loading…');
+      try{
+        const full=await getSportDetail(item.id);
+        empty(content);
+        content.append(el('p','',fr('Premier détenteur : ','First holder: ')+
+          sportHandle(full.firstHolder)));
+        content.append(el('p','',fr('Plus longue possession : ','Longest holding: ')+
+          sportHandle(full.longestHolder)+' · '+sportPeriod(full.longestHeldMs)));
+        const timeline=el('ol','sport-timeline');
+        for(const event of full.history||[]){
+          const line=el('li','');
+          const change=event.reason==='gift_claim'
+            ?fr('Donation : ','Gift: ')+sportHandle(event.from)+' → '+sportHandle(event.to)
+            :event.reason==='sport_win'
+              ?fr('Gain sportif : ','Sports win: ')+sportHandle(event.to)
+              :fr('Carte libérée','Card released');
+          line.append(el('span','',change),el('span','sport-date',sportDate(event.at)));
+          timeline.append(line);
+        }
+        if(!timeline.children.length)content.append(el('p','',
+          fr('Aucun transfert enregistré.','No transfers recorded.')));
+        else content.append(timeline);
+        if(full.historyHasMore)content.append(el('p','',
+          fr('Historique plus ancien non affiché.','Older history not displayed.')));
+        details.dataset.loaded='yes';
+      }catch(_){
+        details.dataset.loaded='no';
+        content.textContent=fr('Historique indisponible. Réessayez.','History unavailable. Please retry.');
+      }
+    });
+    card.append(details);
+    const footer=el('div','card-actions');
+    const link=el('a','primary',fr('Voir la fiche','Open card'));
+    link.href='partages.html?kind=challenge&sport='+item.id;
+    link.setAttribute('aria-label',fr('Voir la fiche du défi ','Open challenge card ')+sportName(item));
+    footer.append(link);
+    card.append(footer);
+    return card;
   }
   function createCard(item,detailed,inFocus=false){
     const card=el('article','card');
