@@ -34,7 +34,8 @@ const sqlCalls=()=>{
         {meta:{changes:1}},
         {results:[{id:17,current_owner_id:null,owner_epoch:0}]},
         {results:[{card_id:17}],meta:{changes:1}},
-        {results:[{id:17,current_owner_id:'runner-a',owner_epoch:1}]},
+        {results:[{id:17,current_owner_id:'runner-a',owner_epoch:1,
+          difficulty:'expert'}]},
       ];
     },
   };
@@ -49,6 +50,8 @@ test('finish-only Garmin report is authenticated by caller, not via GPS stream',
   assert.equal(result.worldStatus,'confirmed');
   assert.equal(result.awarded,true);
   assert.equal(result.acquisition,'created');
+  assert.equal(result.difficulty,'expert',
+    'the server reports the persisted worldwide card classification');
   assert.equal(state.batches,1);
   assert.match(calls[0].sql,/INSERT INTO sport_world_cards/);
   assert.match(calls[1].sql,/SELECT c.id,c.current_owner_id,c.owner_epoch/);

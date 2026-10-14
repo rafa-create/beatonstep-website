@@ -1,49 +1,27 @@
-// #444/#448/#450/#451 — performance-card business calculation only.
-// This file never creates a card, authenticates a run or writes to D1.
-// Historical musical cards and the earlier distance+deadline V2 remain separate.
+// Sport-card calculation. Official thresholds come ONLY from the public,
+// static site asset /sport-card-rules.json; no D1/Worker API round trip.
+import sportTierRules from '../sport-card-rules.json' with { type: 'json' };
 
-export const SPORT_CARD_RULESET='sport-cards-v1';
-export const SPORT_CARD_DIFFICULTY_RULESET='v1';
-
-const MARATHON_CM=4_219_500;
-const HALF_MARATHON_CM=2_109_750;
-const ULTRA_START_CM=4_300_000;
-const BEGINNER_10K_MAX_SUB_MINUTE=91; // 10 km in exactly 1h30 -> sub91 eligible.
-// Product-only 400m difficulty caps, not official World Athletics rankings.
-// Caps use strict sub-second thresholds. 400m 59.999s = sub60 Legend;
-// at exactly 60.000s the candidate is sub61 Expert.
-export const SPORT_CARD_400M_TIERS=Object.freeze([
-  ['world_elite',50],['legend',60],['expert',70],
-  ['intermediate',85],['regular',100],['amateur',125],
-  ['beginner',181], // Allows exactly 3 minutes on the 400m.
-].map(([difficulty,maxSubSecond])=>Object.freeze({
-  difficulty,maxSubSecond,
-})));
-
-// Exact centimeters identify a canonical family, not GPS centimeter accuracy.
-// 1..200 km + 400m sub1 + exact half-marathon + exact marathon = 203 families.
-// New families require a reviewed, versioned catalog change.
-const CATALOG=[
-  {distanceCm:40_000,code:'400m'},
-  ...Array.from({length:200},(_,i)=>({
-    distanceCm:(i+1)*100_000,code:`${i+1}km`,
+export const SPORT_CARD_RULESET=sportTierRules.ruleset;
+export const SPORT_CARD_DIFFICULTY_RULESET=sportTierRules.difficultyRuleset;
+export const SPORT_CARD_TIER_REVISION=sportTierRules.revision;
+const ULTRA_START_CM=sportTierRules.ultraStartCm;
+const LEVELS=Object.freeze([...sportTierRules.tierOrder]);
+export const SPORT_CARD_400M_TIERS=Object.freeze(
+  LEVELS.map(difficulty=>Object.freeze({
+    difficulty,maxSubSecond:sportTierRules.capsByDistance['40000'][difficulty],
   })),
-  {distanceCm:HALF_MARATHON_CM,code:'half_marathon'},
-  {distanceCm:MARATHON_CM,code:'marathon'},
-].sort((a,b)=>a.distanceCm-b.distanceCm);
+);
+const CATALOG=sportTierRules.distancesCm.map(distanceCm=>({
+  distanceCm,
+  code:distanceCm===40000?'400m':
+    distanceCm===2109750?'half_marathon':
+    distanceCm===4219500?'marathon':(distanceCm/100000)+'km',
+}));
 export const SPORT_CARD_DISTANCES=Object.freeze(
   CATALOG.map(item=>Object.freeze(item)),
 );
-const recognized=new Set(SPORT_CARD_DISTANCES.map(item=>item.distanceCm));
-
-// Other six levels retain #451's original marathon performance anchors.
-// Beginner is deliberately widened to include 10 km in 90:00 exactly.
-// This is a game-design threshold, not a medical/scientific assessment.
-const ANCHORS=Object.freeze([
-  ['world_elite',150],['legend',180],['expert',210],
-  ['intermediate',240],['regular',270],['amateur',300],
-  ['beginner',330],
-].map(([tier,limit])=>Object.freeze({tier,limit})));
+const recognized=new Set(sportTierRules.distancesCm);
 const whole=value=>Number.isSafeInteger(value)&&value>=0;
 
 export function canonicalSportDistance(distanceCm){
@@ -60,23 +38,16 @@ export function longestSportDistance(finalDistanceCm){
 
 export function maxSubMinuteByTier(distanceCm){
   if(canonicalSportDistance(distanceCm)===null||
-     distanceCm===40_000||distanceCm>=ULTRA_START_CM)return null;
-  const factor=(distanceCm/MARATHON_CM)**1.06;
-  const out={};
-  let previous=0;
-  for(const {tier,limit} of ANCHORS){
-    let cap=Math.round(limit*factor);
-    if(tier==='beginner'){
-      const inclusiveTenKmCap=Math.round(
-        BEGINNER_10K_MAX_SUB_MINUTE*(distanceCm/1_000_000)**1.06,
-      );
-      cap=Math.max(cap,inclusiveTenKmCap);
-    }
-    cap=Math.max(1,cap,previous+1);
-    out[tier]=cap;
-    previous=cap;
-  }
-  return out;
+     distanceCm===40000||distanceCm>=ULTRA_START_CM)return null;
+  // Return a defensive copy; the canonical thresholds are immutable inputs.
+  return {...sportTierRules.capsByDistance[String(distanceCm)]};
+}
+
+// Public read-only projection of THE SAME functions used to grant cards in D1.
+// Contains computed caps, so clients never reimplement the curve or override
+// precedence. Nothing here exposes runners, GPS or unpublished results.
+export function sportCardRulesManifest(){
+  return sportTierRules;
 }
 
 // At exactly N:00 the eligible threshold is always sub(N+1).
@@ -111,9 +82,9 @@ export function difficultyForSportCard(distanceCm,subValue){
     });
   }
   const caps=maxSubMinuteByTier(distanceCm);
-  const found=ANCHORS.find(({tier})=>subValue<=caps[tier]);
+  const found=LEVELS.find(tier=>subValue<=caps[tier]);
   return found?Object.freeze({
-    difficulty:found.tier,skin:`difficulty_${found.tier}_v1`,
+    difficulty:found,skin:`difficulty_${found}_v1`,
   }):null;
 }
 

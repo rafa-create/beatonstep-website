@@ -51,7 +51,7 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
       ON CONFLICT(distance_cm,time_unit,sub_value) DO NOTHING`)
       .bind(candidate.distanceCm,candidate.timeUnit,candidate.subValue,
         candidate.difficulty,SPORT_CARD_RULESET,now),
-    db.prepare(`SELECT c.id,c.current_owner_id,c.owner_epoch
+    db.prepare(`SELECT c.id,c.current_owner_id,c.owner_epoch,c.difficulty
       FROM sport_world_cards c WHERE c.distance_cm=? AND c.time_unit=?
         AND c.sub_value=? AND c.ruleset=?`)
       .bind(candidate.distanceCm,candidate.timeUnit,
@@ -67,7 +67,7 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
       .bind(userId,runId,summary.endedAtMs,now,digest,
         source(summary.distanceSource),candidate.distanceCm,
         candidate.timeUnit,candidate.subValue,SPORT_CARD_RULESET),
-    db.prepare(`SELECT c.id,c.current_owner_id,c.owner_epoch
+    db.prepare(`SELECT c.id,c.current_owner_id,c.owner_epoch,c.difficulty
       FROM sport_world_cards c WHERE c.distance_cm=? AND c.time_unit=?
         AND c.sub_value=? AND c.ruleset=?`)
       .bind(candidate.distanceCm,candidate.timeUnit,
@@ -122,6 +122,9 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
     runId,performanceKey:candidate.performanceKey,cardId:current[0].id,
     worldStatus:owned?'confirmed':'lost',
     ownerEpoch:current[0].owner_epoch,awarded:newRun,acquisition,
+    // Existing worldwide card keeps its stored historical classification.
+    // Newly created cards use the CURRENT canonical rule manifest.
+    difficulty:current[0].difficulty,
     completedAt:summary.endedAtMs,
   });
 }
