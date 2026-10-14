@@ -71,9 +71,19 @@ export function validate(kind, payload) {
         t.p >= payload.p.length || !clean(t.n, 160))) return null;
   const duration = payload.p.reduce((sum, p) => sum + p[1], 0);
   if (duration < 60 || duration > 14400) return null;
+  const isDistance = payload.g === 'distance';
+  if (payload.g !== undefined && !isDistance) return null;
+  if (isDistance && (!Array.isArray(payload.m) || payload.m.length !== payload.p.length ||
+      payload.m.some(m => !Number.isSafeInteger(m) || m < 50 || m > 100000)))
+    return null;
+  const meters = isDistance ? payload.m.reduce((sum,m)=>sum+m,0) : null;
+  if (isDistance && (meters < 1000 || meters > 200000)) return null;
+  if (!isDistance && payload.m !== undefined) return null;
   return { name: clean(payload.n) || 'Séance musicale', source: payload.s,
     durationSec: Math.round(duration), bpm: null, tracks: payload.t.length,
     phases: payload.p.length,
+    goalMode: isDistance ? 'distance' : 'time',
+    ...(isDistance ? {distanceMeters:meters} : {}),
     profile: payload.p.map(p => [Math.round(p[1]), Math.round(p[2])]) };
 }
 
@@ -88,6 +98,11 @@ export function publicRow(row) {
     durationSec: row.duration_sec, bpm: row.bpm, tracks: row.tracks,
     phases: row.phases, ...(profile ? { profile } : {}),
     createdAt: row.created_at, views: row.views, imports: row.imports,
+    ...(row.payload_v===1 && row.kind==='workout' ? {
+      goalMode: row.workout_goal==='distance' ? 'distance' : 'time',
+      ...(row.workout_goal==='distance' && Number.isSafeInteger(row.workout_distance_meters)
+        ? {distanceMeters:row.workout_distance_meters} : {}),
+    } : {}),
     ...(row.payload_v===2 && row.goal_mode==='distance' &&
         Number.isSafeInteger(row.target_meters) &&
         Number.isSafeInteger(row.deadline_sec)
@@ -127,12 +142,23 @@ async function d1Request(request, env, url) {
     const source = PUBLIC_SOURCES.includes(url.searchParams.get('source'))
       ? url.searchParams.get('source') : 'all';
     const sort = url.searchParams.get('sort') === 'popular' ? 'popular' : 'recent';
+    const goalMode = ['time','distance'].includes(url.searchParams.get('goalMode'))
+      ? url.searchParams.get('goalMode') : 'all';
     const rawPage = Number(url.searchParams.get('page'));
     const page = Number.isSafeInteger(rawPage) ? Math.max(1, Math.min(rawPage, 10000)) : 1;
     const predicates = [], args = [];
     if (cardsEnabled(env)) predicates.push('NOT EXISTS(SELECT 1 FROM workout_card_aliases a WHERE a.alias_share_id=shared_items.id)');
     if (kind !== 'all') { predicates.push('kind = ?'); args.push(kind); }
     if (source !== 'all') { predicates.push('source = ?'); args.push(source); }
+    // Filter before sorting/page 1. Legacy v1 workout shares are timed.
+    // Distinct from the existing v2 sporting challenge cards.
+    if (goalMode !== 'all') {
+      predicates.push("kind='workout' AND json_valid(payload_json) AND " +
+        "json_extract(payload_json,'$.v')=1 AND " +
+        (goalMode==='distance'
+          ? "json_extract(payload_json,'$.g')='distance'"
+          : "COALESCE(json_extract(payload_json,'$.g'),'time')='time'"));
+    }
     const where = predicates.length ? ' WHERE ' + predicates.join(' AND ') : '';
     const count = await db.prepare('SELECT COUNT(*) AS total FROM shared_items' + where)
       .bind(...args).first();
@@ -143,7 +169,10 @@ async function d1Request(request, env, url) {
       "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.v') END AS payload_v, " +
       "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.goalMode') END AS goal_mode, " +
       "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.targetMeters') END AS target_meters, " +
-      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.deadlineSec') END AS deadline_sec " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.deadlineSec') END AS deadline_sec, " +
+      "CASE WHEN json_valid(payload_json) THEN json_extract(payload_json,'$.g') END AS workout_goal, " +
+      "CASE WHEN json_valid(payload_json) AND json_extract(payload_json,'$.g')='distance' " +
+      "THEN (SELECT SUM(value) FROM json_each(payload_json,'$.m')) END AS workout_distance_meters " +
       'FROM shared_items' + where + ' ORDER BY ' + order + ' LIMIT 20 OFFSET ?'
     ).bind(...args, (page - 1) * 20).all();
     const items = (result.results || []).map(publicRow);
@@ -241,7 +270,12 @@ async function d1Request(request, env, url) {
     if (!row) return json({ error: 'expired_share' }, 404);
     const payload=JSON.parse(row.payload_json);
     const rule=challengeRule(payload);
-    const item = { ...publicRow(row), ...(rule ?? {}), payload };
+    const item = { ...publicRow(row), ...(rule ?? {}), payload,
+      ...(row.kind==='workout' && payload.v===1 ? {
+        goalMode:payload.g==='distance'?'distance':'time',
+        ...(payload.g==='distance' && Array.isArray(payload.m)
+          ? {distanceMeters:payload.m.reduce((sum,m)=>sum+m,0)} : {}),
+      } : {}) };
     try {
       const author = (await authorFor(db, [row.id])).get(row.id);
       if (author) item.author = author;
