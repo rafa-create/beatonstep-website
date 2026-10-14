@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{validate,publicRow} from '../worker/index.js';
 import {publishUniqueWorkout} from '../worker/cards.js';
+import {workoutCardType} from '../worker/pack.js';
 
 const rule={v:2,goalMode:'distance',targetMeters:5000,deadlineSec:1800};
 const ROOT='https://beatonstep.app';
@@ -150,4 +151,65 @@ test('v2 public listing exposes distance and deadline, never a private GPS trace
   assert.equal(Object.hasOwn(distanceWorkout,'latitude'),false);
   assert.equal(Object.hasOwn(distanceWorkout,'longitude'),false);
   assert.equal(Object.hasOwn(distanceWorkout,'owner_user_id'),false);
+});
+
+test('GPS musical sharing is fail-closed unless a real collectible can be minted',async()=>{
+  const distance={v:1,n:'Music 5k',s:'spotify',g:'distance',m:[1000,4000],
+    p:[['Warm-up',300,130,null],['Run',900,160,null]],
+    t:[{p:0,n:'Track',a:'Artist'}]};
+  assert.equal(validate('workout',{...distance,t:[]}),null,
+    'no music means no card identity');
+  assert.equal(validate('workout',{...distance,t:[{p:0,n:'Track',a:''}]}),null,
+    'missing artist cannot be fingerprinted');
+  const request=()=>new Request(ROOT+'/api/shared',{method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({kind:'workout',payload:distance})});
+  const disabled=await worker.fetch(request(),{
+    CATALOG_BACKEND:'d1',DB:{},CARDS_ENABLED:'false',
+  });
+  assert.equal(disabled.status,503);
+  assert.equal((await disabled.json()).error,'collection_not_ready');
+  const unsigned=await worker.fetch(request(),{
+    CATALOG_BACKEND:'d1',DB:{},CARDS_ENABLED:'true',
+  });
+  assert.equal(unsigned.status,401);
+  assert.equal((await unsigned.json()).error,'login_required');
+});
+
+test('published musical 5 km creates an owned session card without a sporting reward',async()=>{
+  const music5k={v:1,n:'Endurance 5 km',s:'spotify',g:'distance',
+    m:[1000,4000],p:[['Échauffement',300,140,140],['Endurance',900,165,160]],
+    t:[{p:0,n:'Song one',a:'Artist one'},
+      {p:1,n:'Song two',a:'Artist two'}]};
+  const meta=validate('workout',music5k);
+  assert.ok(meta);
+  assert.equal(meta.goalMode,'distance');
+  assert.equal(meta.distanceMeters,5000);
+  assert.equal(meta.durationSec,1200);
+  assert.equal(meta.tracks,2);
+  assert.equal(validate('workout',{...music5k,g:'time'}),null);
+  let created=false,storedCard=null,storedShare=null;
+  const db={
+    prepare(sql){return {bind(...args){return {sql,args,first:async()=>{
+      if(sql==='SELECT share_id FROM workout_cards WHERE fingerprint=?')
+        return created?{share_id:85}:null;
+      throw Error('unexpected SQL '+sql);
+    }};}}},
+    async batch(entries){
+      [storedShare,storedCard]=entries;created=true;
+      return [{meta:{last_row_id:85}}];
+    },
+  };
+  const result=await publishUniqueWorkout(db,music5k,meta,{id:'musical-creator'});
+  assert.deepEqual(result,{id:85,created:true});
+  assert.equal(storedCard.args[1],'musical-creator');
+  assert.equal(storedCard.args[2],'musical-creator',
+    'the musician owns the card created by their signed publication');
+  assert.equal(storedCard.args[4],'created',
+    'normal musical card, never a SUB-based sporting challenge');
+  assert.deepEqual(JSON.parse(storedShare.args.at(-2)).m,[1000,4000],
+    'real GPS phase distances are preserved in the catalogue');
+  assert.deepEqual(workoutCardType({workout_goal:'distance',workout_distance_meters:5000}),
+    {goalMode:'distance',distanceMeters:5000});
+  assert.deepEqual(workoutCardType({workout_goal:null}),{goalMode:'time'});
 });

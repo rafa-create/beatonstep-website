@@ -19,6 +19,9 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .deck-toggles{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 14px}
 .deck-toggles button{flex:1;background:#27251a;color:var(--ink);border:1px solid var(--line);min-width:110px}
 .deck-toggles button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.session-type-filter{display:flex;gap:8px;margin:9px 0 16px}
+.session-type-filter button{flex:1;background:#24231b;color:var(--ink);border:1px solid var(--line);font-size:13px;padding:9px;min-width:0}
+.session-type-filter button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .deck-tile{border:1px solid var(--line);border-radius:14px;background:#100f0b;padding:16px;margin-bottom:12px}
 .deck-tile h3{color:var(--ink);margin:0 0 6px;font-size:16px}
 .history-run{position:relative;padding-right:52px}
@@ -118,7 +121,11 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <button type="button" id="deck-challenges" aria-pressed="true">🏆 Défis</button>
 <button type="button" id="deck-sessions" aria-pressed="false">♫ Séances</button></div>
 <h2 id="deck-heading">Mon deck · Défis</h2>
-<div id="session-deck" hidden><div id="collection-panel" hidden><h2>Cartes musicales possédées</h2>
+<div id="session-type-filter" class="session-type-filter" role="group" aria-label="Type de carte de séance" hidden>
+  <button id="session-time" type="button" aria-pressed="true">Durée</button>
+  <button id="session-distance" type="button" aria-pressed="false">Distance</button>
+</div>
+<div id="session-deck" hidden><div id="collection-panel" hidden><h2>Mes cartes de séances possédées</h2>
 <p>Une carte unique par séance, à découvrir et collectionner. Toutes les séances restent accessibles à la communauté.</p>
 <ul id="owned-cards"></ul>
 <div id="pack-panel" class="pack-game">
@@ -133,7 +140,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="gift-panel" class="gift-accept" hidden><h2>🎁 Tu as reçu une carte BeatOnStep !</h2>
 <p id="gift-info" class="gift-highlight"></p><button type="button" id="claim-gift">Accepter cette carte</button>
 <p style="margin-top:12px">La carte deviendra la tienne uniquement après ton acceptation.</p></div></div>
-<div id="my-cards"><h2>Mes séances créées · par popularité</h2><ul id="items"></ul></div>
+<div id="my-cards"><h2>Mes cartes créées · par popularité</h2><ul id="items"></ul></div>
 <div id="saved-workouts-panel"><h2>Mes programmes enregistrés</h2>
 <p id="saved-workouts-status">Chargement des programmes…</p>
 <ul id="saved-workouts-items"></ul></div></div>
@@ -202,14 +209,26 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     return value;
   }
   function panel(value){for(const key of ['signin','signup','account','public-profile','forgot','password-reset']) $(key).hidden=key!==value}
+  let savedCreatedCards=[],savedOwnedCards=[],sessionGoal='time';
+  const currentCardGoal=item=>item?.goalMode==='distance'?'distance':'time';
+  const cardKindLabel=item=>currentCardGoal(item)==='distance'
+    ?'Séance de distance'+(Number.isSafeInteger(item.distanceMeters)?
+      ' · '+(item.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km':'')
+    :'Séance musicale · durée';
   function renderCards(items,element){
+    if(element.id==='items'){
+      savedCreatedCards=items;
+      // Run Mix remains shareable by direct link but is not a collectible
+      // session card and must not reappear in the cards deck.
+      items=items.filter(item=>item.kind==='workout'&&currentCardGoal(item)===sessionGoal);
+    }
     element.replaceChildren();
     if(!items.length){const p=document.createElement('li');p.textContent='Aucune publication pour le moment.';element.append(p);return}
     for(const item of items) {
       const li=document.createElement('li'),a=document.createElement('a'),meta=document.createElement('span');
       a.textContent=item.name;a.href='/partages.html?id='+encodeURIComponent(item.id);
       meta.className='small';
-      meta.textContent=(item.kind==='workout'?'Séance musicale':'Playlist')+' · '+item.source+
+      meta.textContent=(item.kind==='workout'?cardKindLabel(item):'Playlist')+' · '+item.source+
         (item.kind==='workout'&&Number.isFinite(item.imports)
           ?' · '+Number(item.imports).toLocaleString('fr-FR')+' imports':'')+
         (item.kind==='workout'&&Number.isFinite(item.completedCount)&&item.completedCount>0
@@ -273,13 +292,17 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     return gift.url;
   }
   function renderCollection(items){
+    savedOwnedCards=items;
+    items=items.filter(item=>currentCardGoal(item)===sessionGoal);
     const list=$('owned-cards');list.replaceChildren();
     if(!items.length){const li=document.createElement('li');li.textContent='Vous ne possédez pas encore de carte.';list.append(li);return}
     for(const item of items){
       const li=document.createElement('li');li.className='collection-item';
       const a=document.createElement('a');a.href='/partages.html?id='+encodeURIComponent(item.id);a.textContent=item.name;
       const chart=elEffort(item.profile);
-      const meta=document.createElement('small');meta.textContent=(item.imports||0)+' imports · Créateur : '+(item.creator?'@'+item.creator:'Anonyme');
+      const meta=document.createElement('small');meta.textContent=
+        cardKindLabel(item)+' · '+(item.imports||0)+' imports · Créateur : '+
+        (item.creator?'@'+item.creator:'Anonyme');
       const offer=document.createElement('button');
       offer.type='button';offer.textContent='🎁 Offrir cette carte';
       offer.setAttribute('aria-label','Créer un lien pour offrir '+item.name);
@@ -304,16 +327,25 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   }
   // One category controls both the deck above and its history below.
   let selectedDeck='challenges';
+  const showSessionType=()=>{
+    $('session-time').setAttribute('aria-pressed',String(sessionGoal==='time'));
+    $('session-distance').setAttribute('aria-pressed',String(sessionGoal==='distance'));
+    renderCollection(savedOwnedCards);
+    renderCards(savedCreatedCards,$('items'));
+  };
+  $('session-time').onclick=()=>{sessionGoal='time';showSessionType()};
+  $('session-distance').onclick=()=>{sessionGoal='distance';showSessionType()};
   function showDecks(){
     const sessions=selectedDeck==='sessions';
     $('session-deck').hidden=!sessions;
+    $('session-type-filter').hidden=!sessions;
     $('challenge-deck').hidden=sessions;
     $('history-deck').hidden=false;
     $('history-sessions-panel').hidden=!sessions;
     $('history-challenges-panel').hidden=sessions;
     $('deck-sessions').setAttribute('aria-pressed',String(sessions));
     $('deck-challenges').setAttribute('aria-pressed',String(!sessions));
-    $('deck-heading').textContent=sessions?'Mon deck · Séances':'Mon deck · Défis';
+    $('deck-heading').textContent=sessions?'Mes cartes de séances':'Mes cartes Défi';
     $('history-heading').textContent=sessions?'Historique · Séances':'Historique · Défis';
   }
   $('deck-sessions').onclick=()=>{selectedDeck='sessions';showDecks()};
@@ -429,7 +461,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         :'Aucun événement sportif vérifié pour le moment.';
       const owned=allDeck.filter(card=>card.currentlyOwned&&card.personallyValidated);
       const gifts=allDeck.filter(card=>card.currentlyOwned&&!card.personallyValidated);
-      const ghosts=allDeck.filter(card=>card.ghost);
+      const ghosts=allDeck.filter(card=>card.ghost&&card.personallyValidated);
       const addCard=(card,category)=>{
         const li=document.createElement('li');li.className='deck-tile';
         const title=document.createElement('h3');title.textContent=displaySportName(card.name);

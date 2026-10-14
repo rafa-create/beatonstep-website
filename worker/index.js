@@ -73,6 +73,10 @@ export function validate(kind, payload) {
   if (duration < 60 || duration > 14400) return null;
   const isDistance = payload.g === 'distance';
   if (payload.g !== undefined && !isDistance) return null;
+  // A signed GPS workout must create a real collectible identity, never
+  // quietly fall back to a non-collectible link with missing song metadata.
+  if (isDistance && (!payload.t.length ||
+      payload.t.some(song=>!clean(song.a,120)))) return null;
   if (isDistance && (!Array.isArray(payload.m) || payload.m.length !== payload.p.length ||
       payload.m.some(m => !Number.isSafeInteger(m) || m < 50 || m > 100000)))
     return null;
@@ -149,6 +153,10 @@ async function d1Request(request, env, url) {
     const predicates = [], args = [];
     if (cardsEnabled(env)) predicates.push('NOT EXISTS(SELECT 1 FROM workout_card_aliases a WHERE a.alias_share_id=shared_items.id)');
     if (kind !== 'all') { predicates.push('kind = ?'); args.push(kind); }
+    // The workout catalogue lists only PLAYABLE musical sessions. Historical
+    // V2 publishable sporting challenge rules never belong in this collection.
+    if (kind === 'workout') predicates.push(
+      "json_valid(payload_json) AND json_extract(payload_json,'$.v')=1");
     if (source !== 'all') { predicates.push('source = ?'); args.push(source); }
     // Filter before sorting/page 1. Legacy v1 workout shares are timed.
     // Distinct from the existing v2 sporting challenge cards.
@@ -201,6 +209,10 @@ async function d1Request(request, env, url) {
     let input;
     try { input = JSON.parse(raw); } catch { return json({ error: 'invalid_share' }, 400); }
     const isDistanceV2=input?.kind==='workout' && input?.payload?.v===2;
+    const isMusicalDistance=input?.kind==='workout' && input?.payload?.v===1 &&
+      input?.payload?.g==='distance';
+    if (isMusicalDistance && !cardsEnabled(env))
+      return json({error:'collection_not_ready'},503);
     if (isDistanceV2 && (!cardsEnabled(env) || env.DISTANCE_CHALLENGES_ENABLED!=='true')) {
       return json({error:'distance_challenges_not_ready'},503);
     }
@@ -208,7 +220,8 @@ async function d1Request(request, env, url) {
     if (!meta) return json({ error: 'invalid_share' }, 400);
     // Canonical challenge publication requires a valid device account.
     // Creating a card never grants the achievement or ownership.
-    if (isDistanceV2 && !request.headers.has('authorization')) {
+    if ((isDistanceV2 || isMusicalDistance) &&
+        !request.headers.has('authorization')) {
       return json({error:'login_required'},401);
     }
     if (!env.CATALOG_RATE_SALT) return json({ error: 'catalog_write_not_configured' }, 503);
@@ -231,6 +244,7 @@ async function d1Request(request, env, url) {
         return json({id:publicId,created:unique.created,
           url:'https://beatonstep.app/partages.html?id='+publicId}, unique.created?201:200);
       }
+      if (isMusicalDistance) return json({error:'workout_identity_unavailable'},422);
     }
     const createdAt = Date.now();
     const insert = db.prepare(
