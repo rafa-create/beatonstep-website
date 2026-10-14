@@ -243,3 +243,94 @@ test('ambiguous Strava 503 response remains pending and blocks duplicate submiss
     assert.equal(attempts,1,'potentially created activity must not be retried blindly');
   }finally{globalThis.fetch=realFetch;}
 });
+
+
+async function disconnectFixture() {
+  const iv=new Uint8Array(12).fill(9);
+  const key=await crypto.subtle.importKey('raw',new Uint8Array(32).fill(0xaa),
+    {name:'AES-GCM'},false,['encrypt']);
+  const cipher=new Uint8Array(await crypto.subtle.encrypt(
+    {name:'AES-GCM',iv},key,new TextEncoder().encode('mock-refresh-token')));
+  let connectionRow={
+    device_hash:await hashedState('strava-device-v1:'+DEVICE),
+    athlete_id:'12345',refresh_nonce:hex(iv),refresh_cipher:hex(cipher),
+  };
+  const exports=new Map([['12345|bos-123',{status:'pending',activity_id:null}]]);
+  const db={
+    prepare(sql){
+      let args=[];
+      return {
+        bind(...values){args=values;return this;},
+        async first(){
+          if(sql.startsWith('SELECT * FROM strava_connections'))return connectionRow;
+          throw Error('Unexpected SQL first: '+sql);
+        },
+        async run(){
+          if(sql.startsWith('DELETE FROM strava_connections')){
+            assert.equal(args[0],await hashedState('strava-device-v1:'+DEVICE));
+            connectionRow=null;
+            return {meta:{changes:1}};
+          }
+          throw Error('Unexpected SQL run: '+sql);
+        },
+      };
+    },
+  };
+  const call=async(localOnly=false)=>{
+    const url=ROOT+'/api/strava/disconnect';
+    return stravaRequest(new Request(url,{
+      method:'POST',headers:{'x-bos-strava-key':DEVICE,
+        ...(localOnly?{'content-type':'application/json'}:{})},
+      ...(localOnly?{body:JSON.stringify({localOnly:true})}:{}),
+    }),env(db),new URL(url));
+  };
+  return {db,call,exports,getConnection:()=>connectionRow};
+}
+
+test('successful Strava revoke uses Basic auth and an encrypted refresh token, then unlinks',async()=>{
+  const fixture=await disconnectFixture();
+  const originalFetch=globalThis.fetch;
+  let calls=0;
+  globalThis.fetch=async(url,options)=>{
+    calls++;
+    assert.equal(url,'https://www.strava.com/oauth/revoke');
+    assert.equal(options.method,'POST');
+    assert.equal(options.headers.authorization,'Basic '+btoa('123456:test-only-secret'));
+    assert.equal(options.headers['content-type'],'application/x-www-form-urlencoded');
+    assert.equal(options.body.get('token'),'mock-refresh-token');
+    assert.equal(options.body.get('token_type_hint'),'refresh_token');
+    return {ok:true,status:200};
+  };
+  try {
+    const response=await fixture.call();
+    assert.equal(response.status,200);
+    assert.deepEqual(await response.json(),{ok:true,remoteRevoked:true,
+      manualRevocationRequired:false});
+    assert.equal(calls,1);
+    assert.equal(fixture.getConnection(),null,'credentials must be erased');
+    assert.equal(fixture.exports.size,1,'previous export marker must prevent duplicate uploads');
+  }finally{globalThis.fetch=originalFetch;}
+});
+
+test('Strava 403 during revoke preserves the connection until explicit local unlink',async()=>{
+  const fixture=await disconnectFixture();
+  const originalFetch=globalThis.fetch;
+  let calls=0;
+  globalThis.fetch=async()=>{
+    calls++;
+    return {ok:false,status:403};
+  };
+  try {
+    const remote=await fixture.call();
+    assert.equal(remote.status,502);
+    assert.deepEqual(await remote.json(),{error:'strava_disconnect_remote_failed'});
+    assert.notEqual(fixture.getConnection(),null,'failed remote revoke must not imply disconnect');
+    const local=await fixture.call(true);
+    assert.equal(local.status,200);
+    assert.deepEqual(await local.json(),{ok:true,remoteRevoked:false,
+      manualRevocationRequired:true});
+    assert.equal(fixture.getConnection(),null,'explicit local unlink must erase credentials');
+    assert.equal(calls,1,'local-only fallback must not access inactive Strava API');
+    assert.equal(fixture.exports.size,1,'pending run must stay protected against re-post');
+  }finally{globalThis.fetch=originalFetch;}
+});
