@@ -1,5 +1,8 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { SPORT_CARD_DISTANCES, SPORT_CARD_400M_TIERS,
+  maxSubMinuteByTier } from '../worker/sport-card-rules.js';
 
 const root = process.cwd();
 const out = join(root, 'dist');
@@ -22,4 +25,20 @@ for (const dir of directories) {
 if (!existsSync(join(out, 'index.html')) || !existsSync(join(out, 'partages.html'))) {
   throw Error('Required website pages are missing from dist');
 }
+// Derive the public card guide from the exact same versioned rules as awards.
+// Never maintain a second hand-written schedule of SUB boundaries in the site.
+const guide = {
+  ruleset: 'sport-cards-v1',
+  levels: ['world_elite','legend','expert','intermediate','regular','amateur','beginner'],
+  distances: SPORT_CARD_DISTANCES.map(({distanceCm,code}) => ({
+    distanceCm, code,
+    unit: distanceCm === 40000 ? 'second' : 'minute',
+    caps: distanceCm === 40000
+      ? Object.fromEntries(SPORT_CARD_400M_TIERS.map(({difficulty,maxSubSecond}) =>
+          [difficulty,maxSubSecond]))
+      : maxSubMinuteByTier(distanceCm),
+    ultra: distanceCm >= 4300000,
+  })),
+};
+writeFileSync(join(out, 'sport-card-paliers.json'), JSON.stringify(guide));
 console.log('Cloudflare static assets prepared in dist/');
