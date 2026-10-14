@@ -107,7 +107,7 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   // Review is enqueued only AFTER the successful world transfer, completely
   // independently of the database award transaction and its HTTP response.
   // A failure or delay in telemetry never revokes or prevents ownership.
-  if(newRun&&owned&&typeof onAward==='function'){
+  if(transferred&&typeof onAward==='function'){
     try{onAward({cardId:current[0].id,ownerEpoch:current[0].owner_epoch,
       needsWarning:candidate.needsReviewWarning===true,now});}
     catch{ /* optional telemetry is non-blocking */ }
