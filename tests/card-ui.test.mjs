@@ -171,6 +171,37 @@ test('sport card faces keep seven difficulty finishes and honour marathon at eve
       append(...nodes){this.children.push(...nodes)}}},
   };
   const walk=node=>[node,...node.children.flatMap(walk)];
+  assert.match(css,/\.bos-sport-stars\{display:flex/,
+    'every card must reserve a consistent seven-star row');
+  assert.match(css,/\.bos-sport-stars \.is-filled\{color:var\(--sport-accent\)\}/,
+    'earned stars use the existing tier-specific colour');
+  assert.match(css,/\.bos-sport-stars \.is-outline\{color:#716e61\}/,
+    'unearned stars remain understated and outlined');
+  for(const [difficulty,rank] of [
+    ['beginner',1],['amateur',2],['regular',3],['intermediate',4],
+    ['expert',5],['legend',6],['world_elite',7],
+  ]){
+    const item=api.createFace(document,{
+      title:'5 km · SUB 29 min',distanceCm:500000,difficulty,
+    },'fr');
+    const stars=walk(item).find(node=>node.className==='bos-sport-stars');
+    assert.ok(stars,difficulty+' card must have a star row');
+    assert.equal(stars.children.length,7,'the scale has seven slots');
+    assert.equal(stars.children.filter(node=>node.className==='is-filled').length,rank,
+      difficulty+' must fill exactly '+rank+' stars');
+    assert.equal(stars.children.filter(node=>node.className==='is-outline').length,7-rank);
+    assert.equal(stars.attrs['aria-hidden'],'true',
+      'the parent card supplies the accessible name and star count');
+    assert.match(item.attrs['aria-label'],new RegExp(rank+' étoiles sur 7'),
+      'assistive technologies get a human-readable progression');
+    const footer=walk(item).find(node=>node.className==='bos-sport-foot');
+    assert.ok(footer.children.findIndex(node=>node.className==='bos-sport-name') <
+      footer.children.findIndex(node=>node.className==='bos-sport-stars'));
+    assert.ok(footer.children.findIndex(node=>node.className==='bos-sport-stars') <
+      footer.children.findIndex(node=>node.className==='bos-sport-unique'));
+    assert.doesNotMatch(walk(item).map(node=>node.textContent).join(' '),/Difficulté : /);
+    assert.equal(walk(item).filter(node=>node.className==='bos-sport-unique').length,1);
+  }
   const marathon=api.createFace(document,{
     title:'Marathon · SUB 320 min',distanceCm:4219500,difficulty:'beginner',
   },'fr');
