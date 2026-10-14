@@ -126,13 +126,13 @@ These data are **not sold, not used for advertising, not used for advertising tr
 
 - **On iPhone**, iOS may request location access while the app is in use and the permission needed to continue an active workout while the phone is locked or the app is in the background.
 - **On Android**, tracking requires location permission and may use a foreground service with a visible notification during an active workout to continue while the screen is locked. BeatOnStep does not request the separate Android `ACCESS_BACKGROUND_LOCATION` permission.
-- **Raw coordinates:** the phone's raw GPS positions are processed temporarily in native memory. They are not saved as a location history or sent to BeatOnStep servers or music services. The module produces aggregate measurements (including distance and elapsed time) and, on iPhone, may generate a **relative, non-geolocated route silhouette** for a recap. Raw positions are cleared from the session once tracking stops.
+- **Raw coordinates:** phone GPS fixes are held only temporarily in memory, with no stored location history. Recaps and sporting cards retain only a non-geolocated relative silhouette. On a voluntary Strava export, or when Auto-share is explicitly enabled in Settings, available timestamped fixes may be sent via the BeatOnStep API to Strava, without permanent server storage. Auto-share is off by default.
 
 **Compatible Garmin watches.** If you enable a Garmin watch, it may temporarily transmit run metrics and positions needed for the recap. Raw coordinates received remain in memory during the run; only a relative shape, without latitude or longitude, may be retained locally for a recap or shared graphic.
 
 **Public sporting-card records.** When the server accepts a result and awards your account a worldwide sporting card, the public catalogue may display **your handle**, distance, SUB threshold, difficulty and dated ownership changes (win, gift or release). The card may also identify its first holder and longest continuous holder. GPS coordinates, run evidence, email addresses and private account identifiers are never published. After account deletion, your handle no longer appears in this history.
 
-**Optional sharing.** At your request, a recap, performance card or Strava activity may use **workout results** (for example distance, duration, start time and measurement source). Strava exports send those results through the BeatOnStep API to Strava with your permission; **no raw GPS coordinate sequence is sent**. A shared image may include the relative route silhouette when available. The product analytics in § 3.9 include neither GPS locations nor route data.
+**Optional sharing.** Recaps and sporting cards do not expose geographic coordinates. If you manually export to Strava or enable Auto-share in Settings, BeatOnStep passes the actually available workout data (date, duration, distance, pace, heart rate, cadence and timestamped GPS fixes where present) through its API to Strava; unavailable metrics are not fabricated. Locations are used only for this export, not archived by BeatOnStep servers. Product analytics in § 3.9 contain no route data.
 
 ### 3.11 Voluntary Bug / feedback diagnostic report
 
@@ -198,6 +198,7 @@ On your device, in the app's private storage:
 | **Spotify** | If you paste a Share link | Public catalogue request (title); opening in the Spotify app. No account sign-in |
 | **Deezer** | If you paste a Share link | Public catalogue request (title / duration / sometimes BPM); opening in the Deezer app. No account sign-in |
 | **Garmin Connect IQ** | If you pair a Garmin watch and use BeatOnStep during a run | Cadence and run metrics; transient raw GPS positions watch → phone only to locally produce a relative route shape (§ 3.10) |
+| **Strava (optional)** | When you manually share or enable Auto-share in Settings | Available workout metrics and timestamped GPS fixes when present, transferred via the Worker to Strava without permanent coordinate storage (§ 3.10) |
 
 No advertising SDK, no marketing audience measurement, no integrated social network beyond the connection to services you choose.
 
