@@ -434,7 +434,7 @@ export async function accountRequest(request,env,url,ctx) {
       try{return await readSportWorldCollection(db,member.id,url,{
         telemetryEnabled:enabled});}
       catch(error){
-        if(!enabled||!String(error).includes('sport_card_telemetry_reviews'))
+        if(!enabled||!String(error).includes('sport_card_telemetry_'))
           throw error;
         // Schema initialization is asynchronous; a missing optional table
         // must never take the user's actual collection offline.
@@ -453,7 +453,7 @@ export async function accountRequest(request,env,url,ctx) {
       try{return await readSportWorldCollection(db,member.id,forwarded,{
         telemetryEnabled:enabled});}
       catch(error){
-        if(!enabled||!String(error).includes('sport_card_telemetry_reviews'))
+        if(!enabled||!String(error).includes('sport_card_telemetry_'))
           throw error;
         return readSportWorldCollection(db,member.id,forwarded,{telemetryEnabled:false});
       }
