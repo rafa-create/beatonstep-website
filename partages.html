@@ -350,7 +350,7 @@
     ['all','runmix'].includes(params.get('kind'))?'workout':'challenge';
   let sportDistance='all',sportDifficulty='all',sportSub='';
   let musicGoal=['all','time','distance'].includes(params.get('goalMode'))?
-    params.get('goal'):'all';
+    params.get('goalMode'):'all';
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
   let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
   const cache=new Map();
