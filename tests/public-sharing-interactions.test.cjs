@@ -391,9 +391,12 @@ function setup(search,data=example){
   assert.match(walk(playlistCard,x=>x.className==='collection-art-label')[0].textContent,/Profil BPM/);
   const playlistCatalog=setup('?kind=runmix',youtube);
   await flush();
-  assert.equal(walk(playlistCatalog.elements.results,x=>x.className==='effort-segment').length,1,
-    'Run Mix cards render BPM immediately from compact API metadata, without a detail fetch');
-  assert.equal(playlistCatalog.apiCalls.filter(url=>url.endsWith('/2')).length,0);
+  assert.equal(playlistCatalog.elements['kind-filter'].value,'workout',
+    'an obsolete playlist category redirects to the musical workouts category');
+  assert.match(playlistCatalog.apiCalls[0],/kind=workout&goal=all/,
+    'playlist discovery is not queried even from an old bookmarked URL');
+  assert.equal(playlistCatalog.apiCalls.filter(url=>url.endsWith('/2')).length,0,
+    'historical playlist detail remains separately accessible by direct ID');
   const unknownBpm=setup('?id=22',{
     ...youtube,id:22,profile:undefined,
     payload:{...youtube.payload,t:[['id','Unknown','Artist','Album',null,180]]},
