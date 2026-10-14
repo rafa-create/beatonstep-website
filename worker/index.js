@@ -6,7 +6,7 @@ import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
 import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
-import {processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
+import {ensureSportTelemetrySchema,processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -355,6 +355,13 @@ export default {
             telemetryEnabled:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true',
           });
         } catch (error) {
+          // A new advisory table may not exist until the first review/cron.
+          // Never make already-earned world cards disappear because of it.
+          if(env.SPORT_ASYNC_TELEMETRY_ENABLED==='true' &&
+             String(error).includes('sport_card_telemetry_reviews')){
+            try{return await readPublicSportCards(env.DB,url,{telemetryEnabled:false});}
+            catch{ /* preserve the normal API failure below */ }
+          }
           console.error('sport catalogue read failure',String(error?.name||'unknown'));
           return json({error:'sport_catalog_unavailable'},503);
         }
@@ -396,7 +403,9 @@ export default {
   },
   async scheduled(_event,env,ctx){
     if(env.SPORT_ASYNC_TELEMETRY_ENABLED!=='true' || !env.DB)return;
-    ctx.waitUntil(processPendingSportTelemetryReviews(env.DB)
-      .catch(()=>{console.warn('sport telemetry review queue unavailable');}));
+    ctx.waitUntil((async()=>{
+      await ensureSportTelemetrySchema(env.DB);
+      await processPendingSportTelemetryReviews(env.DB);
+    })().catch(()=>{console.warn('sport telemetry review queue unavailable');}));
   },
 };
