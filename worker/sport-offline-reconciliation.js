@@ -16,7 +16,7 @@ const digits=value=>Number.isSafeInteger(value)&&value>=0;
 const hex=bytes=>[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');
 const source=(v)=>v==='phone_gps'?'attested_phone':'verified_import';
 
-export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()}={}){
+export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now(),onAward=null}={}){
   const runId=body?.runId,summary=body?.summary;
   if(typeof runId!=='string'||!/^run-[0-9]{10,13}-[0-9]{10,13}$/.test(runId)||
      !summary||typeof summary!=='object'||Array.isArray(summary)||
@@ -104,6 +104,14 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
     current[0].owner_epoch===prior[0].owner_epoch+1;
   // A previously existing card can become unowned after account deletion.
   // Claiming it is not its first-ever creation.
+  // Review is enqueued only AFTER the successful world transfer, completely
+  // independently of the database award transaction and its HTTP response.
+  // A failure or delay in telemetry never revokes or prevents ownership.
+  if(newRun&&owned&&typeof onAward==='function'){
+    try{onAward({cardId:current[0].id,ownerEpoch:current[0].owner_epoch,
+      needsWarning:candidate.needsReviewWarning===true,now});}
+    catch{ /* optional telemetry is non-blocking */ }
+  }
   const acquisition=!newRun?'already_processed':!owned?'superseded':
     !transferred?'already_owned':
     prior[0].current_owner_id==null
