@@ -1,6 +1,6 @@
 # Privacy Policy — BeatOnStep (English)
 
-**Last updated:** October 13, 2026
+**Last updated:** October 14, 2026
 
 *The French text is the binding version. This English translation is provided for convenience.*
 
@@ -120,18 +120,17 @@ The server keeps only the **latest known snapshot per installation** to produce 
 
 These data are **not sold, not used for advertising, not used for advertising tracking, and not combined with data from other companies for profiling**.
 
-### 3.10 Garmin GPS and iPhone distance measurement (optional)
+### 3.10 GPS tracking for runs on iOS, Android and Garmin (optional)
 
-**Garmin watch.** If you use a compatible Garmin watch with BeatOnStep:
+**Phone GPS (BeatOnStep 1.7.2).** When you voluntarily start a run or a distance-based workout with GPS, BeatOnStep may request location access to measure **distance travelled**, calculate pace when available, and advance the workout phases. GPS tracking does not start when the app opens. You can refuse permission; features requiring reliable GPS distance will then be unavailable or limited. Pausing suspends tracking; finishing the workout stops it.
 
-- the watch uses its GPS as part of the recorded Garmin activity and may temporarily send BeatOnStep the positions needed for the run recap;
-- raw GPS coordinates remain **in memory only during the run**: BeatOnStep does not persist them or send them to the BeatOnStep server;
-- at the end of the run, BeatOnStep may locally keep a **simplified relative route shape**, without latitude, longitude, or map background, for the recap and share visuals;
-- if you share a BeatOnStep story, only this non-geographic relative shape may be included; raw GPS coordinates are never included in the sharing URL.
+- **On iPhone**, iOS may request location access while the app is in use and the permission needed to continue an active workout while the phone is locked or the app is in the background.
+- **On Android**, tracking requires location permission and may use a foreground service with a visible notification during an active workout to continue while the screen is locked. BeatOnStep does not request the separate Android `ACCESS_BACKGROUND_LOCATION` permission.
+- **Raw coordinates:** the phone's raw GPS positions are processed temporarily in native memory. They are not saved as a location history or sent to BeatOnStep servers or music services. The module produces aggregate measurements (including distance and elapsed time) and, on iPhone, may generate a **relative, non-geolocated route silhouette** for a recap. Raw positions are cleared from the session once tracking stops.
 
-**Phone GPS on iPhone (experimental feature, available only in some builds).** In the distance test panel, if enabled in your version, you explicitly choose to start GPS tracking and may pause or stop it. The app may then request iOS location permission (while in use and, if you choose, background access so measurement can continue while the iPhone is locked). GPS is used to calculate distance and elapsed time; it never starts automatically when opening BeatOnStep. Distance-based musical workouts are not yet enabled in the regular workout flow.
+**Compatible Garmin watches.** If you enable a Garmin watch, it may temporarily transmit run metrics and positions needed for the recap. Raw coordinates received remain in memory during the run; only a relative shape, without latitude or longitude, may be retained locally for a recap or shared graphic.
 
-The iOS module processes raw GPS fixes **only in volatile memory on the iPhone** during the measurement: it does not store a history of geographic coordinates or send them to the BeatOnStep server or music services. It calculates a local cumulative distance and may provide a **relative route silhouette**, without latitude or longitude, for a local recap if reliable. Tracking stops when the test ends or you leave the panel; raw positions are cleared from the session. Uninstalling clears any locally retained recaps. This phone GPS pilot is not available on the current Android versions.
+**Optional sharing.** At your request, a recap, performance card or Strava activity may use **workout results** (for example distance, duration, start time and measurement source). Strava exports send those results through the BeatOnStep API to Strava with your permission; **no raw GPS coordinate sequence is sent**. A shared image may include the relative route silhouette when available. The product analytics in § 3.9 include neither GPS locations nor route data.
 
 ### 3.11 Voluntary Bug / feedback diagnostic report
 
@@ -156,7 +155,11 @@ The server uses the report only for **technical support and incident diagnosis**
 | Permission | Purpose |
 |------------|---------|
 | `HIGH_SAMPLING_RATE_SENSORS` | Read the accelerometer at high frequency to detect step cadence (SPM). |
-| `FOREGROUND_SERVICE` | Keep music playback and cadence detection running in the background (locked screen). |
+| `FOREGROUND_SERVICE` | Run foreground services needed during an active workout. |
+| `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION` | Request location access to measure distance for a voluntarily started GPS workout. |
+| `FOREGROUND_SERVICE_LOCATION` | Continue GPS tracking during an active workout with a visible notification, including when locked. |
+| `FOREGROUND_SERVICE_HEALTH` | Maintain workout and physical-activity measurements during a session. |
+| `FOREGROUND_SERVICE_MEDIA_PLAYBACK` | Continue audio playback during a session. |
 | `WAKE_LOCK` | Prevent the sensor from sleeping during a session. |
 
 ### iOS (App Store)
@@ -165,7 +168,7 @@ On iOS, **cadence detection** uses the motion sensors (accelerometer) through th
 
 Access to the **media library** (Phone music) triggers a standard system permission request when you import music.
 
-In iPhone builds that include the **experimental GPS pilot**, iOS may request location access **while using the app** and, to continue measurements while the phone is locked, **Always / background** permission if you choose to grant it. Location is accessed only after you explicitly start a test (§ 3.10); the pilot does not run automatically on app launch. This phone GPS pilot is not available in current Android versions. Garmin watch GPS is governed by the watch's separate permissions (§ 3.10). BeatOnStep does not access your contacts, camera, or microphone.
+For GPS-enabled workouts, iOS may request location access **while using the app** and permission to continue during an active workout with the screen locked. Android uses location permission and a foreground service during the workout (§ 3.10). Tracking never starts merely by opening the app. Garmin watch permissions are separate. BeatOnStep does not access your contacts, camera, or microphone.
 
 ## 5. Locally stored data
 
@@ -177,7 +180,7 @@ On your device, in the app's private storage:
 - Spotify tracks or public playlists whose links you pasted (ID, title, entered or detected BPM) — **no** Spotify account token.
 - Deezer tracks or public playlists whose links you pasted (ID, metadata, BPM entered, detected, or provided by Deezer) — **no** Deezer account token.
 - Random BeatOnStep installation identifier and local state of the playlist-usage measurement (§ 3.9).
-- Simplified relative shape from a Garmin route or the iPhone GPS pilot, when available for a local recap (§ 3.10) — **without raw GPS coordinates**.
+- Workout measurements and an optional simplified relative shape from phone/Garmin GPS, when locally retained for a recap (§ 3.10) — **without any raw GPS coordinate history**.
 
 **Uninstalling** the app removes this data. Disconnecting a service (YouTube, Apple Music) deletes the corresponding tokens without uninstalling the app.
 
@@ -234,4 +237,4 @@ The "Demo mix" catalogue consists exclusively of royalty-free tracks under **Cre
 BPM values are measured server-side (`librosa.beat.beat_track`, confidence threshold ≥ 0.77). They may differ slightly from author-published BPM values.
 
 **Full track list (required for CC-BY attribution):**  
-[Music credits — Demo mix](https://rafa-create.github.io/beatonstep-website/music-credits.html)
+[Music credits — Demo mix](https://beatonstep.app/music-credits.html)
