@@ -19,7 +19,7 @@ assert.match(page, /id="distance-filter"/);
 assert.match(page, /id="difficulty-filter"/);
 assert.match(page, /id="sub-filter"/);
 assert.match(page, /kind==='challenge'\?createSportCard/);
-assert.match(page, /<option value="popular">Populaires<\/option>/);
+assert.match(page, /<option value="popular"(?: selected)?>Populaires<\/option>/);
 assert.match(page, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,
   'mobile filters must share one compact row');
 for (const src of ['spotify','apple','deezer','youtube','amazon']) {
