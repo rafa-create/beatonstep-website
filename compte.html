@@ -36,6 +36,11 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .history-remove:hover,.history-remove:focus-visible{color:var(--ink);border-color:var(--line);background:#312c21}
 .history-remove:disabled{opacity:.35}
 .deck-tile small{color:var(--sub)}
+.created-cards-fold{margin:16px 0;border:1px solid var(--line);border-radius:14px;background:#171610;padding:12px 16px}
+.created-cards-fold summary{cursor:pointer;font-size:16px;font-weight:800;color:var(--ink);padding:5px 0}
+.created-cards-fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.created-cards-fold[open] summary{margin-bottom:10px}
+.created-cards-fold #items{margin:0;padding-left:18px}
 .deck-tile a{color:var(--accent);font-weight:700}
 .collection-item{display:block;position:relative;width:160px;min-height:208px;border:1.5px solid var(--accent);border-radius:17px;background:radial-gradient(ellipse at 55% 39%,#66551d50,transparent 54%),linear-gradient(145deg,#282619,#10100d 75%);box-shadow:0 12px 30px #0006;padding:14px;transform:rotate(-1deg);transition:transform .25s,box-shadow .25s}
 .collection-item:hover{transform:rotate(0) translateY(-4px);box-shadow:0 15px 36px #0009,0 0 26px #fcea0722}
@@ -190,8 +195,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="gift-panel" class="gift-accept" hidden><h2>🎁 Tu as reçu une carte BeatOnStep !</h2>
 <p id="gift-info" class="gift-highlight"></p><button type="button" id="claim-gift">Accepter cette carte</button>
 <p style="margin-top:12px">La carte deviendra la tienne uniquement après ton acceptation.</p></div></div>
-<div id="my-cards"><h2>Mes cartes créées · par popularité</h2><ul id="items"></ul></div>
-<div id="saved-workouts-panel"><h2>Mes programmes enregistrés</h2>
+<details id="my-cards" class="created-cards-fold"><summary>Mes cartes créées · par popularité</summary><ul id="items"></ul></details>
+<div id="saved-workouts-panel"><h2>Mes séances dans l’app</h2>
 <p id="saved-workouts-status">Chargement des programmes…</p>
 <ul id="saved-workouts-items"></ul></div></div>
 <div id="challenge-deck"><h2>Mes défis sportifs</h2>
@@ -414,6 +419,29 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   $('deck-sessions').onclick=()=>{selectedDeck='sessions';showDecks()};
   $('deck-challenges').onclick=()=>{selectedDeck='challenges';showDecks()};
   let runHistoryCursor=null;
+  // Saved run summaries already contain precise elapsed seconds, mean pace
+  // and end timestamps. Format them at display time; never rewrite D1.
+  function historyClock(seconds){
+    if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<0)return null;
+    const value=Math.round(seconds);
+    if(!Number.isSafeInteger(value))return null;
+    const mm=String(Math.floor(value/60)%60).padStart(2,'0');
+    const ss=String(value%60).padStart(2,'0');
+    return value>=3600?Math.floor(value/3600)+':'+mm+':'+ss
+      :Math.floor(value/60)+':'+ss;
+  }
+  function historyPace(seconds){
+    return typeof seconds==='number'&&Number.isFinite(seconds)&&seconds>0
+      ?historyClock(seconds)+'/km':null;
+  }
+  function historyDateTime(timestamp){
+    if(!Number.isSafeInteger(timestamp)||timestamp<=0)return 'Date inconnue';
+    const date=new Date(timestamp);
+    return Number.isFinite(date.getTime())
+      ?date.toLocaleDateString('fr-FR')+' à '+
+        date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+      :'Date inconnue';
+  }
   function addHistoryRuns(items){
     const list=$('history-sessions-items');
     for(const run of items){
@@ -421,12 +449,12 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       li.className='deck-tile history-run';
       const title=document.createElement('h3'),meta=document.createElement('small');
       title.textContent=summary.workoutName||'Course libre';
-      const date=Number.isFinite(summary.endedAtMs)
-        ?new Date(summary.endedAtMs).toLocaleDateString('fr-FR'):'Date inconnue';
+      const date=historyDateTime(summary.endedAtMs);
       const distance=Number.isFinite(summary.distanceMeters)
         ?(summary.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km':null;
-      meta.textContent=[date,distance,Math.round((summary.durationSeconds||0)/60)+' min',
-        summary.stepCount?summary.stepCount+' pas':null].filter(Boolean).join(' · ');
+      const pace=historyPace(summary.averagePaceSecPerKm);
+      meta.textContent=[date,distance,historyClock(summary.durationSeconds),
+        pace?'Allure moyenne : '+pace:null].filter(Boolean).join(' · ');
       const remove=document.createElement('button');
       remove.type='button';remove.className='history-remove';remove.textContent='×';
       remove.title='Supprimer cette séance';
@@ -613,9 +641,8 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         li.append(name,meta);
         list.append(li);
       }
-      $('saved-workouts-status').textContent=saved.length
-        ?'Retrouve ces séances dans l’application. Importer la séance de quelqu’un d’autre ne fait pas de toi son créateur.'
-        :'Aucun programme sauvegardé sur ce compte.';
+      $('saved-workouts-status').textContent=visible.length
+        ?'':'Aucune autre séance à afficher.';
       // Keep the original author card exactly once, with both import popularity
       // and this runner's actual (explicitly saved) session count.
       renderCards((publications||[]).map(item=>({
@@ -632,10 +659,12 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       $('collection-panel').hidden=false;
       renderCollection(collection.items||[]);
       $('gift-panel').hidden=!giftCode;
-      $('open-pack').disabled=!pack.available;
-      $('pack-info').textContent=pack.alreadyOpened
-        ?'Pack déjà ouvert. Ta carte est dans ta collection.'
-        :pack.available?'Une carte surprise à découvrir.'
+      // The discovery pack is one-shot: when it has been opened it should
+      // disappear, instead of leaving a disabled button and stale reminder.
+      $('pack-panel').hidden=pack.alreadyOpened===true;
+      $('open-pack').disabled=!pack.available||pack.alreadyOpened===true;
+      $('pack-info').textContent=pack.available
+        ?'Une carte surprise à découvrir.'
         :'Aucun pack disponible pour le moment.';
       if(giftCode&&/^[a-f0-9]{64}$/.test(giftCode)){
         $('gift-panel').hidden=false;
@@ -811,7 +840,10 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     $('card-reveal').hidden=true;
     $('card-reveal').classList.remove('is-revealed');
     document.body.style.overflow='';
-    $('open-pack').focus();
+    // Refreshing the collection hides an opened pack before the animation
+    // closes. Do not move keyboard focus back to a hidden/disabled button.
+    const packButton=$('open-pack');
+    (packButton.disabled||$('pack-panel').hidden?$('deck-sessions'):packButton).focus();
   }
   $('reveal-close').onclick=closeCardReveal;
   $('card-reveal').addEventListener('keydown',event=>{
