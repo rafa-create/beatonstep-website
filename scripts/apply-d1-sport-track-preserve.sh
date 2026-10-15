@@ -89,12 +89,20 @@ printf 'Si les sept quantites ou les 8 dependances ont change, le SQL doit echou
 SQL_PAYLOAD="$(cat "$SQL")"
 [[ "$SQL_PAYLOAD" == "CREATE TABLE _bos_track_20261015_guard"* ]] ||
   fail "SQL ne commence pas par la declaration du garde, aucun SQL envoye"
+if grep -Eq '^[[:space:]]*--' "$SQL"; then
+  fail "Commentaires SQL detectes : le lot D1 doit etre sans commentaires"
+fi
 # --file utilise le moteur import D1 (D1_RESET_DO); --command utilise query.
-QUERY_JSON="$(wrangler22 d1 execute "$DB" --remote --json \
-  --command="$SQL_PAYLOAD")" ||
-  fail "Echec du lot QUERY, verifier D1 avant toute relance"
-printf '%s\n' "$QUERY_JSON" >> "$LOG"
-printf '%s\n' "$QUERY_JSON" | python3 -c '
+# Sortie capturee dans un fichier pour ne JAMAIS masquer le diagnostic API.
+QUERY_OUTPUT="$HOME/beatonstep-d1-track-$STAMP.query.out"
+if ! wrangler22 d1 execute "$DB" --remote --json \
+  --command="$SQL_PAYLOAD" > "$QUERY_OUTPUT" 2>&1; then
+  printf '\nECHEC D1 : voici la reponse de Wrangler (aucune relance automatique) :\n' >&2
+  tail -n 70 "$QUERY_OUTPUT" >&2
+  fail "Lot QUERY refuse; examiner le message Cloudflare et la base"
+fi
+cat "$QUERY_OUTPUT" >> "$LOG"
+python3 -c '
 import sys,json
 r=json.load(sys.stdin)
 if not isinstance(r,list) or len(r)<30 or any(not x.get("success") for x in r):
@@ -109,7 +117,7 @@ expect={"sport_world_cards":2, "sport_verified_runs":2,
 got={row["tbl"]:row["lignes"] for row in rows if "tbl" in row and "lignes" in row}
 if got!=expect: raise SystemExit("Comptages non conserves")
 print("PASS - lot QUERY complet, cartes et historiques conserves")
-' || fail "SQL non confirme complet; verifier D1 avant toute relance"
+' < "$QUERY_OUTPUT" || fail "SQL non confirme complet; verifier D1 avant toute relance"
 
 printf '\n(5/5) Verification distante cartes, historique, FK, triggers et secondes...\n'
 POSTFLIGHT=$(wrangler22 d1 execute "$DB" --remote --command "
