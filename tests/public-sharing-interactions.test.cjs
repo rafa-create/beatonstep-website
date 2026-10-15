@@ -110,6 +110,9 @@ function setup(search,data=example){
   const landing=setup('',sport);
   await flush();
   assert.equal(landing.elements['kind-filter'].value,'challenge');
+  assert.equal(landing.elements.intro.hidden,true,
+    'challenge catalogue has no redundant introduction');
+  assert.equal(landing.elements.intro.textContent,'');
   assert.equal(landing.elements['distance-filter'].value,'all');
   assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
   assert.match(html,/id="distance-exact-filter"[\s\S]*?placeholder="Distance \(km\)"/);
@@ -336,6 +339,24 @@ function setup(search,data=example){
     'changing language must not increment views');
 
   // The catalog only fetches compact records until the workout itself expands.
+  // The introduction is reserved for music sessions, including after switching modes.
+  const switched=setup('?kind=workout');
+  await flush();
+  switched.elements['kind-filter'].value='challenge';
+  switched.elements['kind-filter'].onchange();
+  await flush();
+  assert.equal(switched.elements.intro.hidden,true);
+  assert.equal(switched.elements.intro.textContent,'');
+  switched.elements.en.onclick();
+  await flush();
+  assert.equal(switched.elements.intro.hidden,true);
+  assert.equal(switched.elements.intro.textContent,'');
+  switched.elements['kind-filter'].value='workout';
+  switched.elements['kind-filter'].onchange();
+  await flush();
+  assert.equal(switched.elements.intro.hidden,false);
+  assert.equal(switched.elements.intro.textContent,
+    'Discover timed and distance-based musical workouts.');
   const catalog=setup('?kind=workout');
   await flush();
   assert.equal(catalog.elements.back.hidden,true,
