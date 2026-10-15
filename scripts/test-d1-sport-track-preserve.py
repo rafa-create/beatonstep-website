@@ -121,7 +121,10 @@ def test_guard():
 
 def test_remote_runner():
     launcher=(ROOT/'scripts/apply-d1-sport-track-preserve.sh').read_text(encoding='utf-8')
-    assert '--command "$(cat "$SQL")"' in launcher, 'use D1 query endpoint, not importer'
+    assert SQL.startswith('CREATE TABLE _bos_track_20261015_guard'), \
+        'CRITICAL: Wrangler rejects SQL files starting with comment --'
+    assert '--command="$SQL_PAYLOAD"' in launcher, 'use D1 query endpoint, not importer'
+    assert 'SQL_PAYLOAD="$(cat "$SQL")"' in launcher
     assert 'wrangler22 d1 execute "$DB" --remote --file=' not in launcher
     assert 'BOS_CLEAN_OK' in launcher and 'BOS_GUARD_ONLY_OK' in launcher
     assert 'time-travel info' in launcher and 'pragma_foreign_key_check' in launcher
