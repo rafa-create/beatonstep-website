@@ -242,10 +242,11 @@ DROP TABLE _bos_track_20261015_guard;
 
 SELECT 'OK - 2 cartes et historiques conserves' AS statut;
 SELECT name,sql FROM sqlite_master WHERE name='sport_world_cards';
-SELECT 'sport_world_cards' AS tbl,COUNT(*) AS lignes FROM sport_world_cards
-UNION ALL SELECT 'sport_verified_runs',COUNT(*) FROM sport_verified_runs
-UNION ALL SELECT 'sport_card_achievements',COUNT(*) FROM sport_card_achievements
-UNION ALL SELECT 'sport_card_ownership_events',COUNT(*) FROM sport_card_ownership_events
-UNION ALL SELECT 'sport_card_gift_links',COUNT(*) FROM sport_card_gift_links
-UNION ALL SELECT 'sport_card_telemetry_reviews',COUNT(*) FROM sport_card_telemetry_reviews
-UNION ALL SELECT 'sport_card_telemetry_reason_details',COUNT(*) FROM sport_card_telemetry_reason_details;
+SELECT
+  (SELECT COUNT(*) FROM sport_world_cards) AS sport_world_cards,
+  (SELECT COUNT(*) FROM sport_verified_runs) AS sport_verified_runs,
+  (SELECT COUNT(*) FROM sport_card_achievements) AS sport_card_achievements,
+  (SELECT COUNT(*) FROM sport_card_ownership_events) AS sport_card_ownership_events,
+  (SELECT COUNT(*) FROM sport_card_gift_links) AS sport_card_gift_links,
+  (SELECT COUNT(*) FROM sport_card_telemetry_reviews) AS sport_card_telemetry_reviews,
+  (SELECT COUNT(*) FROM sport_card_telemetry_reason_details) AS sport_card_telemetry_reason_details;
