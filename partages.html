@@ -946,7 +946,10 @@
     $('difficulty-filter').value=sportDifficultyOrder;
     $('distance-exact-filter').value=sportDistanceExact;
     try{
-      if(kind==='challenge')await BeatOnStepSportPercentiles.ready();
+      if(kind==='challenge'){
+        await BeatOnStepSportPercentiles.ready();
+        updateDifficultyHint();
+      }
       const typed=sportDistanceExact.trim();
       const exactDistance=typed
         ?BeatOnStepSportPercentiles.canonicalDistanceCm(typed):null;
