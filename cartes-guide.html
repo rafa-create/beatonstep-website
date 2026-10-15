@@ -6,7 +6,7 @@
   <meta name="robots" content="index,follow">
   <meta name="theme-color" content="#0a0a08">
   <title>Comment gagner une carte Défi ? — BeatOnStep</title>
-  <meta name="description" content="Comprendre les cartes Défis BeatOnStep, leurs 7 difficultés et tous les paliers SUB par distance, du 400 m au 200 km.">
+  <meta name="description" content="Entre ta distance et ton chrono pour découvrir la carte Défi BeatOnStep que tu pourrais gagner.">
   <link rel="icon" href="assets/brand/logo-400.jpg">
   <link rel="stylesheet" href="/sport-card-face.css">
   <style>
@@ -41,7 +41,6 @@
     .number{width:32px;height:32px;display:grid;place-items:center;background:#4c4526;border-radius:50%;color:var(--yellow);font-weight:800}
     .step h3{font-size:16px;margin:11px 0 6px}
     .step p{font-size:13px;color:var(--muted);margin:0}
-    .rule-note{margin-top:16px;padding:13px 16px;border-left:3px solid var(--yellow);background:#272417;border-radius:5px 11px 11px 5px;color:#e8e0c4}
     .table-scroll{overflow:auto;border:1px solid #514b38;border-radius:12px;margin:14px 0}
     table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}
     th,td{padding:11px 13px;border-bottom:1px solid #39372c;vertical-align:middle}
@@ -57,12 +56,12 @@
     select,input{color:var(--text);background:#28261c;border:1px solid #736a49;padding:11px 13px;border-radius:11px;min-width:0}
     select{min-width:220px;max-width:100%}
     input{width:min(100%,225px)}
-    .selector-hint{color:var(--muted);font-size:13px;padding-bottom:10px}
-    #selected-title{font-weight:750;font-size:17px;margin-top:15px}
     details{border:1px solid #635b40;border-radius:12px;padding:12px 14px;margin:14px 0;background:#201f18}
     summary{cursor:pointer;font-weight:750}
     details .table-scroll{max-height:440px;overflow:auto}
-    .calculator{margin:24px 0 10px;padding:17px;background:#292518;border:1px solid #6a5a31;border-radius:14px}
+    .calculator{margin:10px 0 18px;padding:clamp(16px,3vw,24px);background:#292518;border:1px solid #6a5a31;border-radius:14px}
+    .threshold-details{margin-top:18px}
+    .threshold-details>summary{color:var(--yellow)}
     .calculator-inner{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin-top:10px}
     .chrono-label{font-size:13px;font-weight:700;margin:0 0 8px}
     .chrono-picker{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
@@ -102,9 +101,9 @@
       <div class="eyebrow" data-en hidden>Challenge card guide</div>
       <h1 data-fr>Ta course. Ton chrono. Une carte à conquérir.</h1>
       <h1 data-en hidden>Your run. Your time. A card to win.</h1>
-      <p data-fr>Chaque carte sportive BeatOnStep représente une distance et un palier de temps précis. Découvre comment la gagner et quel niveau correspond à ton objectif.</p>
-      <p data-en hidden>Each BeatOnStep sport card represents a distance and a precise time threshold. Learn how to win it and which level matches your goal.</p>
-      <a class="jump" href="#paliers"><span data-fr>Voir les paliers par distance ↓</span><span data-en hidden>Find thresholds by distance ↓</span></a>
+      <p data-fr>Chaque course peut devenir un nouveau défi. Entre ton chrono pour découvrir la carte que tu pourrais gagner !</p>
+      <p data-en hidden>Every run can become a new challenge. Enter your time to discover the card you could win!</p>
+      <a class="jump" href="#paliers"><span data-fr>Tester mon chrono ↓</span><span data-en hidden>Try my time ↓</span></a>
     </div>
 
     <section class="panel" aria-labelledby="how-title">
@@ -113,58 +112,36 @@
         <div class="step">
           <span class="number">1</span>
           <h3 data-fr>Tu cours pour de vrai</h3><h3 data-en hidden>Run for real</h3>
-          <p data-fr>Une course finalisée et validée donne au maximum <strong>une carte</strong> : celle de la plus longue distance reconnue atteinte.</p>
-          <p data-en hidden>A completed, validated run awards at most <strong>one card</strong>: the longest recognized distance reached.</p>
+          <p data-fr>Après une course validée, tu peux gagner <strong>une carte</strong>, pour la plus longue distance reconnue que tu as parcourue.</p>
+          <p data-en hidden>After a validated run, you can earn <strong>one card</strong> for the longest recognized distance you covered.</p>
         </div>
         <div class="step">
           <span class="number">2</span>
-          <h3 data-fr>Ton temps fixe ton SUB</h3><h3 data-en hidden>Your time sets your SUB</h3>
-          <p data-fr>5 km en 24 min 35 s → <strong>SUB 25</strong>. À 25 min pile → SUB 26. Courir plus vite dans un même SUB ne change pas la carte.</p>
-          <p data-en hidden>5 km in 24 min 35 sec → <strong>SUB 25</strong>. Exactly 25 min → SUB 26. A faster time within the same SUB earns the same card.</p>
+          <h3 data-fr>Ton chrono fait la différence</h3><h3 data-en hidden>Your time makes the difference</h3>
+          <p data-fr>Par exemple, 5 km en 24 min 35 s correspondent à la carte <strong>SUB 25</strong>. À chaque palier, sa carte !</p>
+          <p data-en hidden>For example, 5 km in 24 min 35 sec matches the <strong>SUB 25</strong> card. Each threshold has its own card!</p>
         </div>
         <div class="step">
           <span class="number">3</span>
-          <h3 data-fr>Tu crées ou conquières la carte</h3><h3 data-en hidden>Create or claim the card</h3>
-          <p data-fr>Tu crées la carte si elle est libre, sinon tu la conquiers à son détenteur. <strong>La propriété n'est pas définitive</strong> : quelqu'un peut refaire ce palier.</p>
-          <p data-en hidden>Create a card if unclaimed, or take it from its holder. <strong>Ownership is not permanent</strong>: another runner can match that tier.</p>
+          <h3 data-fr>Tu pars à la conquête</h3><h3 data-en hidden>Go for the win</h3>
+          <p data-fr>Si la carte est libre, tu la gagnes. Sinon, tu peux la voler à un autre coureur… qui pourra tenter de la reprendre !</p>
+          <p data-en hidden>If the card is unclaimed, you win it. Otherwise, you can steal it from another runner… who might try to win it back!</p>
         </div>
       </div>
     </section>
 
 
     <section class="panel" id="paliers" aria-labelledby="threshold-title">
-      <h2 id="threshold-title"><span data-fr>Les paliers pour chaque distance</span><span data-en hidden>Thresholds for every distance</span></h2>
-      <p class="lead" data-fr>Sélectionne ta distance, par exemple <strong>5 km</strong>, pour voir précisément les SUB qui correspondent à chaque difficulté. Les seuils proviennent directement du barème utilisé pour attribuer les cartes.</p>
-      <p class="lead" data-en hidden>Choose your distance, for example <strong>5 km</strong>, to see which SUB thresholds match each difficulty. These thresholds come directly from the rules used to award cards.</p>
+      <h2 id="threshold-title"><span data-fr>Et avec mon chrono ?</span><span data-en hidden>What about my time?</span></h2>
+      <p class="lead" data-fr>Choisis ta distance, indique ton chrono et découvre la carte que tu pourrais gagner.</p>
+      <p class="lead" data-en hidden>Choose your distance, enter your time and discover the card you could win.</p>
       <div class="selector">
         <div><label for="distance"><span data-fr>Ma distance</span><span data-en hidden>My distance</span></label><select id="distance" disabled><option>Chargement…</option></select></div>
-        <span class="selector-hint" id="family-count" aria-live="polite"></span>
       </div>
-      <p id="selected-title" aria-live="polite"></p>
-      <p class="fine" id="threshold-note"></p>
-      <div class="table-scroll">
-        <table aria-label="Paliers par difficulté">
-          <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Fourchette de temps</span><span data-en hidden>Finish time range</span></th></tr></thead>
-          <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
-        </table>
-      </div>
-      <details id="individual-details">
-        <summary><span data-fr>Voir chaque palier SUB, un par un</span><span data-en hidden>See every SUB threshold individually</span></summary>
-        <p class="fine" data-fr>Chaque valeur SUB correspond à une carte distincte. La grille indique sa difficulté, même si personne n'a encore créé cette carte en courant.</p>
-        <p class="fine" data-en hidden>Each SUB value is a separate card. The table shows its difficulty even if no runner has created the card yet.</p>
-        <div class="table-scroll">
-          <table aria-label="Tous les paliers SUB">
-            <thead><tr><th>SUB</th><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th></tr></thead>
-            <tbody id="individual-rows"></tbody>
-          </table>
-        </div>
-      </details>
       <div class="calculator">
-        <h2><span data-fr>Et avec mon chrono ?</span><span data-en hidden>What about my time?</span></h2>
-        <p class="fine" id="time-help"></p>
         <div class="calculator-inner">
           <div class="chrono">
-            <p class="chrono-label" id="chrono-label"><span data-fr>Mon temps à cette distance</span><span data-en hidden>My time over this distance</span></p>
+            <p class="chrono-label" id="chrono-label"><span data-fr>Mon chrono</span><span data-en hidden>My time</span></p>
             <div class="chrono-picker" role="group" aria-labelledby="chrono-label">
               <div class="time-part"><label for="time-hours"><span data-fr>Heures</span><span data-en hidden>Hours</span></label><select id="time-hours"></select></div>
               <div class="time-part"><label for="time-minutes"><span data-fr>Minutes</span><span data-en hidden>Minutes</span></label><select id="time-minutes"></select></div>
@@ -172,7 +149,7 @@
               <div class="time-part" id="time-centiseconds-part" hidden><label for="time-centiseconds"><span data-fr>Centièmes</span><span data-en hidden>Hundredths</span></label><select id="time-centiseconds"></select></div>
             </div>
           </div>
-          <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>Check my card</span></button>
+          <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>See my card</span></button>
         </div>
         <p id="calc-result" role="status" aria-live="polite"></p>
         <div id="calc-card-preview" class="calc-preview" hidden>
@@ -180,6 +157,28 @@
           <p class="calc-preview-note"><span data-fr>Simulation de carte : seul un résultat de course validé peut la faire gagner.</span><span data-en hidden>Card preview: only a validated run can earn this card.</span></p>
         </div>
       </div>
+      <details class="threshold-details" id="threshold-details">
+        <summary><span data-fr>Curieux ? Voir tous les paliers de cette distance</span><span data-en hidden>Curious? See all thresholds for this distance</span></summary>
+        <p class="fine" data-fr>Chaque palier correspond à une carte différente. Les étoiles et les niveaux restent les mêmes, quel que soit le nombre de coureurs.</p>
+        <p class="fine" data-en hidden>Each threshold represents a different card. Stars and levels stay the same, no matter how many runners join.</p>
+        <div class="table-scroll">
+          <table aria-label="Paliers par difficulté">
+            <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Paliers SUB</span><span data-en hidden>SUB thresholds</span></th></tr></thead>
+            <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
+          </table>
+        </div>
+        <details id="individual-details">
+          <summary><span data-fr>Voir chaque palier SUB, un par un</span><span data-en hidden>See every SUB threshold individually</span></summary>
+          <p class="fine" data-fr>Chaque valeur SUB correspond à une carte distincte. La grille indique sa difficulté, même si personne n'a encore créé cette carte en courant.</p>
+          <p class="fine" data-en hidden>Each SUB value is a separate card. The table shows its difficulty even if no runner has created the card yet.</p>
+          <div class="table-scroll">
+            <table aria-label="Tous les paliers SUB">
+              <thead><tr><th>SUB</th><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th></tr></thead>
+              <tbody id="individual-rows"></tbody>
+            </table>
+          </div>
+        </details>
+      </details>
     </section>
     <section class="panel" aria-labelledby="levels-title">
       <h2 id="levels-title"><span data-fr>Comprendre les étoiles</span><span data-en hidden>Understanding the stars</span></h2>
@@ -272,15 +271,6 @@
   function renderThresholds(){
     const row=selected();
     if(!row)return;
-    $('selected-title').textContent=distanceName(row.distanceCm);
-    const benchmark=[500000,1000000,2109750,4219500].includes(row.distanceCm);
-    $('threshold-note').textContent=row.ultra
-      ?t('Exception ultra-distance (43–200 km) : Légende après validation, quel que soit le chrono. Les courses ultra mélangent routes et dénivelés : aucun percentile mondial de chrono fiable n’est revendiqué ici.',
-           'Ultra-distance exception (43–200 km): Legend once validated, regardless of time. Ultra races mix surfaces and elevation profiles; no verified global finish-time percentile is claimed here.')
-      :t((benchmark?'Distance de référence : percentiles historiques observés, avec top 5 % et 75 % estimés. ':'Distance modélisée à partir des quatre références de course, sans percentile mondial directement mesuré. ')+
-           'SUB N signifie strictement moins de N '+(row.unit==='second'?'secondes.':'minutes.')+' À N:00 exact, le SUB passe au suivant.',
-           (benchmark?'Reference distance: historical observed percentiles, with fastest 5% and 75% estimated. ':'Modeled distance from four reference races; no directly measured world percentile. ')+
-           'SUB N means strictly under N '+(row.unit==='second'?'seconds.':'minutes.')+' Exactly N:00 advances to the next SUB.');
     const body=$('threshold-rows');body.replaceChildren();
     if(row.ultra){
       const tr=make('tr');
@@ -306,11 +296,6 @@
       }
     }
     if($('individual-details').open)renderIndividuals();else $('individual-rows').replaceChildren();
-    $('time-help').textContent=row.unit==='second'
-      ?t('Choisis les heures, minutes, secondes et centièmes (ex. 59,80 s).',
-           'Choose hours, minutes, seconds and hundredths (e.g. 59.80 s).')
-      :t('Choisis ton chrono : 24:35 = 0 h 24 min 35 s ; 1:30:00 = 1 h 30 min 00 s.',
-           'Choose your time: 24:35 = 0 h 24 min 35 s; 1:30:00 = 1 h 30 min 00 s.');
     $('time-centiseconds-part').hidden=row.unit!=='second';
     $('calc-result').textContent='';
     $('calc-result').classList.remove('error');
@@ -402,9 +387,7 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?t('Légende longue distance','Long-distance legend'):
       levelNames[difficulty][lang==='fr'?0:1];
-    const percentile=row.ultra?null:worldLabel(difficulty);
-    target.textContent=title+' · '+(percentile?percentile+' · ':'')+
-      name+' ('+levelNames[difficulty][2]+'/7 ★).';
+    target.textContent=t('Ta carte possible : ','Your possible card: ')+title+' · '+name+'.';
     $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
       title,distanceCm:row.distanceCm,difficulty,
     },lang));
@@ -427,8 +410,6 @@
         select.append(option);
       }
       select.value=current;
-      $('family-count').textContent=t(guide.distances.length+' distances reconnues',
-        guide.distances.length+' recognized distances');
       renderLevels();renderThresholds();
       if($('time-seconds').value!=='')checkTime();
     }
@@ -459,7 +440,9 @@
         checkTime();
       }
     }catch(_){
-      $('family-count').textContent=t('Barème indisponible pour le moment.','Thresholds temporarily unavailable.');
+      $('calc-result').classList.add('error');
+      $('calc-result').textContent=t('Impossible de charger les cartes pour le moment. Réessaie plus tard.',
+        'Cards are temporarily unavailable. Please try again later.');
       $('threshold-rows').replaceChildren(make('tr'));
       $('threshold-rows').firstChild.append(make('td','',
         t('Impossible de charger les paliers. Réessaie plus tard.','Could not load thresholds. Please try later.')));
