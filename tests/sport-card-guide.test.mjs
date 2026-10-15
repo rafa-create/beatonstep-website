@@ -95,16 +95,16 @@ test('all public SUB difficulty boundaries agree with the official award engine'
   }
 });
 
-test('5km sample lands on the intermediate SUB 25 card',()=>{
+test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
   const five=json.distances.find(row=>row.distanceCm===500000);
   assert.deepEqual(five.caps,{
-    world_elite:16,legend:19,expert:22,intermediate:25,regular:28,
-    amateur:31,beginner:44,
+    world_elite:19,legend:22,expert:29,intermediate:35,regular:42,
+    amateur:51,beginner:57,
   });
   const sub=Math.floor((24*60+35)*1000/60_000)+1;
   assert.equal(sub,25);
-  assert.equal(difficultyForSportCard(500000,sub).difficulty,'intermediate');
-  assert.equal(difficultyForSportCard(500000,26).difficulty,'regular');
-  assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
-  assert.equal(difficultyForSportCard(40000,61).difficulty,'expert');
+  assert.equal(difficultyForSportCard(500000,sub).difficulty,'expert');
+  assert.equal(difficultyForSportCard(500000,26).difficulty,'expert');
+  assert.equal(difficultyForSportCard(40000,60).difficulty,'world_elite');
+  assert.equal(difficultyForSportCard(40000,68).difficulty,'legend');
 });
