@@ -425,7 +425,7 @@ test('private Strava activities endpoint imports only validated run summaries wi
     assert.equal(options.headers.authorization,'Bearer mock-access-token');
     return {ok:true,status:200,json:async()=>[
       {id:1,type:'Ride',start_date:'2026-10-14T14:00:00Z',elapsed_time:1400,distance:9000},
-      {id:188246, sport_type:'Run',name:'Test <ride>\\u0000',start_date:'2026-10-14T15:00:00Z',
+      {id:188246, sport_type:'Run',name:'Test <ride>\n',start_date:'2026-10-14T15:00:00Z',
        elapsed_time:1537,moving_time:1480,distance:5002.4,
        average_heartrate:142,max_heartrate:170,
        map:{polyline:'DO_NOT_EXPOSE'},athlete:{id:999},average_cadence:86},
@@ -441,7 +441,7 @@ test('private Strava activities endpoint imports only validated run summaries wi
     const json=await response.json();
     assert.equal(json.items.length,2);
     assert.deepEqual(json.items[0],{
-      id:'188246',name:'Test <ride>\\u0000',startedAtMs:Date.parse('2026-10-14T15:00:00Z'),
+      id:'188246',name:'Test <ride>',startedAtMs:Date.parse('2026-10-14T15:00:00Z'),
       durationSeconds:1537,distanceMeters:5002,averagePaceSecPerKm:296,
       averageHeartRateBpm:142,maxHeartRateBpm:170,
     });
