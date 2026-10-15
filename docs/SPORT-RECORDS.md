@@ -9,7 +9,7 @@ Permettre à un visiteur de répondre immédiatement à deux questions :
 
 Un second podium montre les **trois plus grandes collections actuellement détenues** par des profils publics.
 
-L'affichage se trouve dans `partages.html?kind=challenge&view=records`, onglet **Records** à côté de **Cartes**, avec un sélecteur de classement et un filtre de difficulté. Le mode musique n'affiche pas cet onglet. Les items relient à la fiche de carte et, si autorisé, au profil public. Aucun nouveau jeu, trophée, rareté ou statut « mythique » n'est ajouté.
+**Décision UX du 15/10/2026 : le catalogue public reste simple.** Le seul lien de découverte du palmarès est dans **Mon compte → Défis**, après la connexion, sous « Mes défis sportifs » : « Voir les records des cartes → ». Le bouton/onglet « Records » a été **supprimé du catalogue**. Le lien ouvre directement `partages.html?kind=challenge&view=records`, désormais présenté comme une page de Records avec un retour « ← Mon compte » ; la vue approfondie reste accessible par son URL mais n'est pas promue dans le catalogue ni sur les profils publics. Elle possède toujours ses filtres « Durée de possession » / « Difficulté puis durée » et difficulté. Chaque record peut pointer vers la fiche de carte et, si autorisé, le profil public. Aucun nouveau jeu, trophée, rareté ou statut « mythique » n'est ajouté.
 
 ## Source de vérité, inchangée
 
@@ -29,6 +29,6 @@ Les **étoiles par niveau** et les pourcentages du tableau pédagogique sont dé
 
 ## Validation et exploitation
 
-`tests/sport-records.test.mjs` vérifie les époques, les propriétaires anonymisés, le classement à niveau égal, le filtrage via le barème officiel, le caractère exclusivement lecture seule et les filtres invalides. `tests/public-sharing-interactions.test.cjs` couvre l'onglet Records et son bilinguisme. `tests/sport-card-guide.test.mjs` garantit que le guide et ses explications suivent le JSON, y compris une future modification du percentile Expert. Tests intégrés dans `npm run build`.
+`tests/sport-records.test.mjs` vérifie les époques, les propriétaires anonymisés, le classement à niveau égal, le filtrage via le barème officiel, le caractère exclusivement lecture seule et les filtres invalides. `tests/public-sharing-interactions.test.cjs` couvre le lien profond vers Records, le retour vers Mon compte et son bilinguisme. `tests/account-layout.test.mjs` garantit que le lien de découverte est situé uniquement dans le deck privé Défis. `tests/sport-card-guide.test.mjs` garantit que le guide et ses explications suivent le JSON, y compris une future modification du percentile Expert. Tests intégrés dans `npm run build`.
 
 **Attention :** les fichiers versionnés sur GitHub et la validation ciblée ne prouvent pas à eux seuls le déploiement Cloudflare, le passage complet du build, ni la présence de résultats visibles sur un téléphone réel. Ne pas annoncer ces validations sans les journaux correspondants. Le déploiement du Worker + des fichiers statiques demande une publication du site, **aucune migration D1 et aucune OTA**.
