@@ -35,6 +35,8 @@ if(pendingTrack.some(cm=>manifest.distancesCm.includes(cm))||
 const guide = {
   ruleset: 'sport-cards-v1',
   levels: [...manifest.tierOrder],
+  // Same world-finisher calibration used by the card gallery and app.
+  percentileTargets: {...manifest.percentileCalibration.estimatedPercentileTargets},
   distances: [
     ...SPORT_CARD_DISTANCES.map(({distanceCm,code}) => ({
       distanceCm,code,
