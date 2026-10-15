@@ -18,6 +18,20 @@ test('account uses just two category choices above deck and history',()=>{
   assert.doesNotMatch(html, /id="view-decks"|id="view-history"/);
   assert.doesNotMatch(html, /id="history-sessions"|id="history-challenges"/);
 });
+test('Records entry lives in signed-in challenge deck, never in public profile',()=>{
+  const ownStart=at('<section id="account" hidden>');
+  const ownEnd=at('<section id="public-profile" hidden>');
+  const deckStart=at('<div id="challenge-deck">');
+  const anchor=at('id="account-records-link"');
+  assert.ok(ownStart>=0&&ownEnd>ownStart);
+  assert.ok(deckStart>ownStart&&anchor>deckStart&&anchor<ownEnd);
+  assert.match(html,/<a id="account-records-link" class="account-records-link" href="\/partages\.html\?kind=challenge&amp;view=records">Voir les records des cartes →<\/a>/);
+  assert.doesNotMatch(html.slice(ownEnd),/id="account-records-link"/,
+    'visiting a public profile must not show the link');
+  assert.match(html,/\$\('challenge-deck'\)\.hidden=sessions/,
+    'link follows challenge deck visibility rather than the music deck');
+});
+
 test('switching category shows matching deck and history together',()=>{
   assert.match(html, /\$\('session-deck'\)\.hidden=!sessions/);
   assert.match(html, /\$\('challenge-deck'\)\.hidden=sessions/);
