@@ -116,6 +116,24 @@ test('website allows owners to share their cards and sign-in keeps gift tokens',
   assert.match(html,/shared\?id=/);
 });
 
+test('sport card details have no inert chevron, while real expanders keep theirs',()=>{
+  const html=read('partages.html');
+  assert.match(html,/\.share-tree>\.share-summary::after\{content:'';/,
+    'only expandable musical sessions display the summary chevron');
+  assert.match(html,/\.share-tree>\.share-summary::after\{right:17px\}/,
+    'the mobile breakpoint must not reintroduce a sporting chevron');
+  assert.doesNotMatch(html,/(?:^|\n)\s*\.share-summary::after\{/,
+    'a generic chevron selector would also paint a false control on sporting cards');
+  assert.match(html,/\.sport-card \.sport-summary\[role="button"\]\{cursor:pointer/,
+    'only a sport card that opens the gallery should advertise a tap target');
+  assert.match(html,/const summary=el\('div','share-summary sport-summary'\)/,
+    'sport card summary is a normal container, not an expandable details element');
+  assert.match(html,/const details=el\('details','sport-details'\)/,
+    'the independent holder-history expander must remain available');
+  assert.match(html,/details\.addEventListener\('toggle',async\(\)=>\{/,
+    'holder history still loads on expansion');
+});
+
 test('sport card presentations use mm:ss SUB above a minute without blue mobile tap highlight',()=>{
   const catalog=read('partages.html');
   const sportSub=catalog.match(/  function sportSubLabel[\s\S]*?(?=  function sportName)/)?.[0];
