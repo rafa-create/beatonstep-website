@@ -176,6 +176,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <section id="public-profile" hidden><h2 id="public-handle"></h2><ul id="public-items"></ul></section>
 </main>
 <script src="/sport-card-face.js"></script>
+<script src="/sport-card-percentile.js"></script>
 <script>
 (() => {
   'use strict';
@@ -428,6 +429,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         if(!more){completedTimeline=true;break;}
       }
       if(!completedDeck||!completedTimeline)throw Error('incomplete_sport_ledger');
+      await BeatOnStepSportPercentiles.ready();
       const history=$('history-challenges-items'),deck=$('challenge-deck-cards');
       history.replaceChildren();deck.replaceChildren();
       const date=ts=>Number.isSafeInteger(ts)
@@ -469,12 +471,13 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         const note=category==='ghost'?'Carte fantôme · Ne vous appartient plus':
           category==='gift'?'Carte reçue en cadeau':
           card.verifiedAfterGiftAt?'Offerte puis réussie':'Carte gagnée';
-        meta.textContent=note+' · '+(BeatOnStepSportCards.levels[card.difficulty]?.[0]||card.difficulty||'')+
+        meta.textContent=note+' · '+BeatOnStepSportPercentiles.label(card,'fr')+
           ' · '+(category==='ghost'?'Détenue pendant ':'Détenue depuis ')+
           tenure(card.heldDurationMs);
         const face=BeatOnStepSportCards.createFace(document,{
           title:displaySportName(card.name),distanceCm:card.distanceCm,
-          difficulty:card.difficulty,variant:category==='ghost'?'ghost':'owned',
+          difficulty:BeatOnStepSportPercentiles.visibleTier(card),
+          variant:category==='ghost'?'ghost':'owned',
         },'fr');
         const copy=document.createElement('div');copy.className='sport-deck-copy';
         copy.append(title,meta);
