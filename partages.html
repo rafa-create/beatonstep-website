@@ -306,7 +306,7 @@
       <div class="filter-picker" id="distance-exact-picker">
         <label id="distance-exact-label" for="distance-exact-filter">Distance exacte (km)</label>
         <input id="distance-exact-filter" type="text" inputmode="decimal" maxlength="12"
-          aria-labelledby="distance-exact-label" placeholder="5 ou 21,0975">
+          aria-labelledby="distance-exact-label" placeholder="Distance (km)">
       </div>
     </div>
     <div id="results" aria-live="polite">Chargement…</div>
@@ -1067,7 +1067,7 @@
     document.querySelector('#difficulty-filter option[value=difficulty_desc]').textContent=
       fr('Difficulté décroissante','Difficulty: hardest first');
     $('distance-exact-label').textContent=fr('Distance exacte (km)','Exact distance (km)');
-    $('distance-exact-filter').placeholder=fr('5 ou 21,0975','5 or 21.0975');
+    $('distance-exact-filter').placeholder=fr('Distance (km)','Distance (km)');
     updateCatalogFilters();
     if(id||sportId)showDetail();else showList();
   }
