@@ -132,6 +132,13 @@ Ces données ne sont **ni vendues, ni utilisées pour la publicité, ni utilisé
 
 Le module iOS traite les positions GPS brutes **uniquement en mémoire volatile sur l'iPhone** pendant cette mesure : pas de stockage d'historique de coordonnées, pas d'envoi de ces positions au serveur BeatOnStep ni aux services musicaux. Il calcule localement un cumul de distance et peut fournir une **silhouette relative du parcours**, sans latitude ni longitude, pour un récapitulatif local si la mesure est exploitable. Le suivi s'arrête à la fin du test ou lorsque vous quittez ce panneau ; les positions brutes sont effacées de la session. La désinstallation efface les éventuels récapitulatifs locaux. Sur les versions Android actuelles, ce pilote GPS du téléphone n'est pas disponible.
 
+**Connexion Strava facultative (import et export de courses).** Quand l'intégration est activée par BeatOnStep et que vous connectez volontairement votre compte Strava, le serveur BeatOnStep conserve des jetons OAuth chiffrés associés à une clé d'installation pseudonyme, afin d'accéder aux activités autorisées. Les autorisations demandées sont `activity:write` (export) et `activity:read` (lecture de vos courses visibles par vous selon les autorisations Strava). Un utilisateur disposant d'une ancienne autorisation limitée à l'export devra autoriser explicitement la lecture avant un import ; aucune élévation de droits automatique.
+
+- **Export :** uniquement sur action volontaire ou après enregistrement réussi si le partage automatique a été activé (OFF par défaut). Les mesures disponibles peuvent être envoyées à Strava, **sans coordonnées GPS brutes** dans la version OTA actuelle.
+- **Import :** lorsque vous appuyez sur « Importer ma dernière course », BeatOnStep consulte au maximum les 30 dernières activités du compte Strava connecté pour sélectionner une course. Le serveur ne transmet à l'application que son nom, son identifiant d'activité, sa date/heure, son temps, sa distance, son allure et ses fréquences cardiaques si disponibles. **Ni trace GPS, ni coordonnées, ni carte géographique, ni autres activités sociales** ne sont téléchargées ou archivées dans cet import.
+- La course choisie est enregistrée uniquement dans votre **historique personnel privé** sur l'appareil, puis peut être synchronisée dans votre compte BeatOnStep si vous êtes connecté. Les autres coureurs ne peuvent pas la consulter ; elle n'attribue pas de carte Défi mondiale.
+- Vous pouvez supprimer la course importée depuis votre historique et révoquer l'accès Strava. La déconnexion arrête les accès futurs, mais n'efface pas automatiquement les courses déjà importées ; celles-ci peuvent être supprimées séparément. Tant que l'intégration est désactivée par BeatOnStep, les options Strava sont masquées et aucun import/export n'est possible.
+
 ### 3.11 Rapport Help / diagnostic volontaire
 
 Si vous utilisez le bouton **Help** dans Réglages, BeatOnStep affiche une confirmation avant tout envoi. Si vous choisissez **Envoyer**, l'app transmet au serveur BeatOnStep le même rapport technique que celui que vous pouvez partager manuellement en touchant la version de l'application.
@@ -191,6 +198,7 @@ La **désinstallation** de l'application supprime ces données. La déconnexion 
 | **Serveur BeatOnStep** | Catalogue / analyse BPM, mesure pseudonyme d'usage et support volontaire | Liste de titres ; éventuel fichier audio pour analyse BPM ; compteurs de playlists par source + identifiant d'installation aléatoire (§ 3.9) ; rapport technique Help uniquement après confirmation explicite (§ 3.11) |
 | **Spotify** | Si vous collez des liens de morceaux | Requête oEmbed (titre) ; ouverture du titre dans l'app Spotify. Pas de connexion compte dans cette version |
 | **Deezer** | Si vous collez un lien Partager (morceau ou playlist publique) | Requête catalogue public (titre, durée, parfois BPM) ; ouverture du titre dans l'app Deezer. Pas de connexion compte dans cette version |
+| **Strava (facultatif)** | Si vous connectez votre Strava et choisissez d'importer ou d'exporter une course | Autorisation OAuth, mesures de course ; import dans votre historique privé sans GPS brut, export des mesures sans GPS brut dans cette version (§ 3.10) |
 | **Garmin Connect IQ** | Si vous associez une montre Garmin et utilisez BeatOnStep pendant une course | Cadence et métriques de course ; positions GPS brutes transitoires montre → téléphone uniquement pour produire localement une forme relative du parcours (§ 3.10) |
 
 Pas de SDK publicitaire, pas de mesure d'audience marketing, pas de réseau social intégré autre que la connexion aux services que vous choisissez.
@@ -210,6 +218,7 @@ La mesure serveur ne contient ni nom, ni e-mail, ni compte BeatOnStep permettant
 - **Compte Apple / Apple Music** : exercez vos droits auprès d'Apple selon leurs procédures.
 - **Spotify** : pas de compte BeatOnStep lié à Spotify ; les liens collés restent sur l'appareil. Pour votre compte Spotify, exercez vos droits auprès de Spotify.
 - **Deezer** : pas de compte BeatOnStep lié à Deezer ; les liens collés restent sur l'appareil. Pour votre compte Deezer, exercez vos droits auprès de Deezer.
+- **Strava** : déconnectez Strava dans BeatOnStep ou retirez l'autorisation dans Strava → Mes applications ; supprimez séparément les courses importées de votre historique (§ 3.10).
 - **Serveur BeatOnStep** : pas de compte utilisateur. La mesure pseudonyme conserve uniquement le dernier état connu par installation, sans historique détaillé des envois. Les rapports Help sont envoyés uniquement à votre demande pour le support technique (§ 3.11) ; pour toute question relative à ces données, utilisez le [forum](https://github.com/rafa-create/beatonstep-website/discussions/1).
 
 ## 9. Modifications
