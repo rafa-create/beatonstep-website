@@ -52,8 +52,9 @@ function setup(search,data=example){
     'kind-label','kind-filter','session-mode-label','session-mode-filter',
     'session-mode-picker','sort-label','sort-filter','source-label','source-filter',
     'sort-picker','source-picker','distance-picker','distance-label','distance-filter',
-    'difficulty-picker','difficulty-label','difficulty-filter',
-    'sub-picker','sub-label','sub-filter','footer-privacy','footer-privacy-label','community-link',
+    'difficulty-picker','difficulty-label','difficulty-filter','difficulty-hint',
+    'distance-exact-picker','distance-exact-label','distance-exact-filter',
+    'footer-privacy','footer-privacy-label','community-link',
     'sport-guide-link','sport-guide-label'])
     elements[name]=new Node(name);
   // Mirror the actual accessible profile label inside #community-link.
@@ -68,7 +69,7 @@ function setup(search,data=example){
     ['sort-filter',['recent','popular']],
     ['source-filter',['all']],
     ['distance-filter',['all']],
-    ['difficulty-filter',['all','beginner','amateur','regular','intermediate','expert','legend','world_elite']],
+    ['difficulty-filter',['difficulty_asc','difficulty_desc']],
   ])for(const value of values)options[`#${id} option[value=${value}]`]=new Node('option');
   const body=new Node('body');
   const apiCalls=[];
@@ -110,13 +111,14 @@ function setup(search,data=example){
   await flush();
   assert.equal(landing.elements['kind-filter'].value,'challenge');
   assert.equal(landing.elements['distance-filter'].value,'all');
-  assert.equal(landing.elements['difficulty-filter'].value,'all');
-  assert.equal(landing.elements['sub-filter'].value,'');
+  assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
+  assert.equal(landing.elements['distance-exact-filter'].value,'');
   assert.equal(landing.elements['sort-picker'].hidden,true);
   assert.equal(landing.elements['source-picker'].hidden,true);
-  assert.equal(landing.elements['sub-filter'].disabled,true);
+  assert.equal(landing.elements['distance-exact-picker'].hidden,false);
   assert(landing.apiCalls.some(url=>
-    /^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/.test(url)));
+    /^\/api\/sport\/cards\?distance=all&sort=difficulty_desc&page=1$/.test(url)));
+  assert.match(landing.elements['difficulty-hint'].textContent,/Expert · Top ≈ 20 % des arrivants/);
   assert.match(landing.elements.results.textContent,/Top ≈ 11 % mondial/,
     'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
@@ -170,10 +172,25 @@ function setup(search,data=example){
   landing.elements['distance-filter'].value='500000';
   landing.elements['distance-filter'].onchange();
   await flush();
-  landing.elements['sub-filter'].value='25';
-  landing.elements['sub-filter'].onchange();
+  landing.elements['distance-exact-filter'].value='5';
+  landing.elements['distance-exact-filter'].onchange();
   await flush();
-  assert.match(landing.apiCalls.at(-1),/distance=500000&difficulty=all&sub=25/);
+  assert.match(landing.apiCalls.at(-1),/distance=500000&sort=difficulty_desc&page=1/);
+  landing.elements['difficulty-filter'].value='difficulty_asc';
+  landing.elements['difficulty-filter'].onchange();
+  await flush();
+  assert.match(landing.apiCalls.at(-1),/sort=difficulty_asc&page=1/);
+  landing.elements['distance-exact-filter'].value='21,0975';
+  landing.elements['distance-exact-filter'].onchange();
+  await flush();
+  assert.match(landing.apiCalls.at(-1),/distance=2109750&sort=difficulty_asc/);
+  const callCount=landing.apiCalls.length;
+  landing.elements['distance-exact-filter'].value='4,5';
+  landing.elements['distance-exact-filter'].onchange();
+  await flush();
+  assert.equal(landing.apiCalls.length,callCount,
+    'an unsupported distance must never silently run an unfiltered query');
+  assert.match(landing.elements.results.textContent,/Distance non reconnue/);
   history.open=true;
   history.events.toggle();
   await flush();
