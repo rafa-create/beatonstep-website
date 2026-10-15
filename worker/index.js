@@ -6,6 +6,7 @@ import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
 import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
+import { readSportRecords } from './sport-records.js';
 import {ensureSportTelemetrySchema,processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
@@ -389,6 +390,18 @@ export default {
       }
       if (url.pathname.startsWith('/api/strava/')) {
         return stravaRequest(request, env, url);
+      }
+      // Public, consent-aware sporting podiums; read existing D1 ledger only.
+      if (url.pathname === '/api/sport/records') {
+        if (request.method !== 'GET') return json({error:'method_not_allowed'},405);
+        if (env.SPORT_WORLD_CARDS_ENABLED !== 'true' || !env.DB ||
+            env.CATALOG_BACKEND !== 'd1')
+          return json({error:'sport_catalog_unavailable'},503);
+        try { return await readSportRecords(env.DB,url); }
+        catch(error){
+          console.error('sport records read failure',String(error?.name||'unknown'));
+          return json({error:'sport_records_unavailable'},503);
+        }
       }
       // Public trophy catalogue: only server-confirmed cards, never V2
       // publishable workout challenges or authenticated private histories.
