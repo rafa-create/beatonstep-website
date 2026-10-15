@@ -235,6 +235,9 @@
          'About fastest '+percent+'% of finishers');
   };
   const t=(fr,en)=>lang==='fr'?fr:en;
+  const ultraName=()=>guide?.ultraDifficulty==='legend'
+    ?t('Légende longue distance','Long-distance legend')
+    :(levelNames[guide?.ultraDifficulty]?.[lang==='fr'?0:1]||'—');
   const worldLabel=key=>{
     if(key==='world_elite')return t('Écart au record','Gap to world benchmark');
     const top=guide?.percentileTargets?.[key];
@@ -304,8 +307,8 @@
     const body=$('threshold-rows');body.replaceChildren();
     if(row.ultra){
       const tr=make('tr');
-      tr.append(make('td','tier-name',t('Légende longue distance','Long-distance legend')));
-      const cell=make('td');cell.append(stars(tierStars('legend')));tr.append(cell);
+      tr.append(make('td','tier-name',ultraName()));
+      const cell=make('td');cell.append(stars(tierStars(guide.ultraDifficulty)));tr.append(cell);
       tr.append(make('td','muted','—'));
       tr.append(make('td','time-range',t('Tout chrono validé','Any validated finish time')));
       body.append(tr);
@@ -338,8 +341,8 @@
     if(row.ultra){
       const tr=make('tr');
       tr.append(make('td','',t('Tout SUB vérifié','Any validated SUB')));
-      tr.append(make('td','',t('Légende longue distance','Long-distance legend')));
-      const cell=make('td');cell.append(stars(tierStars('legend')));tr.append(cell);
+      tr.append(make('td','',ultraName()));
+      const cell=make('td');cell.append(stars(tierStars(guide.ultraDifficulty)));tr.append(cell);
       body.append(tr);return;
     }
     const fragment=document.createDocumentFragment();
@@ -407,7 +410,7 @@
       return;
     }
     const sub=Math.floor(ms/(row.unit==='second'?1000:60000))+1;
-    const difficulty=row.ultra?'legend':guide.levels.find(key=>sub<=row.caps[key]);
+    const difficulty=row.ultra?guide.ultraDifficulty:guide.levels.find(key=>sub<=row.caps[key]);
     if(!difficulty){
       target.classList.add('error');
       target.textContent=t('Ce temps dépasse le dernier palier Débutant pour cette distance : aucune carte à ce SUB.',
@@ -415,7 +418,7 @@
       return;
     }
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
-    const name=row.ultra?t('Légende longue distance','Long-distance legend'):
+    const name=row.ultra?ultraName():
       levelNames[difficulty][lang==='fr'?0:1];
     target.textContent=(row.previewOnly
       ?t('Aperçu en préparation : ','Upcoming preview: ')
@@ -474,6 +477,7 @@
          data.revision!==official.revision||!Array.isArray(data.distances)||
          !Array.isArray(data.levels)||
          data.levels.join(',')!==official.tierOrder.join(',')||
+         data.ultraDifficulty!==official.ultraDifficulty||
          data.distances.map(row=>row.distanceCm).join(',')!==expected.join(','))
         throw Error('invalid_ruleset');
       guide=data;
