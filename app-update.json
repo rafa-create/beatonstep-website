@@ -9,9 +9,9 @@
   },
   "android": {
     "enabled": true,
-    "latestVersion": "1.7.1",
+    "latestVersion": "1.7.2",
     "minimumVersion": "1.0.0",
-    "latestBuild": 34,
+    "latestBuild": 36,
     "minimumBuild": null
   }
 }
