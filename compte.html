@@ -42,6 +42,7 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .created-cards-fold[open] summary{margin-bottom:10px}
 .created-cards-fold #items{margin:0;padding-left:18px}
 .deck-tile a{color:var(--accent);font-weight:700}
+.account-records-link{display:inline-block;color:var(--accent);font-size:13px;font-weight:750;margin:2px 0 16px;text-decoration:underline;text-underline-offset:3px}
 .collection-item{display:block;position:relative;width:160px;min-height:208px;border:1.5px solid var(--accent);border-radius:17px;background:radial-gradient(ellipse at 55% 39%,#66551d50,transparent 54%),linear-gradient(145deg,#282619,#10100d 75%);box-shadow:0 12px 30px #0006;padding:14px;transform:rotate(-1deg);transition:transform .25s,box-shadow .25s}
 .collection-item:hover{transform:rotate(0) translateY(-4px);box-shadow:0 15px 36px #0009,0 0 26px #fcea0722}
 .collection-item::before{content:'BEATONSTEP';display:block;color:var(--accent);letter-spacing:.14em;font-weight:900;font-size:10px}
@@ -201,6 +202,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p id="saved-workouts-status">Chargement des programmes…</p>
 <ul id="saved-workouts-items"></ul></div></div>
 <div id="challenge-deck"><h2>Mes défis sportifs</h2>
+<a id="account-records-link" class="account-records-link" href="/partages.html?kind=challenge&amp;view=records">Voir les records des cartes →</a>
 <p>Les trophées mondiaux apparaîtront après activation des validations sportives.
 Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <ul id="challenge-deck-cards"></ul></div>
