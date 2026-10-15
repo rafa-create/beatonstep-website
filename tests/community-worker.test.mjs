@@ -142,3 +142,114 @@ test('mobile account pairing issues a permanent revocable device grant',async()=
   assert.equal(saved?.[2],Number.MAX_SAFE_INTEGER,
     'D1 must not invalidate the device after 30 days');
 });
+
+
+function renameFixture() {
+  const token='a'.repeat(64);
+  const owner={id:'u1',email:'runner@example.test',handle:'runner'};
+  const taken='already_taken';
+  const updates=[],lookups=[];
+  let writeCount=0;
+  const db={
+    prepare(sql){
+      const statement=(args=[])=>({
+        sql,args,
+        bind(...values){return statement(values)},
+        async first(){
+          lookups.push({sql,args});
+          if(sql==='SELECT id FROM community_users LIMIT 1')return {id:owner.id};
+          if(sql.includes('FROM community_sessions s') ||
+             sql.includes('FROM community_devices s'))
+            return args[0]===createHash('sha256').update(token).digest('hex')
+              ?{...owner}:null;
+          if(sql.startsWith('INSERT INTO community_auth_limits'))return {count:1};
+          if(sql==='SELECT id,handle FROM community_users WHERE handle=?')
+            return args[0]===owner.handle?{id:owner.id,handle:owner.handle}:null;
+          throw Error('Unexpected first: '+sql);
+        },
+        async all(){
+          if(sql.includes('FROM signed_shares s JOIN shared_items x'))
+            return {results:[]};
+          throw Error('Unexpected all: '+sql);
+        },
+        async run(){
+          if(sql==='UPDATE community_users SET handle=? WHERE id=? AND handle=?'){
+            updates.push({sql,args});
+            const [next,id,previous]=args;
+            if(next===taken)throw Error('UNIQUE constraint failed: community_users.handle');
+            if(id!==owner.id||previous!==owner.handle)return {meta:{changes:0}};
+            owner.handle=next;
+            writeCount++;
+            return {meta:{changes:1}};
+          }
+          throw Error('Unexpected run: '+sql);
+        }
+      });
+      return statement();
+    }
+  };
+  const env={DB:db,CATALOG_BACKEND:'d1',CATALOG_RATE_SALT:'test-only',
+    ASSETS:{fetch:()=>new Response('STATIC')}};
+  const request=(handle,{origin=ROOT,cookie=token}={})=>new Request(ROOT+'/api/account/handle',{
+    method:'POST',
+    headers:{origin,'content-type':'application/json',
+      ...(cookie?{cookie:'__Host-bos_community='+cookie}:{})},
+    body:JSON.stringify({handle}),
+  });
+  return {owner,env,request,updates,lookups,writeCount:()=>writeCount,token};
+}
+
+test('public handle can be changed without touching cards or login grants',async()=>{
+  const f=renameFixture();
+  const response=await worker.fetch(f.request(' New_Runner '),f.env);
+  assert.equal(response.status,200);
+  assert.deepEqual(await response.json(),{handle:'new_runner',changed:true});
+  assert.equal(f.owner.id,'u1');
+  assert.equal(f.owner.handle,'new_runner');
+  assert.deepEqual(f.updates[0].args,['new_runner','u1','runner']);
+  assert.equal(f.updates.length,1);
+  const me=await worker.fetch(new Request(ROOT+'/api/account/me',{
+    headers:{cookie:'__Host-bos_community='+f.token},
+  }),f.env);
+  assert.equal((await me.json()).handle,'new_runner');
+  const mobile=await worker.fetch(new Request(ROOT+'/api/account/device/me',{
+    headers:{authorization:'Bearer '+f.token},
+  }),f.env);
+  assert.equal((await mobile.json()).handle,'new_runner',
+    'mobile session reads the current handle from the same stable account');
+  const profile=await worker.fetch(new Request(ROOT+'/api/account/profile?handle=new_runner'),f.env);
+  assert.equal(profile.status,200);
+  assert.equal((await profile.json()).handle,'new_runner');
+  const oldLink=await worker.fetch(new Request(ROOT+'/api/account/profile?handle=runner'),f.env);
+  assert.equal(oldLink.status,404,'an old handle is no longer a valid profile URL');
+});
+
+test('pseudo editing requires a valid same-origin logged-in web session',async()=>{
+  const f=renameFixture();
+  const csrf=await worker.fetch(f.request('change_me',{origin:'https://elsewhere.test'}),f.env);
+  assert.equal(csrf.status,403);
+  assert.equal((await csrf.json()).error,'origin_forbidden');
+  const guest=await worker.fetch(f.request('change_me',{cookie:''}),f.env);
+  assert.equal(guest.status,401);
+  assert.equal((await guest.json()).error,'login_required');
+  for(const invalid of ['ab','spaces not allowed','éclair','admin@site',
+    '.leading','_'.repeat(25)]){
+    const r=await worker.fetch(f.request(invalid),f.env);
+    assert.equal(r.status,400,invalid);
+    assert.equal((await r.json()).error,'invalid_handle');
+  }
+  assert.equal(f.writeCount(),0,'invalid and unauthenticated changes never write');
+});
+
+test('same username is harmless and an occupied one returns conflict',async()=>{
+  const f=renameFixture();
+  const same=await worker.fetch(f.request('Runner'),f.env);
+  assert.equal(same.status,200);
+  assert.deepEqual(await same.json(),{handle:'runner',changed:false});
+  assert.equal(f.writeCount(),0);
+  const taken=await worker.fetch(f.request('already_taken'),f.env);
+  assert.equal(taken.status,409);
+  assert.equal((await taken.json()).error,'handle_taken');
+  assert.equal(f.owner.handle,'runner');
+  assert.equal(f.writeCount(),0);
+});
