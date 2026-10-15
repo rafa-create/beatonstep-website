@@ -117,8 +117,8 @@ function setup(search,data=example){
   assert.equal(landing.elements['sub-filter'].disabled,true);
   assert(landing.apiCalls.some(url=>
     /^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/.test(url)));
-  assert.match(landing.elements.results.textContent,/Top 20 % mondial/,
-    'the world percentile is derived from SUB 25, not the legacy amateur label');
+  assert.match(landing.elements.results.textContent,/Top ≈ 11 % mondial/,
+    'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // Challenge cards offer the detail link in the catalogue and focus gallery,
