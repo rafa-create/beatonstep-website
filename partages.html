@@ -40,6 +40,8 @@
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 16px}
+    .difficulty-hint{flex-basis:100%;margin:0;color:var(--muted);font-size:11px;line-height:1.45}
+    .difficulty-hint[hidden]{display:none!important}
     .pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .filter-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     #results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -201,6 +203,7 @@
       .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 15px}
       .filter-picker{width:100%;min-width:0}
       .filter-picker select{padding:9px 7px;font-size:13px;text-overflow:ellipsis}
+      .difficulty-hint{grid-column:1/-1}
       .card{padding:12px}
       .share-summary{padding:14px 14px 15px}
       .share-tree>.share-summary{padding-right:40px}
@@ -297,23 +300,18 @@
         </select>
       </div>
       <div class="filter-picker" id="difficulty-picker">
-        <label id="difficulty-label" for="difficulty-filter">Difficulté</label>
+        <label id="difficulty-label" for="difficulty-filter">Tri par difficulté</label>
         <select id="difficulty-filter" aria-labelledby="difficulty-label">
-          <option value="all">Toutes difficultés</option>
-          <option value="beginner">Débutant</option>
-          <option value="amateur">Amateur</option>
-          <option value="regular">Régulier</option>
-          <option value="intermediate">Intermédiaire</option>
-          <option value="expert">Expert</option>
-          <option value="legend">Légende</option>
-          <option value="world_elite">Élite mondiale</option>
+          <option value="difficulty_desc" selected>Difficulté décroissante</option>
+          <option value="difficulty_asc">Difficulté croissante</option>
         </select>
       </div>
-      <div class="filter-picker" id="sub-picker">
-        <label id="sub-label" for="sub-filter">SUB maximal</label>
-        <input id="sub-filter" type="number" min="1" max="1000000" step="1"
-          inputmode="numeric" placeholder="SUB max." disabled>
+      <div class="filter-picker" id="distance-exact-picker">
+        <label id="distance-exact-label" for="distance-exact-filter">Distance exacte (km)</label>
+        <input id="distance-exact-filter" type="text" inputmode="decimal" maxlength="12"
+          aria-labelledby="distance-exact-label" placeholder="5 ou 21,0975">
       </div>
+      <p id="difficulty-hint" class="difficulty-hint" hidden></p>
     </div>
     <div id="results" aria-live="polite">Chargement…</div>
     <div class="pagination" id="pages"></div>
@@ -362,7 +360,7 @@
   // Old playlist catalogue URLs land on sessions rather than a vanished tab.
   let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):
     ['all','runmix'].includes(params.get('kind'))?'workout':'challenge';
-  let sportDistance='all',sportDifficulty='all',sportSub='';
+  let sportDistance='all',sportDifficultyOrder='difficulty_desc',sportDistanceExact='';
   let musicGoal=['all','time','distance'].includes(params.get('goal'))?
     params.get('goal'):'all';
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
@@ -945,17 +943,27 @@
     $('source-filter').value=musicSource;
     $('session-mode-filter').value=musicGoal;
     $('distance-filter').value=sportDistance;
-    $('difficulty-filter').value=sportDifficulty;
-    $('sub-filter').value=sportSub;
+    $('difficulty-filter').value=sportDifficultyOrder;
+    $('distance-exact-filter').value=sportDistanceExact;
     try{
+      if(kind==='challenge')await BeatOnStepSportPercentiles.ready();
+      const typed=sportDistanceExact.trim();
+      const exactDistance=typed
+        ?BeatOnStepSportPercentiles.canonicalDistanceCm(typed):null;
+      if(kind==='challenge'&&typed&&exactDistance===null){
+        empty(result);
+        result.append(el('p','error',fr(
+          'Distance non reconnue : saisis une distance du barème en km (ex. 0,4, 5 ou 21,0975).',
+          'Distance not supported: enter a listed distance in km (e.g. 0.4, 5 or 21.0975).')));
+        return;
+      }
+      const effectiveDistance=typed?String(exactDistance):sportDistance;
       const target=kind==='challenge'
-        ?SPORT_API+'?distance='+encodeURIComponent(sportDistance)+
-          '&difficulty='+encodeURIComponent(sportDifficulty)+
-          (sportDistance!=='all'&&sportSub?'&sub='+encodeURIComponent(sportSub):'')+
+        ?SPORT_API+'?distance='+encodeURIComponent(effectiveDistance)+
+          '&sort='+encodeURIComponent(sportDifficultyOrder)+
           '&page='+page
         :API+'?kind=workout&goalMode='+encodeURIComponent(musicGoal)+'&source='+
           encodeURIComponent(musicSource)+'&sort='+sort+'&page='+page;
-      if(kind==='challenge')await BeatOnStepSportPercentiles.ready();
       const data=await get(target);
       if(request!==listTicket)return;
       empty(result);
@@ -986,15 +994,9 @@
     $('source-picker').hidden=sport;
     $('session-mode-picker').hidden=sport;
     $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
-    for(const name of ['distance-picker','difficulty-picker','sub-picker'])
+    for(const name of ['distance-picker','difficulty-picker','distance-exact-picker'])
       $(name).hidden=!sport;
-    $('sub-filter').disabled=!sport||sportDistance==='all';
-    $('sub-label').textContent=sportDistance==='40000'
-      ?fr('SUB maximal (secondes)','Maximum SUB (seconds)')
-      :fr('SUB maximal (minutes)','Maximum SUB (minutes)');
-    $('sub-filter').placeholder=sportDistance==='40000'
-      ?fr('SUB max. (s)','Max SUB (s)')
-      :fr('SUB max. (min)','Max SUB (min)');
+    $('difficulty-hint').hidden=!sport;
   }
   async function showDetail(){
     $('catalog').hidden=true;
@@ -1017,6 +1019,22 @@
       empty(target);
       target.append(el('p','error',fr('Ce partage est indisponible ou a expiré.','This share is unavailable or has expired.')));
     }
+  }
+  function updateDifficultyHint(){
+    const keys=['amateur','regular','intermediate','expert','legend'];
+    const names={
+      amateur:fr('Amateur','Amateur'),regular:fr('Régulier','Regular'),
+      intermediate:fr('Intermédiaire','Intermediate'),
+      expert:fr('Expert','Expert'),legend:fr('Légende','Legend')
+    };
+    const benchmarks=keys.map(key=>{
+      const top=BeatOnStepSportPercentiles.tierTopLabel(key,lang);
+      return top?names[key]+' · '+top:null;
+    }).filter(Boolean);
+    $('difficulty-hint').textContent=benchmarks.length
+      ?benchmarks.join(' · ')+fr(' · Élite : écart à la référence mondiale. Hors ultra.',
+        ' · Elite: gap to world benchmark. Excludes ultra races.')
+      :'';
   }
   function setLanguage(next){
     lang=next;
@@ -1062,14 +1080,14 @@
     $('distance-label').textContent=fr('Distance','Distance');
     document.querySelector('#distance-filter option[value=all]').textContent=
       fr('Toutes distances','All distances');
-    $('difficulty-label').textContent=fr('Difficulté','Difficulty');
-    const levels={all:['Toutes difficultés','All difficulties'],beginner:['Débutant','Beginner'],
-      amateur:['Amateur','Amateur'],regular:['Régulier','Regular'],
-      intermediate:['Intermédiaire','Intermediate'],expert:['Expert','Expert'],
-      legend:['Légende','Legend'],world_elite:['Élite mondiale','World elite']};
-    for(const [key,label] of Object.entries(levels))
-      document.querySelector('#difficulty-filter option[value='+key+']').textContent=
-        fr(label[0],label[1]);
+    $('difficulty-label').textContent=fr('Tri par difficulté','Sort by difficulty');
+    document.querySelector('#difficulty-filter option[value=difficulty_asc]').textContent=
+      fr('Difficulté croissante','Difficulty: easiest first');
+    document.querySelector('#difficulty-filter option[value=difficulty_desc]').textContent=
+      fr('Difficulté décroissante','Difficulty: hardest first');
+    $('distance-exact-label').textContent=fr('Distance exacte (km)','Exact distance (km)');
+    $('distance-exact-filter').placeholder=fr('5 ou 21,0975','5 or 21.0975');
+    updateDifficultyHint();
     updateCatalogFilters();
     if(id||sportId)showDetail();else showList();
   }
@@ -1095,21 +1113,23 @@
   };
   $('distance-filter').onchange=()=>{
     sportDistance=$('distance-filter').value;
-    sportSub='';
-    $('sub-filter').value='';
+    sportDistanceExact='';
+    $('distance-exact-filter').value='';
     page=1;
     updateCatalogFilters();
     showList();
   };
   $('difficulty-filter').onchange=()=>{
-    sportDifficulty=$('difficulty-filter').value;
+    sportDifficultyOrder=$('difficulty-filter').value;
     page=1;
     showList();
   };
-  $('sub-filter').onchange=()=>{
-    const value=$('sub-filter').value.trim();
-    sportSub=/^[1-9][0-9]{0,5}$/.test(value)?value:'';
-    $('sub-filter').value=sportSub;
+  $('distance-exact-filter').onchange=()=>{
+    sportDistanceExact=$('distance-exact-filter').value.trim();
+    if(sportDistanceExact){
+      sportDistance='all';
+      $('distance-filter').value='all';
+    }
     page=1;
     showList();
   };
