@@ -144,11 +144,23 @@ function setup(search,data=example){
     'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
+  // A bare 'Chargement…' formerly leaked below an already-loaded podium:
+  // author CSS #results {display:grid} overrode user-agent [hidden] styles.
+  for(const id of ['catalog-toolbar','results','pages']){
+    assert.match(html,new RegExp('#'+id+'\\\\[hidden\\\\][^{}]*\\\\{display:none!important\\\\}'),
+      id+' must actually disappear when hidden, even with explicit display CSS');
+  }
+  assert.match(html,/<div id="results" aria-live="polite"><\\/div>/,
+    'initial catalogue loader must be created by showList only');
   // Historical records: read-only, fast sorting and no private holder link.
   const records=setup('?view=records',sport);
   await flush();await flush();
   assert.equal(records.elements['records-panel'].hidden,false);
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
+  assert.equal(records.elements.results.hidden,true);
+  assert.equal(records.elements.pages.hidden,true);
+  assert.equal(records.elements.results.textContent,'',
+    'no stale catalogue loading text underneath records');
   assert.equal(records.elements.back.hidden,false);
   assert.equal(records.elements.back.href,'compte.html');
   assert.equal(records.elements.back.textContent,'← Mon compte');
