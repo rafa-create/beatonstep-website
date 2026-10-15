@@ -15,6 +15,24 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(catalog,/sport-guide-link'\)\.hidden=!sport/);
   assert.match(page,/id="levels-rows"/);
   assert.match(page,/id="threshold-rows"/);
+  assert.ok(page.indexOf('id="paliers"')<page.indexOf('id="levels-title"'),
+    'the detailed star explanation is placed after the useful distance simulator');
+  assert.match(page,/<span data-fr>Comprendre les étoiles<\/span>/);
+  assert.doesNotMatch(page,/Les 7 niveaux de difficulté|Chaque étoile situe approximativement ton chrono/,
+    'redundant introductory level explanation is removed');
+  assert.doesNotMatch(page,/class="rule-note"/,
+    'one-card rule, strict SUB and ownership are already summarized in three steps');
+  assert.match(page,/Une course finalisée et validée donne au maximum/);
+  assert.match(page,/Courir plus vite dans un même SUB ne change pas la carte/);
+  assert.match(page,/La propriété n'est pas définitive/);
+  assert.match(page,/<span data-fr>Top mondial<\/span>/);
+  assert.match(page,/const worldTop=\{world_elite:1,legend:5,expert:20,intermediate:50,regular:75,amateur:90\}/);
+  assert.match(page,/id="calc-card-preview"/);
+  assert.match(page,/id="calc-card-face"/);
+  assert.match(page,/BeatOnStepSportCards\.createFace\(document,/);
+  assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
+  assert.match(page,/Simulation de carte : seul un résultat de course validé peut la faire gagner/);
+  assert.match(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/);
   assert.match(page,/id="individual-rows"/);
   for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
     assert.match(page,new RegExp('id="'+id+'"'));
