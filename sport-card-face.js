@@ -13,6 +13,9 @@ var BeatOnStepSportCards=(function(){
   };
   function signature(cm){
     if(cm===40000)return ['400','SPRINT',true];
+    if(cm===80000)return ['800','DEMI-FOND',true];
+    if(cm===150000)return ['1500','DEMI-FOND',true];
+    if(cm===160934)return ['1MI','LE MILE',true];
     if(cm===500000)return ['5K','5 KILOMÈTRES',true];
     if(cm===1000000)return ['10K','10 KILOMÈTRES',true];
     if(cm===2109750)return ['21K','SEMI-MARATHON',true];
