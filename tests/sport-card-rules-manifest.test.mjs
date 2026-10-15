@@ -12,6 +12,8 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.schema,1);
   assert.equal(rules.revision,SPORT_CARD_TIER_REVISION);
   assert.equal(rules.ruleset,'sport-cards-v1');
+  assert.equal(rules.difficultyRuleset,'v2');
+  assert.equal(rules.percentileCalibration.estimatedPercentileTargets.intermediate,50);
   assert.deepEqual(rules.distancesCm,SPORT_CARD_DISTANCES.map(x=>x.distanceCm));
   assert.deepEqual(rules.tierOrder,
     ['world_elite','legend','expert','intermediate','regular','amateur','beginner']);
@@ -39,9 +41,9 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     }
     assert.equal(difficultyForSportCard(distanceCm,previous+1),null);
   }
-  assert.equal(rules.capsByDistance[4219500].expert,210,
+  assert.equal(rules.capsByDistance[4219500].expert,230,
     'marathon Expert uses website JSON; change it only there');
-  assert.equal(rules.capsByDistance[1000000].beginner,91);
+  assert.equal(rules.capsByDistance[1000000].beginner,100);
 });
 
 test('static website build publishes the exact official file without D1 or Worker',()=>{
