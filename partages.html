@@ -245,7 +245,7 @@
   </header>
   <a class="back" href="partages.html" id="back" hidden>← Catalogue</a>
   <h1 id="title">Catalogue</h1>
-  <p class="sub" id="intro">Cartes sportives obtenues après validation des courses.</p>
+  <p class="sub" id="intro" hidden></p>
   <div id="catalog">
   <a class="sport-guide-link" id="sport-guide-link" href="cartes-guide.html?lang=fr"><span aria-hidden="true">ⓘ</span><span id="sport-guide-label">Comment gagner une carte ?</span><span aria-hidden="true">→</span></a>
     <div class="toolbar">
@@ -1034,12 +1034,10 @@
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
-    $('intro').hidden=Boolean(id||sportId);
-    $('intro').textContent=kind==='challenge'
-      ?fr('Cartes sportives obtenues après validation des courses.',
-          'Sport cards earned from validated runs.')
-      :fr('Séances musicales à découvrir, en durée ou en distance.',
-          'Discover timed and distance-based musical workouts.');
+    $('intro').hidden=Boolean(id||sportId||kind==='challenge');
+    $('intro').textContent=kind==='challenge'?'':fr(
+      'Séances musicales à découvrir, en durée ou en distance.',
+      'Discover timed and distance-based musical workouts.');
     $('footer-privacy').setAttribute('aria-label',fr('Confidentialité','Privacy'));
     $('footer-privacy-label').textContent=fr('Confidentialité','Privacy');
     $('kind-label').textContent=fr('Type','Type');
@@ -1074,11 +1072,10 @@
   $('kind-filter').onchange=()=>{
     kind=$('kind-filter').value;page=1;
     updateCatalogFilters();showList();
-    $('intro').textContent=kind==='challenge'
-      ?fr('Cartes sportives obtenues après validation des courses.',
-          'Sport cards earned from validated runs.')
-      :fr('Séances musicales à découvrir, en durée ou en distance.',
-          'Discover timed and distance-based musical workouts.');
+    $('intro').hidden=kind==='challenge';
+    $('intro').textContent=kind==='challenge'?'':fr(
+      'Séances musicales à découvrir, en durée ou en distance.',
+      'Discover timed and distance-based musical workouts.');
   };
   $('session-mode-filter').onchange=()=>{
     musicGoal=$('session-mode-filter').value;page=1;showList();
