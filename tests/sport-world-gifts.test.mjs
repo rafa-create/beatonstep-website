@@ -100,7 +100,13 @@ test('world gift schema is independent, durable and never changes musical gifts'
   assert.match(account,/browser&&!sameOrigin\(request\)/);
   assert.match(account,/return creating\?createSportGift\(db,member.id,input.id\)/);
   const html=readFileSync(new URL('../cadeau-sport.html',import.meta.url),'utf8');
-  assert.match(html,/Prouver qu'il a tort/);
+  assert.match(html,/id="open-app" class="primary"/);
+  assert.equal((html.match(/<a\b[^>]*>/g)||[]).length,1,
+    'the only link on a sport gift landing is Open in the app');
+  assert.doesNotMatch(html,/<button\b|id="claim"|id="prove"|Se connecter au site|\/api\/account\/sport\/gift\/claim/,
+    'web gift must not offer sign-in, racing or ownership-transfer actions');
   assert.match(html,/beatonstep:\/\/sport-gift\?code=/);
+  assert.match(html,/sans compte/);
+  assert.match(html,/if\(!valid\)\{status\('Ce lien est incomplet ou incorrect\.\'\);return\}/);
   assert.doesNotMatch(html,/expir(e|ation)|sept jours/i);
 });
