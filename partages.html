@@ -40,8 +40,6 @@
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 16px}
-    .difficulty-hint{flex-basis:100%;margin:0;color:var(--muted);font-size:11px;line-height:1.45}
-    .difficulty-hint[hidden]{display:none!important}
     .pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .filter-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     #results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -203,7 +201,6 @@
       .toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 15px}
       .filter-picker{width:100%;min-width:0}
       .filter-picker select{padding:9px 7px;font-size:13px;text-overflow:ellipsis}
-      .difficulty-hint{grid-column:1/-1}
       .card{padding:12px}
       .share-summary{padding:14px 14px 15px}
       .share-tree>.share-summary{padding-right:40px}
@@ -311,7 +308,6 @@
         <input id="distance-exact-filter" type="text" inputmode="decimal" maxlength="12"
           aria-labelledby="distance-exact-label" placeholder="5 ou 21,0975">
       </div>
-      <p id="difficulty-hint" class="difficulty-hint" hidden></p>
     </div>
     <div id="results" aria-live="polite">Chargement…</div>
     <div class="pagination" id="pages"></div>
@@ -948,7 +944,6 @@
     try{
       if(kind==='challenge'){
         await BeatOnStepSportPercentiles.ready();
-        updateDifficultyHint();
       }
       const typed=sportDistanceExact.trim();
       const exactDistance=typed
@@ -999,7 +994,6 @@
     $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
     for(const name of ['distance-picker','difficulty-picker','distance-exact-picker'])
       $(name).hidden=!sport;
-    $('difficulty-hint').hidden=!sport;
   }
   async function showDetail(){
     $('catalog').hidden=true;
@@ -1022,22 +1016,6 @@
       empty(target);
       target.append(el('p','error',fr('Ce partage est indisponible ou a expiré.','This share is unavailable or has expired.')));
     }
-  }
-  function updateDifficultyHint(){
-    const keys=['amateur','regular','intermediate','expert','legend'];
-    const names={
-      amateur:fr('Amateur','Amateur'),regular:fr('Régulier','Regular'),
-      intermediate:fr('Intermédiaire','Intermediate'),
-      expert:fr('Expert','Expert'),legend:fr('Légende','Legend')
-    };
-    const benchmarks=keys.map(key=>{
-      const top=BeatOnStepSportPercentiles.tierTopLabel(key,lang);
-      return top?names[key]+' · '+top:null;
-    }).filter(Boolean);
-    $('difficulty-hint').textContent=benchmarks.length
-      ?benchmarks.join(' · ')+fr(' · Élite : écart à la référence mondiale. Hors ultra.',
-        ' · Elite: gap to world benchmark. Excludes ultra races.')
-      :'';
   }
   function setLanguage(next){
     lang=next;
@@ -1090,7 +1068,6 @@
       fr('Difficulté décroissante','Difficulty: hardest first');
     $('distance-exact-label').textContent=fr('Distance exacte (km)','Exact distance (km)');
     $('distance-exact-filter').placeholder=fr('5 ou 21,0975','5 or 21.0975');
-    updateDifficultyHint();
     updateCatalogFilters();
     if(id||sportId)showDetail();else showList();
   }
