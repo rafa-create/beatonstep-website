@@ -87,6 +87,9 @@ test('catalog links to a separate, accessible challenge guide',()=>{
 test('generated guide and every difficulty explanation follow the canonical JSON',()=>{
   assert.equal(json.revision,canonical.revision);
   assert.deepEqual(json.levels,canonical.tierOrder);
+  assert.equal(json.ultraDifficulty,canonical.ultraDifficulty);
+  assert.match(page,/const difficulty=row.ultra\?guide.ultraDifficulty/);
+  assert.match(page,/data.ultraDifficulty!==official.ultraDifficulty/);
   assert.deepEqual(json.percentileTargets,
     canonical.percentileCalibration.estimatedPercentileTargets);
   assert.deepEqual(json.distances.map(row=>row.distanceCm),
