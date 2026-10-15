@@ -57,7 +57,7 @@ function setup(search,data=example){
     'footer-privacy','footer-privacy-label','community-link',
     'sport-guide-link','sport-guide-label',
     'catalog-toolbar','records-panel','records-heading','records-help',
-    'record-sort-label','record-sort','record-level-label','record-level',
+    'record-sort-label','record-sort','record-level-picker','record-level-label','record-level',
     'records-holdings-heading','records-holdings','records-collections-heading',
     'records-collections','records-privacy'])
     elements[name]=new Node(name);
@@ -158,6 +158,7 @@ function setup(search,data=example){
   assert.equal(records.elements['records-holdings-heading'].textContent,
     'Cartes gardées le plus longtemps');
   assert.equal(records.elements['record-sort'].value,'duration');
+  assert.equal(records.elements['record-level-picker'].hidden,false);
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
   assert.equal(records.elements.results.hidden,true);
   assert.equal(records.elements.pages.hidden,true);
@@ -171,16 +172,28 @@ function setup(search,data=example){
   assert.match(records.elements['records-holdings'].textContent,/Gardée : 1 jour/);
   assert.match(records.elements['records-holdings'].textContent,/Profil privé ou supprimé/);
   assert.match(records.elements['records-collections'].textContent,/2 cartes/);
+  records.elements['record-level'].value='expert';
+  records.elements['record-level'].onchange();await flush();await flush();
+  assert.match(records.apiCalls.at(-1),/sort=duration&level=expert/);
   records.elements['record-sort'].value='difficulty';
   records.elements['record-sort'].onchange();await flush();await flush();
   assert.equal(records.elements['records-holdings-heading'].textContent,
     'Cartes les plus difficiles');
+  assert.equal(records.elements['record-level-picker'].hidden,true);
+  assert.equal(records.elements['record-level'].value,'all',
+    'switching ranking must clear an invisible level constraint');
   assert.match(records.apiCalls.at(-1),/sort=difficulty&level=all/);
-  records.elements['record-level'].value='world_elite';
-  records.elements['record-level'].onchange();await flush();await flush();
-  assert.match(records.apiCalls.at(-1),/sort=difficulty&level=world_elite/);
+  records.elements['record-sort'].value='duration';
+  records.elements['record-sort'].onchange();await flush();await flush();
+  assert.equal(records.elements['record-level-picker'].hidden,false);
+  assert.match(records.apiCalls.at(-1),/sort=duration&level=all/);
+  records.elements['record-sort'].value='difficulty';
+  records.elements['record-sort'].onchange();await flush();await flush();
+  assert.equal(records.elements['record-level-picker'].hidden,true);
   records.elements.en.onclick();await flush();await flush();
   assert.equal(records.elements['records-holdings-heading'].textContent,'Hardest cards');
+  assert.equal(records.elements['record-level-picker'].hidden,true,
+    'the hidden tier selector must remain hidden on language changes');
   assert.equal(records.elements.back.textContent,'← My account');
   assert.match(records.elements['records-holdings'].textContent,/Ongoing/);
   assert.ok(html.includes('<option value="duration">Cartes gardées le plus longtemps</option>'));
