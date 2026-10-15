@@ -14,6 +14,11 @@ input{width:100%;border:1px solid #756b4e;border-radius:10px;background:#100f0d;
 button{background:var(--accent);color:#14140b;border:0;border-radius:40px;min-height:44px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer}
 button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;border:1px solid #827756;color:var(--ink)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.account-name{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.account-name h2{margin-bottom:0;overflow-wrap:anywhere}
+.account-name button{font-size:13px;min-height:38px}
+#handle-form{margin:12px 0 20px;padding:16px;border-radius:14px;border:1px solid var(--line);background:#232118}
+#handle-form .actions{margin-top:12px}
 #account-signout{padding-top:14px;margin-top:24px;border-top:1px solid var(--line)}#account-signout button{width:100%}
 .notice{margin-top:16px;color:var(--ink);padding:12px;border-left:3px solid var(--accent);background:#28271b}
 .deck-toggles{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 14px}
@@ -113,7 +118,16 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <label><input id="signup-terms" style="width:auto;min-height:0" type="checkbox" required> J’accepte la <a href="/privacy.html" target="_blank" rel="noopener noreferrer">politique de confidentialité</a> et la publication de mon pseudo.</label>
 <div class="actions"><button type="submit">Créer mon compte</button><button type="button" class="secondary" id="go-signin">J’ai déjà un compte</button></div>
 </form></section>
-<section id="account" hidden><h2 id="hello"></h2>
+<section id="account" hidden>
+<div class="account-name"><h2 id="hello"></h2><button type="button" class="secondary" id="handle-edit">Modifier mon pseudo</button></div>
+<form id="handle-form" hidden>
+<label for="handle-input">Nouveau pseudo public</label>
+<input id="handle-input" minlength="3" maxlength="24" pattern="[a-z0-9][a-z0-9_.-]{2,23}"
+  autocomplete="nickname" autocapitalize="off" spellcheck="false" aria-describedby="handle-help" required>
+<p id="handle-help" class="field-help">3 à 24 caractères : lettres minuscules, chiffres, points, tirets et tirets bas. Le lien vers ton profil public changera.</p>
+<div class="actions"><button type="submit" id="handle-save">Enregistrer</button>
+<button type="button" class="secondary" id="handle-cancel">Annuler</button></div>
+</form>
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
@@ -198,6 +212,9 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     if(!r.ok)throw Error(({registration_closed:'Les inscriptions ne sont pas encore ouvertes.',
       account_unavailable:'Espace personnel non disponible : vérifier la migration D1.',
       invalid_credentials:'Identifiants invalides.',account_exists:'E-mail ou pseudo déjà utilisé.',
+      invalid_handle:'Choisis un pseudo valide de 3 à 24 caractères.',
+      handle_taken:'Ce pseudo est déjà utilisé. Essaie-en un autre.',
+      handle_changed:'Ton pseudo a changé ailleurs. Actualise cette page.',
       password_reset_unavailable:'La récupération par e-mail n’est pas encore configurée.',
       invalid_password_reset:'Ce lien a expiré ou le mot de passe est invalide. Demandez un nouveau lien.',
       retry_later:'Trop de tentatives. Réessayez ultérieurement.',
@@ -210,7 +227,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     return value;
   }
   function panel(value){for(const key of ['signin','signup','account','public-profile','forgot','password-reset']) $(key).hidden=key!==value}
-  let savedCreatedCards=[],savedOwnedCards=[],sessionGoal='time';
+  let savedCreatedCards=[],savedOwnedCards=[],sessionGoal='time',currentHandle='';
   const currentCardGoal=item=>item?.goalMode==='distance'?'distance':'time';
   const cardKindLabel=item=>currentCardGoal(item)==='distance'
     ?'Séance de distance'+(Number.isSafeInteger(item.distanceMeters)?
@@ -600,7 +617,11 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         $('intro').textContent='Crée ton compte ou connecte-toi pour recevoir la carte dans ta collection.';}
       return;
     }
-    panel('account');$('hello').textContent='Connecté : @'+me.handle;
+    panel('account');currentHandle=me.handle;
+    $('hello').textContent='Connecté : @'+me.handle;
+    $('handle-input').value=me.handle;
+    $('handle-form').hidden=true;
+    $('handle-edit').hidden=false;
     $('link-panel').hidden=!linking;
     status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
     const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
@@ -609,6 +630,36 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     showDecks();
     void Promise.all([refreshSavedWorkouts(data.items),refreshHistory()]);
   }
+  $('handle-edit').onclick=()=>{
+    $('handle-input').value=currentHandle;
+    $('handle-edit').hidden=true;
+    $('handle-form').hidden=false;
+    $('handle-input').focus();
+  };
+  $('handle-cancel').onclick=()=>{
+    $('handle-form').hidden=true;
+    $('handle-edit').hidden=false;
+    $('handle-input').value=currentHandle;
+    $('handle-edit').focus();
+  };
+  $('handle-form').onsubmit=async event=>{
+    event.preventDefault();
+    const button=$('handle-save');
+    button.disabled=true;
+    try{
+      const updated=await api('/api/account/handle','POST',{
+        handle:$('handle-input').value,
+      });
+      currentHandle=updated.handle;
+      $('hello').textContent='Connecté : @'+updated.handle;
+      $('handle-input').value=updated.handle;
+      $('handle-form').hidden=true;
+      $('handle-edit').hidden=false;
+      status(updated.changed?'Pseudo modifié ! Ton profil est maintenant @'+updated.handle+'.'
+        :'Ce pseudo est déjà le tien.');
+    }catch(error){status(error.message)}
+    finally{button.disabled=false}
+  };
   $('go-signup').onclick=()=>{panel('signup');status('Choisissez un pseudo public.')};
   $('go-signin').onclick=()=>{panel('signin');status('Connectez-vous avec votre compte.')};
   $('go-forgot').onclick=()=>{
