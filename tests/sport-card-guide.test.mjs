@@ -6,6 +6,7 @@ import {SPORT_CARD_DISTANCES,SPORT_CARD_400M_TIERS,
   maxSubMinuteByTier,difficultyForSportCard} from '../worker/sport-card-rules.js';
 
 const json=JSON.parse(readFileSync(new URL('../dist/sport-card-paliers.json',import.meta.url),'utf8'));
+const canonical=JSON.parse(readFileSync(new URL('../sport-card-rules.json',import.meta.url),'utf8'));
 const page=readFileSync(new URL('../cartes-guide.html',import.meta.url),'utf8');
 const catalog=readFileSync(new URL('../partages.html',import.meta.url),'utf8');
 
@@ -60,9 +61,10 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.doesNotMatch(page,/id="time-input"/);
   assert.match(page,/sport-card-paliers\.json/);
   assert.match(page,/tous âges et sexes confondus/);
-  assert.match(page,/top 50 %/);
-  assert.match(page,/top 20 %/);
-  assert.match(page,/top 5 %/);
+  assert.match(page,/tierDescription\(key\)/);
+  assert.match(page,/const percent=guide\?\.percentileTargets\?\.\[key\]/);
+  assert.doesNotMatch(page,/Environ top 20 % des arrivants|Médiane : environ top 50 %/,
+    'no separate hard-coded percentile descriptions');
   assert.match(page,/Comparer au record sur la carte ouverte/);
   assert.match(page,/Écart au record/);
   assert.doesNotMatch(page,/Environ top 1 % des arrivants/,
@@ -72,11 +74,47 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'technical notes are removed from the running-focused calculator');
   assert.match(page,/Aperçu en préparation/);
   assert.match(page,/Distance en préparation : cette carte ne peut pas encore être gagnée/);
-  assert.match(page,/data.distances.length!==206/);
+  assert.match(page,/data.revision!==official.revision/);
+  assert.match(page,/const official=await BeatOnStepSportPercentiles.ready\(\)/);
+  assert.doesNotMatch(page,/data.distances.length!==206/,
+    'guide must accept future official rule updates');
   assert.match(page,/cm===80000/);
   assert.match(page,/cm===150000/);
   assert.match(page,/cm===160934/);
   assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
+});
+
+test('generated guide and every difficulty explanation follow the canonical JSON',()=>{
+  assert.equal(json.revision,canonical.revision);
+  assert.deepEqual(json.levels,canonical.tierOrder);
+  assert.deepEqual(json.percentileTargets,
+    canonical.percentileCalibration.estimatedPercentileTargets);
+  assert.deepEqual(json.distances.map(row=>row.distanceCm),
+    [...canonical.distancesCm,...canonical.pendingTrackDistancesCm].sort((a,b)=>a-b));
+  for(const row of json.distances){
+    assert.equal(row.unit,(canonical.secondResolutionDistancesCm.includes(row.distanceCm)||
+      canonical.pendingTrackDistancesCm.includes(row.distanceCm))?'second':'minute');
+    assert.deepEqual(row.caps,canonical.capsByDistance[String(row.distanceCm)]||
+      canonical.pendingTrackCapsByDistance[String(row.distanceCm)]||null);
+  }
+  const script=page.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const formula=script.match(/  const levelNames=\{[\s\S]*?  const t=\(fr,en\)=>lang==='fr'\?fr:en;/)?.[0];
+  assert.ok(formula,'dynamic level explanation methods present');
+  const render=new Function('guide','lang',
+    formula+';return {tierStars,tierDescription};');
+  const officialGuide={levels:[...canonical.tierOrder],
+    percentileTargets:{...canonical.percentileCalibration.estimatedPercentileTargets}};
+  const base=render(officialGuide,'fr');
+  assert.equal(base.tierStars('world_elite'),7);
+  assert.equal(base.tierStars('beginner'),1);
+  assert.match(base.tierDescription('expert'),/20 %/);
+  const future={...officialGuide,percentileTargets:{
+    ...officialGuide.percentileTargets,expert:21,amateur:89}};
+  const changed=render(future,'fr');
+  assert.match(changed.tierDescription('expert'),/21 %/);
+  assert.match(changed.tierDescription('beginner'),/89 %/);
+  assert.doesNotMatch(changed.tierDescription('expert'),/20 %/,
+    'updating one JSON target must update the informative page');
 });
 
 test('chrono dropdowns preserve hours, minutes, seconds and 400m hundredths',()=>{
