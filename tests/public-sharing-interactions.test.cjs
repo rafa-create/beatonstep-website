@@ -190,6 +190,12 @@ function setup(search,data=example){
   records.elements['record-sort'].value='difficulty';
   records.elements['record-sort'].onchange();await flush();await flush();
   assert.equal(records.elements['record-level-picker'].hidden,true);
+  const urlHardest=setup('?view=records&recordSort=difficulty&level=expert',sport);
+  await flush();await flush();
+  assert.equal(urlHardest.elements['record-level-picker'].hidden,true);
+  assert.equal(urlHardest.elements['record-level'].value,'all');
+  assert.match(urlHardest.apiCalls.at(-1),/sort=difficulty&level=all/,
+    'an old deep link must never silently apply a hidden tier filter');
   records.elements.en.onclick();await flush();await flush();
   assert.equal(records.elements['records-holdings-heading'].textContent,'Hardest cards');
   assert.equal(records.elements['record-level-picker'].hidden,true,
