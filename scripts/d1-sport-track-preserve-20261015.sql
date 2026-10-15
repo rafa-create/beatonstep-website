@@ -1,24 +1,5 @@
 CREATE TABLE _bos_track_20261015_guard (passed INTEGER NOT NULL CHECK(passed=1));
 
--- Notes de securite / usage (placees APRES le premier statement SQL pour Wrangler)
--- BeatOnStep D1 / migration CONSERVATRICE (800m, 1500m, mile).
--- Version preparee le 15/10/2026 ; pas d'execution automatique.
--- Cible UNIQUE : Cloudflare D1 beatonstep-catalog-prod.
--- Conserve exactement tous les IDs, dates, cartes, essais, cadeaux,
--- anciens proprietaires, epochs et motifs d'examen.
--- Preconditions :
--- 1. Bookmark/restauration D1 effectue et identifiant conserve.
--- 2. Aucune demande de gain/cadeau pendant cette operation.
--- 3. Etat initial des comptes sportifs toujours 2/2/2/2/2/2/0.
--- 4. Les dependances SQLite sont celles confirmees dans le diagnostic.
--- Colle le script ENTIER en UNE seule execution. Pas de BEGIN / COMMIT :
--- Cloudflare D1 gere sa transaction implicite par lot de statements.
--- En cas d'erreur : verifier l'absence d'application partielle avant
--- toute relance, ne pas appliquer de correction a l'aveugle.
---
--- En cas de changement de l'etat des tables, le garde doit echouer
--- AVANT le premier DROP.
-
 INSERT INTO _bos_track_20261015_guard(passed)
 SELECT CASE WHEN
   (SELECT COUNT(*) FROM sport_world_cards)=2 AND
@@ -35,7 +16,6 @@ SELECT CASE WHEN
     AND sql LIKE '%distance_cm=40000 AND time_unit=%')=1
   THEN 1 ELSE 0 END;
 
--- Sauvegardes transactionnelles avec tous les champs.
 CREATE TABLE _bos_track_20261015_sport_world_cards AS SELECT * FROM sport_world_cards;
 CREATE TABLE _bos_track_20261015_sport_verified_runs AS SELECT * FROM sport_verified_runs;
 CREATE TABLE _bos_track_20261015_sport_card_achievements AS SELECT * FROM sport_card_achievements;
@@ -47,7 +27,6 @@ CREATE TABLE _bos_track_20261015_sequence AS
  SELECT name,seq FROM sqlite_sequence
  WHERE name IN ('sport_world_cards','sport_card_ownership_events');
 
--- Ordre strict : enfants -> parents. Aucune cascade destructive.
 DROP TRIGGER IF EXISTS sport_verified_run_award_v1;
 DROP TRIGGER IF EXISTS sport_card_owner_account_deletion;
 DROP TABLE sport_card_telemetry_reason_details;
@@ -58,14 +37,6 @@ DROP TABLE sport_verified_runs;
 DROP TABLE sport_card_ownership_events;
 DROP TABLE sport_world_cards;
 
--- Recreation identique des tables, hormis la contrainte de temps.
--- #445 #448 #449 #450 #460 — Independent world-wide SPORT TROPHY ledger, v1.
--- Apply manually on beatonstep-catalog-prod only after backup and review.
--- Does not modify any historic workout_cards, signed_shares, workout_card_gifts,
--- published musical templates, or account_run_records (untrusted memories).
--- Adds read-only account views initially: awards / theft / gift claim remain
--- DISABLED until a separate, trusted sport-evidence acceptance service exists.
--- All dates are UTC milliseconds and all sports thresholds are strict sub N.
 CREATE TABLE IF NOT EXISTS sport_world_cards (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   distance_cm INTEGER NOT NULL CHECK(distance_cm BETWEEN 40000 AND 20000000),
@@ -80,7 +51,6 @@ CREATE TABLE IF NOT EXISTS sport_world_cards (
   owner_epoch INTEGER NOT NULL DEFAULT 0 CHECK(owner_epoch>=0),
   CHECK((current_owner_id IS NULL AND owner_since IS NULL) OR
     (current_owner_id IS NOT NULL AND owner_since IS NOT NULL)),
-  -- Track events use an exact-second SUB, never a minute-rounded sprint.
   CHECK((distance_cm IN (40000,80000,150000,160934) AND time_unit='second') OR
     (distance_cm NOT IN (40000,80000,150000,160934) AND time_unit='minute')),
   UNIQUE(distance_cm,time_unit,sub_value)
@@ -88,8 +58,6 @@ CREATE TABLE IF NOT EXISTS sport_world_cards (
 CREATE INDEX IF NOT EXISTS sport_world_cards_owner
   ON sport_world_cards(current_owner_id,id);
 
--- Verified sporting achievements are separate from CURRENT possession:
--- gaining a card through a gift does not create one.
 CREATE TABLE IF NOT EXISTS sport_verified_runs (
   user_id TEXT NOT NULL REFERENCES community_users(id) ON DELETE CASCADE,
   run_id TEXT NOT NULL CHECK(length(run_id) BETWEEN 1 AND 128),
@@ -118,8 +86,6 @@ CREATE TABLE IF NOT EXISTS sport_card_achievements (
 CREATE INDEX IF NOT EXISTS sport_card_achievements_card
   ON sport_card_achievements(card_id,first_validated_at);
 
--- Immutable ownership timeline. Several epochs may belong to one runner;
--- the final ghost shows their LAST completed holding period, not lifetime sum.
 CREATE TABLE IF NOT EXISTS sport_card_ownership_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   card_id INTEGER NOT NULL REFERENCES sport_world_cards(id) ON DELETE CASCADE,
@@ -130,7 +96,6 @@ CREATE TABLE IF NOT EXISTS sport_card_ownership_events (
   reason TEXT NOT NULL CHECK(reason IN
     ('sport_win','gift_claim','account_closed')),
   changed_at INTEGER NOT NULL CHECK(changed_at>0),
-  -- Historical identity references can be anonymised on account deletion.
   CHECK(previous_owner_id IS NOT new_owner_id OR
     previous_owner_id IS NULL OR new_owner_id IS NULL)
 );
@@ -143,10 +108,6 @@ CREATE INDEX IF NOT EXISTS sport_ownership_out
 CREATE INDEX IF NOT EXISTS sport_ownership_timeline
   ON sport_card_ownership_events(card_id,changed_at DESC,id DESC);
 
--- When deleting a runner's account, release their active world trophy.
--- A BEFORE DELETE trigger is required: the owner FK SET NULL alone would
--- conflict with owner_since remaining set, blocking account deletion.
--- The event is anonymised by FK actions when the account is removed.
 CREATE TRIGGER IF NOT EXISTS sport_card_owner_account_deletion
 BEFORE DELETE ON community_users
 BEGIN
@@ -160,15 +121,6 @@ BEGIN
     WHERE current_owner_id=OLD.id;
 END;
 
--- Free bearer links will be a separate follow-up. They reference card_id +
--- owner_epoch (so a later re-win never revives an expired opportunity to claim)
--- and retain a public-only snapshot after a transfer; no personal recipient.
--- Do NOT reuse the old seven-day musical workout_card_gifts schema.
-
--- #447: bearer gifts for world SPORT cards, independent of musical 7-day gifts.
--- Install after 0008, only after a D1 backup. No existing tables modified.
--- A token remains viewable for archival purposes after a card changes hands;
--- claim requires donor's CURRENT ownership epoch and an unclaimed token.
 CREATE TABLE IF NOT EXISTS sport_card_gift_links (
   token_hash TEXT PRIMARY KEY NOT NULL
     CHECK(length(token_hash)=64),
@@ -184,10 +136,6 @@ CREATE INDEX IF NOT EXISTS sport_gift_links_donor
 CREATE INDEX IF NOT EXISTS sport_gift_links_card_epoch
   ON sport_card_gift_links(card_id,donor_epoch,claimed_at);
 
--- #98 — Optional, asynchronous sporting-performance review; never an award gate.
--- Apply manually to beatonstep-catalog-prod after a D1 backup.
--- A review belongs to ONE ownership epoch, not the transferable world card.
--- No raw GPS coordinates, route history, account IDs, or audio.
 CREATE TABLE IF NOT EXISTS sport_card_telemetry_reviews (
   card_id INTEGER NOT NULL REFERENCES sport_world_cards(id) ON DELETE CASCADE,
   owner_epoch INTEGER NOT NULL CHECK(owner_epoch>=1),
@@ -201,10 +149,6 @@ CREATE TABLE IF NOT EXISTS sport_card_telemetry_reviews (
 CREATE INDEX IF NOT EXISTS sport_telemetry_review_pending
   ON sport_card_telemetry_reviews(state,created_at);
 
--- #98 — immutable human-explainable reasons for each historical sport win.
--- Additive to 0011: safe for existing review rows, never touches ownership.
--- This table is also created idempotently by the optional Cloudflare cron.
--- reason_codes is a JSON array of fixed codes, never raw GPS or personal data.
 CREATE TABLE IF NOT EXISTS sport_card_telemetry_reason_details (
   card_id INTEGER NOT NULL,
   owner_epoch INTEGER NOT NULL,
@@ -214,7 +158,6 @@ CREATE TABLE IF NOT EXISTS sport_card_telemetry_reason_details (
     REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
 );
 
--- Restitution de toutes les donnees : parent puis enfants.
 INSERT INTO sport_world_cards (id,distance_cm,time_unit,sub_value,difficulty,ruleset,created_at,current_owner_id,owner_since,owner_epoch)
 SELECT id,distance_cm,time_unit,sub_value,difficulty,ruleset,created_at,current_owner_id,owner_since,owner_epoch FROM _bos_track_20261015_sport_world_cards;
 INSERT INTO sport_verified_runs (user_id,run_id,card_id,completed_at,verified_at,evidence_digest,evidence_source)
@@ -230,7 +173,6 @@ SELECT card_id,owner_epoch,needs_warning,state,created_at,reviewed_at FROM _bos_
 INSERT INTO sport_card_telemetry_reason_details (card_id,owner_epoch,reason_codes)
 SELECT card_id,owner_epoch,reason_codes FROM _bos_track_20261015_sport_card_telemetry_reason_details;
 
--- Evite de recycler un ID eventuel plus ancien que MAX(id).
 UPDATE sqlite_sequence
 SET seq=MAX(seq,COALESCE((
   SELECT MAX(old.seq) FROM _bos_track_20261015_sequence AS old
@@ -238,21 +180,6 @@ SET seq=MAX(seq,COALESCE((
 ),0))
 WHERE name IN ('sport_world_cards','sport_card_ownership_events');
 
--- Le trigger de recompense n'existe qu'APRES restitution des courses.
--- #445 #448 #450. Apply AFTER 0008; backup D1 first.
--- This trigger is an atomic ledger primitive, NOT an evidence-verification
--- endpoint. The only way to invoke it is an INSERT into sport_verified_runs,
--- which MUST remain private to a trusted server-side attestation adapter.
--- account_run_records, unsigned GPS payloads and browser/mobile recaps must
--- never insert into sport_verified_runs.
---
--- The AFTER INSERT trigger runs INSIDE the same SQLite statement:
---   1. preserve a new personal achievement (or increment its run count),
---   2. transfer the ONE exact tier only if the athlete is not already owner,
---   3. retain personal achievements and past ownership epochs.
--- The PK (user_id,run_id) makes run replay a no-op, not a second theft.
--- A gift recipient who later truly performs the same tier receives credit
--- without a second card or an extra ownership epoch.
 CREATE TRIGGER IF NOT EXISTS sport_verified_run_award_v1
 AFTER INSERT ON sport_verified_runs
 BEGIN
@@ -280,8 +207,6 @@ BEGIN
   WHERE id=NEW.card_id AND current_owner_id IS NOT NEW.user_id;
 END;
 
-
--- Assertions : chaque ligne est retrouvee, avec son identite intacte.
 INSERT INTO _bos_track_20261015_guard(passed)
 SELECT CASE WHEN
   (SELECT COUNT(*) FROM sport_world_cards)=
@@ -304,7 +229,6 @@ SELECT CASE WHEN
       'sport_verified_run_award_v1'))=2
 THEN 1 ELSE 0 END;
 
--- Conserver toutes les relations et ne rien laisser comme staging.
 PRAGMA foreign_key_check;
 DROP TABLE _bos_track_20261015_sport_card_telemetry_reason_details;
 DROP TABLE _bos_track_20261015_sport_card_telemetry_reviews;
@@ -316,7 +240,6 @@ DROP TABLE _bos_track_20261015_sport_world_cards;
 DROP TABLE _bos_track_20261015_sequence;
 DROP TABLE _bos_track_20261015_guard;
 
--- Lectures de controle (aucune ecriture).
 SELECT 'OK - 2 cartes et historiques conserves' AS statut;
 SELECT name,sql FROM sqlite_master WHERE name='sport_world_cards';
 SELECT 'sport_world_cards' AS tbl,COUNT(*) AS lignes FROM sport_world_cards
