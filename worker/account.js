@@ -334,7 +334,9 @@ export async function accountRequest(request,env,url,ctx) {
           ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
           .bind(user.id).all():null;
       return reply({handle:user.handle,showChallenges,
-        items:(items.results||[]).map(x=>({
+        // If the runner hides challenges, also exclude any legacy signed
+        // challenge items; only musical workouts remain in the public list.
+        items:(items.results||[]).filter(x=>showChallenges||x.kind==='workout').map(x=>({
           id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
           createdAt:x.created_at,imports:Number(x.imports)||0,
           ...(x.kind==='workout'?workoutCardType(x):{}),
