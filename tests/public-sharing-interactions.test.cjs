@@ -112,7 +112,7 @@ function setup(search,data=example){
   assert.equal(landing.elements['kind-filter'].value,'challenge');
   assert.equal(landing.elements['distance-filter'].value,'all');
   assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
-  assert.match(html,/id="distance-exact-filter"[\\s\\S]*?placeholder="Distance \\(km\\)"/);
+  assert.match(html,/id="distance-exact-filter"[\s\S]*?placeholder="Distance \(km\)"/);
   assert.equal(landing.elements['distance-exact-filter'].placeholder,'Distance (km)');
   assert.equal(landing.elements['distance-exact-filter'].value,'');
   assert.equal(landing.elements['sort-picker'].hidden,true);
