@@ -36,7 +36,7 @@ test('special page has two short, distinct catalogue choices with clear game rul
   assert.equal((hero.match(/<article class="workouts-path">/g)||[]).length,2);
   for(const kind of ['workout','challenge']){
     const url='partages.html?kind='+kind;
-    assert.equal(hero.split('href="'+url+'"').length-1,2,
+    assert.equal(hero.split(' href="'+url+'"').length-1,2,
       'both language variants point to the '+kind+' catalogue');
     assert.equal(hero.split('data-href="'+url+'"').length-1,2,
       'the site translates the '+kind+' link');
