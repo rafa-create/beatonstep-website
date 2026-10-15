@@ -75,6 +75,7 @@ function setup(search,data=example){
   const document={
     hidden:false,documentElement:{lang:'fr'},body,
     createElement(tag){return new Node(tag)},
+    createElementNS(_namespace,tag){return new Node(tag)},
     getElementById(name){return elements[name]},
     querySelector(selector){
       if(options[selector])return options[selector];
