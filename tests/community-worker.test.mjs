@@ -165,6 +165,8 @@ function renameFixture() {
           if(sql.startsWith('INSERT INTO community_auth_limits'))return {count:1};
           if(sql==='SELECT id,handle FROM community_users WHERE handle=?')
             return args[0]===owner.handle?{id:owner.id,handle:owner.handle}:null;
+          if(sql==='SELECT show_challenges FROM community_profile_settings WHERE user_id=?')
+            return null; // First-time public profile: challenges are visible by default.
           throw Error('Unexpected first: '+sql);
         },
         async all(){
