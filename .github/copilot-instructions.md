@@ -18,6 +18,12 @@ Le dépôt contient aussi les API Cloudflare Workers/D1 consommées par l'applic
 - Si aucune extraction sûre et réellement utile ne se présente, conserver le fichier tel quel et l'expliquer brièvement dans le bilan.
 - Pour les modifications d'API, vérifier les conséquences à la fois sur le site et sur l'application mobile. Ne pas supposer qu'une modification du Worker n'affecte que le site.
 
+## Règle SQL obligatoire pour les agents IA
+
+- **Ne jamais commencer un fichier `.sql` par un commentaire**, notamment `--`, `/* ... */` ou un en-tête descriptif ; la première ligne non vide doit être une **instruction SQL exécutable** (`CREATE`, `SELECT`, etc.). Déplacer la documentation en fichier `.md` adjacent ou **après la première instruction SQL terminée par `;`**.
+- **Pourquoi :** `wrangler d1 execute --remote --command "$(cat script.sql)"` peut interpréter un texte qui commence par `--` comme un argument de CLI et échouer avec `Unknown argument`, avant tout SQL. Sur une migration critique, le lanceur doit vérifier cette propriété et un test automatique doit empêcher toute régression.
+- **Incident connu le 15/10/2026 :** passage de la migration D1 via `--command` bloqué par le commentaire `-- BeatOnStep...` en tête du SQL. Corrigé en commençant le fichier par `CREATE TABLE _bos_track_20261015_guard (...);`. À cet instant **aucun résultat de migration D1 réussi n'est encore attesté** : ne pas confondre correction Git et exécution production.
+
 ## Cartes sportives : D1 et demi-fond (état au 15/10/2026)
 
 - La mémoire IA opératoire réside dans le dépôt privé BeatOnStep : `docs/ai-history/SPORT-CARDS-D1-TRACK-20261015.md` et l'index `docs/DOCS-AGENT-MAP.md` ; l'issue [#448](https://github.com/rafa-create/BeatOnStep/issues/448) trace les actions. **Lire ce document avant toute intervention D1 ou activation des distances 800 m, 1 500 m et mile.**
