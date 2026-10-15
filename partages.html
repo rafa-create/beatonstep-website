@@ -269,7 +269,7 @@
     <button type="button" id="sport-cards-tab" aria-pressed="true">Cartes</button>
     <button type="button" id="sport-records-tab" aria-pressed="false">Records</button>
   </div>
-    <div class="toolbar">
+    <div class="toolbar" id="catalog-toolbar">
       <div class="filter-picker">
         <label id="kind-label" for="kind-filter">Type</label>
         <select id="kind-filter" aria-labelledby="kind-label">
@@ -395,6 +395,7 @@
   'use strict';
   const API='/api/shared';
   const SPORT_API='/api/sport/cards';
+  const SPORT_RECORDS_API='/api/sport/records';
   const params=new URLSearchParams(location.search);
   const parsedId=params.get('id');
   const id=parsedId && /^[1-9]\d{0,14}$/.test(parsedId) ? Number(parsedId) : null;
@@ -409,10 +410,16 @@
   let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):
     ['all','runmix'].includes(params.get('kind'))?'workout':'challenge';
   let sportDistance='all',sportDifficultyOrder='difficulty_desc',sportDistanceExact='';
+  let recordsView=false,recordSort='duration',recordLevel='all',recordTicket=0;
   let musicGoal=['all','time','distance'].includes(params.get('goal'))?
     params.get('goal'):'all';
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
   let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
+  recordsView=!id&&!sportId&&kind==='challenge'&&params.get('view')==='records';
+  if(['duration','difficulty'].includes(params.get('recordSort')))
+    recordSort=params.get('recordSort');
+  if(['all','world_elite','legend','expert','intermediate','regular','amateur','beginner']
+    .includes(params.get('level')))recordLevel=params.get('level');
   const cache=new Map();
   const sportCache=new Map();
   const countedViews=new Set();
