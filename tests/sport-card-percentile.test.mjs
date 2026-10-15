@@ -23,7 +23,6 @@ const card=(distanceCm,subValue,difficulty='beginner')=>({distanceCm,subValue,di
 test('world labels are read from the same v2 JSON as official sporting awards',async()=>{
   const client=await api();
   const checks=[
-    [500000,19,'world_elite',1],
     [500000,22,'legend',5],
     [500000,29,'expert',20],
     [500000,35,'intermediate',50],
@@ -44,19 +43,36 @@ test('world labels are read from the same v2 JSON as official sporting awards',a
 
 test('percentiles progress for individual SUB thresholds and world record is the floor',async()=>{
   const client=await api();
-  for(const [sub,top] of [[19,1],[20,2],[22,5],[24,9],[25,11],[27,16],[29,20]]){
+  for(const [sub,top] of [[20,2],[22,5],[24,9],[25,11],[27,16],[29,20]]){
     assert.equal(client.percentile(card(500000,sub)),top,'5km SUB '+sub);
   }
-  assert.ok(client.percentile(card(500000,15))<client.percentile(card(500000,18)));
-  assert.equal(client.percentile(card(500000,13)),0.1);
-  assert.equal(client.label(card(500000,13),'fr'),'Palier du record mondial');
-  assert.equal(client.label(card(500000,13),'en'),'World record time bracket');
-  assert.equal(client.percentile(card(40000,44)),0.1);
+  for(const [sub,expected] of [
+    [13,'À 11 s du record mondial'],
+    [14,'À 1 min 11 s du record mondial'],
+    [15,'À 2 min 11 s du record mondial'],
+    [16,'À 3 min 11 s du record mondial'],
+    [17,'À 4 min 11 s du record mondial'],
+    [18,'À 5 min 11 s du record mondial'],
+    [19,'À 6 min 11 s du record mondial'],
+  ]){
+    assert.equal(client.percentile(card(500000,sub)),null,
+      'no fabricated extreme-tail percentiles for elite SUB '+sub);
+    assert.equal(client.label(card(500000,sub),'fr'),expected);
+  }
+  assert.equal(client.label(card(500000,14),'en'),
+    '1 min 11 sec from the world record');
+  assert.equal(client.label(card(500000,12),'fr'),'Palier du record mondial');
+  assert.equal(client.percentile(card(40000,44)),null);
+  assert.equal(client.label(card(40000,44),'fr'),'À 1 s du record mondial');
   assert.equal(client.recordBracket(card(40000,44)),'official');
   assert.equal(client.recordBracket(card(40000,45)),null);
   const distance=400000; // 4km has a modeled reference between 3km and road 5km.
   const world=client.worldRecordReference(distance);
   assert.ok(world&&world.estimated===true&&world.seconds>437.55&&world.seconds<769);
+  assert.equal(client.recordGap(card(400000,15))?.estimated,true,
+    'an interpolated world reference is explicitly marked as estimated');
+  assert.match(client.label(card(400000,15),'fr'),/référence mondiale estimée/);
+  assert.equal(client.label({...card(500000,15),performanceWarning:true},'fr'),'Élite mondiale');
   assert.equal(client.worldRecordReference(500000).seconds,769);
   assert.equal(client.worldRecordReference(100000).seconds,131.83,
     'uses the ratified 2026 Wanyonyi record');
