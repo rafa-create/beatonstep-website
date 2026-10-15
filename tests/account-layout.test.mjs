@@ -36,6 +36,12 @@ test('inline account interactions remain syntactically valid',()=>{
   assert.doesNotThrow(()=>new vm.Script(source));
 });
 
+test('saved workout copy explains author attribution in plain French',()=>{
+  assert.match(html,/Retrouve ces séances dans l’application/);
+  assert.match(html,/ne fait pas de toi son créateur/);
+  assert.doesNotMatch(html,/Les imports ne transfèrent pas la création/);
+});
+
 test('musical cards are split by time or distance without mixing sporting trophies',()=>{
   assert.match(html,/id="session-time" type="button"/);
   assert.match(html,/id="session-distance" type="button"/);
