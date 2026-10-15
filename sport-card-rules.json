@@ -692,5 +692,8 @@
     "distanceReference": "1609.344 m exact mile, represented as 160934 cm because canonical integer centimeters are used",
     "model": "Estimated from 5km finisher tiers using time ∝ distance^1.06 and rounded to strict integer-second SUB caps; not direct world measured percentiles",
     "activation": "Requires reviewed D1 constraint migration, full local/mobile/server tests and coordinated deployment. Do not silently insert these distances into distancesCm"
-  }
+  },
+  "secondResolutionDistancesCm": [
+    40000
+  ]
 }
