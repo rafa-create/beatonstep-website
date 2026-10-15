@@ -55,7 +55,12 @@ function setup(search,data=example){
     'difficulty-picker','difficulty-label','difficulty-filter','difficulty-hint',
     'distance-exact-picker','distance-exact-label','distance-exact-filter',
     'footer-privacy','footer-privacy-label','community-link',
-    'sport-guide-link','sport-guide-label'])
+    'sport-guide-link','sport-guide-label',
+    'sport-record-tabs','sport-cards-tab','sport-records-tab',
+    'catalog-toolbar','records-panel','records-heading','records-help',
+    'record-sort-label','record-sort','record-level-label','record-level',
+    'records-holdings-heading','records-holdings','records-collections-heading',
+    'records-collections','records-privacy'])
     elements[name]=new Node(name);
   // Mirror the actual accessible profile label inside #community-link.
   const communityLabel=new Node('span');
@@ -70,6 +75,9 @@ function setup(search,data=example){
     ['source-filter',['all']],
     ['distance-filter',['all']],
     ['difficulty-filter',['difficulty_asc','difficulty_desc']],
+    ['record-sort',['duration','difficulty']],
+    ['record-level',['all','world_elite','legend','expert','intermediate',
+      'regular','amateur','beginner']],
   ])for(const value of values)options[`#${id} option[value=${value}]`]=new Node('option');
   const body=new Node('body');
   const apiCalls=[];
@@ -87,6 +95,14 @@ function setup(search,data=example){
     apiCalls.push(url);
     if(url==='/sport-card-rules.json')
       return {ok:true,json:async()=>rules};
+    if(url.startsWith('/api/sport/records?'))return {ok:true,json:async()=>({
+      holdings:[
+        {cardId:17,distanceCm:500000,subValue:25,timeUnit:'minute',
+          difficulty:'expert',holder:'runner_a',durationMs:86400000,ongoing:false},
+        {cardId:19,distanceCm:1000000,subValue:40,timeUnit:'minute',
+          difficulty:'world_elite',holder:null,durationMs:3600000,ongoing:true},
+      ],collections:[{holder:'runner_a',cards:2}],
+    })};
     if(url.endsWith('/view'))return {ok:true,json:async()=>({counted:true})};
     if(url.includes('?'))return {ok:true,json:async()=>({total:items.length,page:1,pageSize:20,
       items:items.map(item=>Object.fromEntries(Object.entries(item).filter(([k])=>k!=='payload')) )})};
@@ -129,6 +145,31 @@ function setup(search,data=example){
     'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
+  // Historical records: read-only, fast sorting and no private holder link.
+  const records=setup('?view=records',sport);
+  await flush();await flush();
+  assert.equal(records.elements['records-panel'].hidden,false);
+  assert.equal(records.elements['catalog-toolbar'].hidden,true);
+  assert.equal(records.elements['sport-records-tab'].attributes['aria-pressed'],'true');
+  assert.match(records.apiCalls.at(-1),/\/api\/sport\/records\?sort=duration&level=all/);
+  assert.match(records.elements['records-holdings'].textContent,/SUB 25/);
+  assert.match(records.elements['records-holdings'].textContent,/1 jour/);
+  assert.match(records.elements['records-holdings'].textContent,/Profil privé ou supprimé/);
+  assert.match(records.elements['records-collections'].textContent,/2 cartes/);
+  records.elements['record-sort'].value='difficulty';
+  records.elements['record-sort'].onchange();await flush();await flush();
+  assert.match(records.apiCalls.at(-1),/sort=difficulty&level=all/);
+  records.elements['record-level'].value='world_elite';
+  records.elements['record-level'].onchange();await flush();await flush();
+  assert.match(records.apiCalls.at(-1),/sort=difficulty&level=world_elite/);
+  records.elements.en.onclick();await flush();await flush();
+  assert.equal(records.elements['records-heading'].textContent,'Card records');
+  assert.match(records.elements['records-holdings'].textContent,/Currently held/);
+  records.elements['sport-cards-tab'].onclick();await flush();await flush();
+  assert.equal(records.elements['records-panel'].hidden,true);
+  assert.equal(records.elements['catalog-toolbar'].hidden,false);
+  records.elements['sport-records-tab'].onclick();await flush();await flush();
+  assert.equal(records.elements['records-panel'].hidden,false);
   // Challenge cards offer the detail link in the catalogue and focus gallery,
   // but never on the destination page itself (both FR and EN).
   const sportCatalogCard=landing.elements.results.children[0];
