@@ -84,14 +84,26 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .profile-switch{display:flex;gap:10px;margin:16px 0 18px}
 .profile-switch button{flex:1;min-width:0;background:#27251a;border:1px solid var(--line);color:var(--ink)}
 .profile-switch button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.public-sport-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:18px}
-.public-sport-cards li{padding:13px;border:1px solid var(--line);border-radius:16px;background:#14140f;display:grid;justify-items:center;align-content:start;gap:12px;text-align:center}
-.public-sport-cards .bos-sport-face{margin:auto}
-.public-sport-cards a{color:var(--accent);font-weight:750;font-size:13px;line-height:1.3}
-.public-sport-cards li,.public-sessions-list li{border-bottom:0}
-.public-sessions-list li{padding:12px 0;border-bottom:1px solid var(--line)}
-.public-sessions-list a{color:var(--accent)}
-@media(max-width:430px){.public-sport-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.public-sport-cards li{padding:10px 4px}}
+/* Both public decks use the same responsive card grid and 157 × 218 face. */
+.public-sport-cards,.public-session-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:18px}
+.public-sport-cards li,.public-session-cards li{min-width:0;padding:13px;border:1px solid var(--line);border-radius:16px;background:#14140f;display:grid;justify-items:center;align-content:start;gap:11px;text-align:center;border-bottom:1px solid var(--line)}
+.public-sport-cards .bos-sport-face{margin:auto;max-width:100%}
+.public-sport-cards a,.public-session-cards a{color:var(--accent);font-weight:750;font-size:13px;line-height:1.3}
+.public-session-cards .bos-workout-face{box-sizing:border-box;width:157px;max-width:100%;height:218px;padding:12px;border:1.7px solid #dbc56d;border-radius:19px;background:#181811;display:flex;flex-direction:column;justify-content:space-between;gap:6px;color:#f4f1e0;box-shadow:0 8px 24px #0007;overflow:hidden;text-align:left}
+.bos-workout-face .bos-workout-top{display:flex;align-items:center;justify-content:space-between;gap:4px;color:var(--accent);font-size:9px;letter-spacing:1.2px;font-weight:900}
+.bos-workout-top span:last-child{color:#dfc877;font-size:18px;letter-spacing:0;line-height:1}
+.bos-workout-face .bos-workout-art{flex:1;min-height:0;border:1.2px solid #d2bc70;border-radius:11px;background:radial-gradient(ellipse at 50% 72%,#4b422489,transparent 70%),#222016;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:6px;overflow:hidden}
+.bos-workout-art .bos-workout-disc{width:52px;height:52px;border-radius:50%;border:2px solid #e1cb7f;background:#514525;display:grid;place-items:center;color:#fff5c9;font-size:31px;line-height:1}
+.bos-workout-art .bos-workout-goal{color:#ead28a;font-size:9px;font-weight:900;letter-spacing:.12em;text-align:center;overflow-wrap:anywhere}
+.bos-workout-face .bos-workout-foot{display:flex;flex-direction:column;gap:3px;min-width:0}
+.bos-workout-foot .bos-workout-category{color:#e1c576;font-size:8px;font-weight:900;letter-spacing:.65px}
+.bos-workout-foot .bos-workout-name{color:#f4f1e0;font-size:12px;line-height:1.18;font-weight:900;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bos-workout-foot .bos-workout-kind{font-size:8px;color:#c2b591;font-weight:800;letter-spacing:.04em}
+.public-session-meta{display:block;font-size:11px;color:var(--sub);overflow-wrap:anywhere}
+@media(max-width:430px){
+  .public-sport-cards,.public-session-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .public-sport-cards li,.public-session-cards li{padding:10px 4px}
+}
 ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--line)}
 li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -217,7 +229,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <button type="button" id="public-show-sessions" aria-pressed="false">♫ Séances</button>
 </div>
 <div id="public-challenges"><ul id="public-challenge-cards" class="public-sport-cards"></ul></div>
-<div id="public-sessions" hidden><ul id="public-items" class="public-sessions-list"></ul></div>
+<div id="public-sessions" hidden><ul id="public-items" class="public-session-cards"></ul></div>
 </section>
 </main>
 <script src="/sport-card-face.js"></script>
@@ -878,6 +890,58 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       li.append(face,link);list.append(li);
     }
   }
+  // Public sessions are genuine collectible-looking cards, not a text list.
+  // The public profile API only supplies title, goal and source; do not invent
+  // musical phases, effort graphs, ownership or a session duration.
+  function renderPublicSessions(items){
+    const list=$('public-items');
+    list.replaceChildren();
+    if(!items.length){
+      const li=document.createElement('li');
+      li.textContent='Aucune séance publiée pour le moment.';
+      list.append(li);
+      return;
+    }
+    for(const item of items){
+      const li=document.createElement('li');
+      const face=document.createElement('div');
+      face.className='bos-workout-face';
+      const top=document.createElement('div');top.className='bos-workout-top';
+      const brand=document.createElement('span');brand.textContent='BEATONSTEP';
+      const symbol=document.createElement('span');
+      symbol.textContent='♫';symbol.setAttribute('aria-hidden','true');
+      top.append(brand,symbol);
+      const art=document.createElement('div');art.className='bos-workout-art';
+      const disc=document.createElement('span');disc.className='bos-workout-disc';
+      disc.textContent='♫';disc.setAttribute('aria-hidden','true');
+      const goal=document.createElement('span');goal.className='bos-workout-goal';
+      const distance=currentCardGoal(item)==='distance';
+      goal.textContent=distance&&Number.isSafeInteger(item.distanceMeters)&&item.distanceMeters>0
+        ?(item.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' KM'
+        :distance?'DISTANCE':'DURÉE';
+      art.append(disc,goal);
+      const foot=document.createElement('div');foot.className='bos-workout-foot';
+      const category=document.createElement('span');category.className='bos-workout-category';
+      category.textContent='CARTE SÉANCE';
+      const name=document.createElement('span');name.className='bos-workout-name';
+      name.textContent=item.name;
+      const kind=document.createElement('span');kind.className='bos-workout-kind';
+      kind.textContent=distance?'OBJECTIF DISTANCE':'OBJECTIF DURÉE';
+      foot.append(category,name,kind);
+      face.append(top,art,foot);
+      const meta=document.createElement('span');meta.className='public-session-meta';
+      const imports=Number.isFinite(item.imports)
+        ?Number(item.imports).toLocaleString('fr-FR')+' import'+(item.imports===1?'':'s')
+        :null;
+      meta.textContent=[item.source,imports].filter(Boolean).join(' · ');
+      const link=document.createElement('a');
+      link.href='/partages.html?id='+encodeURIComponent(item.id);
+      link.textContent='Voir la séance';
+      link.setAttribute('aria-label','Voir la séance : '+item.name);
+      li.append(face,meta,link);
+      list.append(li);
+    }
+  }
   function showPublicDeck(){
     if(!publicProfileData)return;
     const visible=publicProfileData.showChallenges!==false;
@@ -898,7 +962,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
         publicProfileData=data;
         $('public-handle').textContent='@'+data.handle;
-        renderCards(data.items.filter(item=>item.kind==='workout'),$('public-items'));
+        renderPublicSessions(data.items.filter(item=>item.kind==='workout'));
         if(data.showChallenges===false){
           publicSelectedDeck='sessions';
           $('intro').textContent='Ses séances en musique.';
