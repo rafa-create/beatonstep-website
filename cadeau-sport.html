@@ -13,7 +13,6 @@
 body{margin:0;min-height:100vh;background:#10100c;color:#eee;font-family:system-ui,Arial,sans-serif}
 main{max-width:760px;margin:auto;padding:32px 19px 60px;text-align:center}
 a{color:#fcea07}
-a.back{display:inline-block;margin-bottom:28px}
 .eyebrow{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#d0c98e}
 h1{font-size:clamp(28px,7vw,50px);line-height:1.1;margin:16px 0 28px}
 .trophy{max-width:360px;margin:0 auto 28px;min-height:350px;display:flex;flex-direction:column;
@@ -26,19 +25,16 @@ border:2px solid #d8c438;background:linear-gradient(135deg,#37321d,#1b1913 50%,#
 p{line-height:1.6}
 .status{margin:20px auto;min-height:46px;max-width:550px;color:#e2dfcc}
 .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
-.actions a,.actions button{display:inline-flex;align-items:center;justify-content:center;
+.actions a{display:inline-flex;align-items:center;justify-content:center;
 min-height:45px;border-radius:23px;padding:10px 20px;font-size:15px;font-weight:800;
-border:1px solid #b6ac63;cursor:pointer;text-decoration:none}
-.actions button,.actions a.primary{background:#fcea07;color:#151509;border-color:#fcea07}
-.actions button:disabled{cursor:not-allowed;opacity:.5}
-.actions a.secondary{background:transparent;color:#fcea07}
+border:1px solid #fcea07;cursor:pointer;text-decoration:none}
+.actions a.primary{background:#fcea07;color:#151509}
 .note{font-size:13px;color:#b6b09a}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main>
-<a class="back" href="/compte.html">← Mon compte</a>
 <p class="eyebrow">BeatOnStep · Défi sportif</p>
 <h1>On t'offre une carte sportive !</h1>
 <section class="trophy sport-gift-panel" aria-labelledby="card-title">
@@ -51,17 +47,9 @@ border:1px solid #b6ac63;cursor:pointer;text-decoration:none}
 <p id="status" class="status" role="status" aria-live="polite">Vérification du lien…</p>
 <div class="actions" id="claim-actions" hidden>
   <a id="open-app" class="primary" href="beatonstep://">Ouvrir dans l’application</a>
-  <a class="secondary" href="/compte.html" target="_blank" rel="noopener noreferrer">Se connecter au site</a>
-  <button id="claim" type="button">Accepter ce cadeau</button>
 </div>
-<div class="actions">
-  <a class="secondary" href="beatonstep://" id="prove">Prouver qu'il a tort</a>
-  <a class="secondary" href="/compte.html">Mon compte</a>
-</div>
-<p class="note">Un lien cadeau reste consultable même après un transfert.
-Seul le premier coureur connecté qui l'accepte pendant que le donateur
-possède encore cette carte peut la recevoir. « Prouver qu'il a tort »
-ouvre la course normale, sans démarrage automatique.</p>
+<p class="note">La carte est consultable dans BeatOnStep sans compte.
+Tu pourras te connecter dans l’application uniquement si tu souhaites accepter le cadeau.</p>
 </main>
 <script src="/sport-card-face.js"></script>
 <script>
@@ -89,8 +77,10 @@ ouvre la course normale, sans démarrage automatique.</p>
     return {status:response.status,ok:response.ok,result};
   };
   const draw=async()=>{
-    $('claim-actions').hidden=true;
+    $('claim-actions').hidden=!valid;
     if(!valid){status('Ce lien est incomplet ou incorrect.');return}
+    // Opening the app never claims a card; login and acceptance remain optional there.
+    $('open-app').href='beatonstep://sport-gift?code='+encodeURIComponent(code);
     try{
       const {ok,result}=await api('/api/account/sport/gift/preview',{code});
       if(!ok||!result.card)throw Error('unavailable');
@@ -103,33 +93,14 @@ ouvre la course normale, sans démarrage automatique.</p>
       $('card-difficulty').textContent='Niveau '+(BeatOnStepSportCards.levels[card.difficulty]?.[0]||'—');
       $('card-donor').textContent=result.donorHandle
         ?'Offert par @'+result.donorHandle:'Cadeau d’un coureur BeatOnStep';
-      $('open-app').href='beatonstep://sport-gift?code='+encodeURIComponent(code);
       if(result.available){
-        $('claim-actions').hidden=false;
-        status('Le cadeau est disponible. Connecte-toi pour l’accepter.');
+        status('Le cadeau est disponible. Ouvre-le dans BeatOnStep pour le découvrir.');
       }else{
         status(result.reason==='already_claimed'
           ?'Cette carte a déjà été offerte. Le lien reste visible comme souvenir.'
           :'Ce coureur ne possède plus cette carte. Le cadeau n’est plus transférable.');
       }
     }catch{status('Impossible de vérifier ce lien pour le moment. Réessaie en actualisant.')}
-  };
-  $('claim').onclick=async()=>{
-    $('claim').disabled=true;
-    try{
-      const {ok,status:codeStatus,result}=await api('/api/account/sport/gift/claim',{code});
-      if(ok&&result.claimed){
-        status('Carte acceptée ! Tu en es le propriétaire actuel.');
-        $('claim-actions').hidden=true;
-      }else if(codeStatus===401){
-        status('Connecte-toi dans un autre onglet, puis reviens ici pour accepter.');
-      }else if(codeStatus===409){
-        status('Ce transfert n’est plus disponible. Actualise le lien.');
-      }else{
-        status('Le transfert est momentanément indisponible.');
-      }
-    }catch{status('Réseau indisponible. Réessaie après reconnexion.')}
-    finally{$('claim').disabled=false}
   };
   void draw();
 })();
