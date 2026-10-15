@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-15.4",
+  "revision": "2026-10-15.5",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -646,9 +646,9 @@
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits; 2026-10-15.4 adds monotonic estimated SUB-level percentiles above beginner and optional record-reference interpolation from the 1% marker to the world-record distance benchmark",
+    "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits; 2026-10-15.5 interpolates 1–90% finishers' tiers only and shows SUB-to-record gap for elite rather than an unsupported 0.1–1% interpolation.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
-    "interpretation": "Interpolated approximate worldwide share of race finishers, NOT an official world rank, person-level percentile, or proof of a world record."
+    "interpretation": "For non-elite cards, approximate worldwide share of recorded race finishes, not an official ranking. For elite cards, show only the time gap from the strict SUB threshold to the absolute world record or modeled reference; never invent a fractional Top percentage."
   },
   "pendingTrackDistancesCm": [
     80000,
@@ -757,7 +757,7 @@
   "absoluteWorldRecordModel": {
     "asOf": "2026-10-15",
     "rule": "Fastest currently recognized absolute world record per anchor; missing distances use log-log time-versus-distance interpolation between adjacent anchors. Track for 400 m through 3 km and road racing from 5 km. Intermediate distances are modeled references, never official records.",
-    "percentileMethod": "Linear interpolation of modeled finisher top-percentile anchor points at strict SUB thresholds 90/75/50/20/5/1. Between the 1% threshold and the absolute record reference, estimate from 1% down to 0.1% using log time. Do not infer an actual world rank; at or beyond the record's SUB bracket display a record-reference message instead of a false Top 0%.",
+    "percentileMethod": "Use interpolation only between observed/modeled race finisher thresholds, from Top 90% down to the Top 1% reference boundary. Do NOT extrapolate a fractional percentile within world_elite: display the card's SUB threshold gap to the absolute world record or modeled benchmark instead. A SUB threshold is not proof of the runner's exact finish time or an official record.",
     "ultraException": "43-200 km still has no comparable calibrated percentile curve; world-record based Top percentages remain unavailable pending validation of ultra finishers. Never extrapolate below/above the outer reference anchors.",
     "warning": "Comparison model only: a SUB card is a time interval, not proof of a ratified record."
   }
