@@ -1,7 +1,7 @@
 // Public, read-only catalogue of verified worldwide sporting cards.
 // Independent of historical musical shares and retired publishable V2 challenges.
 // Only public handles and transfer motives leave D1; never account IDs or run proofs.
-import {canonicalSportDistance} from './sport-card-rules.js';
+import {canonicalSportDistance,difficultyForSportCard,sportCardDifficultyFilterSql} from './sport-card-rules.js';
 import {readSportWarningReasons} from './sport-card-telemetry.js';
 
 const DIFFICULTIES=new Set([
@@ -20,7 +20,8 @@ const safeHandle=value=>typeof value==='string'&&
 const card=row=>({
   kind:'challenge',id:row.id,distanceCm:row.distance_cm,
   timeUnit:row.time_unit,subValue:row.sub_value,
-  difficulty:row.difficulty,createdAt:row.created_at,
+  difficulty:difficultyForSportCard(row.distance_cm,row.sub_value)?.difficulty??null,
+  createdAt:row.created_at,
   owner:safeHandle(row.owner_handle),
   performanceWarning:row.performance_warning===1,
 });
@@ -45,7 +46,11 @@ export async function readPublicSportCards(db,url,{
       return response({error:'invalid_page'},400);
     const filters=[],args=[];
     if(distance!==null){filters.push('c.distance_cm=?');args.push(distance);}
-    if(difficulty!=='all'){filters.push('c.difficulty=?');args.push(difficulty);}
+    if(difficulty!=='all'){
+      // Never query the stale D1 difficulty snapshot: old test cards and
+      // new cards must match exactly the same current JSON tier boundaries.
+      filters.push(sportCardDifficultyFilterSql(difficulty,distance));
+    }
     // Strict SUB N: the sub-N card itself qualifies; faster tiers are lower N.
     if(sub!==null){filters.push('c.sub_value<=?');args.push(sub);}
     const where=filters.length?' WHERE '+filters.join(' AND '):'';
