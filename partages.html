@@ -106,6 +106,9 @@
     .sport-card .collection-glyph{font-size:55px}
     .sport-ownership{font-size:14px;color:#dfd9bc;margin:12px 0 4px}
     .sport-ownership strong{color:var(--yellow)}
+    .profile-handle{color:var(--yellow);font-weight:750;text-decoration:underline;text-decoration-color:#fcea0790;text-underline-offset:3px}
+    .profile-handle:hover{color:#fff59a;text-decoration-color:currentColor}
+    .profile-handle:focus-visible{outline:2px solid var(--yellow);outline-offset:3px;border-radius:2px}
     .sport-difficulty{font-size:12px;color:var(--muted);margin:5px 0}
     .sport-warning{display:inline-flex;align-items:center;gap:6px;border:1px solid #94783d;background:#413117;border-radius:9px;padding:7px 10px;color:#ffd990;font-size:12px;font-weight:700;margin:10px 0 0}
     .sport-details{margin-top:14px;border:1px solid #625a3d;border-radius:14px;background:#1d1d18;overflow:hidden}
@@ -671,7 +674,21 @@
     return sportDistanceLabel(item.distanceCm)+' · SUB '+
       sportSubLabel(item.subValue,item.timeUnit);
   }
-  const sportHandle=handle=>handle?'@'+handle:fr('Compte indisponible','Unavailable account');
+  // Both galleries and full cards use the same public profile for a holder.
+  // Unknown or unclaimed values stay plain text instead of unsafe links.
+  const validPublicHandle=handle=>typeof handle==='string'&&
+    /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle);
+  function profileHandle(handle,fallback){
+    if(!validPublicHandle(handle))
+      return el('span','',fallback||fr('Compte indisponible','Unavailable account'));
+    const link=el('a','profile-handle','@'+handle);
+    link.href='compte.html?profil='+encodeURIComponent(handle);
+    link.setAttribute('aria-label',fr('Voir le profil de @','View profile of @')+handle);
+    // Prevent parent card summary from opening the gallery on link activation.
+    link.addEventListener('click',event=>event.stopPropagation());
+    link.addEventListener('keydown',event=>event.stopPropagation());
+    return link;
+  }
   function sportPeriod(ms){
     if(!Number.isFinite(ms))return '—';
     const days=Math.floor(ms/86400000);
@@ -719,8 +736,9 @@
     const difficulty=el('p','sport-difficulty',
       BeatOnStepSportPercentiles.label(item,lang));
     const owner=el('p','sport-ownership');
-    owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),
-      el('strong','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
+    const ownerValue=el('strong');
+    ownerValue.append(profileHandle(item.owner,fr('Réserve BeatOnStep','BeatOnStep reserve')));
+    owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),ownerValue);
     copy.append(head,title,difficulty,owner);
     summary.append(face,copy);
     if(item.performanceWarning===true)
@@ -747,19 +765,26 @@
       try{
         const full=await getSportDetail(item.id);
         empty(content);
-        content.append(el('p','',fr('Premier détenteur : ','First holder: ')+
-          sportHandle(full.firstHolder)));
-        content.append(el('p','',fr('Plus longue possession : ','Longest holding: ')+
-          sportHandle(full.longestHolder)+' · '+sportPeriod(full.longestHeldMs)));
+        const first=el('p','');
+        first.append(el('span','',fr('Premier détenteur : ','First holder: ')),
+          profileHandle(full.firstHolder));
+        const longest=el('p','');
+        longest.append(el('span','',fr('Plus longue possession : ','Longest holding: ')),
+          profileHandle(full.longestHolder),
+          el('span','',' · '+sportPeriod(full.longestHeldMs)));
+        content.append(first,longest);
         const timeline=el('ol','sport-timeline');
         for(const event of full.history||[]){
           const line=el('li','');
-          const change=event.reason==='gift_claim'
-            ?fr('Donation : ','Gift: ')+sportHandle(event.from)+' → '+sportHandle(event.to)
-            :event.reason==='sport_win'
-              ?fr('Gain sportif : ','Sports win: ')+sportHandle(event.to)
-              :fr('Carte libérée','Card released');
-          line.append(el('span','',change),el('span','sport-date',sportDate(event.at)));
+          if(event.reason==='gift_claim'){
+            line.append(el('span','',fr('Donation : ','Gift: ')),
+              profileHandle(event.from),el('span','',' → '),
+              profileHandle(event.to));
+          }else if(event.reason==='sport_win'){
+            line.append(el('span','',fr('Gain sportif : ','Sports win: ')),
+              profileHandle(event.to));
+          }else line.append(el('span','',fr('Carte libérée','Card released')));
+          line.append(el('span','sport-date',sportDate(event.at)));
           const warning=sportWarningDetails(event);
           if(warning)line.append(el('p','sport-warning sport-history-warning',warning));
           timeline.append(line);
@@ -852,7 +877,7 @@
       const crown=document.createElementNS('http://www.w3.org/2000/svg','path');
       crown.setAttribute('d','M2 7l4.5 4 5.5-6 5.5 6L22 7l-2 12H4L2 7z');
       ownerIcon.append(crown);
-      owner.append(ownerIcon,el('span','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
+      owner.append(ownerIcon,profileHandle(item.owner,fr('Réserve BeatOnStep','BeatOnStep reserve')));
       owner.setAttribute('aria-label',item.owner
         ?fr('Carte détenue par @','Card held by @')+item.owner
         :fr('Carte dans la réserve','Card in reserve'));
