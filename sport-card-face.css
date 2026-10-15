@@ -10,11 +10,15 @@
 .bos-sport-face *{box-sizing:border-box}
 .sport-skin--beginner{--sport-accent:#dec26b;--sport-shade:#6b562b}
 .sport-skin--amateur{--sport-accent:#f1bd85;--sport-shade:#805132}
-.sport-skin--regular{--sport-accent:#7fd9bd;--sport-shade:#376b60}
-.sport-skin--intermediate{--sport-accent:#9bb8eb;--sport-shade:#435f94}
-.sport-skin--expert{--sport-accent:#d2b0fa;--sport-shade:#665088}
-.sport-skin--legend{--sport-accent:#ffe27e;--sport-shade:#977630}
-.sport-skin--world_elite{--sport-accent:#d8f5f6;--sport-shade:#648c96}
+.sport-skin--regular{--sport-accent:#c6ad74;--sport-shade:#655333}
+.sport-skin--intermediate{--sport-accent:#b7b0a0;--sport-shade:#555047}
+.sport-skin--expert{--sport-accent:#d6ad79;--sport-shade:#70513a}
+.sport-skin--legend{--sport-accent:#e4cc82;--sport-shade:#7d6330}
+.sport-skin--world_elite{--sport-accent:#d5d2c6;--sport-shade:#676256}
+/* Distance finishes are permanent: leveling up never recolors an existing
+   gold sprint or copper 5K. Star slots still encode the mathematical tier. */
+.bos-sport-face.sport-finish--400m{--sport-accent:#dec26b;--sport-shade:#6b562b}
+.bos-sport-face.sport-finish--5k{--sport-accent:#f1bd85;--sport-shade:#805132}
 .bos-sport-top{display:flex;justify-content:space-between;align-items:center;
   gap:4px;color:#fcea07;font-size:9px;letter-spacing:1.2px;font-weight:900}
 .bos-sport-top .bos-tier-icon{font-size:21px;line-height:1;color:var(--sport-accent);
@@ -51,8 +55,8 @@
   box-shadow:0 0 18px color-mix(in srgb,var(--sport-accent) 28%,transparent)}
 .sport-skin--legend .bos-sport-art,
 .sport-skin--world_elite .bos-sport-art{box-shadow:inset 0 0 13px #fff4bc12}
-.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 18px #d8f5f660}
-.sport-skin--legend .bos-sport-crest{box-shadow:0 0 17px #ffe27e55}
+.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 12px #d5d2c644}
+.sport-skin--legend .bos-sport-crest{box-shadow:0 0 12px #e4cc8244}
 /* Catalogue: real card face + public metadata. Musical layout untouched. */
 .sport-card .sport-summary{display:flex;flex-wrap:wrap;align-items:center;
   justify-content:flex-start;gap:14px}
