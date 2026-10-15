@@ -22,9 +22,18 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'redundant introductory level explanation is removed');
   assert.doesNotMatch(page,/class="rule-note"/,
     'one-card rule, strict SUB and ownership are already summarized in three steps');
-  assert.match(page,/Une course finalisée et validée donne au maximum/);
-  assert.match(page,/Courir plus vite dans un même SUB ne change pas la carte/);
-  assert.match(page,/La propriété n'est pas définitive/);
+  assert.match(page,/Après une course validée, tu peux gagner/);
+  assert.match(page,/Ton chrono fait la différence/);
+  assert.match(page,/tu peux la voler à un autre coureur/);
+  assert.match(page,/id="threshold-title"/);
+  assert.match(page,/Et avec mon chrono/);
+  assert.match(page,/id="threshold-details"/);
+  assert.ok(page.indexOf('id="calc-card-preview"')<page.indexOf('id="threshold-rows"'),
+    'the card preview comes before detailed thresholds');
+  for(const obsolete of ['id="family-count"','id="selected-title"','id="threshold-note"',
+    "$('family-count')","$('selected-title')","$('threshold-note')"]){
+    assert.ok(!page.includes(obsolete),'remove technical preamble: '+obsolete);
+  }
   assert.match(page,/<span data-fr>Top mondial<\/span>/);
   assert.match(page,/const worldTop=\{world_elite:1,legend:5,expert:20,intermediate:50,regular:75,amateur:90\}/);
   assert.match(page,/id="calc-card-preview"/);
@@ -32,7 +41,9 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/BeatOnStepSportCards\.createFace\(document,/);
   assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
   assert.match(page,/Simulation de carte : seul un résultat de course validé peut la faire gagner/);
-  assert.match(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/);
+  assert.match(page,/Ta carte possible : /);
+  assert.doesNotMatch(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/,
+    'the primary preview speaks about the card, not a percentile');
   assert.match(page,/id="individual-rows"/);
   for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
     assert.match(page,new RegExp('id="'+id+'"'));
@@ -48,9 +59,8 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/top 5 %/);
   assert.match(page,/top 1 %/);
   assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
-  assert.match(page,/Distance modélisée à partir des quatre références/);
-  assert.match(page,/Exception ultra-distance/);
-  assert.match(page,/aucun percentile mondial de chrono fiable/);
+  assert.doesNotMatch(page,/Distance modélisée à partir des quatre références|Exception ultra-distance|aucun percentile mondial de chrono fiable/,
+    'technical notes are removed from the running-focused calculator');
   assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
 });
 
