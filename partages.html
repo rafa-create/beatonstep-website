@@ -36,6 +36,23 @@
     .sport-guide-link:hover{color:var(--yellow);border-color:var(--yellow)}
     .sport-guide-link:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .sport-guide-link[hidden]{display:none}
+    .sport-record-tabs{display:flex;gap:8px;margin:2px 0 15px}
+    .sport-record-tabs[hidden]{display:none}
+    .sport-record-tabs button{padding:9px 17px;border-radius:999px;background:var(--panel);color:var(--text);border:1px solid var(--border);font:inherit;font-weight:700;cursor:pointer}
+    .sport-record-tabs button[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#19180f}
+    .sport-record-tabs button:focus-visible,.record-podium a:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+    .records-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+    .records-toolbar .filter-picker{flex:1 1 180px}
+    .records-panel h2{font-size:22px;margin:10px 0}
+    .records-panel h3{font-size:18px;margin:24px 0 9px}
+    .record-podium{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0;padding:0}
+    .record-podium li{min-width:0;background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px;display:flex;flex-direction:column;gap:7px}
+    .record-position{font-size:20px;font-weight:900;color:var(--yellow)}
+    .record-value{font-size:17px;font-weight:850;color:var(--text);overflow-wrap:anywhere}
+    .record-podium a{color:var(--yellow);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+    .record-sub{font-size:12px;color:var(--muted);line-height:1.4}
+    @media(max-width:700px){.record-podium{grid-template-columns:1fr}}
+
     .lang button[aria-pressed=true]{background:var(--yellow);color:#151510;border-color:var(--yellow)}
     h1{font-size:clamp(28px,6vw,36px);letter-spacing:-.035em;margin:0 0 5px;line-height:1.15}
     .sub{color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 14px}
@@ -248,6 +265,10 @@
   <p class="sub" id="intro" hidden></p>
   <div id="catalog">
   <a class="sport-guide-link" id="sport-guide-link" href="cartes-guide.html?lang=fr"><span aria-hidden="true">ⓘ</span><span id="sport-guide-label">Comment gagner une carte ?</span><span aria-hidden="true">→</span></a>
+  <div class="sport-record-tabs" id="sport-record-tabs" role="group" aria-label="Vues du catalogue Défis">
+    <button type="button" id="sport-cards-tab" aria-pressed="true">Cartes</button>
+    <button type="button" id="sport-records-tab" aria-pressed="false">Records</button>
+  </div>
     <div class="toolbar">
       <div class="filter-picker">
         <label id="kind-label" for="kind-filter">Type</label>
@@ -309,6 +330,37 @@
           aria-labelledby="distance-exact-label" placeholder="Distance (km)">
       </div>
     </div>
+    <section id="records-panel" class="records-panel" hidden>
+      <h2 id="records-heading">Palmarès des cartes</h2>
+      <p id="records-help" class="sub">Durées des possessions, y compris celles qui sont encore en cours.</p>
+      <div class="records-toolbar">
+        <div class="filter-picker">
+          <label id="record-sort-label" for="record-sort">Ordre du podium</label>
+          <select id="record-sort" aria-labelledby="record-sort-label">
+            <option value="duration">Durée de possession</option>
+            <option value="difficulty">Difficulté puis durée</option>
+          </select>
+        </div>
+        <div class="filter-picker">
+          <label id="record-level-label" for="record-level">Niveau de carte</label>
+          <select id="record-level" aria-labelledby="record-level-label">
+            <option value="all">Toutes les difficultés</option>
+            <option value="world_elite">Élite mondiale</option>
+            <option value="legend">Légende</option>
+            <option value="expert">Expert</option>
+            <option value="intermediate">Intermédiaire</option>
+            <option value="regular">Régulier</option>
+            <option value="amateur">Amateur</option>
+            <option value="beginner">Débutant</option>
+          </select>
+        </div>
+      </div>
+      <h3 id="records-holdings-heading">Podium des possessions</h3>
+      <ol id="records-holdings" class="record-podium" aria-live="polite"></ol>
+      <h3 id="records-collections-heading">Plus grandes collections actuelles</h3>
+      <ol id="records-collections" class="record-podium"></ol>
+      <p id="records-privacy" class="sub">Un profil privé ou supprimé n’est jamais identifié. Les collections masquées ne figurent pas au classement.</p>
+    </section>
     <div id="results" aria-live="polite">Chargement…</div>
     <div class="pagination" id="pages"></div>
   </div>
