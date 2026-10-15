@@ -113,6 +113,32 @@ function setup(search,data=example){
   assert.match(landing.apiCalls[0],/^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/);
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
+  // Challenge cards offer the detail link in the catalogue and focus gallery,
+  // but never on the destination page itself (both FR and EN).
+  const sportCatalogCard=landing.elements.results.children[0];
+  const catalogDetailLinks=walk(sportCatalogCard,x=>x.tagName==='a'&&x.className==='primary');
+  assert.equal(catalogDetailLinks.length,1,'challenge catalogue keeps the detail action');
+  assert.equal(catalogDetailLinks[0].href,'partages.html?kind=challenge&sport=17');
+  const sportSummary=walk(sportCatalogCard,x=>x.className==='share-summary sport-summary')[0];
+  sportSummary.events.click();
+  const sportDialog=walk(landing.body,x=>x.tagName==='dialog')[0];
+  assert(sportDialog.open,'challenge gallery opens for the selected card');
+  const focusedDetailLinks=walk(sportDialog,x=>x.tagName==='a'&&x.className==='primary');
+  assert.equal(focusedDetailLinks.length,1,'focused challenge still links to its full page');
+  assert.equal(focusedDetailLinks[0].href,'partages.html?kind=challenge&sport=17');
+  sportDialog.close();
+  const sportDetail=setup('?kind=challenge&sport=17',sport);
+  await flush();
+  assert.equal(sportDetail.elements.back.href,'partages.html?kind=challenge');
+  const sportDetailCard=sportDetail.elements.detail.children[0];
+  assert.equal(walk(sportDetailCard,x=>x.className==='primary').length,0,
+    'challenge detail page has no View detail link pointing to itself');
+  assert.equal(walk(sportDetailCard,x=>x.className==='sport-details').length,1,
+    'holder history remains accessible on the full challenge detail');
+  sportDetail.elements.en.onclick();
+  await flush();
+  assert.equal(walk(sportDetail.elements.detail,x=>x.className==='primary').length,0,
+    'English challenge detail page also has no self-referential link');
   const history=walk(landing.elements.results,x=>x.className==='sport-details')[0];
   assert(history&&!history.open,'history is folded by default');
   landing.elements['distance-filter'].value='500000';

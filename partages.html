@@ -771,12 +771,16 @@
       }
     });
     card.append(details);
-    const footer=el('div','card-actions');
-    const link=el('a','primary',fr('Voir la fiche','Open card'));
-    link.href='partages.html?kind=challenge&sport='+item.id;
-    link.setAttribute('aria-label',fr('Voir la fiche du défi ','Open challenge card ')+sportName(item));
-    footer.append(link);
-    card.append(footer);
+    // The full challenge page is already the destination: never link it to itself.
+    // Catalogue entries and the focused gallery still expose the detail link.
+    if(!detailed){
+      const footer=el('div','card-actions');
+      const link=el('a','primary',fr('Voir la fiche','Open card'));
+      link.href='partages.html?kind=challenge&sport='+item.id;
+      link.setAttribute('aria-label',fr('Voir la fiche du défi ','Open challenge card ')+sportName(item));
+      footer.append(link);
+      card.append(footer);
+    }
     return card;
   }
   function createCard(item,detailed,inFocus=false){
