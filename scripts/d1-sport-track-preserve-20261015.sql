@@ -1,3 +1,6 @@
+CREATE TABLE _bos_track_20261015_guard (passed INTEGER NOT NULL CHECK(passed=1));
+
+-- Notes de securite / usage (placees APRES le premier statement SQL pour Wrangler)
 -- BeatOnStep D1 / migration CONSERVATRICE (800m, 1500m, mile).
 -- Version preparee le 15/10/2026 ; pas d'execution automatique.
 -- Cible UNIQUE : Cloudflare D1 beatonstep-catalog-prod.
@@ -15,7 +18,7 @@
 --
 -- En cas de changement de l'etat des tables, le garde doit echouer
 -- AVANT le premier DROP.
-CREATE TABLE _bos_track_20261015_guard (passed INTEGER NOT NULL CHECK(passed=1));
+
 INSERT INTO _bos_track_20261015_guard(passed)
 SELECT CASE WHEN
   (SELECT COUNT(*) FROM sport_world_cards)=2 AND
