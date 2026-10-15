@@ -146,11 +146,10 @@ function setup(search,data=example){
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // A bare 'Chargement…' formerly leaked below an already-loaded podium:
   // author CSS #results {display:grid} overrode user-agent [hidden] styles.
-  for(const id of ['catalog-toolbar','results','pages']){
-    assert.match(html,new RegExp('#'+id+'\\\\[hidden\\\\][^{}]*\\\\{display:none!important\\\\}'),
-      id+' must actually disappear when hidden, even with explicit display CSS');
-  }
-  assert.match(html,/<div id="results" aria-live="polite"><\\/div>/,
+  assert.ok(html.includes(
+    '#catalog-toolbar[hidden],#results[hidden],#pages[hidden]{display:none!important}'
+  ),'catalogue elements must disappear even with explicit display CSS');
+  assert.ok(html.includes('<div id="results" aria-live="polite"></div>'),
     'initial catalogue loader must be created by showList only');
   // Historical records: read-only, fast sorting and no private holder link.
   const records=setup('?view=records',sport);
