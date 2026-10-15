@@ -102,7 +102,7 @@ async function callback(request, env, url) {
   if (!code) return appReturn('permission_required');
   try {
     const token = await oauthToken(env, {code, grant_type: 'authorization_code'});
-    if (!scopes.includes('activity:write')) {
+    if (!scopes.includes('activity:write') || !scopes.includes('activity:read')) {
       // A grant without activity:write is not useful and may still consume capacity.
       await fetch('https://www.strava.com/oauth/deauthorize', {
         method:'POST', headers:{authorization:'Bearer '+token.access_token},
@@ -271,9 +271,67 @@ async function publish(request, env, device, row) {
     return reply({error:'publication_pending_verify_strava'},503);
   }
 }
+async function recentRuns(env,row){
+  if(!row)return reply({error:'not_connected'},401);
+  let token;
+  try{token=await accessToken(env,row);}
+  catch{return reply({error:'strava_token_unavailable'},503);}
+  let response;
+  try{
+    // Only the connecting athlete's recent activities; no public or social
+    // feed and no route/position streams. No caching or D1 import ledger.
+    response=await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=30&page=1',{
+      headers:{authorization:'Bearer '+token,accept:'application/json'},
+    });
+  }catch{return reply({error:'strava_unavailable'},503);}
+  if(response.status===401||response.status===403)
+    return reply({error:'strava_read_permission_required'},403);
+  if(response.status===429)return reply({error:'strava_rate_limited'},429);
+  if(!response.ok)return reply({error:'strava_unavailable'},502);
+  let raw;
+  try{raw=await response.json();}
+  catch{return reply({error:'strava_invalid_response'},502);}
+  if(!Array.isArray(raw))return reply({error:'strava_invalid_response'},502);
+  const items=[];
+  for(const a of raw){
+    if(!a||!['Run','TrailRun','VirtualRun'].includes(a.sport_type||a.type))
+      continue;
+    const id=String(a.id||'');
+    const startedAtMs=Date.parse(a.start_date||'');
+    const durationSeconds=Number(a.elapsed_time);
+    if(!/^[1-9][0-9]{0,19}$/.test(id)||
+      !Number.isSafeInteger(startedAtMs)||
+      startedAtMs<Date.UTC(2020,0,1)||startedAtMs>Date.now()+300000||
+      !Number.isSafeInteger(durationSeconds)||durationSeconds<1||
+      durationSeconds>604800)continue;
+    const distance=optionalMetric(a.distance,0,500000);
+    const moving=optionalMetric(a.moving_time,1,604800);
+    const pace=distance&&moving?Math.round(moving*1000/distance):null;
+    const averageHeartRate=optionalMetric(a.average_heartrate,20,300);
+    const maxHeartRate=optionalMetric(a.max_heartrate,20,300);
+    items.push({
+      id,startedAtMs,durationSeconds,
+      name:typeof a.name==='string'
+        ?[...a.name.replace(/[\u0000-\u001f\u007f]/g,' ').trim()].slice(0,60).join('')
+        :'Course',
+      distanceMeters:distance===null?null:Math.round(distance),
+      averagePaceSecPerKm:pace&&pace>0&&pace<=86400?pace:null,
+      averageHeartRateBpm:averageHeartRate,
+      maxHeartRateBpm:maxHeartRate,
+    });
+    if(items.length>=10)break;
+  }
+  return reply({items});
+}
 export async function stravaRequest(request, env, url) {
-  if (!configured(env)) return reply({enabled:false,error:'strava_unavailable'},503);
   const path = url.pathname;
+  // One server-side boolean controls both mobile surfaces and every Strava
+  // endpoint. The app can ask for this safely without contacting Strava.
+  if (!configured(env)){
+    if(path===PREFIX+'/status'&&request.method==='GET')
+      return reply({enabled:false,connected:false,canConnect:false,used:0,capacity:0});
+    return reply({enabled:false,error:'strava_unavailable'},503);
+  }
   try {
     if (path === PREFIX+'/callback' && request.method === 'GET') return callback(request,env,url);
     if (!env.DB) return reply({error:'database_unavailable'},503);
@@ -287,7 +345,11 @@ export async function stravaRequest(request, env, url) {
     }
     if (path === PREFIX+'/start' && request.method === 'POST') {
       const existing = await connection(env.DB,device);
-      if (existing) return reply({error:'already_connected'},409);
+      // Reauthorization upgrades older export-only grants with activity:read,
+      // while keeping the current grant intact if the user declines.
+      const options=await jsonBody(request);
+      const reauthorize=options?.reauthorize===true;
+      if (existing&&!reauthorize) return reply({error:'already_connected'},409);
       if (await usage(env.DB) >= capacity(env)) return reply({error:'capacity_reached'},409);
       const state=randomHex(), now=Date.now();
       await env.DB.prepare('DELETE FROM strava_oauth_pending WHERE expires_at<=?')
@@ -299,9 +361,12 @@ export async function stravaRequest(request, env, url) {
       const authorize = new URL('https://www.strava.com/oauth/authorize');
       authorize.search = new URLSearchParams({
         client_id:String(env.STRAVA_CLIENT_ID),redirect_uri:CALLBACK,response_type:'code',
-        approval_prompt:'auto',scope:'activity:write',state,
+        approval_prompt:reauthorize?'force':'auto',scope:'activity:write,activity:read',state,
       }).toString();
       return reply({url:authorize.toString()});
+    }
+    if (path === PREFIX+'/activities' && request.method === 'GET') {
+      return recentRuns(env,await connection(env.DB,device));
     }
     if (path === PREFIX+'/publish' && request.method === 'POST') {
       return publish(request,env,device,await connection(env.DB,device));
