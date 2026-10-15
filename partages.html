@@ -340,6 +340,7 @@
   </footer>
 </main>
 <script src="/sport-card-face.js"></script>
+<script src="/sport-card-percentile.js"></script>
 <script>
 (function(){
   'use strict';
@@ -709,13 +710,13 @@
     head.append(identity,el('span','badge',fr('Défi','Challenge')));
     // One face for catalogue, account and sport-gift views.
     const face=BeatOnStepSportCards.createFace(document,{
-      title:sportName(item),distanceCm:item.distanceCm,difficulty:item.difficulty,
+      title:sportName(item),distanceCm:item.distanceCm,
+      difficulty:BeatOnStepSportPercentiles.visibleTier(item),
     },lang);
     const copy=el('div','bos-sport-copy');
     const title=el('h2','',sportName(item));
-    const level=difficultyLabels[item.difficulty]||null;
-    const levelLabel=level?fr(level[0],level[1]):fr('Non précisée','Not specified');
-    const difficulty=el('p','sport-difficulty',fr('Difficulté : ','Difficulty: ')+levelLabel);
+    const difficulty=el('p','sport-difficulty',
+      BeatOnStepSportPercentiles.label(item,lang));
     const owner=el('p','sport-ownership');
     owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),
       el('strong','',item.owner?'@'+item.owner:fr('Réserve BeatOnStep','BeatOnStep reserve')));
@@ -928,6 +929,7 @@
           '&page='+page
         :API+'?kind=workout&goalMode='+encodeURIComponent(musicGoal)+'&source='+
           encodeURIComponent(musicSource)+'&sort='+sort+'&page='+page;
+      if(kind==='challenge')await BeatOnStepSportPercentiles.ready();
       const data=await get(target);
       if(request!==listTicket)return;
       empty(result);
@@ -975,6 +977,7 @@
     empty(target);
     target.append(el('p','sub',fr('Chargement du partage…','Loading share…')));
     try{
+      if(sportId)await BeatOnStepSportPercentiles.ready();
       const item=sportId?await getSportDetail(sportId):await getDetail(id);
       empty(target);
       target.append(sportId?createSportCard(item,true):createCard(item,true));
