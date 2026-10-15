@@ -643,6 +643,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     storedShowChallenges=setting.showChallenges!==false;
     $('show-public-challenges').checked=storedShowChallenges;
     $('visibility-status').textContent='';
+    return setting;
   }
   $('show-public-challenges').onchange=async()=>{
     const input=$('show-public-challenges');
@@ -678,9 +679,14 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     $('link-panel').hidden=!linking;
     status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
     $('show-public-challenges').disabled=true;
-    try{await loadProfileVisibility()}
-    catch(error){$('visibility-status').textContent='Réglage indisponible : '+error.message}
-    finally{$('show-public-challenges').disabled=false}
+    let settingsReady=false;
+    try{
+      const preference=await loadProfileVisibility();
+      settingsReady=preference.settingsReady===true;
+      if(!settingsReady)$('visibility-status').textContent=
+        'Ce réglage sera disponible après la mise à jour du site.';
+    }catch(error){$('visibility-status').textContent='Réglage indisponible : '+error.message}
+    finally{$('show-public-challenges').disabled=!settingsReady}
     const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
     renderCards(data.items,$('items'));
     await refreshCollection();
