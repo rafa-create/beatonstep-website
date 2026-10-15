@@ -118,7 +118,8 @@ function setup(search,data=example){
   assert.equal(landing.elements['distance-exact-picker'].hidden,false);
   assert(landing.apiCalls.some(url=>
     /^\/api\/sport\/cards\?distance=all&sort=difficulty_desc&page=1$/.test(url)));
-  assert.match(landing.elements['difficulty-hint'].textContent,/Expert · Top ≈ 20 % des arrivants/);
+  assert.equal(landing.elements['difficulty-hint'].textContent,'',
+    'the long Top-world paragraph is no longer rendered below the filters');
   assert.match(landing.elements.results.textContent,/Top ≈ 11 % mondial/,
     'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
