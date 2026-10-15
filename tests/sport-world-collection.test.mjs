@@ -15,6 +15,10 @@ test('world sport migration is ADDITIVE and never touches musical cards',()=>{
     assert.match(sql,new RegExp('CREATE TABLE IF NOT EXISTS '+table));
   }
   assert.match(sql,/UNIQUE\(distance_cm,time_unit,sub_value\)/);
+  assert.match(sql,/distance_cm IN \(40000,80000,150000,160934\)/,
+    'fresh sport table accepts second-precision middle-distance SUBs');
+  assert.match(sql,/distance_cm NOT IN \(40000,80000,150000,160934\)/,
+    'all other distances continue to require minute SUBs');
   assert.match(sql,/PRIMARY KEY\(user_id,run_id\)/);
   assert.match(sql,/new_epoch=previous_epoch\+1/);
   assert.doesNotMatch(sql,/\b(?:DROP|ALTER|DELETE FROM|UPDATE)\s+(?:TABLE\s+)?(?:workout_cards|shared_items)/i);
