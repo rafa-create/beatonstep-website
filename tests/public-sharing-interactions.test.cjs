@@ -155,6 +155,9 @@ function setup(search,data=example){
   const records=setup('?view=records',sport);
   await flush();await flush();
   assert.equal(records.elements['records-panel'].hidden,false);
+  assert.equal(records.elements['records-holdings-heading'].textContent,
+    'Cartes gardées le plus longtemps');
+  assert.equal(records.elements['record-sort'].value,'duration');
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
   assert.equal(records.elements.results.hidden,true);
   assert.equal(records.elements.pages.hidden,true);
@@ -165,19 +168,25 @@ function setup(search,data=example){
   assert.equal(records.elements.back.textContent,'← Mon compte');
   assert.match(records.apiCalls.at(-1),/\/api\/sport\/records\?sort=duration&level=all/);
   assert.match(records.elements['records-holdings'].textContent,/SUB 25/);
-  assert.match(records.elements['records-holdings'].textContent,/1 jour/);
+  assert.match(records.elements['records-holdings'].textContent,/Gardée : 1 jour/);
   assert.match(records.elements['records-holdings'].textContent,/Profil privé ou supprimé/);
   assert.match(records.elements['records-collections'].textContent,/2 cartes/);
   records.elements['record-sort'].value='difficulty';
   records.elements['record-sort'].onchange();await flush();await flush();
+  assert.equal(records.elements['records-holdings-heading'].textContent,
+    'Cartes les plus difficiles');
   assert.match(records.apiCalls.at(-1),/sort=difficulty&level=all/);
   records.elements['record-level'].value='world_elite';
   records.elements['record-level'].onchange();await flush();await flush();
   assert.match(records.apiCalls.at(-1),/sort=difficulty&level=world_elite/);
   records.elements.en.onclick();await flush();await flush();
-  assert.equal(records.elements['records-heading'].textContent,'Card records');
+  assert.equal(records.elements['records-holdings-heading'].textContent,'Hardest cards');
   assert.equal(records.elements.back.textContent,'← My account');
-  assert.match(records.elements['records-holdings'].textContent,/Currently held/);
+  assert.match(records.elements['records-holdings'].textContent,/Ongoing/);
+  assert.ok(html.includes('<option value="duration">Cartes gardées le plus longtemps</option>'));
+  assert.ok(html.includes('<option value="difficulty">Cartes les plus difficiles</option>'));
+  assert.ok(!html.includes('id="records-ranking-help"'));
+  assert.ok(!html.includes('Podium des possessions'));
   assert.equal(records.elements['records-panel'].hidden,false);
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
   assert.doesNotMatch(html,/id="sport-records-tab"|id="sport-cards-tab"/,
