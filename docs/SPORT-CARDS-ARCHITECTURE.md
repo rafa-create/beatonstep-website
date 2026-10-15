@@ -38,6 +38,14 @@ le barème change : les valeurs mises à jour concernent les nouvelles cartes.
 Lors de la synchronisation, l'application conserve le niveau officiel enregistré
 avec une carte mondiale existante, plutôt que de la reclassifier localement.
 
+## Niveau visuel unifié — catalogue, compte, profil public et cadeaux
+
+La **seule source modifiable du barème** reste `sport-card-rules.json`. Pour le rendu **sur le site**, le module partagé `sport-card-percentile.js` charge ce JSON avec `BeatOnStepSportPercentiles.ready()`, puis applique `visibleTier(card)` et `label(card,'fr')` aux cartes du catalogue, du compte, du profil public et des cadeaux. Ne jamais implémenter localement un barème, des seuils, des pourcentages ou une simple utilisation de `card.difficulty` pour le dessin du profil public : ils divergent à chaque évolution du JSON.
+
+Sur le profil public `compte.html?profil=...`, charger les règles **uniquement si le propriétaire autorise la visibilité des Défis**, puis recalculer l'étiquette et la finition des cartes depuis `distanceCm` et `subValue`. Le pourcentage mondial ou l'étiquette de niveau figure **sous la carte, pas sur sa face**. Si le chargement échoue ou si la distance ne figure pas dans le barème, le module réutilise seulement `difficulty` stocké et n'invente aucun classement. L'API publique et les données D1 (niveau historique inclus) **ne sont pas modifiées** : il s'agit strictement d'une présentation synchronisée avec les autres pages du site.
+
+Contrôle de non-régression : `tests/public-profile-sport-tiers.test.mjs` vérifie une ancienne difficulté D1, une modification future des caps du JSON et le repli sans règle réseau. Inclus dans `npm run build`.
+
 ## Attribution indépendante de la télémétrie
 
 1. L'application termine la course hors ligne ou en ligne et conserve immédiatement le résultat et la carte locale.
