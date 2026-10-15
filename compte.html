@@ -75,6 +75,23 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 @media(max-width:420px){#owned-cards{justify-content:center}.pack-game{padding:18px}.pack-image{width:120px;height:162px}}
 @media(prefers-reduced-motion:reduce){.collection-item,.reveal-turn,.reveal-stage::before{transition:none!important}#card-reveal.is-revealed .reveal-turn{transform:rotateY(180deg)}}
 
+/* Public runner profile: same two decks as the app, without a busy dashboard. */
+.profile-visibility{margin:18px 0 22px;border:1px solid var(--line);border-radius:13px;padding:13px 16px;background:#232116}
+.profile-visibility h3{margin:0 0 8px;font-size:15px}
+.profile-visibility label{display:flex;align-items:center;gap:10px;margin:0;font-weight:650;cursor:pointer}
+.profile-visibility input{width:20px;height:20px;min-height:20px;accent-color:var(--accent);flex:none}
+.profile-visibility .field-help{margin:6px 0 0}
+.profile-switch{display:flex;gap:10px;margin:16px 0 18px}
+.profile-switch button{flex:1;min-width:0;background:#27251a;border:1px solid var(--line);color:var(--ink)}
+.profile-switch button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.public-sport-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:18px}
+.public-sport-cards li{padding:13px;border:1px solid var(--line);border-radius:16px;background:#14140f;display:grid;justify-items:center;align-content:start;gap:12px;text-align:center}
+.public-sport-cards .bos-sport-face{margin:auto}
+.public-sport-cards a{color:var(--accent);font-weight:750;font-size:13px;line-height:1.3}
+.public-sport-cards li,.public-sessions-list li{border-bottom:0}
+.public-sessions-list li{padding:12px 0;border-bottom:1px solid var(--line)}
+.public-sessions-list a{color:var(--accent)}
+@media(max-width:430px){.public-sport-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.public-sport-cards li{padding:10px 4px}}
 ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--line)}
 li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -129,6 +146,12 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <button type="button" class="secondary" id="handle-cancel">Annuler</button></div>
 </form>
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
+<div class="profile-visibility" id="profile-visibility">
+<h3>Visibilité de mon profil public</h3>
+<label for="show-public-challenges"><input id="show-public-challenges" type="checkbox" checked>Afficher mes cartes Défis sur mon profil public</label>
+<p class="field-help">Cela ne masque pas le détenteur des cartes dans le catalogue mondial.</p>
+<p class="field-help" id="visibility-status" role="status" aria-live="polite"></p>
+</div>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
 <div id="deck-navigation" class="deck-toggles" role="group" aria-label="Type de collection et historique">
@@ -187,7 +210,15 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   <div class="reveal-controls"><p>Cette carte a rejoint ta collection.</p>
     <button type="button" id="reveal-close">Continuer</button></div>
 </div>
-<section id="public-profile" hidden><h2 id="public-handle"></h2><ul id="public-items"></ul></section>
+<section id="public-profile" hidden>
+<h2 id="public-handle"></h2>
+<div class="profile-switch" role="group" aria-label="Collections publiques">
+<button type="button" id="public-show-challenges" aria-pressed="true">🏅 Défis</button>
+<button type="button" id="public-show-sessions" aria-pressed="false">♫ Séances</button>
+</div>
+<div id="public-challenges"><ul id="public-challenge-cards" class="public-sport-cards"></ul></div>
+<div id="public-sessions" hidden><ul id="public-items" class="public-sessions-list"></ul></div>
+</section>
 </main>
 <script src="/sport-card-face.js"></script>
 <script src="/sport-card-percentile.js"></script>
@@ -228,6 +259,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   }
   function panel(value){for(const key of ['signin','signup','account','public-profile','forgot','password-reset']) $(key).hidden=key!==value}
   let savedCreatedCards=[],savedOwnedCards=[],sessionGoal='time',currentHandle='';
+  let storedShowChallenges=true;
   const currentCardGoal=item=>item?.goalMode==='distance'?'distance':'time';
   const cardKindLabel=item=>currentCardGoal(item)==='distance'
     ?'Séance de distance'+(Number.isSafeInteger(item.distanceMeters)?
@@ -606,6 +638,27 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       if(!error.message.includes('migration D1')) status(error.message);
     }
   }
+  async function loadProfileVisibility(){
+    const setting=await api('/api/account/profile/preferences');
+    storedShowChallenges=setting.showChallenges!==false;
+    $('show-public-challenges').checked=storedShowChallenges;
+    $('visibility-status').textContent='';
+  }
+  $('show-public-challenges').onchange=async()=>{
+    const input=$('show-public-challenges');
+    const choice=input.checked;
+    input.disabled=true;
+    try{
+      const setting=await api('/api/account/profile/preferences','POST',{showChallenges:choice});
+      storedShowChallenges=setting.showChallenges;
+      $('visibility-status').textContent=storedShowChallenges
+        ?'Mes cartes Défis sont visibles sur mon profil.'
+        :'Mes cartes Défis sont masquées sur mon profil.';
+    }catch(error){
+      input.checked=storedShowChallenges;
+      $('visibility-status').textContent='Modification impossible : '+error.message;
+    }finally{input.disabled=false}
+  };
   async function account(){
     const me=await api('/api/account/me');
     if(!me.authenticated){
@@ -624,6 +677,10 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     $('handle-edit').hidden=false;
     $('link-panel').hidden=!linking;
     status(linking?'Compte reconnu. Confirmez pour relier l’application.':'Compte connecté.');
+    $('show-public-challenges').disabled=true;
+    try{await loadProfileVisibility()}
+    catch(error){$('visibility-status').textContent='Réglage indisponible : '+error.message}
+    finally{$('show-public-challenges').disabled=false}
     const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
     renderCards(data.items,$('items'));
     await refreshCollection();
@@ -783,14 +840,69 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       await account();status('Compte supprimé. Les anciennes cartes sont désormais anonymes.')}
     catch(error){status(error.message)}
   };
+  let publicSelectedDeck='challenges',publicProfileData=null;
+  const sportPublicName=card=>{
+    const cm=Number(card.distanceCm);
+    const distance=cm===40000?'400 m':cm===2109750?'Semi-marathon':
+      cm===4219500?'Marathon':(cm/100000).toLocaleString('fr-FR')+' km';
+    const sub=card.timeUnit==='second'
+      ?Math.floor(card.subValue/60)+' min '+String(card.subValue%60).padStart(2,'0')+' s'
+      :card.subValue+' min';
+    return distance+' · SUB '+sub;
+  };
+  function renderPublicChallenges(cards){
+    const list=$('public-challenge-cards');
+    list.replaceChildren();
+    if(!cards.length){
+      const li=document.createElement('li');
+      li.textContent='Aucune carte Défi pour le moment.';
+      list.append(li);
+      return;
+    }
+    for(const card of cards){
+      const li=document.createElement('li');
+      const title=sportPublicName(card);
+      const face=BeatOnStepSportCards.createFace(document,{
+        title,distanceCm:card.distanceCm,difficulty:card.difficulty,
+      },'fr');
+      const link=document.createElement('a');
+      link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
+      link.textContent='Voir la fiche';
+      link.setAttribute('aria-label','Voir la fiche : '+title);
+      li.append(face,link);list.append(li);
+    }
+  }
+  function showPublicDeck(){
+    if(!publicProfileData)return;
+    const visible=publicProfileData.showChallenges!==false;
+    const challenges=visible&&publicSelectedDeck==='challenges';
+    $('public-show-challenges').hidden=!visible;
+    $('public-challenges').hidden=!challenges;
+    $('public-sessions').hidden=challenges;
+    $('public-show-challenges').setAttribute('aria-pressed',String(challenges));
+    $('public-show-sessions').setAttribute('aria-pressed',String(!challenges));
+  }
+  $('public-show-challenges').onclick=()=>{publicSelectedDeck='challenges';showPublicDeck()};
+  $('public-show-sessions').onclick=()=>{publicSelectedDeck='sessions';showPublicDeck()};
   (async()=>{
     if(handle){
-      panel('public-profile');$('heading').textContent='Profil de créateur';
-      $('intro').textContent='Séances publiques signées par un membre de BeatOnStep.';
-      try{const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
-        $('public-handle').textContent='@'+data.handle;renderCards(data.items,$('public-items'));
-        status('Profil public.')}
-      catch{status('Profil indisponible.')}
+      panel('public-profile');$('heading').textContent='Profil de coureur';
+      $('intro').textContent='Ses séances en musique et ses cartes Défis.';
+      try{
+        const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
+        publicProfileData=data;
+        $('public-handle').textContent='@'+data.handle;
+        renderCards(data.items.filter(item=>item.kind==='workout'),$('public-items'));
+        if(data.showChallenges===false){
+          publicSelectedDeck='sessions';
+          $('intro').textContent='Ses séances en musique.';
+        }else{
+          publicSelectedDeck='challenges';
+          renderPublicChallenges(data.challenges||[]);
+        }
+        showPublicDeck();
+        status('Profil public.');
+      }catch{status('Profil indisponible.')}
       return;
     }
     if(resetToken){
