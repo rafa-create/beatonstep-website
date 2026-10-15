@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readPublicSportCards} from '../worker/sport-public-catalog.js';
+import {sportCardDifficultyFilterSql,sportCardDifficultyOrderSql,
+  difficultyForSportCard} from '../worker/sport-card-rules.js';
 
 const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
@@ -22,7 +24,7 @@ function mockDb(overrides={},historyRows=null){
           throw Error('Unexpected first query: '+sql);
         },
         async all(){
-          if(sql.includes('ORDER BY c.distance_cm'))
+          if(sql.includes(' FROM sport_world_cards c')&&sql.includes(' LIMIT 20 OFFSET ?'))
             return {results:[{...sport,...overrides}]};
           if(sql.includes('FROM sport_card_ownership_events e'))
             return {results:historyRows??[
@@ -45,7 +47,7 @@ test('default view lists only verified world cards without personal identifiers'
   assert.equal(r.status,200);
   const body=await r.json();
   assert.deepEqual(body.items,[{kind:'challenge',id:17,distanceCm:500000,
-    timeUnit:'minute',subValue:25,difficulty:'amateur',
+    timeUnit:'minute',subValue:25,difficulty:'expert',
     createdAt:1000,owner:'runner_b',performanceWarning:false}]);
   assert.equal(body.total,1);
   assert.equal(body.page,1);
@@ -54,23 +56,53 @@ test('default view lists only verified world cards without personal identifiers'
   assert.doesNotMatch(JSON.stringify(body),/user_id|owner_id|email|run_id|gps/i);
 });
 
-test('SUB 25 includes SUB 25 and faster tiers, descending within the distance',async()=>{
+test('SUB and difficulty filters use JSON-derived ranges before SQL paging',async()=>{
   const {db,queries}=mockDb();
   const r=await readPublicSportCards(db,url(
-    '/api/sport/cards?distance=500000&difficulty=amateur&sub=25&page=1'));
+    '/api/sport/cards?distance=500000&difficulty=expert&sub=25&page=1'));
   assert.equal(r.status,200);
-  const q=queries.find(q=>q.sql.includes('ORDER BY c.distance_cm'));
+  const q=queries.find(q=>q.sql.includes(' LIMIT 20 OFFSET ?'));
   assert.match(q.sql,/c\.distance_cm=\?/);
-  assert.match(q.sql,/c\.difficulty=\?/);
+  assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 23 AND 29/);
+  assert.doesNotMatch(q.sql,/c\.difficulty\s*(?:=|BETWEEN)/,
+    'the old stored D1 tier is not the source of truth');
   assert.match(q.sql,/c\.sub_value<=\?/);
-  assert.match(q.sql,/c\.sub_value DESC/);
-  assert.deepEqual(q.args,[500000,'amateur',25,0]);
+  assert.match(q.sql,/ORDER BY c\.distance_cm ASC,c\.sub_value DESC/);
+  assert.deepEqual(q.args,[500000,25,0]);
+  assert.deepEqual((await r.json()).items[0].difficulty,'expert');
+});
+
+test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',async()=>{
+  for(const direction of ['difficulty_asc','difficulty_desc']){
+    const {db,queries}=mockDb();
+    const result=await readPublicSportCards(db,url('/api/sport/cards?sort='+direction));
+    assert.equal(result.status,200);
+    const q=queries.find(item=>item.sql.includes(' LIMIT 20 OFFSET ?'));
+    assert.match(q.sql,/ORDER BY CASE WHEN /);
+    assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 23 AND 29/);
+    assert.match(q.sql,new RegExp(
+      'END '+(direction==='difficulty_asc'?'ASC':'DESC')+',c\\.distance_cm ASC'));
+    assert.doesNotMatch(q.sql,/ORDER BY c\.difficulty/);
+    assert.deepEqual(q.args,[0]);
+  }
+  assert.equal(difficultyForSportCard(500000,25).difficulty,'expert');
+  assert.match(sportCardDifficultyFilterSql('world_elite',500000),
+    /c\.sub_value BETWEEN 1 AND 19/);
+  assert.match(sportCardDifficultyFilterSql('legend',500000),
+    /c\.sub_value BETWEEN 20 AND 22/);
+  assert.match(sportCardDifficultyFilterSql('legend',5000000),
+    /c\.distance_cm IN \(5000000\)/);
+  assert.equal(sportCardDifficultyFilterSql('expert',5000000),'(1=0)',
+    'ultra race results do not get a modeled finisher difficulty');
+  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/THEN 6/);
+  assert.equal(sportCardDifficultyOrderSql('malicious;DROP TABLE'),null);
 });
 
 test('invalid and unscoped filters cannot enumerate arbitrary values',async()=>{
   const {db,queries}=mockDb();
   for(const query of ['?sub=25','?distance=456','?distance=500000&sub=0',
-    '?difficulty=madeup','?page=-1','?distance=500000&sub=1.5']){
+    '?difficulty=madeup','?page=-1','?distance=500000&sub=1.5',
+    '?sort=unexpected','?sort=difficulty_asc%3BDROP']){
     const r=await readPublicSportCards(db,url('/api/sport/cards'+query));
     assert.equal(r.status,400,query);
   }
