@@ -106,7 +106,8 @@ test('world gift schema is independent, durable and never changes musical gifts'
   assert.doesNotMatch(html,/<button\b|id="claim"|id="prove"|Se connecter au site|\/api\/account\/sport\/gift\/claim/,
     'web gift must not offer sign-in, racing or ownership-transfer actions');
   assert.match(html,/beatonstep:\/\/sport-gift\?code=/);
-  assert.match(html,/sans compte/);
+  assert.doesNotMatch(html,/La carte est consultable dans BeatOnStep sans compte|Tu pourras te connecter dans l’application|class="note"/,
+    'the landing should not repeat sign-in explanations beneath the app button');
   assert.match(html,/if\(!valid\)\{status\('Ce lien est incomplet ou incorrect\.\'\);return\}/);
   assert.doesNotMatch(html,/expir(e|ation)|sept jours/i);
 });
