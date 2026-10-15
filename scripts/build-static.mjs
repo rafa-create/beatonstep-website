@@ -1,8 +1,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFileSync } from 'node:fs';
-import { SPORT_CARD_DISTANCES, SPORT_CARD_400M_TIERS,
-  maxSubMinuteByTier,sportCardRulesManifest } from '../worker/sport-card-rules.js';
+import { SPORT_CARD_DISTANCES,sportCardRulesManifest } from '../worker/sport-card-rules.js';
 
 const root = process.cwd();
 const out = join(root, 'dist');
@@ -33,25 +32,24 @@ if(pendingTrack.some(cm=>manifest.distancesCm.includes(cm))||
    pendingTrack.some(cm=>!manifest.pendingTrackCapsByDistance?.[cm]))
   throw Error('Pending track preview may not be active before D1 schema migration');
 const guide = {
-  ruleset: 'sport-cards-v1',
+  ruleset: manifest.ruleset,
+  revision: manifest.revision,
   levels: [...manifest.tierOrder],
   // Same world-finisher calibration used by the card gallery and app.
   percentileTargets: {...manifest.percentileCalibration.estimatedPercentileTargets},
   distances: [
     ...SPORT_CARD_DISTANCES.map(({distanceCm,code}) => ({
       distanceCm,code,
-      unit:distanceCm===40000?'second':'minute',
-      caps:distanceCm===40000
-        ?Object.fromEntries(SPORT_CARD_400M_TIERS.map(({difficulty,maxSubSecond})=>
-            [difficulty,maxSubSecond]))
-        :maxSubMinuteByTier(distanceCm),
-      ultra:distanceCm>=4300000,
+      unit:(manifest.secondResolutionDistancesCm||[]).includes(distanceCm)
+        ?'second':'minute',
+      caps:manifest.capsByDistance[String(distanceCm)]||null,
+      ultra:distanceCm>=manifest.ultraStartCm,
       previewOnly:false,
     })),
     ...pendingTrack.map(distanceCm=>({
       distanceCm,
       code:distanceCm===80000?'800m':distanceCm===150000?'1500m':'mile',
-      unit:'second',
+      unit:manifest.pendingTrackUnit==='second'?'second':'minute',
       caps:manifest.pendingTrackCapsByDistance[String(distanceCm)],
       ultra:false,previewOnly:true,
     })),
