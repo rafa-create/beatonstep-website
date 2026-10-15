@@ -332,7 +332,7 @@
             <option value="difficulty">Cartes les plus difficiles</option>
           </select>
         </div>
-        <div class="filter-picker">
+        <div class="filter-picker" id="record-level-picker">
           <label id="record-level-label" for="record-level">Niveau de carte</label>
           <select id="record-level" aria-labelledby="record-level-label">
             <option value="all">Toutes les difficultés</option>
@@ -1017,7 +1017,12 @@
     });
   }
   async function showRecords(){
-    $('records-holdings-heading').textContent=recordSort==='difficulty'
+    // A difficulty-first ranking includes every tier. Never apply an invisible
+    // difficulty filter, including when opening a saved URL with ?level=...
+    const hardest=recordSort==='difficulty';
+    $('record-level-picker').hidden=hardest;
+    if(hardest)recordLevel='all';
+    $('records-holdings-heading').textContent=hardest
       ?fr('Cartes les plus difficiles','Hardest cards')
       :fr('Cartes gardées le plus longtemps','Longest-held cards');
     const ticket=++recordTicket;
