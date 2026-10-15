@@ -1157,6 +1157,34 @@
       id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('sport-guide-link').href='cartes-guide.html?lang='+lang;
     $('sport-guide-label').textContent=fr('Comment gagner une carte ?','How do I earn a card?');
+    $('sport-record-tabs').setAttribute('aria-label',fr(
+      'Vues du catalogue Défis','Challenge catalogue views'));
+    $('sport-cards-tab').textContent=fr('Cartes','Cards');
+    $('sport-records-tab').textContent=fr('Records','Records');
+    $('records-heading').textContent=fr('Palmarès des cartes','Card records');
+    $('records-help').textContent=fr(
+      'Durées des possessions, y compris celles qui sont encore en cours.',
+      'Holding periods, including ongoing ownership.');
+    $('record-sort-label').textContent=fr('Ordre du podium','Podium order');
+    $('record-level-label').textContent=fr('Niveau de carte','Card tier');
+    document.querySelector('#record-sort option[value=duration]').textContent=
+      fr('Durée de possession','Holding time');
+    document.querySelector('#record-sort option[value=difficulty]').textContent=
+      fr('Difficulté puis durée','Difficulty then duration');
+    for(const [key,names] of Object.entries(difficultyLabels)){
+      document.querySelector('#record-level option[value='+key+']').textContent=
+        names[lang==='en'?1:0];
+    }
+    document.querySelector('#record-level option[value=all]').textContent=fr(
+      'Toutes les difficultés','All difficulty levels');
+    $('records-holdings-heading').textContent=fr(
+      'Podium des possessions','Holding podium');
+    $('records-collections-heading').textContent=fr(
+      'Plus grandes collections actuelles','Largest current collections');
+    $('records-privacy').textContent=fr(
+      'Un profil privé ou supprimé n’est jamais identifié. Les collections masquées ne figurent pas au classement.',
+      'Private or deleted profiles are never identified. Hidden collections are excluded.');
+
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
@@ -1195,8 +1223,21 @@
     updateCatalogFilters();
     if(id||sportId)showDetail();else showList();
   }
+  $('sport-cards-tab').onclick=()=>{
+    recordsView=false;updateCatalogFilters();showList();
+  };
+  $('sport-records-tab').onclick=()=>{
+    recordsView=true;updateCatalogFilters();showRecords();
+  };
+  $('record-sort').onchange=()=>{
+    recordSort=$('record-sort').value;showRecords();
+  };
+  $('record-level').onchange=()=>{
+    recordLevel=$('record-level').value;showRecords();
+  };
   $('kind-filter').onchange=()=>{
     kind=$('kind-filter').value;page=1;
+    if(kind!=='challenge')recordsView=false;
     updateCatalogFilters();showList();
     $('intro').hidden=kind==='challenge';
     $('intro').textContent=kind==='challenge'?'':fr(
