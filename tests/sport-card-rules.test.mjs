@@ -24,7 +24,7 @@ test('catalog: 400m with multiple second thresholds plus EVERY km 1..200',()=>{
   assert.equal(new Set(SPORT_CARD_DISTANCES.map(x=>x.distanceCm)).size,203);
   assert.equal(Object.isFrozen(SPORT_CARD_DISTANCES),true);
   assert.equal(SPORT_CARD_RULESET,'sport-cards-v1');
-  assert.equal(SPORT_CARD_DIFFICULTY_RULESET,'v1');
+  assert.equal(SPORT_CARD_DIFFICULTY_RULESET,'v2');
   for(let km=1;km<=200;km++){
     assert.equal(canonicalSportDistance(cm(km)),cm(km));
     assert.equal(longestSportDistance(cm(km)),cm(km));
@@ -72,10 +72,10 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
     assert.equal(difficultyForSportCard(cm(km),caps.beginner+1),null);
   }
   assert.deepEqual(maxSubMinuteByTier(cm(10)),{
-    world_elite:33,legend:39,expert:46,intermediate:52,
-    regular:59,amateur:65,beginner:91,
+    world_elite:37,legend:42,expert:53,intermediate:63,
+    regular:74,amateur:88,beginner:100,
   });
-  assert.equal(maxSubMinuteByTier(cm(14)).beginner,130);
+  assert.equal(maxSubMinuteByTier(cm(14)).beginner,136);
   assert.equal(maxSubMinuteByTier(cm(42.195)).beginner,419);
   assert.equal(maxSubMinuteByTier(cm(.4)),null);
   assert.equal(maxSubMinuteByTier(cm(43)),null);
@@ -94,23 +94,23 @@ test('novice 10km exactly 90:00 qualifies for beginner sub91',()=>{
   const quick=result(10,[[10,90-1/60]],90);
   assert.equal(quick.subMinute,90);
   assert.equal(quick.difficulty,'beginner');
-  assert.equal(result(10,[[10,91]],91).status,'none');
+  assert.equal(result(10,[[10,100]],100).status,'none');
   // A 14km 1h09m59 has a valid dedicated card, not a 10km proxy.
   const fourteen=result(14,[[14,70-1/60]],70);
   assert.equal(fourteen.status,'candidate');
   assert.equal(fourteen.subMinute,70);
   assert.equal(fourteen.distanceCm,cm(14));
-  assert.equal(fourteen.difficulty,'intermediate');
+  assert.equal(fourteen.difficulty,'expert');
 });
 
 test('performance threshold examples, strict minute and no rare/owner fields',()=>{
   for(const [km,minutes,sub,tier] of [
-    [5,24+59/60,25,'intermediate'],
-    [5,29.75,30,'amateur'],
-    [21.0975,89.5,90,'expert'],
-    [21.0975,119.5,120,'regular'],
+    [5,24+59/60,25,'expert'],
+    [5,29.75,30,'intermediate'],
+    [21.0975,89.5,90,'legend'],
+    [21.0975,119.5,120,'intermediate'],
     [42.195,239+59/60,240,'intermediate'],
-    [42.195,329+59/60,330,'beginner'],
+    [42.195,329+59/60,330,'amateur'],
   ]){
     const candidate=result(km,[[km,minutes]],minutes);
     assert.equal(candidate.status,'candidate');
@@ -140,14 +140,14 @@ test('ultra 43..200km is legend independent of elapsed time; never bypass proof'
     }
   }
   // Marathon itself retains the seven difficulty levels.
-  assert.equal(result(42.195,[[42.195,240]],245).difficulty,'regular');
+  assert.equal(result(42.195,[[42.195,240]],245).difficulty,'intermediate');
 });
 
 test('one candidate only at last recognized checkpoint, never fallback',()=>{
   const ok=result(14.3,[[1,5],[5,25],[10,65],[14,100]],110);
   assert.equal(ok.status,'candidate');
   assert.equal(ok.distanceCm,cm(14));
-  const over=result(14.3,[[1,5],[5,25],[10,65],[14,130]],135);
+  const over=result(14.3,[[1,5],[5,25],[10,65],[14,140]],145);
   assert.equal(over.status,'none');
   assert.equal(over.distanceCm,cm(14));
   assert.equal(over.reason,'outside_beginner_qualification_cap');
@@ -158,20 +158,20 @@ test('one candidate only at last recognized checkpoint, never fallback',()=>{
 
 test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=>{
   const tiers=[
-    [49.999,'world_elite',50],
-    [50,'legend',51],
-    [59.999,'legend',60],
-    [60,'expert',61],
-    [69.999,'expert',70],
-    [70,'intermediate',71],
-    [84.999,'intermediate',85],
-    [85,'regular',86],
-    [99.999,'regular',100],
-    [100,'amateur',101],
-    [124.999,'amateur',125],
-    [125,'beginner',126],
-    [179.999,'beginner',180],
-    [180,'beginner',181],
+    [59.999,'world_elite',60],
+    [66.999,'world_elite',67],
+    [67,'legend',68],
+    [76.999,'legend',77],
+    [77,'expert',78],
+    [100.999,'expert',101],
+    [101,'intermediate',102],
+    [122.999,'intermediate',123],
+    [123,'regular',124],
+    [147.999,'regular',148],
+    [148,'amateur',149],
+    [177.999,'amateur',178],
+    [178,'beginner',179],
+    [200,'beginner',201],
   ];
   for(const [seconds,difficulty,subSecond] of tiers){
     const sec=Math.round(seconds*1000);
@@ -191,9 +191,9 @@ test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=
   assert.equal(effectiveSportSubSecond(59_999),60);
   assert.equal(effectiveSportSubSecond(60_000),61);
   assert.equal(effectiveSportSubSecond(0),null);
-  assert.equal(difficultyForSportCard(cm(.4),181).difficulty,'beginner');
-  assert.equal(difficultyForSportCard(cm(.4),182),null);
-  assert.equal(result(.4,[[.4,181/60]],182/60).status,'none');
+  assert.equal(difficultyForSportCard(cm(.4),201).difficulty,'beginner');
+  assert.equal(difficultyForSportCard(cm(.4),202),null);
+  assert.equal(result(.4,[[.4,202/60]],203/60).status,'none');
   assert.equal(result(1,[[.4,.5],[1,8]],9).distanceCm,cm(1));
   // A normal 400 m is a sprint; never use a minute-rounded sub1
   // or silently reuse the per-minute 5km identity scheme.
