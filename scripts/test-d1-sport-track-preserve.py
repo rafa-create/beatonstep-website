@@ -119,7 +119,16 @@ def test_guard():
     assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
     print('PASS: unexpected counts abort the migration transaction')
 
+def test_remote_runner():
+    launcher=(ROOT/'scripts/apply-d1-sport-track-preserve.sh').read_text(encoding='utf-8')
+    assert '--command "$(cat "$SQL")"' in launcher, 'use D1 query endpoint, not importer'
+    assert 'wrangler22 d1 execute "$DB" --remote --file=' not in launcher
+    assert 'BOS_CLEAN_OK' in launcher and 'BOS_GUARD_ONLY_OK' in launcher
+    assert 'time-travel info' in launcher and 'pragma_foreign_key_check' in launcher
+    print('PASS: VM runner uses query API and checks safe D1 recovery states')
+
 if __name__=='__main__':
     test_preservation()
     test_guard()
+    test_remote_runner()
     print('D1 track preserve migration local rehearsal: OK')
