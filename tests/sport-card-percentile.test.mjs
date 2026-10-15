@@ -1,0 +1,80 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+const source=readFileSync(new URL('../sport-card-percentile.js',import.meta.url),'utf8');
+const rules=JSON.parse(readFileSync(new URL('../sport-card-rules.json',import.meta.url),'utf8'));
+const face=readFileSync(new URL('../partages.html',import.meta.url),'utf8');
+const account=readFileSync(new URL('../compte.html',import.meta.url),'utf8');
+const gift=readFileSync(new URL('../cadeau-sport.html',import.meta.url),'utf8');
+
+async function api(data=rules){
+  const context={
+    fetch:async()=>({ok:true,json:async()=>data}),
+  };
+  vm.runInNewContext(source,context);
+  const client=context.BeatOnStepSportPercentiles;
+  await client.ready();
+  return client;
+}
+const card=(distanceCm,subValue,difficulty='beginner')=>({distanceCm,subValue,difficulty});
+
+test('world labels are read from the same v2 JSON as official sporting awards',async()=>{
+  const client=await api();
+  const checks=[
+    [500000,19,'world_elite',1],
+    [500000,22,'legend',5],
+    [500000,29,'expert',20],
+    [500000,35,'intermediate',50],
+    [500000,42,'regular',75],
+    [500000,51,'amateur',90],
+    [1000000,63,'intermediate',50],
+    [2109750,135,'intermediate',50],
+    [4219500,267,'intermediate',50],
+  ];
+  for(const [distanceCm,subValue,level,percent] of checks){
+    const row=card(distanceCm,subValue);
+    assert.equal(client.visibleTier(row),level);
+    assert.equal(client.percentile(row),percent);
+    assert.equal(client.label(row,'fr'),'Top '+percent+' % mondial');
+    assert.equal(client.label(row,'en'),'World top '+percent+'%');
+  }
+});
+
+test('no invented world rank for beginner, warning or ultra',async()=>{
+  const client=await api();
+  assert.equal(client.percentile(card(500000,57)),null);
+  assert.equal(client.label(card(500000,57),'fr'),'Débutant');
+  assert.equal(client.percentile(card(4300000,600,'legend')),null);
+  assert.equal(client.label(card(4300000,600,'legend'),'fr'),'Légende longue distance');
+  assert.equal(client.percentile({...card(500000,22),performanceWarning:true}),null);
+  assert.equal(client.label({...card(500000,22),performanceWarning:true},'fr'),'Légende');
+  assert.equal(client.percentile(card(500000,58)),null);
+});
+
+test('an older D1 label never invents an outdated world ranking',async()=>{
+  const client=await api();
+  const old=card(500000,29,'amateur');
+  assert.equal(client.tier(old),'expert');
+  assert.equal(client.label(old,'fr'),'Top 20 % mondial');
+  assert.equal(client.visibleTier(old),'expert');
+});
+
+test('if the official rules fail, UI falls back to tier name without fake percentile',async()=>{
+  const client=await api({revision:'legacy',difficultyRuleset:'v1'});
+  assert.equal(client.label(card(500000,29,'amateur'),'fr'),'Amateur');
+  assert.equal(client.percentile(card(500000,29,'amateur')),null);
+});
+
+test('catalogue, account and gift link use one browser helper without text on card face',()=>{
+  for(const page of [face,account,gift]){
+    assert.match(page,/<script src="\/sport-card-percentile\.js"><\/script>/);
+    assert.match(page,/BeatOnStepSportPercentiles\.ready\(\)/);
+    assert.match(page,/BeatOnStepSportPercentiles\.visibleTier\(/);
+    assert.match(page,/BeatOnStepSportPercentiles\.label\(/);
+  }
+  assert.doesNotMatch(face,/fr\('Difficulté : ','Difficulty: '\)/);
+  assert.doesNotMatch(gift,/textContent='Niveau '/);
+  assert.doesNotMatch(account,/BeatOnStepSportCards\.levels\[card\.difficulty\]/);
+});
