@@ -350,7 +350,7 @@ export async function stravaRequest(request, env, url) {
       const options=await jsonBody(request);
       const reauthorize=options?.reauthorize===true;
       if (existing&&!reauthorize) return reply({error:'already_connected'},409);
-      if (await usage(env.DB) >= capacity(env)) return reply({error:'capacity_reached'},409);
+      if (!existing && await usage(env.DB) >= capacity(env)) return reply({error:'capacity_reached'},409);
       const state=randomHex(), now=Date.now();
       await env.DB.prepare('DELETE FROM strava_oauth_pending WHERE expires_at<=?')
         .bind(now).run();
