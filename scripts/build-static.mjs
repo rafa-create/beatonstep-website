@@ -35,6 +35,7 @@ const guide = {
   ruleset: manifest.ruleset,
   revision: manifest.revision,
   levels: [...manifest.tierOrder],
+  ultraDifficulty: manifest.ultraDifficulty,
   // Same world-finisher calibration used by the card gallery and app.
   percentileTargets: {...manifest.percentileCalibration.estimatedPercentileTargets},
   distances: [
