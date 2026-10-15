@@ -101,8 +101,14 @@ test('world gift schema is independent, durable and never changes musical gifts'
   assert.match(account,/return creating\?createSportGift\(db,member.id,input.id\)/);
   const html=readFileSync(new URL('../cadeau-sport.html',import.meta.url),'utf8');
   assert.match(html,/id="open-app" class="primary"/);
-  assert.equal((html.match(/<a\b[^>]*>/g)||[]).length,1,
-    'the only link on a sport gift landing is Open in the app');
+  assert.equal((html.match(/<a\b[^>]*>/g)||[]).length,2,
+    'gift landing only offers opening the app and returning to the challenge catalogue');
+  assert.match(html,/<nav class="gift-footer" aria-label="Retour au catalogue">/);
+  assert.match(html,/<a id="back-to-catalog" href="\/partages\.html\?kind=challenge">← Retour au catalogue<\/a>/);
+  assert.ok(html.indexOf('id="back-to-catalog"')>html.indexOf('id="claim-actions"'),
+    'the secondary return link stays below the gift action');
+  assert.ok(html.indexOf('id="back-to-catalog"')<html.indexOf('</main>'),
+    'the bottom navigation remains within the gift page');
   assert.doesNotMatch(html,/<button\b|id="claim"|id="prove"|Se connecter au site|\/api\/account\/sport\/gift\/claim/,
     'web gift must not offer sign-in, racing or ownership-transfer actions');
   assert.match(html,/beatonstep:\/\/sport-gift\?code=/);
