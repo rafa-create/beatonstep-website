@@ -208,14 +208,31 @@
   let lang=params.get('lang')==='en'?'en':params.get('lang')==='fr'?'fr':
     (navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
   let guide=null;
+  // Names are translations only: tiers, stars and percentile targets all
+  // derive from the generated guide, itself built from sport-card-rules.json.
   const levelNames={
-    world_elite:['Élite mondiale','World elite',7,'Comparer au record sur la carte ouverte','Compare to world reference on the card'],
-    legend:['Légende','Legend',6,'Environ top 5 % des arrivants','About fastest 5% of finishers'],
-    expert:['Expert','Expert',5,'Environ top 20 % des arrivants','About fastest 20% of finishers'],
-    intermediate:['Intermédiaire','Intermediate',4,'Médiane : environ top 50 %','Median: about fastest 50%'],
-    regular:['Régulier','Regular',3,'Environ top 75 % des arrivants','About fastest 75% of finishers'],
-    amateur:['Amateur','Amateur',2,'Environ top 90 % des arrivants','About fastest 90% of finishers'],
-    beginner:['Débutant','Beginner',1,'Premier palier au-delà du top 90 %, seuil d’accueil','Entry tier beyond fastest 90%, inclusive target'],
+    world_elite:['Élite mondiale','World elite'],legend:['Légende','Legend'],
+    expert:['Expert','Expert'],intermediate:['Intermédiaire','Intermediate'],
+    regular:['Régulier','Regular'],amateur:['Amateur','Amateur'],
+    beginner:['Débutant','Beginner'],
+  };
+  const tierStars=key=>guide?guide.levels.length-guide.levels.indexOf(key):0;
+  const tierDescription=key=>{
+    if(key==='world_elite')return t(
+      'Comparer au record sur la carte ouverte','Compare to world reference on the card');
+    const percent=guide?.percentileTargets?.[key];
+    if(key==='beginner'){
+      const boundary=guide?.percentileTargets?.amateur;
+      return Number.isFinite(boundary)
+        ?t('Premier palier au-delà du top '+boundary+' %, seuil d’accueil',
+          'Entry tier beyond fastest '+boundary+'%, inclusive target')
+        :t('Premier palier accessible','Accessible entry tier');
+    }
+    if(!Number.isFinite(percent))return '—';
+    return key==='intermediate'
+      ?t('Médiane : environ top '+percent+' %','Median: about fastest '+percent+'%')
+      :t('Environ top '+percent+' % des arrivants',
+         'About fastest '+percent+'% of finishers');
   };
   const t=(fr,en)=>lang==='fr'?fr:en;
   const worldLabel=key=>{
@@ -276,8 +293,8 @@
     for(const key of guide.levels.slice().reverse()){
       const info=levelNames[key],tr=make('tr');
       const a=make('td'),b=make('td','tier-name',info[lang==='fr'?0:1]);
-      a.append(stars(info[2]));
-      tr.append(a,b,make('td','muted',info[lang==='fr'?3:4]));
+      a.append(stars(tierStars(key)));
+      tr.append(a,b,make('td','muted',tierDescription(key)));
       body.append(tr);
     }
   }
@@ -288,7 +305,7 @@
     if(row.ultra){
       const tr=make('tr');
       tr.append(make('td','tier-name',t('Légende longue distance','Long-distance legend')));
-      const cell=make('td');cell.append(stars(6));tr.append(cell);
+      const cell=make('td');cell.append(stars(tierStars('legend')));tr.append(cell);
       tr.append(make('td','muted','—'));
       tr.append(make('td','time-range',t('Tout chrono validé','Any validated finish time')));
       body.append(tr);
@@ -299,7 +316,7 @@
         if(!Number.isInteger(max)||max<=previous)continue;
         const tr=make('tr');
         tr.append(make('td','tier-name',levelNames[key][lang==='fr'?0:1]));
-        const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
+        const cell=make('td');cell.append(stars(tierStars(key)));tr.append(cell);
         const percentile=worldLabel(key);
         tr.append(percentile
           ?make('td','world-percent',percentile):make('td','muted','—'));
@@ -322,7 +339,7 @@
       const tr=make('tr');
       tr.append(make('td','',t('Tout SUB vérifié','Any validated SUB')));
       tr.append(make('td','',t('Légende longue distance','Long-distance legend')));
-      const cell=make('td');cell.append(stars(6));tr.append(cell);
+      const cell=make('td');cell.append(stars(tierStars('legend')));tr.append(cell);
       body.append(tr);return;
     }
     const fragment=document.createDocumentFragment();
@@ -334,7 +351,7 @@
         const tr=make('tr');
         tr.append(make('td','',subLabel(n,row.unit)));
         tr.append(make('td','',levelNames[key][lang==='fr'?0:1]));
-        const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
+        const cell=make('td');cell.append(stars(tierStars(key)));tr.append(cell);
         fragment.append(tr);
       }
       previous=limit;
