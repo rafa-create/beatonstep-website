@@ -550,6 +550,28 @@ export async function accountRequest(request,env,url,ctx) {
       }
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
+      // Renaming the visible identity must not replace the underlying account ID.
+      // Signed history, card ownership and device grants reference that stable ID.
+      if (path==='/api/account/handle' && method==='POST') {
+        const b=await jsonBody(request);
+        const handle=typeof b?.handle==='string'?b.handle.trim().toLowerCase():'';
+        if (!/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle))
+          return reply({error:'invalid_handle'},400);
+        if (handle===user.handle) return reply({handle:user.handle,changed:false});
+        if (env.CATALOG_RATE_SALT &&
+            !(await limited(db,env,request,'change-handle',10,DAY,user.id)))
+          return reply({error:'retry_later'},429);
+        try {
+          const result=await db.prepare(
+            'UPDATE community_users SET handle=? WHERE id=? AND handle=?'
+          ).bind(handle,user.id,user.handle).run();
+          if (result.meta?.changes!==1) return reply({error:'handle_changed'},409);
+        } catch(error) {
+          if (/unique/i.test(String(error))) return reply({error:'handle_taken'},409);
+          throw error;
+        }
+        return reply({handle,changed:true});
+      }
       if (method==='POST' && ['/api/account/pack/open','/api/account/gift/claim','/api/account/gift/create'].includes(path)) {
         if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
         if (path==='/api/account/pack/open') return openPack(db,user.id);
