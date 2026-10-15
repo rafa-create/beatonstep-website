@@ -19,8 +19,9 @@ CREATE TABLE IF NOT EXISTS sport_world_cards (
   owner_epoch INTEGER NOT NULL DEFAULT 0 CHECK(owner_epoch>=0),
   CHECK((current_owner_id IS NULL AND owner_since IS NULL) OR
     (current_owner_id IS NOT NULL AND owner_since IS NOT NULL)),
-  CHECK((distance_cm=40000 AND time_unit='second') OR
-    (distance_cm<>40000 AND time_unit='minute')),
+  -- Track events use an exact-second SUB, never a minute-rounded sprint.
+  CHECK((distance_cm IN (40000,80000,150000,160934) AND time_unit='second') OR
+    (distance_cm NOT IN (40000,80000,150000,160934) AND time_unit='minute')),
   UNIQUE(distance_cm,time_unit,sub_value)
 );
 CREATE INDEX IF NOT EXISTS sport_world_cards_owner
