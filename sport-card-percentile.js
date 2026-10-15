@@ -67,13 +67,30 @@
     return item.subValue<=Math.floor(reference.seconds/unit)+1
       ?(reference.estimated?'estimated':'official'):null;
   }
+  // The time gap refers to the STRICT SUB threshold of the collectible
+  // (e.g. SUB 14 = 14:00), not the runner's personally recorded finish time.
+  function recordGap(item){
+    if(!rules||tier(item)!=='world_elite'||item?.performanceWarning===true)return null;
+    const reference=worldRecordReference(item.distanceCm);
+    if(!reference)return null;
+    const unit=(rules.secondResolutionDistancesCm||[40000])
+      .includes(item.distanceCm)?1:60;
+    const delta=item.subValue*unit-reference.seconds;
+    return {seconds:Math.max(0,Math.round(delta)),estimated:reference.estimated,
+      atOrBeyondReference:delta<=0};
+  }
+  function gapText(seconds,lang){
+    const minutes=Math.floor(seconds/60),remainder=seconds%60;
+    if(minutes===0)return seconds+(lang==='en'?' sec':' s');
+    return minutes+' min '+String(remainder).padStart(2,'0')+(lang==='en'?' sec':' s');
+  }
   function percentile(item){
     // This is a modelled finisher fraction, never an actual personal rank.
     if(!rules||item?.distanceCm>=rules.ultraStartCm||
        item?.performanceWarning===true||!Number.isSafeInteger(item?.subValue))
       return null;
     const level=tier(item);
-    if(!level||level==='beginner')return null;
+    if(!level||level==='beginner'||level==='world_elite')return null;
     const caps=rules.capsByDistance[String(item.distanceCm)];
     if(!caps)return null;
     const marks=[['world_elite',1],['legend',5],['expert',20],
@@ -90,31 +107,29 @@
       }
       return null;
     }
-    const reference=worldRecordReference(item.distanceCm);
-    if(!reference)return 1;
-    const unit=(rules.secondResolutionDistancesCm||[40000])
-      .includes(item.distanceCm)?1:60;
-    const ceiling=caps.world_elite*unit;
-    if(!(reference.seconds>0&&ceiling>reference.seconds))return 1;
-    const ratio=Math.max(0,Math.min(1,
-      Math.log(Math.max(item.subValue*unit,reference.seconds)/reference.seconds)/
-      Math.log(ceiling/reference.seconds)));
-    return Math.max(0.1,Math.round((0.1+ratio*0.9)*10)/10);
+    return null;
   }
   function label(item,lang='fr'){
-    const percent=percentile(item);
-    if(percent!==null){
-      const record=recordBracket(item);
-      if(record==='official')return lang==='en'?'World record time bracket':'Palier du record mondial';
-      if(record==='estimated')return lang==='en'?'Estimated world benchmark bracket':'Palier de référence mondiale estimée';
-      return lang==='en'
-        ?'World top ≈ '+percent+'%':'Top ≈ '+String(percent).replace('.',',')+' % mondial';
+    const gap=recordGap(item);
+    if(gap){
+      if(gap.atOrBeyondReference)return gap.estimated
+        ?(lang==='en'?'Estimated world benchmark bracket':'Palier de référence mondiale estimée')
+        :(lang==='en'?'World record time bracket':'Palier du record mondial');
+      const duration=gapText(gap.seconds,lang);
+      return gap.estimated
+        ?(lang==='en'?duration+' from the estimated world benchmark'
+          :'À '+duration+' de la référence mondiale estimée')
+        :(lang==='en'?duration+' from the world record'
+          :'À '+duration+' du record mondial');
     }
+    const percent=percentile(item);
+    if(percent!==null)return lang==='en'
+      ?'World top ≈ '+percent+'%':'Top ≈ '+String(percent).replace('.',',')+' % mondial';
     const level=visibleTier(item);
     if(level==='legend'&&rules&&item?.distanceCm>=rules.ultraStartCm)
       return lang==='en'?'Long-distance legend':'Légende longue distance';
     const name=names[level];
     return name?name[lang==='en'?1:0]:(lang==='en'?'Level unavailable':'Niveau indisponible');
   }
-  root.BeatOnStepSportPercentiles=Object.freeze({ready,tier,visibleTier,percentile,label,worldRecordReference,recordBracket});
+  root.BeatOnStepSportPercentiles=Object.freeze({ready,tier,visibleTier,percentile,label,worldRecordReference,recordBracket,recordGap});
 })(typeof window!=='undefined'?window:globalThis);
