@@ -8,6 +8,7 @@
   <title>Comment gagner une carte Défi ? — BeatOnStep</title>
   <meta name="description" content="Comprendre les cartes Défis BeatOnStep, leurs 7 difficultés et tous les paliers SUB par distance, du 400 m au 200 km.">
   <link rel="icon" href="assets/brand/logo-400.jpg">
+  <link rel="stylesheet" href="/sport-card-face.css">
   <style>
     :root{color-scheme:dark;--bg:#0a0a08;--surface:#181812;--raised:#222118;--line:#514b34;--text:#f5f1e4;--muted:#c3bdab;--yellow:#fcea07}
     *{box-sizing:border-box}
@@ -71,6 +72,12 @@
     .calculate{padding:11px 17px;border:0;border-radius:11px;background:var(--yellow);color:#17160c;font-weight:800;cursor:pointer}
     #calc-result{min-height:25px;margin-top:14px;font-weight:650}
     #calc-result.error{color:#ffd0b0}
+    .calc-preview{display:flex;flex-direction:column;align-items:center;gap:12px;
+      margin:16px auto 4px;padding:18px 10px;border-top:1px solid #50482f}
+    .calc-preview .bos-sport-face{transform:scale(1.16);transform-origin:center;
+      margin:21px auto 20px}
+    .calc-preview-note{max-width:320px;text-align:center;font-size:12px;color:var(--muted)}
+    .world-percent{color:var(--yellow);font-weight:800;font-size:13px;white-space:nowrap}
     .muted{color:var(--muted)}
     .footer{margin:25px 0;text-align:center;color:var(--muted);font-size:13px}
     [hidden]{display:none!important}
@@ -105,41 +112,24 @@
         <div class="step">
           <span class="number">1</span>
           <h3 data-fr>Tu cours pour de vrai</h3><h3 data-en hidden>Run for real</h3>
-          <p data-fr>Termine une course enregistrée. Le système retient la plus grande distance reconnue du catalogue atteinte, avec un temps de passage exploitable, pauses intermédiaires incluses.</p>
-          <p data-en hidden>Finish a recorded run. The system uses the longest catalog distance reached with a usable crossing time, including intermediate pauses.</p>
+          <p data-fr>Une course finalisée et validée donne au maximum <strong>une carte</strong> : celle de la plus longue distance reconnue atteinte.</p>
+          <p data-en hidden>A completed, validated run awards at most <strong>one card</strong>: the longest recognized distance reached.</p>
         </div>
         <div class="step">
           <span class="number">2</span>
           <h3 data-fr>Ton temps fixe ton SUB</h3><h3 data-en hidden>Your time sets your SUB</h3>
-          <p data-fr>Exemple : 5 km en 24 min 35 s donnent la carte « 5 km · SUB 25 ». Le seuil est strict : exactement 25 min donnent « SUB 26 ».</p>
-          <p data-en hidden>Example: 5 km in 24 min 35 s earns a “5 km · SUB 25” card. Thresholds are strict: exactly 25 minutes means “SUB 26”.</p>
+          <p data-fr>5 km en 24 min 35 s → <strong>SUB 25</strong>. À 25 min pile → SUB 26. Courir plus vite dans un même SUB ne change pas la carte.</p>
+          <p data-en hidden>5 km in 24 min 35 sec → <strong>SUB 25</strong>. Exactly 25 min → SUB 26. A faster time within the same SUB earns the same card.</p>
         </div>
         <div class="step">
           <span class="number">3</span>
           <h3 data-fr>Tu crées ou conquières la carte</h3><h3 data-en hidden>Create or claim the card</h3>
-          <p data-fr>Si cette carte exacte n'existe pas, ta performance la crée. Si elle a déjà un détenteur, tu la lui prends en reproduisant ce même palier. Si tu fais mieux et changes de SUB, tu vises une autre carte.</p>
-          <p data-en hidden>If the exact card does not exist, your run creates it. If someone owns it, matching that SUB takes the card. If you improve into a new SUB, you target a different card.</p>
+          <p data-fr>Tu crées la carte si elle est libre, sinon tu la conquiers à son détenteur. <strong>La propriété n'est pas définitive</strong> : quelqu'un peut refaire ce palier.</p>
+          <p data-en hidden>Create a card if unclaimed, or take it from its holder. <strong>Ownership is not permanent</strong>: another runner can match that tier.</p>
         </div>
-      </div>
-      <div class="rule-note">
-        <span data-fr>Une course finalisée donne au maximum <strong>une carte</strong>. Courir plus vite à l'intérieur d'un même SUB ne change pas la carte. Gagner une carte ne garantit pas de conserver sa propriété à vie : un autre coureur peut ensuite atteindre le même palier.</span>
-        <span data-en hidden>A finished run awards at most <strong>one card</strong>. Running faster within the same SUB does not change the card. Ownership is not permanent: another runner may later match that same threshold.</span>
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="levels-title">
-      <h2 id="levels-title"><span data-fr>Les 7 niveaux de difficulté</span><span data-en hidden>The 7 difficulty levels</span></h2>
-      <p class="lead" data-fr>Chaque étoile situe approximativement ton chrono parmi les <strong>personnes ayant terminé une course chronométrée</strong> à cette distance. La référence est internationale, <strong>tous âges et sexes confondus</strong>. Quatre étoiles correspondent à la médiane (top 50 %), cinq au top 20 %, six au top 5 % et sept au top 1 %. Ce sont des repères BeatOnStep, pas un classement sportif officiel.</p>
-      <p class="lead" data-en hidden>Stars approximately compare your finish time with <strong>finishers of timed races</strong> over that distance. The international reference <strong>combines ages and sexes</strong>. Four stars target the median (fastest 50%), five the fastest 20%, six the fastest 5%, and seven the fastest 1%. These are BeatOnStep reference levels, not official sporting rankings.</p>
-      <p class="fine" data-fr>Référence : <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, comparaison des temps d'arrivée</a> (environ 35 millions de résultats historiques, étude publiée en 2017, mise à jour en 2024). Percentiles observés pour 5 km, 10 km, semi-marathon et marathon ; certains percentiles intermédiaires et les autres distances sont estimés. La population ne représente pas tous les coureurs du monde.</p>
-      <p class="fine" data-en hidden>Source: <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, race finish-time comparison</a> (about 35 million historical results, published 2017 and updated 2024). Observed percentiles cover 5K, 10K, half and full marathon; some intermediate percentiles and all other distances are modeled. This is not a census of every runner worldwide.</p>
-      <div class="table-scroll">
-        <table aria-label="Niveaux des cartes" id="levels-table">
-          <thead><tr><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>À retenir</span><span data-en hidden>Meaning</span></th></tr></thead>
-          <tbody id="levels-rows"></tbody>
-        </table>
-      </div>
-    </section>
 
     <section class="panel" id="paliers" aria-labelledby="threshold-title">
       <h2 id="threshold-title"><span data-fr>Les paliers pour chaque distance</span><span data-en hidden>Thresholds for every distance</span></h2>
@@ -153,8 +143,8 @@
       <p class="fine" id="threshold-note"></p>
       <div class="table-scroll">
         <table aria-label="Paliers par difficulté">
-          <thead><tr><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Paliers de cartes</span><span data-en hidden>Card thresholds</span></th></tr></thead>
-          <tbody id="threshold-rows"><tr><td colspan="3"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
+          <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Paliers SUB</span><span data-en hidden>SUB thresholds</span></th></tr></thead>
+          <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
         </table>
       </div>
       <details id="individual-details">
@@ -184,11 +174,27 @@
           <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>Check my card</span></button>
         </div>
         <p id="calc-result" role="status" aria-live="polite"></p>
+        <div id="calc-card-preview" class="calc-preview" hidden>
+          <div id="calc-card-face"></div>
+          <p class="calc-preview-note"><span data-fr>Simulation de carte : seul un résultat de course validé peut la faire gagner.</span><span data-en hidden>Card preview: only a validated run can earn this card.</span></p>
+        </div>
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="levels-title">
+      <h2 id="levels-title"><span data-fr>Comprendre les étoiles</span><span data-en hidden>Understanding the stars</span></h2>
+      <p class="fine" data-fr>Référence : <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, comparaison des temps d'arrivée</a> (environ 35 millions de résultats historiques, étude publiée en 2017, mise à jour en 2024). Percentiles observés pour 5 km, 10 km, semi-marathon et marathon ; certains percentiles intermédiaires et les autres distances sont estimés. La population ne représente pas tous les coureurs du monde.</p>
+      <p class="fine" data-en hidden>Source: <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, race finish-time comparison</a> (about 35 million historical results, published 2017 and updated 2024). Observed percentiles cover 5K, 10K, half and full marathon; some intermediate percentiles and all other distances are modeled. This is not a census of every runner worldwide.</p>
+      <div class="table-scroll">
+        <table aria-label="Niveaux des cartes" id="levels-table">
+          <thead><tr><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>À retenir</span><span data-en hidden>Meaning</span></th></tr></thead>
+          <tbody id="levels-rows"></tbody>
+        </table>
       </div>
     </section>
     <p class="footer"><a href="partages.html?kind=challenge"><span data-fr>← Parcourir les cartes gagnées</span><span data-en hidden>← Browse earned cards</span></a></p>
   </main>
 </div>
+<script src="/sport-card-face.js"></script>
 <script>
 (function(){
   'use strict';
@@ -207,6 +213,9 @@
     beginner:['Débutant','Beginner',1,'Premier palier au-delà du top 90 %, seuil d’accueil','Entry tier beyond fastest 90%, inclusive target'],
   };
   const t=(fr,en)=>lang==='fr'?fr:en;
+  const worldTop={world_elite:1,legend:5,expert:20,intermediate:50,regular:75,amateur:90};
+  const worldLabel=key=>Object.prototype.hasOwnProperty.call(worldTop,key)
+    ?t('Top '+worldTop[key]+' % mondial','World top '+worldTop[key]+'%'):null;
   const make=(tag,cls,value)=>{
     const el=document.createElement(tag);
     if(cls)el.className=cls;
@@ -264,6 +273,7 @@
       const tr=make('tr');
       tr.append(make('td','tier-name',t('Légende longue distance','Long-distance legend')));
       const cell=make('td');cell.append(stars(6));tr.append(cell);
+      tr.append(make('td','muted','—'));
       tr.append(make('td','',t('Tous les SUB validés (sans plafond de vitesse)','All validated SUBs (no pace cap)')));
       body.append(tr);
     }else{
@@ -275,6 +285,9 @@
         const tr=make('tr');
         tr.append(make('td','tier-name',levelNames[key][lang==='fr'?0:1]));
         const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
+        const percentile=worldLabel(key);
+        tr.append(percentile
+          ?make('td','world-percent',percentile):make('td','muted','—'));
         tr.append(make('td','',first===max?subLabel(max,row.unit):
           subLabel(first,row.unit)+' — '+subLabel(max,row.unit)));
         body.append(tr);
@@ -290,6 +303,8 @@
     $('time-centiseconds-part').hidden=row.unit!=='second';
     $('calc-result').textContent='';
     $('calc-result').classList.remove('error');
+    $('calc-card-preview').hidden=true;
+    $('calc-card-face').replaceChildren();
   }
   function renderIndividuals(){
     const row=selected();if(!row)return;
@@ -356,6 +371,8 @@
     const row=selected();if(!row)return;
     const target=$('calc-result');
     target.classList.remove('error');
+    $('calc-card-preview').hidden=true;
+    $('calc-card-face').replaceChildren();
     const ms=selectedTime(row.unit);
     if(ms===null){
       target.classList.add('error');
@@ -374,7 +391,13 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?t('Légende longue distance','Long-distance legend'):
       levelNames[difficulty][lang==='fr'?0:1];
-    target.textContent=title+' · '+name+' ('+levelNames[difficulty][2]+'/7 ★).';
+    const percentile=row.ultra?null:worldLabel(difficulty);
+    target.textContent=title+' · '+(percentile?percentile+' · ':'')+
+      name+' ('+levelNames[difficulty][2]+'/7 ★).';
+    $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
+      title,distanceCm:row.distanceCm,difficulty,
+    },lang));
+    $('calc-card-preview').hidden=false;
   }
   function setLanguage(next){
     lang=next;document.documentElement.lang=lang;
@@ -452,6 +475,8 @@
     $(id).addEventListener('change',()=>{
       $('calc-result').textContent='';
       $('calc-result').classList.remove('error');
+      $('calc-card-preview').hidden=true;
+      $('calc-card-face').replaceChildren();
     });
   }
   $('fr').addEventListener('click',()=>setLanguage('fr'));
