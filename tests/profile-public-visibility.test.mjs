@@ -17,7 +17,7 @@ const request=(route,{method='GET',data,loggedIn=false,origin=ROOT}={})=>
     ...(data!==undefined?{body:JSON.stringify(data)}:{}),
   });
 
-function fixture({migrationReady=true}={}){
+function fixture({migrationReady=true,legacyChallenge=false}={}){
   const state={setting:null,worldReads:0,writes:0};
   const DB={
     prepare(sql){
@@ -38,8 +38,12 @@ function fixture({migrationReady=true}={}){
         },
         async all(){
           if(sql.includes('FROM signed_shares s JOIN shared_items x'))
-            return {results:[{id:2,name:'Run 10 km',kind:'workout',source:'spotify',
-              created_at:1000,imports:4,workout_goal:'distance',workout_distance_meters:10000}]};
+            return {results:[
+              {id:2,name:'Run 10 km',kind:'workout',source:'spotify',
+                created_at:1000,imports:4,workout_goal:'distance',workout_distance_meters:10000},
+              ...(legacyChallenge?[{id:3,name:'Legacy challenge secret',
+                kind:'challenge',source:'none',created_at:2000,imports:0}]:[]),
+            ]};
           if(sql.includes('FROM sport_world_cards WHERE current_owner_id=?')){
             state.worldReads++;
             assert.deepEqual(args,['u1']);
@@ -96,7 +100,7 @@ test('world challenges appear with signed musical sessions by default',async()=>
 });
 
 test('authenticated checkbox hides all challenges in public profile JSON',async()=>{
-  const f=fixture();
+  const f=fixture({legacyChallenge:true});
   const setting=await dispatch(f,'/api/account/profile/preferences',{method:'POST',
     loggedIn:true,data:{showChallenges:false}});
   assert.equal(setting.status,200);
@@ -108,6 +112,8 @@ test('authenticated checkbox hides all challenges in public profile JSON',async(
   assert.equal(Object.hasOwn(data,'challenges'),false,'no card IDs or counts are leaked');
   assert.equal(f.state.worldReads,0,'do not even read private profile cards');
   assert.equal(data.items.length,1,'public musical creations remain visible');
+  assert.equal(JSON.stringify(data).includes('Legacy challenge secret'),false,
+    'legacy challenges must never leak through signed shares when hidden');
   const own=await dispatch(f,'/api/account/profile/preferences',{loggedIn:true});
   assert.equal((await own.json()).showChallenges,false);
   const restored=await dispatch(f,'/api/account/profile/preferences',{method:'POST',
