@@ -233,12 +233,19 @@
   }
   function distanceName(cm){
     if(cm===40000)return '400 m';
+    if(cm===80000)return '800 m';
+    if(cm===150000)return '1 500 m';
+    if(cm===160934)return t('1 mile (1 609,34 m)','1 mile (1,609.34 m)');
     if(cm===2109750)return t('Semi-marathon','Half marathon');
     if(cm===4219500)return t('Marathon','Marathon');
     return (cm/100000).toLocaleString(lang==='fr'?'fr-FR':'en-US')+' km';
   }
   function selected(){
     return guide?.distances.find(row=>String(row.distanceCm)===$('distance').value);
+  }
+  function distanceOption(row){
+    return distanceName(row.distanceCm)+(row.previewOnly
+      ?t(' · aperçu',' · preview'):'');
   }
   function timeLabel(n,unit){
     if(unit==='second'){
@@ -387,10 +394,18 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?t('Légende longue distance','Long-distance legend'):
       levelNames[difficulty][lang==='fr'?0:1];
-    target.textContent=t('Ta carte possible : ','Your possible card: ')+title+' · '+name+'.';
+    target.textContent=(row.previewOnly
+      ?t('Aperçu en préparation : ','Upcoming preview: ')
+      :t('Ta carte possible : ','Your possible card: '))+title+' · '+name+'.';
     $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
       title,distanceCm:row.distanceCm,difficulty,
     },lang));
+    const note=$('calc-card-preview').querySelector('.calc-preview-note');
+    if(note)note.textContent=row.previewOnly
+      ?t('Distance en préparation : cette carte ne peut pas encore être gagnée. Les seuils sont provisoires.',
+         'Upcoming distance: this card cannot be won yet. These thresholds are provisional.')
+      :t('Simulation de carte : seul un résultat de course validé peut la faire gagner.',
+         'Card preview: only a validated run can earn this card.');
     $('calc-card-preview').hidden=false;
   }
   function setLanguage(next){
@@ -405,7 +420,7 @@
       const current=$('distance').value;
       const select=$('distance');select.replaceChildren();
       for(const row of guide.distances){
-        const option=make('option','',distanceName(row.distanceCm));
+        const option=make('option','',distanceOption(row));
         option.value=String(row.distanceCm);
         select.append(option);
       }
@@ -420,14 +435,14 @@
       if(!response.ok)throw Error('guide_unavailable');
       const data=await response.json();
       if(data?.ruleset!=='sport-cards-v1'||!Array.isArray(data.distances)||
-         data.distances.length!==203||!Array.isArray(data.levels))throw Error('invalid_ruleset');
+         data.distances.length!==206||!Array.isArray(data.levels))throw Error('invalid_ruleset');
       guide=data;
       const preferred=params.get('distance');
       const exists=guide.distances.some(row=>String(row.distanceCm)===preferred);
       $('distance').disabled=false;
       $('distance').replaceChildren();
       for(const row of guide.distances){
-        const option=make('option','',distanceName(row.distanceCm));
+        const option=make('option','',distanceOption(row));
         option.value=String(row.distanceCm);
         $('distance').append(option);
       }
