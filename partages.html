@@ -75,9 +75,11 @@
     .card-origin a{color:var(--yellow);text-decoration:none}
     details.share-tree>summary,details.phase-branch>summary{list-style:none;cursor:pointer}
     details.share-tree>summary::-webkit-details-marker,details.phase-branch>summary::-webkit-details-marker{display:none}
-    .share-summary{background:linear-gradient(145deg,#242319,#1c1c17 62%);border:1px solid #60583a;border-radius:14px;padding:16px 44px 16px 16px;position:relative;transition:background-color .2s,border-color .2s,box-shadow .2s}
-    .share-summary:hover{border-color:#d2c14a;box-shadow:inset 0 0 0 1px #615823}
-    .share-summary::after{content:'';position:absolute;right:23px;top:50%;width:10px;height:10px;border-right:2px solid var(--yellow);border-bottom:2px solid var(--yellow);transform:translateY(-65%) rotate(45deg);transition:transform .2s}
+    .share-summary{background:linear-gradient(145deg,#242319,#1c1c17 62%);border:1px solid #60583a;border-radius:14px;padding:16px;position:relative;transition:background-color .2s,border-color .2s,box-shadow .2s}
+    .share-tree>.share-summary{padding-right:44px}
+    .share-tree>.share-summary:hover,.sport-summary[role="button"]:hover{border-color:#d2c14a;box-shadow:inset 0 0 0 1px #615823}
+    /* Chevron only on actual expandable workout summaries, never on sports cards. */
+    .share-tree>.share-summary::after{content:'';position:absolute;right:23px;top:50%;width:10px;height:10px;border-right:2px solid var(--yellow);border-bottom:2px solid var(--yellow);transform:translateY(-65%) rotate(45deg);transition:transform .2s}
     .share-tree[open]>.share-summary{border-color:var(--yellow);box-shadow:inset 0 0 0 1px #645a23}
     .share-tree[open]>.share-summary::after{transform:translateY(-25%) rotate(225deg)}
     /* Collectible visual language: no account, rarity or ownership claims. */
@@ -98,7 +100,7 @@
     .effort-segment--unknown{background:repeating-linear-gradient(135deg,#737568 0 4px,#494b43 4px 8px);box-shadow:none;opacity:.5}
     .collection-art--effort{background:linear-gradient(180deg,#272519,#14140e);border-color:#5e5735}
     .tree-content{padding:12px 5px 0}
-    .sport-card .sport-summary{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .sport-card .sport-summary[role="button"]{cursor:pointer;-webkit-tap-highlight-color:transparent}
     .sport-card .sport-summary:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .sport-card .collection-art{background:radial-gradient(ellipse at 50% 100%,#61532b91,transparent 65%),linear-gradient(130deg,#2b281a,#161710);border-color:#776532}
     .sport-card .collection-glyph{font-size:55px}
@@ -197,8 +199,9 @@
       .filter-picker{width:100%;min-width:0}
       .filter-picker select{padding:9px 7px;font-size:13px;text-overflow:ellipsis}
       .card{padding:12px}
-      .share-summary{padding:14px 40px 15px 14px}
-      .share-summary::after{right:17px}
+      .share-summary{padding:14px 14px 15px}
+      .share-tree>.share-summary{padding-right:40px}
+      .share-tree>.share-summary::after{right:17px}
       .collection-art{height:74px}
       .collection-glyph{font-size:56px}
       .tree-content{padding:12px 4px 0}
