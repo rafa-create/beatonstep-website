@@ -324,14 +324,12 @@
       </div>
     </div>
     <section id="records-panel" class="records-panel" hidden>
-      <h2 id="records-heading">Palmarès des cartes</h2>
-      <p id="records-help" class="sub">Chaque record concerne une seule carte gardée sans interruption par un coureur.</p>
       <div class="records-toolbar">
         <div class="filter-picker">
-          <label id="record-sort-label" for="record-sort">Record à consulter</label>
-          <select id="record-sort" aria-labelledby="record-sort-label" aria-describedby="records-ranking-help">
-            <option value="duration">Temps de détention</option>
-            <option value="difficulty">Difficulté des cartes</option>
+          <label id="record-sort-label" for="record-sort">Classement</label>
+          <select id="record-sort" aria-labelledby="record-sort-label">
+            <option value="duration">Cartes gardées le plus longtemps</option>
+            <option value="difficulty">Cartes les plus difficiles</option>
           </select>
         </div>
         <div class="filter-picker">
@@ -349,11 +347,9 @@
         </div>
       </div>
       <h3 id="records-holdings-heading">Cartes gardées le plus longtemps</h3>
-      <p id="records-ranking-help" class="sub" aria-live="polite">On classe les détentions par durée, qu'elles soient terminées ou encore en cours.</p>
       <ol id="records-holdings" class="record-podium" aria-live="polite"></ol>
-      <h3 id="records-collections-heading">Plus grandes collections actuelles</h3>
+      <h3 id="records-collections-heading">Plus grandes collections</h3>
       <ol id="records-collections" class="record-podium"></ol>
-      <p id="records-privacy" class="sub">Un profil privé ou supprimé n’est jamais identifié. Les collections masquées ne figurent pas au classement.</p>
     </section>
     <div id="results" aria-live="polite"></div>
     <div class="pagination" id="pages"></div>
@@ -1001,10 +997,10 @@
       owner.append(el('span','',fr('Détenteur : ','Holder: ')),
         profileHandle(item.holder,fr('Profil privé ou supprimé',
           'Private or deleted profile')));
-      const time=el('span','record-value',sportPeriod(item.durationMs));
+      const time=el('span','record-value',fr('Gardée : ','Held: ')+sportPeriod(item.durationMs));
       const status=el('span','record-sub',item.ongoing
-        ?fr('Possession en cours','Currently held')
-        :fr('Possession terminée','Past holding'));
+        ?fr('Détention en cours','Currently held')
+        :fr('Détention terminée','Past holding'));
       li.append(label,cardLink,tier,owner,time,status);
       podium.append(li);
     });
@@ -1021,6 +1017,9 @@
     });
   }
   async function showRecords(){
+    $('records-holdings-heading').textContent=recordSort==='difficulty'
+      ?fr('Cartes les plus difficiles','Hardest cards')
+      :fr('Cartes gardées le plus longtemps','Longest-held cards');
     const ticket=++recordTicket;
     const holder=$('records-holdings'),collections=$('records-collections');
     holder.replaceChildren(el('li','record-sub',fr('Chargement…','Loading…')));
@@ -1153,29 +1152,23 @@
       id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('sport-guide-link').href='cartes-guide.html?lang='+lang;
     $('sport-guide-label').textContent=fr('Comment gagner une carte ?','How do I earn a card?');
-    $('records-heading').textContent=fr('Palmarès des cartes','Card records');
-    $('records-help').textContent=fr(
-      'Durées des possessions, y compris celles qui sont encore en cours.',
-      'Holding periods, including ongoing ownership.');
-    $('record-sort-label').textContent=fr('Ordre du podium','Podium order');
+    $('record-sort-label').textContent=fr('Classement','Ranking');
     $('record-level-label').textContent=fr('Niveau de carte','Card tier');
     document.querySelector('#record-sort option[value=duration]').textContent=
-      fr('Durée de possession','Holding time');
+      fr('Cartes gardées le plus longtemps','Longest-held cards');
     document.querySelector('#record-sort option[value=difficulty]').textContent=
-      fr('Difficulté puis durée','Difficulty then duration');
+      fr('Cartes les plus difficiles','Hardest cards');
     for(const [key,names] of Object.entries(difficultyLabels)){
       document.querySelector('#record-level option[value='+key+']').textContent=
         names[lang==='en'?1:0];
     }
     document.querySelector('#record-level option[value=all]').textContent=fr(
       'Toutes les difficultés','All difficulty levels');
-    $('records-holdings-heading').textContent=fr(
-      'Podium des possessions','Holding podium');
+    $('records-holdings-heading').textContent=recordSort==='difficulty'
+      ?fr('Cartes les plus difficiles','Hardest cards')
+      :fr('Cartes gardées le plus longtemps','Longest-held cards');
     $('records-collections-heading').textContent=fr(
-      'Plus grandes collections actuelles','Largest current collections');
-    $('records-privacy').textContent=fr(
-      'Un profil privé ou supprimé n’est jamais identifié. Les collections masquées ne figurent pas au classement.',
-      'Private or deleted profiles are never identified. Hidden collections are excluded.');
+      'Plus grandes collections','Largest collections');
 
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
