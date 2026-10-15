@@ -123,6 +123,15 @@ function setup(search,data=example){
   // Challenge cards offer the detail link in the catalogue and focus gallery,
   // but never on the destination page itself (both FR and EN).
   const sportCatalogCard=landing.elements.results.children[0];
+  const publicHandles=walk(sportCatalogCard,x=>x.className==='profile-handle');
+  assert.equal(publicHandles.length,1,'the challenge holder is linked in the catalogue');
+  assert.equal(publicHandles[0].href,'compte.html?profil=runner_b');
+  assert.equal(publicHandles[0].textContent,'@runner_b');
+  assert.equal(publicHandles[0].attributes['aria-label'],'Voir le profil de @runner_b');
+  let linkStops=0;
+  publicHandles[0].events.click({stopPropagation(){linkStops++}});
+  publicHandles[0].events.keydown({stopPropagation(){linkStops++}});
+  assert.equal(linkStops,2,'click and keyboard navigation do not open the parent gallery');
   const catalogDetailLinks=walk(sportCatalogCard,x=>x.tagName==='a'&&x.className==='primary');
   assert.equal(catalogDetailLinks.length,1,'challenge catalogue keeps the detail action');
   assert.equal(catalogDetailLinks[0].href,'partages.html?kind=challenge&sport=17');
@@ -130,6 +139,9 @@ function setup(search,data=example){
   sportSummary.events.click();
   const sportDialog=walk(landing.body,x=>x.tagName==='dialog')[0];
   assert(sportDialog.open,'challenge gallery opens for the selected card');
+  const focusedOwner=walk(sportDialog,x=>x.className==='profile-handle');
+  assert.equal(focusedOwner.length,1,'the card gallery also has the public holder link');
+  assert.equal(focusedOwner[0].href,'compte.html?profil=runner_b');
   const focusedDetailLinks=walk(sportDialog,x=>x.tagName==='a'&&x.className==='primary');
   assert.equal(focusedDetailLinks.length,1,'focused challenge still links to its full page');
   assert.equal(focusedDetailLinks[0].href,'partages.html?kind=challenge&sport=17');
@@ -138,12 +150,18 @@ function setup(search,data=example){
   await flush();
   assert.equal(sportDetail.elements.back.href,'partages.html?kind=challenge');
   const sportDetailCard=sportDetail.elements.detail.children[0];
+  const detailOwner=walk(sportDetailCard,x=>x.className==='profile-handle');
+  assert.equal(detailOwner.length,1);
+  assert.equal(detailOwner[0].href,'compte.html?profil=runner_b',
+    'the challenge full page links the same current holder');
   assert.equal(walk(sportDetailCard,x=>x.className==='primary').length,0,
     'challenge detail page has no View detail link pointing to itself');
   assert.equal(walk(sportDetailCard,x=>x.className==='sport-details').length,1,
     'holder history remains accessible on the full challenge detail');
   sportDetail.elements.en.onclick();
   await flush();
+  assert.equal(walk(sportDetail.elements.detail,x=>x.className==='profile-handle')[0].attributes['aria-label'],
+    'View profile of @runner_b','English link is accessible');
   assert.equal(walk(sportDetail.elements.detail,x=>x.className==='primary').length,0,
     'English challenge detail page also has no self-referential link');
   const history=walk(landing.elements.results,x=>x.className==='sport-details')[0];
@@ -160,8 +178,26 @@ function setup(search,data=example){
   await flush();
   assert.match(history.textContent,/@runner_a/);
   assert.match(history.textContent,/Donation/);
+  const historyHandles=walk(history,x=>x.className==='profile-handle');
+  assert.deepEqual(historyHandles.map(x=>x.textContent),
+    ['@runner_a','@runner_a','@runner_a','@runner_a','@runner_b'],
+    'first owner, longest owner and all gift/win history names link to profiles');
+  assert(historyHandles.every(x=>x.href==='compte.html?profil='+x.textContent.slice(1)),
+    'each history link targets its own runner');
   assert(!landing.apiCalls.some(url=>url.includes('/api/shared/17')),
     'sport cards must not invoke legacy musical share APIs');
+
+  const musicalOwner=setup('?kind=workout',{...example,owner:'runner_b'});
+  await flush();
+  const musicOwnerLink=walk(musicalOwner.elements.results,
+    x=>x.className==='profile-handle');
+  assert.equal(musicOwnerLink.length,1,'workout collection holders also link to profiles');
+  assert.equal(musicOwnerLink[0].href,'compte.html?profil=runner_b');
+  const reservedCard=setup('',{...sport,owner:null,firstHolder:null,longestHolder:null,history:[]});
+  await flush();
+  assert.equal(walk(reservedCard.elements.results,
+    x=>x.className==='profile-handle').length,0,
+    'BeatOnStep reserve is plain text, not a broken profile link');
 
   // Individual workout: one collapsed workout, then independently expandable
   // phase branches; only the songs from the selected phase become visible.
