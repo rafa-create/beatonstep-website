@@ -35,7 +35,9 @@ var BeatOnStepSportCards=(function(){
       if(value!==undefined)node.textContent=String(value);
       return node;
     };
-    const face=create('div','bos-sport-face sport-skin--'+tier+
+    const finish=item?.distanceCm===40000?' sport-finish--400m':
+      item?.distanceCm===500000?' sport-finish--5k':'';
+    const face=create('div','bos-sport-face sport-skin--'+tier+finish+
       (featured?' sport-featured':'')+
       (item?.variant==='ghost'?' is-ghost':'')+
       (item?.variant==='rejected'?' is-rejected':''));
