@@ -242,7 +242,8 @@ test('sport card faces keep seven difficulty finishes and honour marathon at eve
   },'en');
   assert.equal(walk(elite).find(n=>n.className==='bos-sport-unique').textContent,
     'ONE CARD WORLDWIDE');
-  for(const [distanceCm,label] of [[40000,'SPRINT'],[500000,'5 KILOMÈTRES'],
+  for(const [distanceCm,label] of [[40000,'SPRINT'],[80000,'DEMI-FOND'],
+    [150000,'DEMI-FOND'],[160934,'LE MILE'],[500000,'5 KILOMÈTRES'],
     [1000000,'10 KILOMÈTRES'],[2109750,'SEMI-MARATHON'],
     [4300000,'ULTRA-DISTANCE']]){
     assert.equal(api.signature(distanceCm)[1],label);
