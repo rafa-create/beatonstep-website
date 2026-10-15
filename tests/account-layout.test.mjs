@@ -36,10 +36,21 @@ test('inline account interactions remain syntactically valid',()=>{
   assert.doesNotThrow(()=>new vm.Script(source));
 });
 
-test('saved workout copy explains author attribution in plain French',()=>{
-  assert.match(html,/Retrouve ces séances dans l’application/);
-  assert.match(html,/ne fait pas de toi son créateur/);
-  assert.doesNotMatch(html,/Les imports ne transfèrent pas la création/);
+test('saved workouts are clearly named without an explanatory paragraph',()=>{
+  assert.match(html,/<h2>Mes séances dans l’app<\/h2>/);
+  assert.doesNotMatch(html,/Retrouve ces séances dans l’application/);
+  assert.doesNotMatch(html,/ne fait pas de toi son créateur/);
+  assert.match(html,/\$\('saved-workouts-status'\)\.textContent=visible\.length/);
+});
+test('authored cards remain accessible after gifting, collapsed by default',()=>{
+  assert.match(html,/<details id="my-cards" class="created-cards-fold"><summary>Mes cartes créées · par popularité<\/summary>/);
+  assert.doesNotMatch(html,/<details id="my-cards"[^>]*\bopen\b/);
+  assert.match(html,/renderCards\(savedCreatedCards,\$\('items'\)\)/);
+});
+test('opened discovery packs disappear completely from the collection',()=>{
+  assert.match(html,/\$\('pack-panel'\)\.hidden=pack\.alreadyOpened===true/);
+  assert.match(html,/\.pack-game\[hidden\]\{display:none!important\}/);
+  assert.match(html,/packButton\.disabled\|\|\$\('pack-panel'\)\.hidden/);
 });
 
 test('musical cards are split by time or distance without mixing sporting trophies',()=>{
