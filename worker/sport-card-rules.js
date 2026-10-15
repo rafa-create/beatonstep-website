@@ -6,6 +6,7 @@ export const SPORT_CARD_RULESET=sportTierRules.ruleset;
 export const SPORT_CARD_DIFFICULTY_RULESET=sportTierRules.difficultyRuleset;
 export const SPORT_CARD_TIER_REVISION=sportTierRules.revision;
 const ULTRA_START_CM=sportTierRules.ultraStartCm;
+const SECOND_RESOLUTION=new Set(sportTierRules.secondResolutionDistancesCm||[40000]);
 const LEVELS=Object.freeze([...sportTierRules.tierOrder]);
 export const SPORT_CARD_400M_TIERS=Object.freeze(
   LEVELS.map(difficulty=>Object.freeze({
@@ -38,7 +39,7 @@ export function longestSportDistance(finalDistanceCm){
 
 export function maxSubMinuteByTier(distanceCm){
   if(canonicalSportDistance(distanceCm)===null||
-     distanceCm===40000||distanceCm>=ULTRA_START_CM)return null;
+     SECOND_RESOLUTION.has(distanceCm)||distanceCm>=ULTRA_START_CM)return null;
   // Return a defensive copy; the canonical thresholds are immutable inputs.
   return {...sportTierRules.capsByDistance[String(distanceCm)]};
 }
@@ -66,7 +67,7 @@ export function effectiveSportSubSecond(elapsedMs){
 export function difficultyForSportCard(distanceCm,subValue){
   if(canonicalSportDistance(distanceCm)===null||
      !Number.isSafeInteger(subValue)||subValue<1)return null;
-  if(distanceCm===40_000){
+  if(SECOND_RESOLUTION.has(distanceCm)){
     const found=SPORT_CARD_400M_TIERS.find(
       tier=>subValue<=tier.maxSubSecond);
     return found?Object.freeze({
@@ -126,23 +127,24 @@ export function evaluateSportCardCandidate({
   if(chosenMs===null){
     return {status:'unverified',reason:'missing_final_distance_crossing'};
   }
-  const isSprint=distanceCm===40_000;
-  const timeUnit=isSprint?'second':'minute';
-  const subValue=isSprint
+  const isSecondResolution=SECOND_RESOLUTION.has(distanceCm);
+  const timeUnit=isSecondResolution?'second':'minute';
+  const subValue=isSecondResolution
     ?effectiveSportSubSecond(chosenMs)
     :effectiveSportSubMinute(chosenMs);
   const tier=difficultyForSportCard(distanceCm,subValue);
   if(!tier){
     return {status:'none',reason:'outside_beginner_qualification_cap',
       distanceCm,elapsedMs:chosenMs,timeUnit,subValue,
-      subMinute:isSprint?null:subValue,subSecond:isSprint?subValue:null};
+      subMinute:isSecondResolution?null:subValue,
+      subSecond:isSecondResolution?subValue:null};
   }
   return Object.freeze({
     status:'candidate',ruleset:SPORT_CARD_RULESET,
     difficultyRuleset:SPORT_CARD_DIFFICULTY_RULESET,
     distanceCm,elapsedMs:chosenMs,timeUnit,subValue,
-    subMinute:isSprint?null:subValue,
-    subSecond:isSprint?subValue:null,
+    subMinute:isSecondResolution?null:subValue,
+    subSecond:isSecondResolution?subValue:null,
     ...tier,
     // Eventual D1 identity: UNIQUE(distance_cm,time_unit,sub_value).
     // "400 m sub60 seconds" and "5 km sub60 minutes" stay unambiguous.
