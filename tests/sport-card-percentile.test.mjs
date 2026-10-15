@@ -37,9 +37,33 @@ test('world labels are read from the same v2 JSON as official sporting awards',a
     const row=card(distanceCm,subValue);
     assert.equal(client.visibleTier(row),level);
     assert.equal(client.percentile(row),percent);
-    assert.equal(client.label(row,'fr'),'Top '+percent+' % mondial');
-    assert.equal(client.label(row,'en'),'World top '+percent+'%');
+    assert.equal(client.label(row,'fr'),'Top ≈ '+percent+' % mondial');
+    assert.equal(client.label(row,'en'),'World top ≈ '+percent+'%');
   }
+});
+
+test('percentiles progress for individual SUB thresholds and world record is the floor',async()=>{
+  const client=await api();
+  for(const [sub,top] of [[19,1],[20,2],[22,5],[24,9],[25,11],[27,16],[29,20]]){
+    assert.equal(client.percentile(card(500000,sub)),top,'5km SUB '+sub);
+  }
+  assert.ok(client.percentile(card(500000,15))<client.percentile(card(500000,18)));
+  assert.equal(client.percentile(card(500000,13)),0.1);
+  assert.equal(client.label(card(500000,13),'fr'),'Palier du record mondial');
+  assert.equal(client.label(card(500000,13),'en'),'World record time bracket');
+  assert.equal(client.percentile(card(40000,44)),0.1);
+  assert.equal(client.recordBracket(card(40000,44)),'official');
+  assert.equal(client.recordBracket(card(40000,45)),null);
+  const distance=400000; // 4km has a modeled reference between 3km and road 5km.
+  const world=client.worldRecordReference(distance);
+  assert.ok(world&&world.estimated===true&&world.seconds>437.55&&world.seconds<769);
+  assert.equal(client.worldRecordReference(500000).seconds,769);
+  assert.equal(client.worldRecordReference(100000).seconds,131.83,
+    'uses the ratified 2026 Wanyonyi record');
+  assert.equal(client.worldRecordReference(4219500).seconds,7170,
+    'uses the updated 2026 marathon world record');
+  assert.equal(client.worldRecordReference(5000000),null,
+    'no extrapolation beyond reviewed world-record anchors');
 });
 
 test('no invented world rank for beginner, warning or ultra',async()=>{
@@ -57,7 +81,7 @@ test('an older D1 label never invents an outdated world ranking',async()=>{
   const client=await api();
   const old=card(500000,29,'amateur');
   assert.equal(client.tier(old),'expert');
-  assert.equal(client.label(old,'fr'),'Top 20 % mondial');
+  assert.equal(client.label(old,'fr'),'Top ≈ 20 % mondial');
   assert.equal(client.visibleTier(old),'expert');
 });
 
