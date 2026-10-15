@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-15.2",
+  "revision": "2026-10-15.3",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -649,5 +649,48 @@
     "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
     "interpretation": "Approximate reference categories for race finishers, not official world rankings"
+  },
+  "pendingTrackDistancesCm": [
+    80000,
+    150000,
+    160934
+  ],
+  "pendingTrackUnit": "second",
+  "pendingTrackCapsByDistance": {
+    "80000": {
+      "world_elite": 164,
+      "legend": 190,
+      "expert": 250,
+      "intermediate": 302,
+      "regular": 362,
+      "amateur": 439,
+      "beginner": 491
+    },
+    "150000": {
+      "world_elite": 319,
+      "legend": 369,
+      "expert": 486,
+      "intermediate": 587,
+      "regular": 704,
+      "amateur": 855,
+      "beginner": 955
+    },
+    "160934": {
+      "world_elite": 343,
+      "legend": 397,
+      "expert": 524,
+      "intermediate": 632,
+      "regular": 758,
+      "amateur": 921,
+      "beginner": 1029
+    }
+  },
+  "pendingTrackNotes": {
+    "status": "preview_only_until_d1_schema_migration",
+    "description": "800 m, 1500 m and 1 mile use 1-second strict SUB tiers; preview values may be explored but must never be awarded until Cloudflare D1 accepts additional second-resolution distances",
+    "mileDistanceCm": 160934,
+    "distanceReference": "1609.344 m exact mile, represented as 160934 cm because canonical integer centimeters are used",
+    "model": "Estimated from 5km finisher tiers using time ∝ distance^1.06 and rounded to strict integer-second SUB caps; not direct world measured percentiles",
+    "activation": "Requires reviewed D1 constraint migration, full local/mobile/server tests and coordinated deployment. Do not silently insert these distances into distancesCm"
   }
 }
