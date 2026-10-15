@@ -4,7 +4,7 @@ import {difficultyForSportCard,sportCardDifficultyFilterSql,
 
 const manifest=sportCardRulesManifest();
 const tiers=[...manifest.tierOrder];
-const topFirst=[...tiers].reverse();
+const topFirst=[...tiers];
 const maxTop=3;
 const json=(body,status=200)=>new Response(JSON.stringify(body),{
   status,headers:{'content-type':'application/json; charset=utf-8',
