@@ -35,9 +35,15 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     assert.ok(!page.includes(obsolete),'remove technical preamble: '+obsolete);
   }
   assert.match(page,/<span data-fr>Top mondial<\/span>/);
-  assert.match(page,/const worldTop=\{world_elite:1,legend:5,expert:20,intermediate:50,regular:75,amateur:90\}/);
+  assert.match(page,/const top=guide\?\.percentileTargets\?\.\[key\]/);
+  assert.doesNotMatch(page,/const worldTop=/,
+    'calibration lives in the generated JSON, not in a second hard-coded table');
   assert.match(page,/id="calc-card-preview"/);
   assert.match(page,/id="calc-card-face"/);
+  assert.match(page,/id="calc-card-world-note"/);
+  assert.match(page,/<script src="\/sport-card-percentile\.js"><\/script>/);
+  assert.match(page,/BeatOnStepSportPercentiles\.label\(\{/);
+  assert.match(page,/await BeatOnStepSportPercentiles\.ready\(\)/);
   assert.match(page,/BeatOnStepSportCards\.createFace\(document,/);
   assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
   assert.match(page,/Simulation de carte : seul un résultat de course validé peut la faire gagner/);
@@ -57,7 +63,10 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/top 50 %/);
   assert.match(page,/top 20 %/);
   assert.match(page,/top 5 %/);
-  assert.match(page,/top 1 %/);
+  assert.match(page,/Comparer au record sur la carte ouverte/);
+  assert.match(page,/Écart au record/);
+  assert.doesNotMatch(page,/Environ top 1 % des arrivants/,
+    'elite cards report a world record gap instead of a fractional ranking');
   assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
   assert.doesNotMatch(page,/Distance modélisée à partir des quatre références|Exception ultra-distance|aucun percentile mondial de chrono fiable/,
     'technical notes are removed from the running-focused calculator');
