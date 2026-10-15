@@ -5,7 +5,9 @@ const path=require('node:path');
 const vm=require('node:vm');
 const html=fs.readFileSync(path.resolve(__dirname,'../partages.html'),'utf8');
 const script=fs.readFileSync(path.resolve(__dirname,'../sport-card-face.js'),'utf8')+'\n'+
+  fs.readFileSync(path.resolve(__dirname,'../sport-card-percentile.js'),'utf8')+'\n'+
   html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const rules=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../sport-card-rules.json'),'utf8'));
 const example={
   id:1,kind:'workout',source:'spotify',name:'Course progressive 40 min',
   durationSec:2400,tracks:2,phases:2,imports:3,views:4,
@@ -81,6 +83,8 @@ function setup(search,data=example){
   };
   const fetch=async(url)=>{
     apiCalls.push(url);
+    if(url==='/sport-card-rules.json')
+      return {ok:true,json:async()=>rules};
     if(url.endsWith('/view'))return {ok:true,json:async()=>({counted:true})};
     if(url.includes('?'))return {ok:true,json:async()=>({total:items.length,page:1,pageSize:20,
       items:items.map(item=>Object.fromEntries(Object.entries(item).filter(([k])=>k!=='payload')) )})};
@@ -110,7 +114,10 @@ function setup(search,data=example){
   assert.equal(landing.elements['sort-picker'].hidden,true);
   assert.equal(landing.elements['source-picker'].hidden,true);
   assert.equal(landing.elements['sub-filter'].disabled,true);
-  assert.match(landing.apiCalls[0],/^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/);
+  assert(landing.apiCalls.some(url=>
+    /^\/api\/sport\/cards\?distance=all&difficulty=all&page=1$/.test(url)));
+  assert.match(landing.elements.results.textContent,/Top 20 % mondial/,
+    'the world percentile is derived from SUB 25, not the legacy amateur label');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // Challenge cards offer the detail link in the catalogue and focus gallery,
