@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Séances programmées — BeatOnStep</title>
-  <meta name="description" content="Choisis une séance de course avec sa playlist et retrouve-la dans BeatOnStep, avec ta musique." />
+  <title>Séances et défis — BeatOnStep</title>
+  <meta name="description" content="Séances musicales en durée ou en distance, cartes Défis à conquérir : cours à ta façon avec BeatOnStep." />
   <link rel="canonical" href="https://beatonstep.app/seances-programmees.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Séances programmées — BeatOnStep" />
-  <meta property="og:description" content="Des séances et playlists à découvrir, importer et jouer dans BeatOnStep." />
+  <meta property="og:title" content="Séances et défis — BeatOnStep" />
+  <meta property="og:description" content="Une séance musicale à la durée ou à la distance, ou un défi pour gagner des cartes." />
   <meta property="og:url" content="https://beatonstep.app/seances-programmees.html" />
   <meta property="og:image" content="https://beatonstep.app/assets/brand/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -20,12 +20,12 @@
   <script>
     document.documentElement.setAttribute("data-theme", "dark");
     window.BOS_TITLES = {
-      fr: "Séances programmées — BeatOnStep",
-      en: "Planned workouts — BeatOnStep"
+      fr: "Séances et défis — BeatOnStep",
+      en: "Workouts and challenges — BeatOnStep"
     };
     window.BOS_DESC = {
-      fr: "Choisis une séance de course avec sa playlist et retrouve-la dans BeatOnStep, avec ta musique.",
-      en: "Find a workout with its playlist and run with your music in BeatOnStep."
+      fr: "Séances musicales en durée ou en distance, cartes Défis à conquérir : cours à ta façon avec BeatOnStep.",
+      en: "Timed or distance-based music workouts, or challenge cards to win. Run your way with BeatOnStep."
     };
   </script>
   <script src="i18n.js"></script>
@@ -73,14 +73,30 @@
       <a class="workouts-back" data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à l’accueil</a>
       <a class="workouts-back" data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to home</a>
       <div class="workouts-hero">
-        <p class="workouts-eyebrow" data-fr>Séances &amp; playlists partagées</p>
-        <p class="workouts-eyebrow" data-en>Shared workouts &amp; playlists</p>
-        <h1 data-fr>À chaque séance, <span>sa playlist.</span></h1>
-        <h1 data-en>A playlist for <span>every workout.</span></h1>
-        <p class="workouts-intro" data-fr>Fractionné, progression ou endurance : trouve une séance avec sa playlist, importe-la dans BeatOnStep et cours avec ta musique.</p>
-        <p class="workouts-intro" data-en>Intervals, progression or endurance: find a workout with its playlist, import it into BeatOnStep and run with your music.</p>
-        <a class="workouts-catalogue" data-fr href="partages.html">Explorer le catalogue <span aria-hidden="true">→</span></a>
-        <a class="workouts-catalogue" data-en href="partages.html">Browse the catalogue <span aria-hidden="true">→</span></a>
+        <p class="workouts-eyebrow" data-fr>Séances et défis</p>
+        <p class="workouts-eyebrow" data-en>Workouts and challenges</p>
+        <h1 data-fr>À chacun <span>sa façon de courir.</span></h1>
+        <h1 data-en>Run <span>your way.</span></h1>
+        <p class="workouts-intro" data-fr>Une séance en musique ou une carte Défi à conquérir ? Choisis ce qui te fait plaisir.</p>
+        <p class="workouts-intro" data-en>A workout with music or a challenge card to win? Choose what moves you.</p>
+        <div class="workouts-paths" aria-label="Séances et défis / Workouts and challenges">
+          <article class="workouts-path">
+            <h2 data-fr>♫ Cartes Séances</h2>
+            <h2 data-en>♫ Workout cards</h2>
+            <p data-fr>Choisis une durée ou une distance. Ta playlist accompagne chaque étape.</p>
+            <p data-en>Choose a time or a distance. Your playlist follows each stage.</p>
+            <a class="workouts-catalogue" data-fr data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Voir les cartes Séances <span aria-hidden="true">→</span></a>
+            <a class="workouts-catalogue" data-en data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Browse workout cards <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="workouts-path">
+            <h2 data-fr>🏅 Cartes Défis</h2>
+            <h2 data-en>🏅 Challenge cards</h2>
+            <p data-fr>Cours, vise un chrono et gagne une carte. D’autres coureurs peuvent tenter de te la voler !</p>
+            <p data-en>Run, chase a time and win a card. Other runners can try to steal it!</p>
+            <a class="workouts-catalogue workouts-catalogue-secondary" data-fr data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Voir les défis <span aria-hidden="true">→</span></a>
+            <a class="workouts-catalogue workouts-catalogue-secondary" data-en data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Browse challenges <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
       </div>
 
       <section class="workouts-screens" aria-label="Aperçu des séances dans BeatOnStep">
@@ -88,21 +104,21 @@
           <img src="assets/workouts/seance-choisir.webp" width="320" height="694" loading="lazy" decoding="async" alt="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-fr="Mes séances : fractionné, course progressive et pyramide, prêtes à lancer" data-alt-en="My workouts: intervals, progression and pyramid workouts, ready to start" />
           <figcaption>
             <h2 data-fr>Choisis ta séance</h2><h2 data-en>Choose your workout</h2>
-            <p data-fr>Retrouve tes programmes enregistrés, compare leurs profils de rythme et prépare ta prochaine sortie.</p><p data-en>Browse saved workouts, compare their pace profiles and prepare for your next run.</p>
+            <p data-fr>Choisis ton objectif : une durée ou une distance.</p><p data-en>Choose your goal: time or distance.</p>
           </figcaption>
         </figure>
         <figure class="workouts-shot">
           <img src="assets/workouts/seance-en-cours.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance en cours : cadence, temps restant, progression et musique" data-alt-fr="Séance en cours : cadence, temps restant, progression et musique" data-alt-en="Workout in progress: cadence, time remaining, progress and music" />
           <figcaption>
             <h2 data-fr>Suis ta progression</h2><h2 data-en>Track your progress</h2>
-            <p data-fr>Pendant la course, vois la phase en cours, les pas/min visés et la musique qui t’accompagne.</p><p data-en>While running, follow the current phase, your target steps/min and the music playing.</p>
+            <p data-fr>Suis les étapes et laisse la musique t’accompagner.</p><p data-en>Follow each stage with music by your side.</p>
           </figcaption>
         </figure>
         <figure class="workouts-shot">
           <img src="assets/workouts/seance-terminee.webp" width="320" height="694" loading="lazy" decoding="async" alt="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-fr="Séance accomplie : résumé et cadence moyenne enregistrée" data-alt-en="Workout complete: summary and recorded average cadence" />
           <figcaption>
             <h2 data-fr>Retrouve ton bilan</h2><h2 data-en>Review your run</h2>
-            <p data-fr>À l’arrivée, consulte la durée, les phases terminées et ta cadence moyenne.</p><p data-en>After your run, review the duration, completed phases and your average cadence.</p>
+            <p data-fr>Retrouve ton chrono et le bilan de la séance.</p><p data-en>Check your time and workout recap.</p>
           </figcaption>
         </figure>
       </section>
