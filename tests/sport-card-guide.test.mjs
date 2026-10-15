@@ -81,6 +81,30 @@ test('chrono dropdowns preserve hours, minutes, seconds and 400m hundredths',()=
   }
 });
 
+test('tier table shows readable percentiles and exact chrono intervals, not SUB-to-SUB ranges',()=>{
+  assert.match(page,/\.world-percent\{color:#c8dae9;/,
+    'top-percent labels contrast with the dark table without bright yellow');
+  assert.match(page,/<span data-fr>Fourchette de temps<\/span>/);
+  assert.match(page,/tierTimeRange\(previous,max,row\.unit\)/);
+  assert.match(page,/make\('td','time-range',t\('Tout chrono validé'/);
+  const script=page.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(script,'the guide client script exists');
+  const section=script.match(/function timeLabel\(n,unit\)\{[\s\S]*?(?=  function renderLevels\()/)?.[0];
+  assert.ok(section,'the shared precise time range formatter exists');
+  const getRanges=new Function('lang',
+    "const t=(fr,en)=>lang==='fr'?fr:en;"+section+';return tierTimeRange;');
+  const fr=getRanges('fr'),en=getRanges('en');
+  assert.equal(fr(0,19,'minute'),'Moins de 19 min');
+  assert.equal(fr(19,22,'minute'),'De 19 min à moins de 22 min');
+  assert.equal(fr(22,29,'minute'),'De 22 min à moins de 29 min');
+  assert.equal(fr(67,77,'second'),'De 1 min 07 s à moins de 1 min 17 s');
+  assert.equal(fr(0,67,'second'),'Moins de 1 min 07 s');
+  assert.equal(en(19,22,'minute'),'19 min to under 22 min');
+  assert.doesNotMatch(page,/subLabel\(first,row\.unit\)\+' — '\+subLabel\(max,row\.unit\)/);
+  assert.match(page,/make\('td','',subLabel\(n,row\.unit\)\)/,
+    'the full individual SUB listing still uses exact card identifiers');
+});
+
 test('guide JSON covers all 203 canonical sporting distances with no duplicate',()=>{
   assert.equal(json.ruleset,'sport-cards-v1');
   assert.deepEqual(json.levels,
