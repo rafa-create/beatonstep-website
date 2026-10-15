@@ -57,25 +57,54 @@ SELECT CASE WHEN
   WHERE type='table' AND name='sport_world_cards'
   AND sql LIKE '%distance_cm=40000 AND time_unit=%')=1 AND
  (SELECT COUNT(*) FROM sqlite_master
+  WHERE type='table' AND name='_bos_track_20261015_guard') IN (0,1) AND
+ (SELECT COUNT(*) FROM sqlite_master
   WHERE type='table' AND name='_bos_track_20261015_guard'
-  AND sql LIKE '%passed INTEGER NOT NULL CHECK(passed=1)%')=1 AND
+  AND sql LIKE '%passed INTEGER NOT NULL CHECK(passed=1)%')=
+ (SELECT COUNT(*) FROM sqlite_master
+  WHERE type='table' AND name='_bos_track_20261015_guard') AND
  (SELECT COUNT(*) FROM sqlite_master
   WHERE name GLOB '_bos_track_20261015_*'
   AND name<>'_bos_track_20261015_guard')=0 AND
  (SELECT COUNT(*) FROM pragma_foreign_key_check)=0
- THEN 'BOS_GUARD_ONLY_OK' ELSE 'STOP_UNEXPECTED_D1_STATE' END AS migration_preflight;
+ THEN CASE WHEN (SELECT COUNT(*) FROM sqlite_master
+   WHERE type='table' AND name='_bos_track_20261015_guard')=1
+   THEN 'BOS_GUARD_ONLY_OK' ELSE 'BOS_CLEAN_OK' END
+ ELSE 'STOP_UNEXPECTED_D1_STATE' END AS migration_preflight;
 " | tee -a "$LOG")
 printf '%s\n' "$PREFLIGHT"
-[[ "$PREFLIGHT" == *BOS_GUARD_ONLY_OK* ]] ||
+[[ "$PREFLIGHT" == *BOS_GUARD_ONLY_OK* || "$PREFLIGHT" == *BOS_CLEAN_OK* ]] ||
   fail "Etat D1 inattendu : aucune table ne sera supprimee, migration annulee"
 
-printf '\n(4/5) Suppression UNIQUEMENT du garde obsolete puis migration...\n'
-wrangler22 d1 execute "$DB" --remote --command \
-  "DROP TABLE _bos_track_20261015_guard;" | tee -a "$LOG"
-printf 'Garde obsolete retire. Les 7 tables sportives restent intactes.\n'
-printf 'Demarrage du SQL de migration conservatrice une seule fois...\n'
+printf '\n(4/5) Migration SQL via API QUERY (sans import de fichier)...\n'
+if [[ "$PREFLIGHT" == *BOS_GUARD_ONLY_OK* ]]; then
+  echo 'Retrait UNIQUEMENT du garde obsolete...' | tee -a "$LOG"
+  wrangler22 d1 execute "$DB" --remote --command \
+    "DROP TABLE _bos_track_20261015_guard;" | tee -a "$LOG"
+fi
+printf 'Lancement du SQL conservateur en un lot de requetes...\n'
 printf 'Si les sept quantites ou les 8 dependances ont change, le SQL doit echouer avant tout DROP.\n'
-wrangler22 d1 execute "$DB" --remote --file="./$SQL" | tee -a "$LOG"
+# --file utilise le moteur import D1 (D1_RESET_DO); --command utilise query.
+QUERY_JSON="$(wrangler22 d1 execute "$DB" --remote --json \
+  --command "$(cat "$SQL")")" ||
+  fail "Echec du lot QUERY, verifier D1 avant toute relance"
+printf '%s\n' "$QUERY_JSON" >> "$LOG"
+printf '%s\n' "$QUERY_JSON" | python3 -c '
+import sys,json
+r=json.load(sys.stdin)
+if not isinstance(r,list) or len(r)<30 or any(not x.get("success") for x in r):
+  raise SystemExit("Resultat SQL manquant ou erreur dans le lot")
+rows=[row for x in r for row in x.get("results",[])]
+if not any(row.get("statut")=="OK - 2 cartes et historiques conserves" for row in rows):
+  raise SystemExit("Le lot SQL na pas atteint son resultat final")
+expect={"sport_world_cards":2, "sport_verified_runs":2,
+"sport_card_achievements":2,"sport_card_ownership_events":2,
+"sport_card_gift_links":2,"sport_card_telemetry_reviews":2,
+"sport_card_telemetry_reason_details":0}
+got={row["tbl"]:row["lignes"] for row in rows if "tbl" in row and "lignes" in row}
+if got!=expect: raise SystemExit("Comptages non conserves")
+print("PASS - lot QUERY complet, cartes et historiques conserves")
+' || fail "SQL non confirme complet; verifier D1 avant toute relance"
 
 printf '\n(5/5) Verification distante cartes, historique, FK, triggers et secondes...\n'
 POSTFLIGHT=$(wrangler22 d1 execute "$DB" --remote --command "
