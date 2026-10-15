@@ -22,6 +22,21 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     rules.tierOrder.map(tier=>rules.capsByDistance['40000'][tier]));
   assert.equal(rules.ultraStartCm,4300000);
   assert.equal(rules.ultraDifficulty,'legend');
+  assert.deepEqual(rules.pendingTrackDistancesCm,[80000,150000,160934]);
+  assert.equal(rules.pendingTrackUnit,'second');
+  assert.equal(rules.pendingTrackNotes.status,
+    'preview_only_until_d1_schema_migration');
+  for(const distanceCm of rules.pendingTrackDistancesCm){
+    assert.equal(rules.distancesCm.includes(distanceCm),false,
+      'preview distances are not awardable by the Worker before D1 migration');
+    const caps=rules.pendingTrackCapsByDistance[String(distanceCm)];
+    assert.ok(caps&&Object.keys(caps).length===7);
+    let previous=0;
+    for(const tier of rules.tierOrder){
+      assert.ok(caps[tier]>previous);
+      previous=caps[tier];
+    }
+  }
   for(const {distanceCm} of SPORT_CARD_DISTANCES){
     if(distanceCm>=rules.ultraStartCm){
       assert.equal(difficultyForSportCard(distanceCm,100000)?.difficulty,'legend');
