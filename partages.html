@@ -986,7 +986,67 @@
     card.append(footer);
     return card;
   }
+  // Every podium entry is a historical ownership epoch; no reward or transfer.
+  // The active period keeps growing until the next ownership event.
+  function renderSportRecords(data){
+    const podium=$('records-holdings'),collections=$('records-collections');
+    podium.replaceChildren();collections.replaceChildren();
+    const holdingRows=Array.isArray(data.holdings)?data.holdings:[];
+    if(!holdingRows.length)podium.append(el('li','record-sub',
+      fr('Aucune possession pour ce filtre.','No holdings for this filter.')));
+    holdingRows.forEach((item,index)=>{
+      const li=el('li','');
+      const label=el('strong','record-position','#'+(index+1));
+      const cardLink=el('a','record-value',sportName(item));
+      cardLink.href='partages.html?kind=challenge&sport='+encodeURIComponent(item.cardId);
+      const level=BeatOnStepSportPercentiles.visibleTier(item);
+      const difficulty=difficultyLabels[level]||difficultyLabels.beginner;
+      const tier=el('span','record-sub',difficulty[lang==='en'?1:0]);
+      const owner=el('div','record-sub');
+      owner.append(el('span','',fr('Détenteur : ','Holder: ')),
+        profileHandle(item.holder,fr('Profil privé ou supprimé',
+          'Private or deleted profile')));
+      const time=el('span','record-value',sportPeriod(item.durationMs));
+      const status=el('span','record-sub',item.ongoing
+        ?fr('Possession en cours','Currently held')
+        :fr('Possession terminée','Past holding'));
+      li.append(label,cardLink,tier,owner,time,status);
+      podium.append(li);
+    });
+    const ranked=Array.isArray(data.collections)?data.collections:[];
+    if(!ranked.length)collections.append(el('li','record-sub',
+      fr('Aucune collection publique.','No public collections yet.')));
+    ranked.forEach((item,index)=>{
+      const li=el('li','');
+      li.append(el('strong','record-position','#'+(index+1)),
+        profileHandle(item.holder,fr('Profil privé','Private profile')),
+        el('strong','record-value',String(item.cards)+' '+
+          (item.cards===1?fr('carte','card'):fr('cartes','cards'))));
+      collections.append(li);
+    });
+  }
+  async function showRecords(){
+    const ticket=++recordTicket;
+    const holder=$('records-holdings'),collections=$('records-collections');
+    holder.replaceChildren(el('li','record-sub',fr('Chargement…','Loading…')));
+    collections.replaceChildren();
+    $('record-sort').value=recordSort;
+    $('record-level').value=recordLevel;
+    try{
+      await BeatOnStepSportPercentiles.ready();
+      const data=await get(SPORT_RECORDS_API+'?sort='+
+        encodeURIComponent(recordSort)+'&level='+encodeURIComponent(recordLevel));
+      if(ticket!==recordTicket||!recordsView||kind!=='challenge')return;
+      renderSportRecords(data);
+    }catch(_){
+      if(ticket!==recordTicket||!recordsView)return;
+      holder.replaceChildren(el('li','record-sub',fr(
+        'Records temporairement indisponibles.',
+        'Records are temporarily unavailable.')));
+    }
+  }
   async function showList(){
+    if(recordsView&&kind==='challenge'){showRecords();return;}
     const request=++listTicket;
     const result=$('results'),paging=$('pages');
     empty(result);
@@ -1051,6 +1111,13 @@
     $('source-picker').hidden=sport;
     $('session-mode-picker').hidden=sport;
     $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
+    $('sport-record-tabs').hidden=!sport||Boolean(id||sportId);
+    $('sport-cards-tab').setAttribute('aria-pressed',String(!recordsView));
+    $('sport-records-tab').setAttribute('aria-pressed',String(recordsView));
+    $('catalog-toolbar').hidden=sport&&recordsView;
+    $('results').hidden=sport&&recordsView;
+    $('pages').hidden=sport&&recordsView;
+    $('records-panel').hidden=!(sport&&recordsView);
     for(const name of ['distance-picker','difficulty-picker','distance-exact-picker'])
       $(name).hidden=!sport;
   }
