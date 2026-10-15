@@ -464,12 +464,19 @@
       const response=await fetch('sport-card-paliers.json',{cache:'no-store'});
       if(!response.ok)throw Error('guide_unavailable');
       const data=await response.json();
-      if(data?.ruleset!=='sport-cards-v1'||!Array.isArray(data.distances)||
-         data.distances.length!==206||!Array.isArray(data.levels))throw Error('invalid_ruleset');
+      // Both JSON files derive from exactly the same canonical ruleset.
+      // Refuse a stale generated guide instead of displaying mismatched tiers.
+      const official=await BeatOnStepSportPercentiles.ready();
+      const expected=official&&[
+        ...official.distancesCm,...(official.pendingTrackDistancesCm||[])
+      ].sort((a,b)=>a-b);
+      if(!official||data?.ruleset!==official.ruleset||
+         data.revision!==official.revision||!Array.isArray(data.distances)||
+         !Array.isArray(data.levels)||
+         data.levels.join(',')!==official.tierOrder.join(',')||
+         data.distances.map(row=>row.distanceCm).join(',')!==expected.join(','))
+        throw Error('invalid_ruleset');
       guide=data;
-      // Reuse the same client-side rule engine as the public catalogue.
-      // A failed rules fetch never blocks the rest of the card preview.
-      await BeatOnStepSportPercentiles.ready();
       const preferred=params.get('distance');
       const exists=guide.distances.some(row=>String(row.distanceCm)===preferred);
       $('distance').disabled=false;
