@@ -82,7 +82,15 @@ async function oauthToken(env, params) {
   const res = await fetch('https://www.strava.com/oauth/token', {
     method: 'POST', body: data, headers: {'content-type': 'application/x-www-form-urlencoded'},
   });
-  if (!res.ok) throw Error('strava_oauth_failed');
+  if (!res.ok) {
+    // Report only the HTTP status, never Strava's response body or credentials.
+    // 401/403 may indicate a disabled/unapproved developer API, invalid
+    // credentials or another upstream access refusal; do not claim payment
+    // is definitively the cause.
+    console.warn('Strava OAuth token response','http_status='+res.status);
+    throw Error(res.status===401||res.status===403
+      ?'strava_api_access_denied':'strava_oauth_failed');
+  }
   const body = await res.json();
   if (!body || !body.refresh_token || !body.access_token ||
     !Number.isFinite(Number(body.expires_at))) throw Error('strava_oauth_invalid');
@@ -137,8 +145,10 @@ async function callback(request, env, url) {
     }
     return appReturn('connected');
   } catch (error) {
-    console.error('Strava OAuth callback unsuccessful', error instanceof Error ? error.name : 'unknown');
-    return appReturn('failed');
+    const reason=error instanceof Error?error.message:'unknown';
+    console.error('Strava OAuth callback unsuccessful',
+      reason==='strava_api_access_denied'?'upstream_access_denied':'exchange_failed');
+    return appReturn(reason==='strava_api_access_denied'?'api_access_unavailable':'failed');
   }
 }
 async function accessToken(env, row) {
