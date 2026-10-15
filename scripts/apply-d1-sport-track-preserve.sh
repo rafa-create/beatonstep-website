@@ -84,9 +84,14 @@ if [[ "$PREFLIGHT" == *BOS_GUARD_ONLY_OK* ]]; then
 fi
 printf 'Lancement du SQL conservateur en un lot de requetes...\n'
 printf 'Si les sept quantites ou les 8 dependances ont change, le SQL doit echouer avant tout DROP.\n'
+# Wrangler interprete un SQL qui commence par "--" comme des options CLI.
+# Ne JAMAIS mettre de commentaires en tete des fichiers SQL D1.
+SQL_PAYLOAD="$(cat "$SQL")"
+[[ "$SQL_PAYLOAD" == "CREATE TABLE _bos_track_20261015_guard"* ]] ||
+  fail "SQL ne commence pas par la declaration du garde, aucun SQL envoye"
 # --file utilise le moteur import D1 (D1_RESET_DO); --command utilise query.
 QUERY_JSON="$(wrangler22 d1 execute "$DB" --remote --json \
-  --command "$(cat "$SQL")")" ||
+  --command="$SQL_PAYLOAD")" ||
   fail "Echec du lot QUERY, verifier D1 avant toute relance"
 printf '%s\n' "$QUERY_JSON" >> "$LOG"
 printf '%s\n' "$QUERY_JSON" | python3 -c '
