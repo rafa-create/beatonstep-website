@@ -29,6 +29,11 @@ p{line-height:1.6}
 min-height:45px;border-radius:23px;padding:10px 20px;font-size:15px;font-weight:800;
 border:1px solid #fcea07;cursor:pointer;text-decoration:none}
 .actions a.primary{background:#fcea07;color:#151509}
+.gift-footer{margin-top:56px;padding-top:20px;border-top:1px solid #49432d}
+.gift-footer a{display:inline-flex;align-items:center;justify-content:center;
+min-height:44px;padding:10px 16px;border-radius:22px;border:1px solid #807448;
+color:#e8e0c4;text-decoration:none;font-size:14px;font-weight:700}
+.gift-footer a:hover,.gift-footer a:focus-visible{border-color:#fcea07;color:#fcea07}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -47,6 +52,9 @@ border:1px solid #fcea07;cursor:pointer;text-decoration:none}
 <div class="actions" id="claim-actions" hidden>
   <a id="open-app" class="primary" href="beatonstep://">Ouvrir dans l’application</a>
 </div>
+<nav class="gift-footer" aria-label="Retour au catalogue">
+  <a id="back-to-catalog" href="/partages.html?kind=challenge">← Retour au catalogue</a>
+</nav>
 </main>
 <script src="/sport-card-face.js"></script>
 <script src="/sport-card-percentile.js"></script>
