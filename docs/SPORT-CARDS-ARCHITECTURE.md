@@ -33,10 +33,14 @@ installation totalement hors ligne, et ne constitue pas une seconde source
 à maintenir. Aucun déploiement natif n'est nécessaire pour recevoir une
 nouvelle version publiée du barème après reconnexion.
 
-Le niveau des **cartes mondiales déjà créées est conservé dans D1**, même si
-le barème change : les valeurs mises à jour concernent les nouvelles cartes.
-Lors de la synchronisation, l'application conserve le niveau officiel enregistré
-avec une carte mondiale existante, plutôt que de la reclassifier localement.
+Les cartes mondiales existantes conservent dans D1 leur **identité immuable**
+(distance, unité, SUB), leur propriétaire, leurs événements et le champ
+historique `difficulty`. Ce champ représente l'ancienne photographie de
+la difficulté à la création : il **ne commande plus l'affichage ni le
+filtrage ni le tri**. Le niveau visuel est toujours recalculé avec le JSON
+courant à partir de la distance et du seuil SUB, y compris pour une vieille
+carte. Il n'y a **aucune migration ni correction des données D1** pour
+modifier les étoiles, la difficulté ou les repères mondiaux.
 
 ## Niveau visuel unifié — catalogue, compte, profil public et cadeaux
 
@@ -45,6 +49,49 @@ La **seule source modifiable du barème** reste `sport-card-rules.json`. Pour le
 Sur le profil public `compte.html?profil=...`, charger les règles **uniquement si le propriétaire autorise la visibilité des Défis**, puis recalculer l'étiquette et la finition des cartes depuis `distanceCm` et `subValue`. Le pourcentage mondial ou l'étiquette de niveau figure **sous la carte, pas sur sa face**. Si le chargement échoue ou si la distance ne figure pas dans le barème, le module réutilise seulement `difficulty` stocké et n'invente aucun classement. L'API publique et les données D1 (niveau historique inclus) **ne sont pas modifiées** : il s'agit strictement d'une présentation synchronisée avec les autres pages du site.
 
 Contrôle de non-régression : `tests/public-profile-sport-tiers.test.mjs` vérifie une ancienne difficulté D1, une modification future des caps du JSON et le repli sans règle réseau. Inclus dans `npm run build`.
+
+### Tri, filtre et simulateur : mêmes règles, aucune migration
+
+- Le Worker recalcule la difficulté des réponses `/api/sport/cards` avec
+  `difficultyForSportCard()`. Son ancien filtre `difficulty` reste
+  compatible avec les URL existantes, mais utilise dorénavant des plages
+  SQL dérivées du JSON, **jamais** `c.difficulty`. La pagination, le
+  comptage et le tri `sort=difficulty_asc|difficulty_desc` sont faits
+  en SQL **avant** le `LIMIT`, avec un ordre secondaire déterministe.
+- Dans `partages.html`, le menu trie les difficultés du niveau le plus
+  accessible au plus élevé ou l'inverse ; les repères mondiaux visibles
+  sous le menu viennent de `percentileCalibration.estimatedPercentileTargets`.
+  Le champ **Distance exacte (km)** remplace `SUB maximal` et peut
+  accepter `0,4` (400 m), `5` ou `21,0975` (semi-marathon). Il ne
+  sélectionne que des distances réellement présentes dans `distancesCm`.
+  Les raccourcis du menu Distance restent disponibles.
+- Le guide `cartes-guide.html` génère les pourcentages de ses tableaux
+  à partir du JSON et montre, **sous** l'aperçu de la carte, exactement
+  `BeatOnStepSportPercentiles.label()` : par exemple 5 km SUB 16
+  → « À 3 min 11 s du record mondial » pour la référence 12:49.
+  Cela se rapporte au seuil **SUB 16**, pas au chrono réel du coureur.
+- Les classements de partants ne sont que des **estimations des résultats
+  de courses chronométrées**, et non un rang parmi tous les habitants
+  du monde. Le niveau Élite n'affiche pas de faux Top 0,x % ; il présente
+  l'écart à la référence mondiale officielle ou interpolée. La catégorie
+  Débutant et les ultras n'ont pas de percentile individuel fiable.
+- Sur le mobile, `SportCardRulesService` lit aussi les cibles de
+  pourcentage depuis le snapshot du **même JSON** ; le snapshot initial
+  est embarqué et l'application récupère les éditions plus récentes lors
+  de sa synchronisation.
+
+**Publication :** changer `sport-card-rules.json` et incrémenter
+`revision` est la seule **modification manuelle du barème**. Mais
+l'application des changements partout demande toujours la publication
+du site/Worker Cloudflare (qui importe le JSON à la compilation), puis
+le téléchargement de la version côté mobile lorsque le réseau revient.
+Une mise à jour Git seule ne prouve pas qu'une modification est déjà en
+production. Aucune migration D1 ni réécriture des cartes n'est nécessaire.
+
+Tests associés : `tests/sport-public-catalog.test.mjs`,
+`tests/sport-card-percentile.test.mjs`,
+`tests/sport-card-guide.test.mjs`,
+`tests/public-sharing-interactions.test.cjs`.
 
 ## Attribution indépendante de la télémétrie
 
