@@ -999,8 +999,8 @@
           'Private or deleted profile')));
       const time=el('span','record-value',fr('Gardée : ','Held: ')+sportPeriod(item.durationMs));
       const status=el('span','record-sub',item.ongoing
-        ?fr('Détention en cours','Currently held')
-        :fr('Détention terminée','Past holding'));
+        ?fr('En cours','Ongoing')
+        :fr('Terminée','Ended'));
       li.append(label,cardLink,tier,owner,time,status);
       podium.append(li);
     });
