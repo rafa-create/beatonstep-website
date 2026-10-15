@@ -1000,8 +1000,9 @@
       const cardLink=el('a','record-value',sportName(item));
       cardLink.href='partages.html?kind=challenge&sport='+encodeURIComponent(item.cardId);
       const level=BeatOnStepSportPercentiles.visibleTier(item);
-      const difficulty=difficultyLabels[level]||difficultyLabels.beginner;
-      const tier=el('span','record-sub',difficulty[lang==='en'?1:0]);
+      const difficulty=difficultyLabels[level];
+      const tier=el('span','record-sub',difficulty
+        ?difficulty[lang==='en'?1:0]:fr('Niveau indisponible','Tier unavailable'));
       const owner=el('div','record-sub');
       owner.append(el('span','',fr('Détenteur : ','Holder: ')),
         profileHandle(item.holder,fr('Profil privé ou supprimé',
