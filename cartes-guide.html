@@ -76,6 +76,7 @@
     .calc-preview .bos-sport-face{transform:scale(1.16);transform-origin:center;
       margin:21px auto 20px}
     .calc-preview-note{max-width:320px;text-align:center;font-size:12px;color:var(--muted)}
+    .calc-world-note{max-width:400px;text-align:center;color:#efd685;font-weight:800;font-size:15px;margin:5px auto 0}
     .world-percent{color:#c8dae9;font-weight:750;font-size:13px;white-space:nowrap}
     .time-range{color:#eee9da;font-weight:600;min-width:180px}
     .muted{color:var(--muted)}
@@ -154,6 +155,7 @@
         <p id="calc-result" role="status" aria-live="polite"></p>
         <div id="calc-card-preview" class="calc-preview" hidden>
           <div id="calc-card-face"></div>
+          <p id="calc-card-world-note" class="calc-world-note" aria-live="polite"></p>
           <p class="calc-preview-note"><span data-fr>Simulation de carte : seul un résultat de course validé peut la faire gagner.</span><span data-en hidden>Card preview: only a validated run can earn this card.</span></p>
         </div>
       </div>
@@ -197,6 +199,7 @@
   </main>
 </div>
 <script src="/sport-card-face.js"></script>
+<script src="/sport-card-percentile.js"></script>
 <script>
 (function(){
   'use strict';
@@ -206,7 +209,7 @@
     (navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
   let guide=null;
   const levelNames={
-    world_elite:['Élite mondiale','World elite',7,'Environ top 1 % des arrivants','About fastest 1% of finishers'],
+    world_elite:['Élite mondiale','World elite',7,'Comparer au record sur la carte ouverte','Compare to world reference on the card'],
     legend:['Légende','Legend',6,'Environ top 5 % des arrivants','About fastest 5% of finishers'],
     expert:['Expert','Expert',5,'Environ top 20 % des arrivants','About fastest 20% of finishers'],
     intermediate:['Intermédiaire','Intermediate',4,'Médiane : environ top 50 %','Median: about fastest 50%'],
@@ -215,9 +218,12 @@
     beginner:['Débutant','Beginner',1,'Premier palier au-delà du top 90 %, seuil d’accueil','Entry tier beyond fastest 90%, inclusive target'],
   };
   const t=(fr,en)=>lang==='fr'?fr:en;
-  const worldTop={world_elite:1,legend:5,expert:20,intermediate:50,regular:75,amateur:90};
-  const worldLabel=key=>Object.prototype.hasOwnProperty.call(worldTop,key)
-    ?t('Top '+worldTop[key]+' % mondial','World top '+worldTop[key]+'%'):null;
+  const worldLabel=key=>{
+    if(key==='world_elite')return t('Écart au record','Gap to world benchmark');
+    const top=guide?.percentileTargets?.[key];
+    return Number.isFinite(top)
+      ?t('Top ≈ '+top+' % mondial','World top ≈ '+top+'%'):null;
+  };
   const make=(tag,cls,value)=>{
     const el=document.createElement(tag);
     if(cls)el.className=cls;
@@ -400,6 +406,13 @@
     $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
       title,distanceCm:row.distanceCm,difficulty,
     },lang));
+    // SUB comparisons use the card's strict minute/second threshold.
+    $('calc-card-world-note').textContent=row.previewOnly
+      ?t('Référence mondiale indisponible pour cette distance en préparation.',
+        'World benchmark unavailable for this upcoming distance.')
+      :BeatOnStepSportPercentiles.label({
+          distanceCm:row.distanceCm,subValue:sub,difficulty,
+        },lang);
     const note=$('calc-card-preview').querySelector('.calc-preview-note');
     if(note)note.textContent=row.previewOnly
       ?t('Distance en préparation : cette carte ne peut pas encore être gagnée. Les seuils sont provisoires.',
@@ -437,6 +450,9 @@
       if(data?.ruleset!=='sport-cards-v1'||!Array.isArray(data.distances)||
          data.distances.length!==206||!Array.isArray(data.levels))throw Error('invalid_ruleset');
       guide=data;
+      // Reuse the same client-side rule engine as the public catalogue.
+      // A failed rules fetch never blocks the rest of the card preview.
+      await BeatOnStepSportPercentiles.ready();
       const preferred=params.get('distance');
       const exists=guide.distances.some(row=>String(row.distanceCm)===preferred);
       $('distance').disabled=false;
