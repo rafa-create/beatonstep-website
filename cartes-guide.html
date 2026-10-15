@@ -77,7 +77,8 @@
     .calc-preview .bos-sport-face{transform:scale(1.16);transform-origin:center;
       margin:21px auto 20px}
     .calc-preview-note{max-width:320px;text-align:center;font-size:12px;color:var(--muted)}
-    .world-percent{color:var(--yellow);font-weight:800;font-size:13px;white-space:nowrap}
+    .world-percent{color:#c8dae9;font-weight:750;font-size:13px;white-space:nowrap}
+    .time-range{color:#eee9da;font-weight:600;min-width:180px}
     .muted{color:var(--muted)}
     .footer{margin:25px 0;text-align:center;color:var(--muted);font-size:13px}
     [hidden]{display:none!important}
@@ -143,7 +144,7 @@
       <p class="fine" id="threshold-note"></p>
       <div class="table-scroll">
         <table aria-label="Paliers par difficulté">
-          <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Paliers SUB</span><span data-en hidden>SUB thresholds</span></th></tr></thead>
+          <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Fourchette de temps</span><span data-en hidden>Finish time range</span></th></tr></thead>
           <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
         </table>
       </div>
@@ -248,6 +249,16 @@
     return hours?hours+' h '+String(minutes).padStart(2,'0')+' min':n+' min';
   }
   function subLabel(n,unit){return 'SUB '+timeLabel(n,unit);}
+  // For a SUB N card the recorded duration is STRICTLY below N units.
+  // A tier whose SUB values start after the previous cap covers durations
+  // [previous cap, current cap) without any gap or overlap.
+  function tierTimeRange(previous,max,unit){
+    const upper=timeLabel(max,unit);
+    if(previous===0)return t('Moins de ','Under ')+upper;
+    const lower=timeLabel(previous,unit);
+    return t('De '+lower+' à moins de '+upper,
+      lower+' to under '+upper);
+  }
   function renderLevels(){
     const body=$('levels-rows');body.replaceChildren();
     for(const key of guide.levels.slice().reverse()){
@@ -276,22 +287,20 @@
       tr.append(make('td','tier-name',t('Légende longue distance','Long-distance legend')));
       const cell=make('td');cell.append(stars(6));tr.append(cell);
       tr.append(make('td','muted','—'));
-      tr.append(make('td','',t('Tous les SUB validés (sans plafond de vitesse)','All validated SUBs (no pace cap)')));
+      tr.append(make('td','time-range',t('Tout chrono validé','Any validated finish time')));
       body.append(tr);
     }else{
       let previous=0;
       for(const key of guide.levels){
         const max=row.caps[key];
         if(!Number.isInteger(max)||max<=previous)continue;
-        const first=previous+1;
         const tr=make('tr');
         tr.append(make('td','tier-name',levelNames[key][lang==='fr'?0:1]));
         const cell=make('td');cell.append(stars(levelNames[key][2]));tr.append(cell);
         const percentile=worldLabel(key);
         tr.append(percentile
           ?make('td','world-percent',percentile):make('td','muted','—'));
-        tr.append(make('td','',first===max?subLabel(max,row.unit):
-          subLabel(first,row.unit)+' — '+subLabel(max,row.unit)));
+        tr.append(make('td','time-range',tierTimeRange(previous,max,row.unit)));
         body.append(tr);
         previous=max;
       }
