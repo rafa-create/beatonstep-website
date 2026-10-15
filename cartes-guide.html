@@ -129,8 +129,10 @@
 
     <section class="panel" aria-labelledby="levels-title">
       <h2 id="levels-title"><span data-fr>Les 7 niveaux de difficulté</span><span data-en hidden>The 7 difficulty levels</span></h2>
-      <p class="lead" data-fr>Les étoiles t'aident à repérer la difficulté sans alourdir la carte. Le niveau dépend de la <strong>distance et du SUB</strong> : ce sont des niveaux du jeu BeatOnStep, pas des classifications sportives officielles.</p>
-      <p class="lead" data-en hidden>Stars show difficulty without cluttering the card. A level depends on <strong>distance and SUB</strong>; these are BeatOnStep game levels, not official athletics rankings.</p>
+      <p class="lead" data-fr>Chaque étoile situe approximativement ton chrono parmi les <strong>personnes ayant terminé une course chronométrée</strong> à cette distance. La référence est internationale, <strong>tous âges et sexes confondus</strong>. Quatre étoiles correspondent à la médiane (top 50 %), cinq au top 20 %, six au top 5 % et sept au top 1 %. Ce sont des repères BeatOnStep, pas un classement sportif officiel.</p>
+      <p class="lead" data-en hidden>Stars approximately compare your finish time with <strong>finishers of timed races</strong> over that distance. The international reference <strong>combines ages and sexes</strong>. Four stars target the median (fastest 50%), five the fastest 20%, six the fastest 5%, and seven the fastest 1%. These are BeatOnStep reference levels, not official sporting rankings.</p>
+      <p class="fine" data-fr>Référence : <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, comparaison des temps d'arrivée</a> (environ 35 millions de résultats historiques, étude publiée en 2017, mise à jour en 2024). Percentiles observés pour 5 km, 10 km, semi-marathon et marathon ; certains percentiles intermédiaires et les autres distances sont estimés. La population ne représente pas tous les coureurs du monde.</p>
+      <p class="fine" data-en hidden>Source: <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, race finish-time comparison</a> (about 35 million historical results, published 2017 and updated 2024). Observed percentiles cover 5K, 10K, half and full marathon; some intermediate percentiles and all other distances are modeled. This is not a census of every runner worldwide.</p>
       <div class="table-scroll">
         <table aria-label="Niveaux des cartes" id="levels-table">
           <thead><tr><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>À retenir</span><span data-en hidden>Meaning</span></th></tr></thead>
@@ -196,13 +198,13 @@
     (navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
   let guide=null;
   const levelNames={
-    world_elite:['Élite mondiale','World elite',7,'Performances les plus rapides','Fastest performances'],
-    legend:['Légende','Legend',6,'Très haute difficulté','Very high difficulty'],
-    expert:['Expert','Expert',5,'Performance exigeante','Demanding performance'],
-    intermediate:['Intermédiaire','Intermediate',4,'Objectif soutenu','Strong target'],
-    regular:['Régulier','Regular',3,'Progression confirmée','Established progress'],
-    amateur:['Amateur','Amateur',2,'Objectif accessible','Accessible target'],
-    beginner:['Débutant','Beginner',1,'Premier palier de la collection','First collection tier'],
+    world_elite:['Élite mondiale','World elite',7,'Environ top 1 % des arrivants','About fastest 1% of finishers'],
+    legend:['Légende','Legend',6,'Environ top 5 % des arrivants','About fastest 5% of finishers'],
+    expert:['Expert','Expert',5,'Environ top 20 % des arrivants','About fastest 20% of finishers'],
+    intermediate:['Intermédiaire','Intermediate',4,'Médiane : environ top 50 %','Median: about fastest 50%'],
+    regular:['Régulier','Regular',3,'Environ top 75 % des arrivants','About fastest 75% of finishers'],
+    amateur:['Amateur','Amateur',2,'Environ top 90 % des arrivants','About fastest 90% of finishers'],
+    beginner:['Débutant','Beginner',1,'Premier palier au-delà du top 90 %, seuil d’accueil','Entry tier beyond fastest 90%, inclusive target'],
   };
   const t=(fr,en)=>lang==='fr'?fr:en;
   const make=(tag,cls,value)=>{
@@ -249,11 +251,14 @@
     const row=selected();
     if(!row)return;
     $('selected-title').textContent=distanceName(row.distanceCm);
+    const benchmark=[500000,1000000,2109750,4219500].includes(row.distanceCm);
     $('threshold-note').textContent=row.ultra
-      ?t('De 43 à 200 km, toutes les performances attestées sont « Légende longue distance », indépendamment du rythme.',
-           'From 43 to 200 km, every validated performance is “Long-distance legend”, regardless of pace.')
-      :t('SUB N signifie un temps strictement inférieur à N '+(row.unit==='second'?'secondes.':'minutes.')+' Exactement N:00 donne le palier SUB suivant.',
-           'SUB N means a time strictly below N '+(row.unit==='second'?'seconds.':'minutes.')+' Exactly N:00 leads to the next SUB.');
+      ?t('Exception ultra-distance (43–200 km) : Légende après validation, quel que soit le chrono. Les courses ultra mélangent routes et dénivelés : aucun percentile mondial de chrono fiable n’est revendiqué ici.',
+           'Ultra-distance exception (43–200 km): Legend once validated, regardless of time. Ultra races mix surfaces and elevation profiles; no verified global finish-time percentile is claimed here.')
+      :t((benchmark?'Distance de référence : percentiles historiques observés, avec top 5 % et 75 % estimés. ':'Distance modélisée à partir des quatre références de course, sans percentile mondial directement mesuré. ')+
+           'SUB N signifie strictement moins de N '+(row.unit==='second'?'secondes.':'minutes.')+' À N:00 exact, le SUB passe au suivant.',
+           (benchmark?'Reference distance: historical observed percentiles, with fastest 5% and 75% estimated. ':'Modeled distance from four reference races; no directly measured world percentile. ')+
+           'SUB N means strictly under N '+(row.unit==='second'?'seconds.':'minutes.')+' Exactly N:00 advances to the next SUB.');
     const body=$('threshold-rows');body.replaceChildren();
     if(row.ultra){
       const tr=make('tr');
