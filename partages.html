@@ -36,11 +36,6 @@
     .sport-guide-link:hover{color:var(--yellow);border-color:var(--yellow)}
     .sport-guide-link:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .sport-guide-link[hidden]{display:none}
-    .sport-record-tabs{display:flex;gap:8px;margin:2px 0 15px}
-    .sport-record-tabs[hidden]{display:none}
-    .sport-record-tabs button{padding:9px 17px;border-radius:999px;background:var(--panel);color:var(--text);border:1px solid var(--border);font:inherit;font-weight:700;cursor:pointer}
-    .sport-record-tabs button[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#19180f}
-    .sport-record-tabs button:focus-visible,.record-podium a:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     .records-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
     .records-toolbar .filter-picker{flex:1 1 180px}
     .records-panel h2{font-size:22px;margin:10px 0}
@@ -265,10 +260,6 @@
   <p class="sub" id="intro" hidden></p>
   <div id="catalog">
   <a class="sport-guide-link" id="sport-guide-link" href="cartes-guide.html?lang=fr"><span aria-hidden="true">ⓘ</span><span id="sport-guide-label">Comment gagner une carte ?</span><span aria-hidden="true">→</span></a>
-  <div class="sport-record-tabs" id="sport-record-tabs" role="group" aria-label="Vues du catalogue Défis">
-    <button type="button" id="sport-cards-tab" aria-pressed="true">Cartes</button>
-    <button type="button" id="sport-records-tab" aria-pressed="false">Records</button>
-  </div>
     <div class="toolbar" id="catalog-toolbar">
       <div class="filter-picker">
         <label id="kind-label" for="kind-filter">Type</label>
@@ -1111,10 +1102,7 @@
     $('sort-picker').hidden=sport;
     $('source-picker').hidden=sport;
     $('session-mode-picker').hidden=sport;
-    $('sport-guide-link').hidden=!sport||Boolean(id||sportId);
-    $('sport-record-tabs').hidden=!sport||Boolean(id||sportId);
-    $('sport-cards-tab').setAttribute('aria-pressed',String(!recordsView));
-    $('sport-records-tab').setAttribute('aria-pressed',String(recordsView));
+    $('sport-guide-link').hidden=!sport||recordsView||Boolean(id||sportId);
     $('catalog-toolbar').hidden=sport&&recordsView;
     $('results').hidden=sport&&recordsView;
     $('pages').hidden=sport&&recordsView;
@@ -1149,19 +1137,19 @@
     document.documentElement.lang=lang;
     $('fr').setAttribute('aria-pressed',String(lang==='fr'));
     $('en').setAttribute('aria-pressed',String(lang==='en'));
-    $('back').hidden=!id&&!sportId;
-    if(id||sportId){
+    $('back').hidden=!id&&!sportId&&!recordsView;
+    if(recordsView){
+      $('back').href='compte.html';
+      $('back').textContent=fr('← Mon compte','← My account');
+    }else if(id||sportId){
       $('back').href=sportId?'partages.html?kind=challenge':'partages.html';
       $('back').textContent=fr('← Catalogue','← Catalog');
     }
-    $('title').textContent=sportId?fr('Carte de défi','Challenge card'):
+    $('title').textContent=recordsView?fr('Records des cartes','Card records'):
+      sportId?fr('Carte de défi','Challenge card'):
       id?fr('Partage BeatOnStep','BeatOnStep share'):fr('Catalogue','Catalog');
     $('sport-guide-link').href='cartes-guide.html?lang='+lang;
     $('sport-guide-label').textContent=fr('Comment gagner une carte ?','How do I earn a card?');
-    $('sport-record-tabs').setAttribute('aria-label',fr(
-      'Vues du catalogue Défis','Challenge catalogue views'));
-    $('sport-cards-tab').textContent=fr('Cartes','Cards');
-    $('sport-records-tab').textContent=fr('Records','Records');
     $('records-heading').textContent=fr('Palmarès des cartes','Card records');
     $('records-help').textContent=fr(
       'Durées des possessions, y compris celles qui sont encore en cours.',
@@ -1189,7 +1177,7 @@
     $('community-link').querySelector('.community-label').textContent=fr('Profil','Profile');
     $('community-link').setAttribute('aria-label',fr('Profil','Profile'));
     $('community-link').title=fr('Profil','Profile');
-    $('intro').hidden=Boolean(id||sportId||kind==='challenge');
+    $('intro').hidden=Boolean(id||sportId||kind==='challenge'||recordsView);
     $('intro').textContent=kind==='challenge'?'':fr(
       'Séances musicales à découvrir, en durée ou en distance.',
       'Discover timed and distance-based musical workouts.');
@@ -1224,12 +1212,6 @@
     updateCatalogFilters();
     if(id||sportId)showDetail();else showList();
   }
-  $('sport-cards-tab').onclick=()=>{
-    recordsView=false;updateCatalogFilters();showList();
-  };
-  $('sport-records-tab').onclick=()=>{
-    recordsView=true;updateCatalogFilters();showRecords();
-  };
   $('record-sort').onchange=()=>{
     recordSort=$('record-sort').value;showRecords();
   };
