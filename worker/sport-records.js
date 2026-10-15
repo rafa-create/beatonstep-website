@@ -31,7 +31,7 @@ const epochSql=(filter='')=>`SELECT
  LEFT JOIN community_users u ON u.id=e.new_owner_id
  LEFT JOIN community_profile_settings p ON p.user_id=e.new_owner_id
  WHERE e.reason IN ('sport_win','gift_claim')
-  AND e.new_owner_id IS NOT NULL AND e.changed_at<=?
+  AND e.changed_at<=?
   AND (
    (next.id IS NOT NULL AND next.changed_at>=e.changed_at)
    OR (next.id IS NULL AND c.current_owner_id=e.new_owner_id
