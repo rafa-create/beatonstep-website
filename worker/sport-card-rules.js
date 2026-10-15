@@ -89,6 +89,31 @@ export function difficultyForSportCard(distanceCm,subValue){
   }):null;
 }
 
+// Read-only catalogue filtering must follow the current JSON tiers rather
+// than c.difficulty, which is a legacy snapshot saved when a card was won.
+// Build a bounded SQL predicate exclusively from trusted, bundled thresholds.
+// Pagination and counts must be filtered IN SQL, never after LIMIT/OFFSET.
+export function sportCardDifficultyFilterSql(level,distanceCm=null){
+  if(!LEVELS.includes(level))return null;
+  const choices=distanceCm===null?sportTierRules.distancesCm:[distanceCm];
+  const tierIndex=LEVELS.indexOf(level),parts=[];
+  for(const distance of choices){
+    if(canonicalSportDistance(distance)===null)continue;
+    if(distance>=ULTRA_START_CM){
+      if(level==='legend')parts.push('(c.distance_cm='+distance+')');
+      continue;
+    }
+    const caps=sportTierRules.capsByDistance[String(distance)];
+    if(!caps)continue;
+    const from=tierIndex===0?1:caps[LEVELS[tierIndex-1]]+1;
+    const to=caps[level];
+    if(Number.isSafeInteger(from)&&Number.isSafeInteger(to)&&to>=from)
+      parts.push('(c.distance_cm='+distance+' AND c.sub_value BETWEEN '+from+' AND '+to+')');
+  }
+  // Impossible tiers must match zero cards, never accidentally remove a filter.
+  return parts.length?'('+parts.join(' OR ')+')':'(1=0)';
+}
+
 // Runs must be verified BEFORE this pure calculation by an independent,
 // authenticated server-side gate. 'evidenceVerified' cannot be trusted if
 // supplied directly by a client. Result 'candidate' never means "awarded".
