@@ -123,7 +123,11 @@ def test_remote_runner():
     launcher=(ROOT/'scripts/apply-d1-sport-track-preserve.sh').read_text(encoding='utf-8')
     assert SQL.startswith('CREATE TABLE _bos_track_20261015_guard'), \
         'CRITICAL: Wrangler rejects SQL files starting with comment --'
+    assert not any(line.lstrip().startswith('--') for line in SQL.splitlines()), \
+        'Cloudflare Wrangler D1 remote query must not receive SQL comments'
     assert '--command="$SQL_PAYLOAD"' in launcher, 'use D1 query endpoint, not importer'
+    assert 'tail -n 70 "$QUERY_OUTPUT"' in launcher, 'never hide Wrangler errors'
+    assert 'if grep -Eq' in launcher, 'comment safety gate missing'
     assert 'SQL_PAYLOAD="$(cat "$SQL")"' in launcher
     assert 'wrangler22 d1 execute "$DB" --remote --file=' not in launcher
     assert 'BOS_CLEAN_OK' in launcher and 'BOS_GUARD_ONLY_OK' in launcher
