@@ -325,13 +325,13 @@
     </div>
     <section id="records-panel" class="records-panel" hidden>
       <h2 id="records-heading">Palmarès des cartes</h2>
-      <p id="records-help" class="sub">Durées des possessions, y compris celles qui sont encore en cours.</p>
+      <p id="records-help" class="sub">Chaque record concerne une seule carte gardée sans interruption par un coureur.</p>
       <div class="records-toolbar">
         <div class="filter-picker">
-          <label id="record-sort-label" for="record-sort">Ordre du podium</label>
-          <select id="record-sort" aria-labelledby="record-sort-label">
-            <option value="duration">Durée de possession</option>
-            <option value="difficulty">Difficulté puis durée</option>
+          <label id="record-sort-label" for="record-sort">Record à consulter</label>
+          <select id="record-sort" aria-labelledby="record-sort-label" aria-describedby="records-ranking-help">
+            <option value="duration">Temps de détention</option>
+            <option value="difficulty">Difficulté des cartes</option>
           </select>
         </div>
         <div class="filter-picker">
@@ -348,7 +348,8 @@
           </select>
         </div>
       </div>
-      <h3 id="records-holdings-heading">Podium des possessions</h3>
+      <h3 id="records-holdings-heading">Cartes gardées le plus longtemps</h3>
+      <p id="records-ranking-help" class="sub" aria-live="polite">On classe les détentions par durée, qu'elles soient terminées ou encore en cours.</p>
       <ol id="records-holdings" class="record-podium" aria-live="polite"></ol>
       <h3 id="records-collections-heading">Plus grandes collections actuelles</h3>
       <ol id="records-collections" class="record-podium"></ol>
