@@ -1,7 +1,7 @@
 // Public, read-only catalogue of verified worldwide sporting cards.
 // Independent of historical musical shares and retired publishable V2 challenges.
 // Only public handles and transfer motives leave D1; never account IDs or run proofs.
-import {canonicalSportDistance,difficultyForSportCard,sportCardDifficultyFilterSql} from './sport-card-rules.js';
+import {canonicalSportDistance,difficultyForSportCard,sportCardDifficultyFilterSql,sportCardDifficultyOrderSql} from './sport-card-rules.js';
 import {readSportWarningReasons} from './sport-card-telemetry.js';
 
 const DIFFICULTIES=new Set([
@@ -33,11 +33,13 @@ export async function readPublicSportCards(db,url,{
   if(path==='/api/sport/cards'){
     const distanceRaw=url.searchParams.get('distance');
     const difficulty=url.searchParams.get('difficulty')||'all';
+    const sort=url.searchParams.get('sort')||'default';
     const rawSub=url.searchParams.get('sub');
     const distance=distanceRaw&&distanceRaw!=='all'?Number(distanceRaw):null;
     const sub=rawSub&&rawSub!=='all'?Number(rawSub):null;
     if((distance!==null&&canonicalSportDistance(distance)===null)||
        (difficulty!=='all'&&!DIFFICULTIES.has(difficulty))||
+       !['default','difficulty_asc','difficulty_desc'].includes(sort)||
        (sub!==null&&(!Number.isSafeInteger(sub)||sub<1||sub>1_000_000||distance===null)))
       return response({error:'invalid_sport_filter'},400);
     const rawPage=url.searchParams.get('page')||'1';
@@ -54,6 +56,8 @@ export async function readPublicSportCards(db,url,{
     // Strict SUB N: the sub-N card itself qualifies; faster tiers are lower N.
     if(sub!==null){filters.push('c.sub_value<=?');args.push(sub);}
     const where=filters.length?' WHERE '+filters.join(' AND '):'';
+    const order=sportCardDifficultyOrderSql(sort)||
+      'c.distance_cm ASC,c.sub_value DESC,c.id ASC';
     const count=await db.prepare('SELECT COUNT(*) AS total FROM sport_world_cards c'+where)
       .bind(...args).first();
     const rows=await db.prepare(
@@ -63,7 +67,7 @@ export async function readPublicSportCards(db,url,{
         WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
       'AS performance_warning,u.handle AS owner_handle FROM sport_world_cards c '+
       'LEFT JOIN community_users u ON u.id=c.current_owner_id'+where+
-      ' ORDER BY c.distance_cm ASC,c.sub_value DESC,c.id ASC LIMIT 20 OFFSET ?'
+      ' ORDER BY '+order+' LIMIT 20 OFFSET ?'
     ).bind(...args,(page-1)*20).all();
     return response({items:(rows.results||[]).map(card),total:Number(count?.total)||0,
       page,pageSize:20});
