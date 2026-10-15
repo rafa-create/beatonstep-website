@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
+import {execFileSync} from 'node:child_process';
 import {
   SPORT_CARD_DISTANCES,SPORT_CARD_400M_TIERS,SPORT_CARD_TIER_REVISION,
   maxSubMinuteByTier,difficultyForSportCard,sportCardRulesManifest,
@@ -44,6 +45,22 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.capsByDistance[4219500].expert,230,
     'marathon Expert uses website JSON; change it only there');
   assert.equal(rules.capsByDistance[1000000].beginner,100);
+});
+
+test('manual D1 reclassification plan uses the same 45 v2 rows without changing ownership',()=>{
+  const rules=sportCardRulesManifest();
+  const sql=execFileSync(process.execPath,
+    ['scripts/plan-sport-percentile-backfill.mjs'],{encoding:'utf8'});
+  assert.match(sql,/UPDATE sport_world_cards AS c/);
+  assert.match(sql,/SET difficulty=/);
+  assert.match(sql,/c\.difficulty IS NOT/,'idempotent update on changed labels only');
+  assert.doesNotMatch(sql,/UPDATE sport_card_ownership_events|SET current_owner_id|SET owner_epoch|DELETE FROM/);
+  for(const [cm,caps] of Object.entries(rules.capsByDistance)){
+    const literal='('+[Number(cm),...rules.tierOrder.map(t=>caps[t])].join(',')+')';
+    assert.ok(sql.includes(literal),'D1 plan must match official limits at '+cm);
+  }
+  assert.equal((sql.match(/^    \(\d+,/gm)||[]).length,45);
+  assert.match(sql,/43-200 km remain unchanged/);
 });
 
 test('static website build publishes the exact official file without D1 or Worker',()=>{
