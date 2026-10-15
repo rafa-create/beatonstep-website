@@ -68,11 +68,11 @@ export function difficultyForSportCard(distanceCm,subValue){
   if(canonicalSportDistance(distanceCm)===null||
      !Number.isSafeInteger(subValue)||subValue<1)return null;
   if(SECOND_RESOLUTION.has(distanceCm)){
-    const found=SPORT_CARD_400M_TIERS.find(
-      tier=>subValue<=tier.maxSubSecond);
+    const caps=sportTierRules.capsByDistance[String(distanceCm)];
+    const found=caps&&LEVELS.find(tier=>subValue<=caps[tier]);
     return found?Object.freeze({
-      difficulty:found.difficulty,
-      skin:`difficulty_${found.difficulty}_v1`,
+      difficulty:found,
+      skin:`difficulty_${found}_v1`,
     }):null;
   }
   if(distanceCm>=ULTRA_START_CM){
