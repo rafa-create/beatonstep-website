@@ -81,6 +81,10 @@ def test_preservation():
       WHERE name IN ('sport_world_cards','sport_card_ownership_events')"""))
     apply_local(db)
     assert snapshot(db)==before,'migration altered cards, owners, gifts or history'
+    final_statement=SQL.strip().split(';')[-2].strip()
+    assert 'UNION' not in final_statement.upper(), 'D1 compound SELECT limit'
+    row=db.execute(final_statement).fetchone()
+    assert row==tuple([2,2,2,2,2,2,0]), 'final D1 count snapshot incorrect'
     assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
     assert dict(db.execute("""SELECT name,seq FROM sqlite_sequence
       WHERE name IN ('sport_world_cards','sport_card_ownership_events')"""))==seq_before
@@ -125,6 +129,7 @@ def test_remote_runner():
         'CRITICAL: Wrangler rejects SQL files starting with comment --'
     assert not any(line.lstrip().startswith('--') for line in SQL.splitlines()), \
         'Cloudflare Wrangler D1 remote query must not receive SQL comments'
+    assert 'UNION ALL' not in SQL.upper(), 'D1 can restrict compound SELECT to 3 terms'
     assert '--command="$SQL_PAYLOAD"' in launcher, 'use D1 query endpoint, not importer'
     assert 'tail -n 70 "$QUERY_OUTPUT"' in launcher, 'never hide Wrangler errors'
     assert 'if grep -Eq' in launcher, 'comment safety gate missing'
