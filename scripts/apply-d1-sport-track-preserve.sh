@@ -114,8 +114,9 @@ expect={"sport_world_cards":2, "sport_verified_runs":2,
 "sport_card_achievements":2,"sport_card_ownership_events":2,
 "sport_card_gift_links":2,"sport_card_telemetry_reviews":2,
 "sport_card_telemetry_reason_details":0}
-got={row["tbl"]:row["lignes"] for row in rows if "tbl" in row and "lignes" in row}
-if got!=expect: raise SystemExit("Comptages non conserves")
+got=[row for row in rows if set(expect).issubset(row)]
+if len(got)!=1 or {k:got[0][k] for k in expect}!=expect:
+  raise SystemExit("Comptages non conserves")
 print("PASS - lot QUERY complet, cartes et historiques conserves")
 ' < "$QUERY_OUTPUT" || fail "SQL non confirme complet; verifier D1 avant toute relance"
 
