@@ -54,6 +54,7 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 #owned-cards{display:flex;gap:15px;flex-wrap:wrap;align-items:stretch}
 #owned-cards li:not(.collection-item){width:100%}
 .pack-game{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center;border:1px solid #756531;border-radius:19px;background:radial-gradient(ellipse at 17% 50%,#544b1d50,transparent 65%),#151511;padding:22px;margin-top:18px}
+.pack-game[hidden]{display:none!important}
 .pack-image{width:140px;height:190px;flex:none;display:grid;place-items:center;align-content:center;gap:10px;color:var(--accent);border:2px solid var(--accent);border-radius:17px;background:repeating-linear-gradient(145deg,#1b1b11,#1b1b11 13px,#222116 14px,#222116 26px);box-shadow:8px 9px 0 #5b511d,-5px -4px 0 #39341e;transform:rotate(-6deg)}
 .pack-image svg{width:68px;height:68px}.pack-image strong{font-size:11px;letter-spacing:.2em}
 .pack-actions{flex:1;min-width:175px}.pack-actions p{margin:6px 0 15px;font-size:13px}
@@ -431,8 +432,9 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       :Math.floor(value/60)+':'+ss;
   }
   function historyPace(seconds){
-    return typeof seconds==='number'&&Number.isFinite(seconds)&&seconds>0
-      ?historyClock(seconds)+'/km':null;
+    if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<=0)return null;
+    const pace=historyClock(seconds);
+    return pace?pace+'/km':null;
   }
   function historyDateTime(timestamp){
     if(!Number.isSafeInteger(timestamp)||timestamp<=0)return 'Date inconnue';
