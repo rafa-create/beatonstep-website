@@ -2,7 +2,6 @@
 // identity changes. The official static manifest is the sole ranking source.
 (function(root){
   'use strict';
-  const target={amateur:90,regular:75,intermediate:50,expert:20,legend:5,world_elite:1};
   const names={
     beginner:['Débutant','Beginner'],amateur:['Amateur','Amateur'],
     regular:['Régulier','Regular'],intermediate:['Intermédiaire','Intermediate'],
@@ -23,6 +22,22 @@
         rules=data;return data;
       }).catch(()=>null);
     return pending;
+  }
+  function tierTopLabel(level,lang='fr'){
+    if(!rules||level==='beginner'||level==='world_elite')return null;
+    const pct=rules.percentileCalibration?.estimatedPercentileTargets?.[level];
+    if(!Number.isFinite(pct)||pct<=0||pct>100)return null;
+    return lang==='en'?'Top ≈ '+pct+'% of race finishers'
+      :'Top ≈ '+pct+' % des arrivants';
+  }
+  function canonicalDistanceCm(kilometers){
+    if(!rules||typeof kilometers!=='string')return null;
+    const input=kilometers.trim().replace(',','.');
+    if(!/^(?:[0-9]{1,3})(?:\.[0-9]{1,5})?$/.test(input))return null;
+    const km=Number(input),cm=Math.round(km*100000);
+    return km>0&&Math.abs(km*100000-cm)<1e-7&&
+      Array.isArray(rules.distancesCm)&&rules.distancesCm.includes(cm)
+      ?cm:null;
   }
   function tier(item){
     if(!rules||!Number.isSafeInteger(item?.distanceCm)||
@@ -93,8 +108,11 @@
     if(!level||level==='beginner'||level==='world_elite')return null;
     const caps=rules.capsByDistance[String(item.distanceCm)];
     if(!caps)return null;
-    const marks=[['world_elite',1],['legend',5],['expert',20],
-      ['intermediate',50],['regular',75],['amateur',90]];
+    const percentages=rules.percentileCalibration?.estimatedPercentileTargets;
+    if(!percentages)return null;
+    const marks=rules.tierOrder.filter(name=>name!=='beginner')
+      .map(name=>[name,percentages[name]]);
+    if(marks.length!==6||marks.some(([,p])=>!Number.isFinite(p)))return null;
     if(item.subValue>caps.world_elite){
       for(let i=1;i<marks.length;i++){
         const [name,percent]=marks[i];
@@ -131,5 +149,5 @@
     const name=names[level];
     return name?name[lang==='en'?1:0]:(lang==='en'?'Level unavailable':'Niveau indisponible');
   }
-  root.BeatOnStepSportPercentiles=Object.freeze({ready,tier,visibleTier,percentile,label,worldRecordReference,recordBracket,recordGap});
+  root.BeatOnStepSportPercentiles=Object.freeze({ready,tier,visibleTier,percentile,label,worldRecordReference,recordBracket,recordGap,tierTopLabel,canonicalDistanceCm});
 })(typeof window!=='undefined'?window:globalThis);
