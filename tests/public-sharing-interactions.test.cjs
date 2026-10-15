@@ -112,6 +112,8 @@ function setup(search,data=example){
   assert.equal(landing.elements['kind-filter'].value,'challenge');
   assert.equal(landing.elements['distance-filter'].value,'all');
   assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
+  assert.match(html,/id="distance-exact-filter"[\\s\\S]*?placeholder="Distance \\(km\\)"/);
+  assert.equal(landing.elements['distance-exact-filter'].placeholder,'Distance (km)');
   assert.equal(landing.elements['distance-exact-filter'].value,'');
   assert.equal(landing.elements['sort-picker'].hidden,true);
   assert.equal(landing.elements['source-picker'].hidden,true);
@@ -170,6 +172,13 @@ function setup(search,data=example){
     'English challenge detail page also has no self-referential link');
   const history=walk(landing.elements.results,x=>x.className==='sport-details')[0];
   assert(history&&!history.open,'history is folded by default');
+  // Switching languages keeps the field understandable and leaves the typed value alone.
+  const localeDistance=setup('',sport);
+  await flush();
+  localeDistance.elements.en.onclick();
+  await flush();
+  assert.equal(localeDistance.elements['distance-exact-filter'].placeholder,'Distance (km)');
+  assert.equal(localeDistance.elements['distance-exact-filter'].value,'');
   landing.elements['distance-filter'].value='500000';
   landing.elements['distance-filter'].onchange();
   await flush();
