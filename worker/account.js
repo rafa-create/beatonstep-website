@@ -301,6 +301,12 @@ export async function accountRequest(request,env,url,ctx) {
       if (!/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle)) return reply({error:'not_found'},404);
       const user=await db.prepare('SELECT id,handle FROM community_users WHERE handle=?').bind(handle).first();
       if (!user) return reply({error:'not_found'},404);
+      // A missing settings row means the default: show sporting challenges.
+      // Settings belong to the account ID and survive pseudonym changes.
+      const visibility=await db.prepare(
+        'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
+      ).bind(user.id).first();
+      const showChallenges=visibility?.show_challenges!==0;
       const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports,
         json_extract(x.payload_json,'$.g') AS workout_goal,
         CASE WHEN json_extract(x.payload_json,'$.g')='distance'
@@ -308,11 +314,24 @@ export async function accountRequest(request,env,url,ctx) {
         FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
         WHERE s.user_id=? ORDER BY CASE WHEN x.kind='workout' THEN 0 ELSE 1 END,
           x.imports DESC,x.created_at DESC,x.id DESC LIMIT 100`).bind(user.id).all();
-      return reply({handle:user.handle,items:(items.results||[]).map(x=>({
-        id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
-        createdAt:x.created_at,imports:Number(x.imports)||0,
-        ...(x.kind==='workout'?workoutCardType(x):{}),
-      }))});
+      // This query is skipped entirely when the runner hides challenges:
+      // no collection, item IDs or counts leave the public profile API.
+      const challenges=showChallenges && env.SPORT_WORLD_CARDS_ENABLED==='true'
+        ?await db.prepare(`SELECT id,distance_cm,time_unit,sub_value,difficulty
+          FROM sport_world_cards WHERE current_owner_id=?
+          ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
+          .bind(user.id).all():null;
+      return reply({handle:user.handle,showChallenges,
+        items:(items.results||[]).map(x=>({
+          id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
+          createdAt:x.created_at,imports:Number(x.imports)||0,
+          ...(x.kind==='workout'?workoutCardType(x):{}),
+        })),
+        ...(showChallenges?{challenges:(challenges?.results||[]).map(x=>({
+          id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
+          subValue:x.sub_value,difficulty:x.difficulty,
+        }))}:{})
+      });
     }
     // Owned musical cards and the original signed creations are different:
     // an author keeps credit and import popularity after giving the card away.
@@ -520,6 +539,14 @@ export async function accountRequest(request,env,url,ctx) {
       const user=await webUser(db,request);
       return reply(user?{authenticated:true,handle:user.handle}:{authenticated:false});
     }
+    if (path==='/api/account/profile/preferences' && method==='GET') {
+      const user=await webUser(db,request);
+      if (!user) return reply({error:'login_required'},401);
+      const row=await db.prepare(
+        'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
+      ).bind(user.id).first();
+      return reply({showChallenges:row?.show_challenges!==0});
+    }
     if (['/api/account/pack','/api/account/collection','/api/account/achievements','/api/account/gift'].includes(path)
         && method==='GET') {
       if (!cardsEnabled(env)) return reply({error:'collection_not_ready'},503);
@@ -550,6 +577,16 @@ export async function accountRequest(request,env,url,ctx) {
       }
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
+      if (path==='/api/account/profile/preferences' && method==='POST') {
+        const data=await jsonBody(request);
+        if (typeof data?.showChallenges!=='boolean')
+          return reply({error:'invalid_profile_visibility'},400);
+        await db.prepare(`INSERT INTO community_profile_settings(user_id,show_challenges)
+          VALUES(?,?) ON CONFLICT(user_id) DO UPDATE
+          SET show_challenges=excluded.show_challenges`)
+          .bind(user.id,data.showChallenges?1:0).run();
+        return reply({showChallenges:data.showChallenges});
+      }
       // Renaming the visible identity must not replace the underlying account ID.
       // Signed history, card ownership and device grants reference that stable ID.
       if (path==='/api/account/handle' && method==='POST') {
