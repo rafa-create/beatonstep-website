@@ -61,6 +61,12 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
   assert.doesNotMatch(page,/Distance modélisée à partir des quatre références|Exception ultra-distance|aucun percentile mondial de chrono fiable/,
     'technical notes are removed from the running-focused calculator');
+  assert.match(page,/Aperçu en préparation/);
+  assert.match(page,/Distance en préparation : cette carte ne peut pas encore être gagnée/);
+  assert.match(page,/data.distances.length!==206/);
+  assert.match(page,/cm===80000/);
+  assert.match(page,/cm===150000/);
+  assert.match(page,/cm===160934/);
   assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
 });
 
@@ -115,19 +121,35 @@ test('tier table shows readable percentiles and exact chrono intervals, not SUB-
     'the full individual SUB listing still uses exact card identifiers');
 });
 
-test('guide JSON covers all 203 canonical sporting distances with no duplicate',()=>{
+test('guide preserves 203 awardable distances and previews 3 track distances',()=>{
   assert.equal(json.ruleset,'sport-cards-v1');
   assert.deepEqual(json.levels,
     ['world_elite','legend','expert','intermediate','regular','amateur','beginner']);
-  assert.equal(json.distances.length,203);
-  assert.deepEqual(json.distances.map(row=>row.distanceCm),
+  assert.equal(json.distances.length,206);
+  assert.deepEqual(json.distances.filter(row=>!row.previewOnly).map(row=>row.distanceCm),
     SPORT_CARD_DISTANCES.map(row=>row.distanceCm));
-  assert.equal(new Set(json.distances.map(row=>row.distanceCm)).size,203);
+  assert.deepEqual(json.distances.filter(row=>row.previewOnly).map(row=>row.distanceCm),
+    [80000,150000,160934]);
+  assert.equal(new Set(json.distances.map(row=>row.distanceCm)).size,206);
+  for(const distanceCm of [80000,150000,160934]){
+    const row=json.distances.find(item=>item.distanceCm===distanceCm);
+    assert.equal(row.unit,'second');
+    assert.equal(row.ultra,false);
+    assert.equal(row.previewOnly,true);
+    let lower=0;
+    for(const tier of json.levels){
+      assert.ok(row.caps[tier]>lower);
+      lower=row.caps[tier];
+    }
+    assert.equal(difficultyForSportCard(distanceCm,1),null,
+      'a preview-only track family must never bypass the unmodified D1 schema');
+  }
 });
 
 test('all public SUB difficulty boundaries agree with the official award engine',()=>{
   for(const entry of json.distances){
-    const {distanceCm,caps,unit,ultra}=entry;
+    const {distanceCm,caps,unit,ultra,previewOnly}=entry;
+    if(previewOnly)continue;
     if(ultra){
       assert.equal(distanceCm>=4_300_000,true);
       assert.equal(caps,null);
