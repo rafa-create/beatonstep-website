@@ -49,6 +49,7 @@ border:1px solid #fcea07;cursor:pointer;text-decoration:none}
 </div>
 </main>
 <script src="/sport-card-face.js"></script>
+<script src="/sport-card-percentile.js"></script>
 <script>
 (()=>{
   'use strict';
@@ -82,12 +83,13 @@ border:1px solid #fcea07;cursor:pointer;text-decoration:none}
       const {ok,result}=await api('/api/account/sport/gift/preview',{code});
       if(!ok||!result.card)throw Error('unavailable');
       const card=result.card;
+      await BeatOnStepSportPercentiles.ready();
       $('card-title').textContent=displaySportName(card.name);
       $('card-face').replaceChildren(BeatOnStepSportCards.createFace(document,{
         title:displaySportName(card.name),distanceCm:card.distanceCm,
-        difficulty:card.difficulty,
+        difficulty:BeatOnStepSportPercentiles.visibleTier(card),
       },'fr'));
-      $('card-difficulty').textContent='Niveau '+(BeatOnStepSportCards.levels[card.difficulty]?.[0]||'—');
+      $('card-difficulty').textContent=BeatOnStepSportPercentiles.label(card,'fr');
       $('card-donor').textContent=result.donorHandle
         ?'Offert par @'+result.donorHandle:'Cadeau d’un coureur BeatOnStep';
       if(result.available){
