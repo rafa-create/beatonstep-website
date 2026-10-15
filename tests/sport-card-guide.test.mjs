@@ -24,6 +24,15 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/role="group" aria-labelledby="chrono-label"/);
   assert.doesNotMatch(page,/id="time-input"/);
   assert.match(page,/sport-card-paliers\.json/);
+  assert.match(page,/tous âges et sexes confondus/);
+  assert.match(page,/top 50 %/);
+  assert.match(page,/top 20 %/);
+  assert.match(page,/top 5 %/);
+  assert.match(page,/top 1 %/);
+  assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
+  assert.match(page,/Distance modélisée à partir des quatre références/);
+  assert.match(page,/Exception ultra-distance/);
+  assert.match(page,/aucun percentile mondial de chrono fiable/);
   assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
 });
 
