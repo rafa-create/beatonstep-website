@@ -96,11 +96,11 @@ export function difficultyForSportCard(distanceCm,subValue){
 export function sportCardDifficultyFilterSql(level,distanceCm=null){
   if(!LEVELS.includes(level))return null;
   const choices=distanceCm===null?sportTierRules.distancesCm:[distanceCm];
-  const tierIndex=LEVELS.indexOf(level),parts=[];
+  const tierIndex=LEVELS.indexOf(level),parts=[],ultra=[];
   for(const distance of choices){
     if(canonicalSportDistance(distance)===null)continue;
     if(distance>=ULTRA_START_CM){
-      if(level==='legend')parts.push('(c.distance_cm='+distance+')');
+      if(level==='legend')ultra.push(distance);
       continue;
     }
     const caps=sportTierRules.capsByDistance[String(distance)];
@@ -110,8 +110,20 @@ export function sportCardDifficultyFilterSql(level,distanceCm=null){
     if(Number.isSafeInteger(from)&&Number.isSafeInteger(to)&&to>=from)
       parts.push('(c.distance_cm='+distance+' AND c.sub_value BETWEEN '+from+' AND '+to+')');
   }
+  if(ultra.length)parts.push('(c.distance_cm IN ('+ultra.join(',')+'))');
   // Impossible tiers must match zero cards, never accidentally remove a filter.
   return parts.length?'('+parts.join(' OR ')+')':'(1=0)';
+}
+
+// Sorting is performed BEFORE database pagination, using the same manifest
+// cutoffs as the award path; c.difficulty is a historical, non-authoritative snapshot.
+export function sportCardDifficultyOrderSql(sort){
+  if(sort!=='difficulty_asc'&&sort!=='difficulty_desc')return null;
+  const expression='CASE '+LEVELS.map((name,index)=>
+    'WHEN '+sportCardDifficultyFilterSql(name)+' THEN '+(LEVELS.length-1-index)
+  ).join(' ')+' ELSE -1 END';
+  return expression+(sort==='difficulty_asc'?' ASC':' DESC')+
+    ',c.distance_cm ASC,c.sub_value DESC,c.id ASC';
 }
 
 // Runs must be verified BEFORE this pure calculation by an independent,
