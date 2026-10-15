@@ -78,6 +78,21 @@ async function personByToken(db, token, table) {
     .bind(await hash(token), Date.now()).first();
 }
 async function webUser(db, req) { return personByToken(db, browserToken(req), 'community_sessions'); }
+// Keep existing public profiles readable during a staged deployment.
+// Before manual migration 0010, the safe historical default is visible.
+// The settings UI is disabled until the settings table is installed.
+async function profileVisibility(db,userId) {
+  try {
+    const row=await db.prepare(
+      'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
+    ).bind(userId).first();
+    return {showChallenges:row?.show_challenges!==0,settingsReady:true};
+  } catch(error) {
+    if (/no such table:\s*community_profile_settings/i.test(String(error)))
+      return {showChallenges:true,settingsReady:false};
+    throw error;
+  }
+}
 export async function devicePublisher(db, request) {
   return personByToken(db, bearerToken(request), 'community_devices');
 }
@@ -303,10 +318,7 @@ export async function accountRequest(request,env,url,ctx) {
       if (!user) return reply({error:'not_found'},404);
       // A missing settings row means the default: show sporting challenges.
       // Settings belong to the account ID and survive pseudonym changes.
-      const visibility=await db.prepare(
-        'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
-      ).bind(user.id).first();
-      const showChallenges=visibility?.show_challenges!==0;
+      const {showChallenges}=await profileVisibility(db,user.id);
       const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports,
         json_extract(x.payload_json,'$.g') AS workout_goal,
         CASE WHEN json_extract(x.payload_json,'$.g')='distance'
@@ -542,10 +554,7 @@ export async function accountRequest(request,env,url,ctx) {
     if (path==='/api/account/profile/preferences' && method==='GET') {
       const user=await webUser(db,request);
       if (!user) return reply({error:'login_required'},401);
-      const row=await db.prepare(
-        'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
-      ).bind(user.id).first();
-      return reply({showChallenges:row?.show_challenges!==0});
+      return reply(await profileVisibility(db,user.id));
     }
     if (['/api/account/pack','/api/account/collection','/api/account/achievements','/api/account/gift'].includes(path)
         && method==='GET') {
