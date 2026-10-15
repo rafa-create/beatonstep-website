@@ -56,7 +56,6 @@ function setup(search,data=example){
     'distance-exact-picker','distance-exact-label','distance-exact-filter',
     'footer-privacy','footer-privacy-label','community-link',
     'sport-guide-link','sport-guide-label',
-    'sport-record-tabs','sport-cards-tab','sport-records-tab',
     'catalog-toolbar','records-panel','records-heading','records-help',
     'record-sort-label','record-sort','record-level-label','record-level',
     'records-holdings-heading','records-holdings','records-collections-heading',
@@ -150,7 +149,9 @@ function setup(search,data=example){
   await flush();await flush();
   assert.equal(records.elements['records-panel'].hidden,false);
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
-  assert.equal(records.elements['sport-records-tab'].attributes['aria-pressed'],'true');
+  assert.equal(records.elements.back.hidden,false);
+  assert.equal(records.elements.back.href,'compte.html');
+  assert.equal(records.elements.back.textContent,'← Mon compte');
   assert.match(records.apiCalls.at(-1),/\/api\/sport\/records\?sort=duration&level=all/);
   assert.match(records.elements['records-holdings'].textContent,/SUB 25/);
   assert.match(records.elements['records-holdings'].textContent,/1 jour/);
@@ -164,12 +165,14 @@ function setup(search,data=example){
   assert.match(records.apiCalls.at(-1),/sort=difficulty&level=world_elite/);
   records.elements.en.onclick();await flush();await flush();
   assert.equal(records.elements['records-heading'].textContent,'Card records');
+  assert.equal(records.elements.back.textContent,'← My account');
   assert.match(records.elements['records-holdings'].textContent,/Currently held/);
-  records.elements['sport-cards-tab'].onclick();await flush();await flush();
-  assert.equal(records.elements['records-panel'].hidden,true);
-  assert.equal(records.elements['catalog-toolbar'].hidden,false);
-  records.elements['sport-records-tab'].onclick();await flush();await flush();
   assert.equal(records.elements['records-panel'].hidden,false);
+  assert.equal(records.elements['catalog-toolbar'].hidden,true);
+  assert.doesNotMatch(html,/id="sport-records-tab"|id="sport-cards-tab"/,
+    'there must not be a Records link in the public catalogue');
+  assert.equal(landing.elements['records-panel'].hidden,true);
+  assert.equal(landing.elements['catalog-toolbar'].hidden,false);
   // Challenge cards offer the detail link in the catalogue and focus gallery,
   // but never on the destination page itself (both FR and EN).
   const sportCatalogCard=landing.elements.results.children[0];
