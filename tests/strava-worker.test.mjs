@@ -111,7 +111,7 @@ test('two concurrent callbacks at 9/10 cannot admit an eleventh athlete', async 
   try {
     const callback = (state,code) => {
       const url = new URL(ROOT+'/api/strava/callback?state='+state+
-        '&code='+code+'&scope=activity%3Awrite');
+        '&code='+code+'&scope=activity%3Awrite%2Cactivity%3Aread');
       return stravaRequest(new Request(url),env(db),url);
     };
     const results=await Promise.all([callback(s1,'code_a'),callback(s2,'code_b')]);
@@ -383,4 +383,86 @@ test('OTA: reject forged out-of-range optional metrics before posting to Strava'
       assert.deepEqual(await response.json(),{error:'invalid_run'});
     }
   }finally{globalThis.fetch=realFetch;}
+});
+
+test('single paid/API availability switch hides Strava and denies all operations when OFF',async()=>{
+  const db=fakeDb(0),disabled={...env(db),STRAVA_EXPORT_ENABLED:'false'};
+  const status=await stravaRequest(request('status'),disabled,new URL(ROOT+'/api/strava/status'));
+  assert.deepEqual(await status.json(),{
+    enabled:false,connected:false,canConnect:false,used:0,capacity:0,
+  });
+  for(const [endpoint,method] of [['start','POST'],['activities','GET'],['publish','POST'],
+    ['disconnect','POST'],['callback','GET']]){
+    const url=new URL(ROOT+'/api/strava/'+endpoint);
+    const result=await stravaRequest(request(endpoint,method),disabled,url);
+    assert.equal(result.status,503,endpoint);
+    assert.equal((await result.json()).enabled,false);
+  }
+});
+
+test('Strava permission is upgraded explicitly to activity:read without dropping write permission',async()=>{
+  const db=fakeDb(10,true);
+  const endpoint=ROOT+'/api/strava/start';
+  const options=await stravaRequest(new Request(endpoint,{
+    method:'POST',headers:{'x-bos-strava-key':DEVICE,'content-type':'application/json'},
+    body:JSON.stringify({reauthorize:true}),
+  }),env(db),new URL(endpoint));
+  assert.equal(options.status,200);
+  const auth=new URL((await options.json()).url);
+  assert.equal(auth.searchParams.get('scope'),'activity:write,activity:read');
+  assert.equal(auth.searchParams.get('approval_prompt'),'force');
+  const blocked=await stravaRequest(request('start','POST'),env(db),new URL(endpoint));
+  assert.equal(blocked.status,409,'connected accounts never silently get new scopes');
+});
+
+test('private Strava activities endpoint imports only validated run summaries without GPS',async()=>{
+  const {db}=await publishingFixture();
+  const nativeFetch=globalThis.fetch;
+  let calls=0;
+  globalThis.fetch=async(url,options)=>{
+    calls++;
+    assert.equal(String(url),'https://www.strava.com/api/v3/athlete/activities?per_page=30&page=1');
+    assert.equal(options.headers.authorization,'Bearer mock-access-token');
+    return {ok:true,status:200,json:async()=>[
+      {id:1,type:'Ride',start_date:'2026-10-14T14:00:00Z',elapsed_time:1400,distance:9000},
+      {id:188246, sport_type:'Run',name:'Test <ride>\\u0000',start_date:'2026-10-14T15:00:00Z',
+       elapsed_time:1537,moving_time:1480,distance:5002.4,
+       average_heartrate:142,max_heartrate:170,
+       map:{polyline:'DO_NOT_EXPOSE'},athlete:{id:999},average_cadence:86},
+      {id:3,type:'TrailRun',name:'Trail',start_date:'2026-10-13T07:00:00Z',
+       elapsed_time:3800,moving_time:3700,distance:10000.0},
+      {id:0,type:'Run',name:'Invalid',start_date:'2026-10-12T08:00:00Z',elapsed_time:30},
+    ]};
+  };
+  try{
+    const url=new URL(ROOT+'/api/strava/activities');
+    const response=await stravaRequest(request('activities'),env(db),url);
+    assert.equal(response.status,200);
+    const json=await response.json();
+    assert.equal(json.items.length,2);
+    assert.deepEqual(json.items[0],{
+      id:'188246',name:'Test <ride>\\u0000',startedAtMs:Date.parse('2026-10-14T15:00:00Z'),
+      durationSeconds:1537,distanceMeters:5002,averagePaceSecPerKm:296,
+      averageHeartRateBpm:142,maxHeartRateBpm:170,
+    });
+    assert.equal(json.items[1].name,'Trail');
+    assert.equal(calls,1);
+    assert.doesNotMatch(JSON.stringify(json),/polyline|athlete|cadence|latlng/);
+  }finally{globalThis.fetch=nativeFetch;}
+});
+
+test('Strava import reports outdated read authorization and rate limits explicitly',async()=>{
+  const {db}=await publishingFixture();
+  const original=globalThis.fetch;
+  try{
+    for(const [upstream,downstream,error] of [
+      [403,403,'strava_read_permission_required'],[429,429,'strava_rate_limited'],
+    ]){
+      globalThis.fetch=async()=>({ok:false,status:upstream});
+      const url=new URL(ROOT+'/api/strava/activities');
+      const response=await stravaRequest(request('activities'),env(db),url);
+      assert.equal(response.status,downstream);
+      assert.deepEqual(await response.json(),{error});
+    }
+  }finally{globalThis.fetch=original;}
 });
