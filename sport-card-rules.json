@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-15.3",
+  "revision": "2026-10-15.4",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -646,9 +646,9 @@
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits",
+    "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits; 2026-10-15.4 adds monotonic estimated SUB-level percentiles above beginner and optional record-reference interpolation from the 1% marker to the world-record distance benchmark",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
-    "interpretation": "Approximate reference categories for race finishers, not official world rankings"
+    "interpretation": "Interpolated approximate worldwide share of race finishers, NOT an official world rank, person-level percentile, or proof of a world record."
   },
   "pendingTrackDistancesCm": [
     80000,
@@ -695,5 +695,70 @@
   },
   "secondResolutionDistancesCm": [
     40000
-  ]
+  ],
+  "absoluteWorldRecordAnchors": [
+    {
+      "distanceCm": 40000,
+      "seconds": 43.03,
+      "discipline": "track",
+      "source": "https://worldathletics.org/records/all-time-toplists/sprints/400-metres/all/men/senior",
+      "date": "2016-08-14"
+    },
+    {
+      "distanceCm": 100000,
+      "seconds": 131.83,
+      "discipline": "track",
+      "source": "https://worldathletics.org/news/press-releases/ratified-world-records-kiplimo-tharp-wanyonyi",
+      "date": "2026-07-10"
+    },
+    {
+      "distanceCm": 200000,
+      "seconds": 283.13,
+      "discipline": "track",
+      "source": "https://worldathletics.org/records/by-progression/17184?type=2",
+      "date": "2023-09-08"
+    },
+    {
+      "distanceCm": 300000,
+      "seconds": 437.55,
+      "discipline": "track",
+      "source": "https://worldathletics.org/news/press-releases/ratified-world-records-ingebrigtsen-duplantis-hull",
+      "date": "2024-08-25"
+    },
+    {
+      "distanceCm": 500000,
+      "seconds": 769,
+      "discipline": "road",
+      "source": "https://worldathletics.org/records/all-time-toplists/road-running/5-kilometres/outdoor/men/senior",
+      "date": "2021-12-31"
+    },
+    {
+      "distanceCm": 1000000,
+      "seconds": 1591,
+      "discipline": "road",
+      "source": "https://worldathletics.org/news/press-releases/ratified-world-records-hoey-kejelcha-yamanishi",
+      "date": "2025-02-16"
+    },
+    {
+      "distanceCm": 2109750,
+      "seconds": 3440,
+      "discipline": "road",
+      "source": "https://worldathletics.org/news/press-releases/ratified-world-records-kiplimo-tharp-wanyonyi",
+      "date": "2026-03-08"
+    },
+    {
+      "distanceCm": 4219500,
+      "seconds": 7170,
+      "discipline": "road",
+      "source": "https://worldathletics.org/competitions/world-athletics-label-road-races/news/sabastian-sawe-berlin-marathon-2026",
+      "date": "2026-04-26"
+    }
+  ],
+  "absoluteWorldRecordModel": {
+    "asOf": "2026-10-15",
+    "rule": "Fastest currently recognized absolute world record per anchor; missing distances use log-log time-versus-distance interpolation between adjacent anchors. Track for 400 m through 3 km and road racing from 5 km. Intermediate distances are modeled references, never official records.",
+    "percentileMethod": "Linear interpolation of modeled finisher top-percentile anchor points at strict SUB thresholds 90/75/50/20/5/1. Between the 1% threshold and the absolute record reference, estimate from 1% down to 0.1% using log time. Do not infer an actual world rank; at or beyond the record's SUB bracket display a record-reference message instead of a false Top 0%.",
+    "ultraException": "43-200 km still has no comparable calibrated percentile curve; world-record based Top percentages remain unavailable pending validation of ultra finishers. Never extrapolate below/above the outer reference anchors.",
+    "warning": "Comparison model only: a SUB card is a time interval, not proof of a ratified record."
+  }
 }
