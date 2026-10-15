@@ -93,6 +93,29 @@ test('no invented world rank for beginner, warning or ultra',async()=>{
   assert.equal(client.percentile(card(500000,58)),null);
 });
 
+test('catalogue distance entry and worldwide tier hints share current JSON',async()=>{
+  const client=await api();
+  assert.equal(client.canonicalDistanceCm('5'),500000);
+  assert.equal(client.canonicalDistanceCm('0,4'),40000);
+  assert.equal(client.canonicalDistanceCm('21,0975'),2109750);
+  assert.equal(client.canonicalDistanceCm('42.195'),4219500);
+  for(const bad of ['0','4,5','5 km','5000','1e3','21,09751','bad','']) {
+    assert.equal(client.canonicalDistanceCm(bad),null,'unsupported distance '+bad);
+  }
+  assert.equal(client.tierTopLabel('expert','fr'),'Top ≈ 20 % des arrivants');
+  assert.equal(client.tierTopLabel('legend','en'),'Top ≈ 5% of race finishers');
+  assert.equal(client.tierTopLabel('beginner','fr'),null);
+  assert.equal(client.tierTopLabel('world_elite','fr'),null);
+  const altered=structuredClone(rules);
+  altered.revision='2026-10-15.6';
+  altered.percentileCalibration.estimatedPercentileTargets.expert=21;
+  const updated=await api(altered);
+  assert.equal(updated.tierTopLabel('expert','fr'),'Top ≈ 21 % des arrivants');
+  assert.equal(updated.percentile(card(500000,29)),21,
+    'one official JSON edit changes the tier targets');
+  assert.equal(updated.label(card(500000,29),'fr'),'Top ≈ 21 % mondial');
+});
+
 test('an older D1 label never invents an outdated world ranking',async()=>{
   const client=await api();
   const old=card(500000,29,'amateur');
