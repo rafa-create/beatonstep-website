@@ -2257,7 +2257,7 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   transition: color 0.15s ease;
 }
 .workouts-back:hover { color: var(--ink); }
-.workouts-hero { padding: clamp(3.3rem, 9vw, 6rem) 0 5rem; }
+.workouts-hero { padding: clamp(2.8rem, 7vw, 4.5rem) 0 3.5rem; }
 .workouts-eyebrow {
   margin: 0 0 1rem;
   color: var(--accent);
@@ -2275,20 +2275,47 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   letter-spacing: -0.055em;
 }
 .workouts-hero h1 span { color: var(--accent); }
-.workouts-intro {
+ .workouts-intro {
   max-width: 36rem;
   margin: 0;
   color: var(--muted);
   font-size: clamp(1rem, 1.7vw, 1.16rem);
   line-height: 1.6;
 }
+.workouts-paths {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.7rem;
+}
+.workouts-path {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 1.3rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.workouts-path h2 {
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  line-height: 1.2;
+  margin: 0 0 0.55rem;
+}
+.workouts-path p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
 .workouts-catalogue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2rem;
-  margin-top: 1.75rem;
-  padding: 0.8rem 1.1rem;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding: 0.72rem 0.95rem;
   border: 1px solid var(--accent);
   border-radius: 11px;
   background: var(--accent);
@@ -2297,16 +2324,24 @@ html.js .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 0.34s; }
   font-weight: 800;
   line-height: 1.3;
   text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  margin-top: 1.2rem;
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
-.workouts-catalogue:hover { background: #fff34c; transform: translateY(-1px); }
+.workouts-catalogue:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .workouts-catalogue span { font-size: 1.2rem; font-weight: 600; line-height: 1; }
+.workouts-catalogue-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--accent);
+}
+.workouts-catalogue-secondary:hover { background: var(--fill); }
 @media (max-width: 600px) {
   .workouts-shell { padding-top: 1.1rem; }
   .workouts-back { margin-top: 1.6rem; }
   .workouts-hero { padding-top: 3.15rem; padding-bottom: 3rem; }
   .workouts-hero h1 { font-size: clamp(2.35rem, 10vw, 3.3rem); }
+  .workouts-paths { grid-template-columns: 1fr; }
+  .workouts-path { padding: 1.1rem 1.2rem; }
 }
 
 /* Three genuine app screenshots, no image composites. */
