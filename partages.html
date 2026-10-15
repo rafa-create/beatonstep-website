@@ -55,6 +55,8 @@
     .pagination,.details-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .filter-picker label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     #results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    /* An explicit author display overrides the browser's default [hidden] rule. */
+    #catalog-toolbar[hidden],#results[hidden],#pages[hidden]{display:none!important}
     #results>.card{margin:0;min-width:0}
     #results .share-summary{min-height:285px;display:flex;flex-direction:column}
     #results .share-tree{flex:1}
@@ -352,7 +354,7 @@
       <ol id="records-collections" class="record-podium"></ol>
       <p id="records-privacy" class="sub">Un profil privé ou supprimé n’est jamais identifié. Les collections masquées ne figurent pas au classement.</p>
     </section>
-    <div id="results" aria-live="polite">Chargement…</div>
+    <div id="results" aria-live="polite"></div>
     <div class="pagination" id="pages"></div>
   </div>
   <div id="detail" hidden></div>
