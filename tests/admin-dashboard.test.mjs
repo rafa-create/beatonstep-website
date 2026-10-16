@@ -22,12 +22,18 @@ function fixture({authorized=true}={}){
             verified_runs:4,accounts:9};
         if(sql==='SELECT COUNT(*) AS total FROM sport_world_cards')
           return {total:2};
+        if(sql.includes('SELECT COUNT(*) AS total FROM community_users u'))
+          return {total:1};
         throw Error('Unknown admin first: '+sql);
       },
       async all(){
         if(sql.includes('FROM sport_world_cards c')){
           return {results:[{id:3,distance_cm:500000,time_unit:'minute',
             sub_value:25,owner_epoch:4,owner_handle:null,holder_count:3}]};
+        }
+        if(sql.includes('FROM community_users u')){
+          return {results:[{handle:'runner',created_at:1792100000000,
+            is_public:0,cards:2,runs:8}]};
         }
         throw Error('Unknown admin all: '+sql);
       },
@@ -44,7 +50,8 @@ function fixture({authorized=true}={}){
 
 test('public browser and community cookie cannot reach privileged overview or sport list',async()=>{
   const f=fixture({authorized:false});
-  for(const path of ['/api/admin/overview','/api/admin/sport/cards']){
+  for(const path of ['/api/admin/overview','/api/admin/sport/cards',
+    '/api/admin/accounts']){
     const r=await f.send(path,false);
     assert.equal(r.status,401);
     assert.deepEqual(await r.json(),{error:'admin_required'});
@@ -84,12 +91,42 @@ test('invalid admin sports filters fail without touching sport tables',async()=>
 });
 test('admin UI has named sections and no award or transfer action',()=>{
   const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
-  for(const name of ['overview','sessions','sports','tools'])
+  for(const name of ['overview','sessions','sports','accounts','tools'])
     assert.match(html,new RegExp('id="tab-'+name+'"'));
   assert.match(html,/id="sport-items"/);
+  assert.match(html,/id="account-items"/);
   assert.match(html,/id="admin-stats"/);
   assert.match(html,/\/api\/admin\/sport\/cards\?page=/);
   assert.match(html,/\/api\/shared\?kind=workout&sort=recent&page=/);
   assert.match(html,/confirm\('Réconcilier les séances/);
   assert.doesNotMatch(html,/\/api\/admin\/sport\/award|\/api\/admin\/sport\/transfer/);
+});
+
+test('admin account inspection requires a real admin session and hides emails',async()=>{
+  const f=fixture();
+  const r=await f.send('/api/admin/accounts?page=2&handle=runner');
+  assert.equal(r.status,200);
+  const body=await r.json();
+  assert.deepEqual(body,{page:2,pageSize:25,total:1,
+    items:[{handle:'runner',createdAt:1792100000000,
+      public:false,cards:2,runs:8}]});
+  const response=JSON.stringify(body);
+  assert.doesNotMatch(response,/owner@example|password|token|snapshot_json|run_id/);
+  const count=f.queries.find(q=>q.sql.includes('SELECT COUNT(*) AS total FROM community_users u'));
+  const list=f.queries.find(q=>q.sql.includes('LEFT JOIN community_profile_settings'));
+  assert.deepEqual(count.args,['runner*']);
+  assert.deepEqual(list.args,['runner*',25,25]);
+  assert.match(list.sql,/GLOB \?/);
+  assert.match(list.sql,/COALESCE\(settings.show_challenges,1\)/);
+  assert.match(list.sql,/COUNT\(\*\) FROM account_run_records/);
+});
+test('admin account search rejects wildcard injection and unrecognized parameters',async()=>{
+  const f=fixture();
+  for(const path of ['/api/admin/accounts?handle=%2A',
+    '/api/admin/accounts?handle=%3F','/api/admin/accounts?page=0',
+    '/api/admin/accounts?page=1&email=somebody']){
+    const res=await f.send(path);
+    assert.equal(res.status,400);
+  }
+  assert(!f.queries.some(q=>q.sql.includes('FROM community_users u')));
 });
