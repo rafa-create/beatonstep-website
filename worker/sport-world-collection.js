@@ -38,6 +38,25 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
          FROM sport_card_telemetry_reviews tr
          WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch)
       ` : '0'} AS performance_warning,
+      ${telemetryEnabled ? `EXISTS(SELECT 1 FROM sport_card_telemetry_reviews tr
+        JOIN sport_card_ownership_events e ON e.card_id=tr.card_id
+          AND e.new_epoch=tr.owner_epoch
+        WHERE tr.card_id=c.id AND tr.state='warning'
+          AND e.reason='sport_win' AND e.new_owner_id=a.user_id)` : '0'}
+        AS ghost_performance_warning,
+      ${telemetryEnabled ? `(SELECT sp.peak_speed_kmh
+        FROM sport_card_telemetry_speed_details sp
+        WHERE sp.card_id=c.id AND sp.owner_epoch=c.owner_epoch)` : 'NULL'}
+        AS current_peak_speed_kmh,
+      ${telemetryEnabled ? `(SELECT MAX(sp.peak_speed_kmh)
+        FROM sport_card_telemetry_speed_details sp
+        JOIN sport_card_telemetry_reviews tr
+          ON tr.card_id=sp.card_id AND tr.owner_epoch=sp.owner_epoch
+        JOIN sport_card_ownership_events e
+          ON e.card_id=tr.card_id AND e.new_epoch=tr.owner_epoch
+        WHERE tr.card_id=c.id AND tr.state='warning'
+          AND e.reason='sport_win' AND e.new_owner_id=a.user_id)` : 'NULL'}
+        AS ghost_peak_speed_kmh,
       a.first_validated_at,a.successful_runs,
       (SELECT e.changed_at FROM sport_card_ownership_events e
        WHERE e.card_id=c.id AND e.new_owner_id=?
@@ -98,7 +117,8 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
         distanceCm:row.distance_cm,timeUnit:row.time_unit,
         subValue:row.sub_value,difficulty:row.difficulty,
         currentlyOwned,ghost:!currentlyOwned&&acquiredAt!=null,
-        performanceWarning:currentlyOwned&&bool(row.performance_warning),
+        performanceWarning:currentlyOwned?bool(row.performance_warning):bool(row.ghost_performance_warning),
+        peakSpeedKmh:(currentlyOwned?row.current_peak_speed_kmh:row.ghost_peak_speed_kmh)??null,
         personallyValidated:validatedAt!=null,
         firstValidatedAt:validatedAt,
         successfulAttempts:Number(row.successful_runs)||0,
@@ -131,13 +151,15 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
       NULL AS run_id,
       ${telemetryEnabled ? `CASE WHEN e.reason='sport_win' AND tr.state='warning'
         THEN 1 ELSE 0 END AS performance_warning,
-        rd.reason_codes AS warning_reasons`
-        : '0 AS performance_warning,NULL AS warning_reasons'}
+        rd.reason_codes AS warning_reasons,spd.peak_speed_kmh AS peak_speed_kmh`
+        : '0 AS performance_warning,NULL AS warning_reasons,NULL AS peak_speed_kmh'}
     FROM sport_card_ownership_events e
     ${telemetryEnabled ? `LEFT JOIN sport_card_telemetry_reviews tr
       ON tr.card_id=e.card_id AND tr.owner_epoch=e.new_epoch
       LEFT JOIN sport_card_telemetry_reason_details rd
-      ON rd.card_id=e.card_id AND rd.owner_epoch=e.new_epoch` : ''}
+      ON rd.card_id=e.card_id AND rd.owner_epoch=e.new_epoch
+      LEFT JOIN sport_card_telemetry_speed_details spd
+      ON spd.card_id=e.card_id AND spd.owner_epoch=e.new_epoch` : ''}
     WHERE e.previous_owner_id=? OR e.new_owner_id=?
     UNION ALL
     SELECT r.verified_at AS happened_at,'run:'||r.run_id AS event_key,
@@ -146,7 +168,7 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
     FROM sport_verified_runs r WHERE r.user_id=?
   )
   SELECT e.happened_at,e.event_key,e.card_id,e.event_type,e.run_id,
-    e.performance_warning,e.warning_reasons,
+    e.performance_warning,e.warning_reasons,e.peak_speed_kmh,
     c.distance_cm,c.time_unit,c.sub_value
   FROM event_feed e JOIN sport_world_cards c ON c.id=e.card_id
   WHERE ?=0 OR e.happened_at<? OR
@@ -161,7 +183,8 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
     runId:row.run_id||null,
     ...(row.event_type==='won'&&bool(row.performance_warning)
       ?{performanceWarning:true,
-        warningReasons:readSportWarningReasons(row.warning_reasons)}
+        warningReasons:readSportWarningReasons(row.warning_reasons),
+        peakSpeedKmh:row.peak_speed_kmh??null}
       :{}),
   }));
   return respond({items:result.items,
