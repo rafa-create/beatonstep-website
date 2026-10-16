@@ -123,7 +123,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 </style></head><body><main>
 <header><a href="/">BeatOnStep</a><a href="/partages.html">← Catalogue</a></header>
-<h1 id="heading">Mon compte</h1><p id="intro">Retrouvez vos decks Séances et Défis, puis leurs historiques. La connexion reste facultative dans l’application.</p>
+<h1 id="heading">Mon compte</h1><p id="intro" hidden></p>
 <div class="notice" id="status" aria-live="polite">Vérification du compte…</div>
 <section id="signin" hidden><h2>Connexion</h2>
 <form id="signin-form"><label for="signin-email">E-mail</label><input type="email" id="signin-email" autocomplete="username" required>
@@ -175,7 +175,6 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div class="profile-visibility" id="profile-visibility">
 <h3>Visibilité de mon profil public</h3>
 <label for="show-public-challenges"><input id="show-public-challenges" type="checkbox" checked>Profil public (cartes Défis, cartes fantômes et séances enregistrées)</label>
-<p class="field-help">Profil public par défaut. Décochez cette option pour masquer votre collection et vos performances personnelles. Les séances musicales déjà partagées par lien restent accessibles.</p>
 <p class="field-help" id="visibility-status" role="status" aria-live="polite"></p>
 </div>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
@@ -188,8 +187,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   <button id="session-time" type="button" aria-pressed="true">Durée</button>
   <button id="session-distance" type="button" aria-pressed="false">Distance</button>
 </div>
-<div id="session-deck" hidden><div id="collection-panel" hidden><h2>Mes cartes de séances possédées</h2>
-<p>Une carte unique par séance, à découvrir et collectionner. Toutes les séances restent accessibles à la communauté.</p>
+<div id="session-deck" hidden><div id="collection-panel" hidden>
 <ul id="owned-cards"></ul>
 <div id="pack-panel" class="pack-game">
   <div class="pack-image" aria-hidden="true">
@@ -207,16 +205,14 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="saved-workouts-panel"><h2>Mes séances dans l’app</h2>
 <p id="saved-workouts-status">Chargement des programmes…</p>
 <ul id="saved-workouts-items"></ul></div></div>
-<div id="challenge-deck"><h2>Mes défis sportifs</h2>
+<div id="challenge-deck">
 <a id="account-records-link" class="account-records-link" href="/partages.html?kind=challenge&amp;view=records">Voir les records des cartes →</a>
-<p>Les trophées mondiaux apparaîtront après activation des validations sportives.
-Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <ul id="challenge-deck-cards"></ul></div>
 <div id="history-deck"><h2 id="history-heading">Historique · Défis</h2>
 <div id="history-sessions-panel" hidden><p id="history-sessions-info">Chargement…</p>
 <ul id="history-sessions-items"></ul>
 <button id="history-more" type="button" class="secondary" hidden>Afficher plus de séances</button></div>
-<div id="history-challenges-panel"><p id="history-challenges-info">Les réussites validées apparaîtront ici après activation du moteur sportif.</p>
+<div id="history-challenges-panel"><p id="history-challenges-info" aria-live="polite"></p>
 <ul id="history-challenges-items"></ul></div></div>
 <div class="actions"><button class="secondary" type="button" id="delete-open">Supprimer mon compte</button></div>
 <div id="delete-panel" hidden><p>La suppression retire votre signature des anciennes séances et révoque les connexions. Les cartes restent anonymes.</p>
@@ -609,8 +605,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         deck.append(empty);
       }
     }catch{
-      $('history-challenges-info').textContent='Les défis sportifs seront accessibles après '
-        +'activation de leur validation par le serveur.';
+      $('history-challenges-info').textContent='Défis indisponibles pour le moment.';
       $('history-challenges-items').replaceChildren();
       $('challenge-deck-cards').replaceChildren();
     }
@@ -729,10 +724,12 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         ?'Connecte-toi ou crée un compte pour accepter ta carte cadeau BeatOnStep. Le lien restera disponible après la connexion.'
         :'Connexion facultative : les visiteurs peuvent continuer à partager anonymement.');
       if(giftCode){$('heading').textContent='Ta carte cadeau t’attend';
+        $('intro').hidden=false;
         $('intro').textContent='Crée ton compte ou connecte-toi pour recevoir la carte dans ta collection.';}
       return;
     }
     panel('account');currentHandle=me.handle;
+    $('intro').hidden=true;
     // Link access is cosmetic; /admin.html always checks admin credentials.
     $('admin-entry').hidden=me.adminEligible!==true;
     $('hello').textContent='Connecté : @'+me.handle;
@@ -1036,7 +1033,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         pace?'Allure moyenne : '+pace:null].filter(Boolean).join(' · ');
       const label=document.createElement('p');
       label.className='small';
-      label.textContent='Séance enregistrée (ne constitue pas une validation sportive).';
+      label.textContent='Séance enregistrée';
       li.append(heading,meta,label);list.append(li);
     }
   }
@@ -1063,7 +1060,6 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   (async()=>{
     if(handle){
       panel('public-profile');$('heading').textContent='Profil de coureur';
-      $('intro').textContent='Ses séances en musique et ses cartes Défis.';
       try{
         const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
         publicProfileData=data;
@@ -1074,10 +1070,8 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
           publicSelectedDeck='challenges';
           await BeatOnStepSportPercentiles.ready();
           renderPublicChallenges(data.challenges||[],data.ghosts||[]);
-          $('intro').textContent='Ses cartes Défis, séances musicales et courses enregistrées.';
         }else{
           publicSelectedDeck='sessions';
-          $('intro').textContent='Ce coureur a choisi un profil privé.';
         }
         showPublicDeck();
         status('Profil public.');

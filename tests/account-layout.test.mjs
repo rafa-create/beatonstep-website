@@ -84,3 +84,25 @@ test('owned, gifted and ghost sporting cards open the exact public detail URL',(
   assert.match(html,/for\(const card of ghosts\)addCard\(card,'ghost'\)/);
   assert.match(html,/renderPublicChallenges\(data\.challenges\|\|\[\],data\.ghosts\|\|\[\]\)/);
 });
+
+test('minimal profile copy keeps distinct deck titles and actionable controls',()=>{
+  assert.match(html,/<h1 id="heading">Mon compte<\/h1><p id="intro" hidden><\/p>/);
+  assert.match(html,/\$\('deck-heading'\)\.textContent=sessions\?'Mes cartes de séances':'Mes cartes Défi'/);
+  assert.doesNotMatch(html,/<h2>Mes défis sportifs<\/h2>/);
+  assert.doesNotMatch(html,/<h2>Mes cartes de séances possédées<\/h2>/);
+  assert.match(html,/id="account-records-link"/);
+  assert.match(html,/id="challenge-deck-cards"/);
+  assert.match(html,/id="owned-cards"/);
+  assert.match(html,/id="show-public-challenges"/);
+  for(const redundant of [
+    'Les trophées mondiaux apparaîtront',
+    'Les courses sont normales',
+    'Une carte unique par séance, à découvrir',
+    'Retrouvez vos decks Séances et Défis',
+    'Profil public par défaut. Décochez',
+    'Séance enregistrée (ne constitue pas une validation sportive)',
+  ])assert.ok(!html.includes(redundant),'remove old redundant copy: '+redundant);
+  assert.match(html,/label\.textContent='Séance enregistrée';/);
+  assert.match(html,/if\(giftCode\)\{\$\('heading'\)\.textContent='Ta carte cadeau t’attend';/);
+  assert.match(html,/\$\('intro'\)\.hidden=false;/);
+});
