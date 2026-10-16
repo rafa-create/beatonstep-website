@@ -160,30 +160,44 @@ test('sport card presentations use mm:ss SUB above a minute without blue mobile 
 });
 
 
-test('all seven web challenge finishes preserve the canonical mobile accent colors',()=>{
-  const css=read('sport-card-face.css');
-  const expected={
-    beginner:'#8E969A',amateur:'#AD7856',regular:'#C5AC67',
-    intermediate:'#55977B',expert:'#587DB3',legend:'#9370AB',
-    world_elite:'#B65767',
-  };
-  for(const [difficulty,accent] of Object.entries(expected)){
-    assert.ok(css.includes('.sport-skin--'+difficulty+'{--sport-accent:'+accent+';'),
-      'web '+difficulty+' must keep the same accent as mobile');
+test('compiled web skins are derived from the same official seven-level JSON',()=>{
+  const manifest=JSON.parse(read('sport-card-rules.json'));
+  const css=read('dist/sport-card-face.css');
+  const sourceCss=read('sport-card-face.css');
+  const sourceJs=read('sport-card-face.js');
+  const helper=read('dist/sport-card-face.js');
+  assert.deepEqual(Object.keys(manifest.cardVisuals).sort(),
+    [...manifest.tierOrder].sort());
+  assert.doesNotMatch(sourceCss,/\.sport-skin--\w+\{--sport-accent:/,
+    'the source CSS must contain no hand-maintained level colors');
+  assert.match(sourceCss,/\/\*__SPORT_CARD_COLORS__\*\//);
+  assert.match(sourceJs,/\/\*__SPORT_CARD_LEVELS__\*\//);
+  assert.doesNotMatch(helper,/__SPORT_CARD_LEVELS__/,
+    'the deployed script must contain compiled levels, not a placeholder');
+  const ctx={};
+  vm.runInNewContext(helper,ctx);
+  for(const [i,tier] of [...manifest.tierOrder].reverse().entries()){
+    const {accent,shade,symbol}=manifest.cardVisuals[tier];
+    assert.match(accent,/^#[0-9A-F]{6}$/);
+    assert.match(shade,/^#[0-9A-F]{6}$/);
+    assert.ok(css.includes('.sport-skin--'+tier+
+      '{--sport-accent:'+accent+';--sport-shade:'+shade+'}'));
+    assert.equal(ctx.BeatOnStepSportCards.levels[tier][2],symbol);
+    assert.equal(ctx.BeatOnStepSportCards.levels[tier][3],i+1);
   }
-  const helper=read('sport-card-face.js');
+  assert.doesNotMatch(css,/\/\*__SPORT_CARD_COLORS__\*\//);
   assert.doesNotMatch(css,/\.bos-sport-face\.sport-finish--400m\{--sport-accent:/);
   assert.doesNotMatch(css,/\.bos-sport-face\.sport-finish--5k\{--sport-accent:/);
   assert.match(css,/color-mix\(in srgb,var\(--sport-accent\) 23%,transparent\)/);
   assert.match(helper,/item\?\.distanceCm===40000\?' sport-finish--400m'/);
   assert.match(helper,/item\?\.distanceCm===500000\?' sport-finish--5k'/);
   assert.match(helper,/CARTE UNIQUE AU MONDE/);
-  assert.doesNotMatch(read('sport-card-face.js'),/1\s*\/\s*1/);
+  assert.doesNotMatch(helper,/1\s*\/\s*1/);
 });
 
 test('sport card faces keep seven difficulty finishes and honour marathon at every level',()=>{
-  const helper=read('sport-card-face.js');
-  const css=read('sport-card-face.css');
+  const helper=read('dist/sport-card-face.js');
+  const css=read('dist/sport-card-face.css');
   const ctx={};
   vm.runInNewContext(helper,ctx);
   const api=ctx.BeatOnStepSportCards;
