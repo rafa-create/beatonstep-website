@@ -4,6 +4,7 @@ import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
 import {createSportGift,previewSportGift,claimSportGift} from './sport-world-gifts.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
+import {processPendingSportWarningEmails} from './sport-warning-email.js';
 import {enqueueSportTelemetryReview,ensureSportTelemetrySchema,
   processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 import { packState,openPack,myCollection,myChallengeAchievements,giftStatus,claimGift,createGift,cardProfile,workoutCardType } from './pack.js';
@@ -443,6 +444,7 @@ export async function accountRequest(request,env,url,ctx) {
                     peakSpeedKmh:review.peakSpeedKmh,
                   });
                 await processPendingSportTelemetryReviews(db);
+                await processPendingSportWarningEmails(db,env);
               })().catch(()=>{console.warn('sport review processing unavailable');});
               if(ctx?.waitUntil)ctx.waitUntil(task);
               else void task;

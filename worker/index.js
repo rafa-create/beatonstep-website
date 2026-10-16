@@ -8,6 +8,7 @@ import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
 import { readSportRecords } from './sport-records.js';
 import {ensureSportTelemetrySchema,processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
+import {processPendingSportWarningEmails} from './sport-warning-email.js';
 
 // BeatOnStep Cloudflare Worker: static website + optional D1 public catalogue.
 // The legacy mode is intentional until the mobile app and website are switched together.
@@ -467,6 +468,7 @@ export default {
     ctx.waitUntil((async()=>{
       await ensureSportTelemetrySchema(env.DB);
       await processPendingSportTelemetryReviews(env.DB);
+      await processPendingSportWarningEmails(env.DB,env);
     })().catch(()=>{console.warn('sport telemetry review queue unavailable');}));
   },
 };
