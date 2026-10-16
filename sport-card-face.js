@@ -66,7 +66,7 @@ var BeatOnStepSportCards=(function(){
       const warning=typeof item?.peakSpeedKmh==='number'
         ?say('⚠ Pointe GPS : ','⚠ GPS peak: ',lang)+
           item.peakSpeedKmh.toLocaleString(lang==='en'?'en-US':'fr-FR')+' km/h'
-        :say('⚠ Anomalie GPS','⚠ GPS anomaly',lang);
+        :say('⚠ Performance à vérifier','⚠ Performance to review',lang);
       foot.append(create('span','bos-sport-warning-label',warning));
     }
     face.append(top,art,foot);
