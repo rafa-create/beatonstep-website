@@ -203,8 +203,9 @@ function validGpsTrack(track,start,elapsed){
   const points=[];
   let prev=0;
   for(const p of track){
-    if(!Array.isArray(p)||p.length!==3||
+    if(!Array.isArray(p)||(p.length!==3&&p.length!==4)||
        p.some(v=>typeof v!=='number'||!Number.isFinite(v))||
+       (p.length===4&&(p[3]<-500||p[3]>9000))||
        p[0]<-90||p[0]>90||p[1]<-180||p[1]>180||
        !Number.isSafeInteger(p[2])||p[2]<=prev||
        p[2]<start-300000||p[2]>start+elapsed*1000+300000)return false;
@@ -246,7 +247,7 @@ export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadenc
   const iso=ms=>new Date(ms).toISOString();
   const samples=cadenceSamples||[];
   let cadenceIndex=0;
-  const trackPoint=([lat,lon,time])=>{
+  const trackPoint=([lat,lon,time,alt])=>{
     // Both sequences are chronological: match measured sensor PPM in O(N+M).
     // TCX RunCadence is strides/min, while BeatOnStep measures steps/min.
     while(cadenceIndex+1<samples.length && samples[cadenceIndex+1][0]<=time)
@@ -261,9 +262,10 @@ export function buildStravaTcx({start,elapsed,distance,gps,heart,maxHeart,cadenc
       ?'<Extensions><ns3:TPX><ns3:RunCadence>'+Math.round(nearest[1]/2)+
         '</ns3:RunCadence></ns3:TPX></Extensions>'
       :'';
+    const altitude=alt===undefined?'':'<AltitudeMeters>'+alt+'</AltitudeMeters>';
     return '<Trackpoint><Time>'+iso(time)+'</Time><Position>'+
       '<LatitudeDegrees>'+lat+'</LatitudeDegrees><LongitudeDegrees>'+lon+
-      '</LongitudeDegrees></Position>'+cadenceXml+'</Trackpoint>';
+      '</LongitudeDegrees></Position>'+altitude+cadenceXml+'</Trackpoint>';
   };
   const lap=[
     '<Lap StartTime="'+iso(start)+'">',

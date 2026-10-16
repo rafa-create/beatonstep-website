@@ -554,3 +554,12 @@ test('Strava private route is returned temporarily to its athlete without D1 sto
     assert.equal(result.elevationGainMeters,52.5);
   }finally{globalThis.fetch=original;}
 });
+
+test('measured native altitude survives TCX export without invented elevation',()=>{
+  const now=Date.now()-80000;
+  const xml=buildStravaTcx({start:now,elapsed:30,distance:110,
+    gps:[[43.1,5.2,now,120.4],[43.102,5.202,now+30000]],
+    heart:null,maxHeart:null,cadence:null,pace:null});
+  assert.match(xml,/<AltitudeMeters>120\.4<\/AltitudeMeters>/);
+  assert.equal((xml.match(/<AltitudeMeters>/g)||[]).length,1);
+});
