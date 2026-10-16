@@ -37,13 +37,14 @@ test('explanations are immutable reason codes attached to an award epoch',async(
   await enqueueSportTelemetryReview(db,9,3,true,{
     now:5000,reasonCodes:['implausible_speed','inconsistent_crossings','nonsense'],
   });
-  assert.equal(statements.length,2);
+  assert.equal(statements.length,3);
   assert.match(statements[0].sql,/FROM sport_card_ownership_events e/);
   assert.doesNotMatch(statements[0].sql,/current_owner_id/);
   assert.match(statements[1].sql,/sport_card_telemetry_reason_details/);
   assert.match(statements[1].sql,/ON CONFLICT\(card_id,owner_epoch\) DO NOTHING/);
   assert.deepEqual(statements[1].args,[9,3,
     '["implausible_speed","inconsistent_crossings"]']);
+  assert.match(statements[2].sql,/sport_card_telemetry_mail_delivery/);
   assert.deepEqual(readSportWarningReasons('["implausible_speed","invalid_pause_duration"]'),
     ['implausible_speed','invalid_pause_duration']);
   assert.deepEqual(readSportWarningReasons('invalid JSON'),[]);

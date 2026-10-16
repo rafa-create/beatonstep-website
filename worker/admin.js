@@ -246,7 +246,7 @@ async function sportWarnings(db,request,url){
       "SELECT COUNT(*) AS total FROM sport_card_telemetry_reviews WHERE state='warning'"
     ).first();
     const rows=await db.prepare(`SELECT tr.card_id,tr.owner_epoch,tr.created_at,
-        tr.reviewed_at,rd.reason_codes,c.distance_cm,c.time_unit,c.sub_value,
+        tr.reviewed_at,rd.reason_codes,spd.peak_speed_kmh,c.distance_cm,c.time_unit,c.sub_value,
         CASE WHEN COALESCE(pref.show_challenges,1)=1
           THEN athlete.handle ELSE NULL END AS athlete_handle,
         e.changed_at AS earned_at,
@@ -255,6 +255,8 @@ async function sportWarnings(db,request,url){
       JOIN sport_world_cards c ON c.id=tr.card_id
       LEFT JOIN sport_card_telemetry_reason_details rd
         ON rd.card_id=tr.card_id AND rd.owner_epoch=tr.owner_epoch
+      LEFT JOIN sport_card_telemetry_speed_details spd
+        ON spd.card_id=tr.card_id AND spd.owner_epoch=tr.owner_epoch
       LEFT JOIN sport_card_ownership_events e
         ON e.card_id=tr.card_id AND e.new_epoch=tr.owner_epoch
         AND e.reason='sport_win'
@@ -272,6 +274,7 @@ async function sportWarnings(db,request,url){
         earnedAt:Number.isSafeInteger(row.earned_at)?row.earned_at:null,
         reviewedAt:Number.isSafeInteger(row.reviewed_at)?row.reviewed_at:null,
         reasons:readSportWarningReasons(row.reason_codes),
+        peakSpeedKmh:typeof row.peak_speed_kmh==='number'?row.peak_speed_kmh:null,
         currentEpoch:row.current_epoch===1,
       }))});
   }catch(error){
@@ -279,6 +282,34 @@ async function sportWarnings(db,request,url){
     console.error('sport warnings read unavailable',String(error?.name||'unknown'));
     return respond({error:'telemetry_unavailable'},503);
   }
+}
+
+async function liftSportWarning(db,request){
+  if(!verifyOrigin(request))return respond({error:'origin_forbidden'},403);
+  const admin=await currentAdmin(db,request);
+  if(!admin)return respond({error:'admin_required'},401);
+  const body=await parseBody(request);
+  const cardId=body?.cardId,epoch=body?.ownerEpoch;
+  if(!Number.isSafeInteger(cardId)||cardId<1||
+     !Number.isSafeInteger(epoch)||epoch<1)
+    return respond({error:'invalid_warning'},400);
+  const at=Date.now();
+  // Audit + warning clearance are one transaction. Ownership is untouched.
+  const results=await db.batch([
+    db.prepare(`INSERT INTO sport_card_telemetry_admin_actions
+      (card_id,owner_epoch,admin_email,action,created_at)
+      SELECT card_id,owner_epoch,?,'lift_warning',?
+      FROM sport_card_telemetry_reviews
+      WHERE card_id=? AND owner_epoch=? AND state='warning'`)
+      .bind(admin.email,at,cardId,epoch),
+    db.prepare(`UPDATE sport_card_telemetry_reviews
+      SET state='clear',reviewed_at=?
+      WHERE card_id=? AND owner_epoch=? AND state='warning'`)
+      .bind(at,cardId,epoch),
+  ]);
+  if(Number(results[1]?.meta?.changes)!==1)
+    return respond({error:'warning_already_cleared'},409);
+  return respond({cleared:true,cardId,ownerEpoch:epoch});
 }
 
 // Protected account inventory: public handles and aggregate counts only,
@@ -332,6 +363,8 @@ export async function adminRequest(request, env, url) {
       return sportCards(env.DB,request,url);
     if (path === '/api/admin/sport/warnings' && method === 'GET')
       return sportWarnings(env.DB,request,url);
+    if (path === '/api/admin/sport/warnings/lift' && method === 'POST')
+      return liftSportWarning(env.DB,request);
     if (path === '/api/admin/accounts' && method === 'GET')
       return accounts(env.DB,request,url);
     if (path === '/api/admin/login' && method === 'POST') return await login(env.DB, env, request);

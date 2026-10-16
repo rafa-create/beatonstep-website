@@ -121,8 +121,7 @@
         <h2>Performances Défis avec un warning</h2>
         <p class="muted">Toutes les alertes enregistrées, y compris les anciens détenteurs.
           Une alerte n'annule pas automatiquement une victoire.
-          Les suppressions sont désactivées tant que leurs effets sur les cartes et
-          les historiques ne sont pas définis.</p>
+          Seul le warning peut être levé : la carte et l'historique restent intacts.</p>
         <ul class="items" id="warning-items"></ul>
         <div class="pagination">
           <button type="button" id="warning-previous">← Précédent</button>
@@ -199,6 +198,7 @@
       const loaders={overview:loadOverview,sessions:loadItems,
         sports:loadSportItems,warnings:loadWarnings,
         accounts:loadAccounts,tools:async()=>{}};
+      location.hash=name;
       loaders[name]().catch(e=>status(e.message));
     }
     async function loadOverview(){
@@ -270,17 +270,35 @@
         const reasons=warning.reasons.length
           ?warning.reasons.map(code=>warningNames[code]||'Motif inconnu').join(' · ')
           :'Motif non conservé';
+        const peak=typeof warning.peakSpeedKmh==='number'
+          ?'⚠ Pointe GPS : '+warning.peakSpeedKmh.toLocaleString('fr-FR')+' km/h · '
+          :'';
         const date=warning.earnedAt?new Date(warning.earnedAt).toLocaleDateString('fr-FR'):'Date indisponible';
         meta.textContent='Carte #'+warning.cardId+' · Époque '+warning.ownerEpoch+
           ' · '+date+' · '+(warning.owner?'@'+warning.owner:'Compte privé')+
           ' · '+(warning.currentEpoch?'Détenteur actuel':'Ancien détenteur')+
-          ' · '+reasons;
+          ' · '+peak+reasons;
         info.append(title,meta);
         const link=document.createElement('a');
         link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(warning.cardId);
         link.textContent='Consulter la carte et son historique';
         link.target='_blank';link.rel='noopener noreferrer';
-        li.append(info,link);list.append(li);
+        const lift=document.createElement('button');
+        lift.type='button';lift.className='primary';
+        lift.textContent='Lever le warning';
+        lift.addEventListener('click',async()=>{
+          if(!confirm('Lever définitivement ce warning ? La carte sera conservée.'))return;
+          lift.disabled=true;
+          try{
+            await api('/api/admin/sport/warnings/lift',{
+              method:'POST',headers:{'content-type':'application/json'},
+              body:JSON.stringify({cardId:warning.cardId,ownerEpoch:warning.ownerEpoch}),
+            });
+            status('Warning levé, sans changement de détenteur.');
+            await loadWarnings();
+          }catch(error){status(error.message);lift.disabled=false;}
+        });
+        li.append(info,link,lift);list.append(li);
       }
       const max=Math.max(1,Math.ceil(data.total/data.pageSize));
       byId('warning-position').textContent='Page '+warningPage+' / '+max+
@@ -429,7 +447,7 @@
         byId('login-form').reset();
         showAdmin(admin);
         page = 1;
-        showTab('overview');
+        showTab(location.hash==='#warnings'?'warnings':'overview');
         status('Session administrateur active.');
       } catch (error) { status(error.message); }
       finally { button.disabled = false; }
@@ -483,7 +501,7 @@
         const current = await api('/api/admin/me');
         showAdmin(current.authenticated ? current : null);
         if (current.authenticated) {
-          showTab('overview');
+          showTab(location.hash==='#warnings'?'warnings':'overview');
           status('Session administrateur active.');
         } else status('Connexion administrateur requise.');
       } catch (error) { showAdmin(null); status(error.message); }
