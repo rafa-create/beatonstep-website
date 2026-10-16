@@ -73,7 +73,10 @@ test('world awards are separately gated and require server evidence',()=>{
   const account=readFileSync(new URL('../worker/account.js',import.meta.url),'utf8');
   const migration=readFileSync(new URL(
     '../migrations/0015_strava_activity_award_claims.sql',import.meta.url),'utf8');
-  assert.equal(wrangler.vars.STRAVA_IMPORT_AWARDS_ENABLED,'false');
+  assert.equal(wrangler.vars.STRAVA_API_ENABLED,'true');
+  assert.equal(wrangler.vars.STRAVA_EXPORT_ENABLED,undefined);
+  assert.equal(wrangler.vars.STRAVA_IMPORT_AWARDS_ENABLED,undefined);
+  assert.equal(wrangler.previews.vars.STRAVA_API_ENABLED,'false');
   assert.match(worker,/devicePublisher\(env\.DB,request\)/);
   assert.match(worker,/stravaGet\(token/);
   assert.match(worker,/strava_activity_award_claims/);
