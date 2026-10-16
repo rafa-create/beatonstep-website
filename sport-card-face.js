@@ -2,15 +2,7 @@
    Mirror mobile-app/src/utils/sportCardVisual.ts for visual design tokens. */
 var BeatOnStepSportCards=(function(){
   'use strict';
-  const levels={
-    beginner:['Débutant','Beginner','✦',1],
-    amateur:['Amateur','Amateur','✧',2],
-    regular:['Régulier','Regular','◆',3],
-    intermediate:['Intermédiaire','Intermediate','◇',4],
-    expert:['Expert','Expert','✶',5],
-    legend:['Légende','Legend','✹',6],
-    world_elite:['Élite mondiale','World elite','✷',7],
-  };
+  const levels=/*__SPORT_CARD_LEVELS__*/{};
   function signature(cm){
     if(cm===40000)return ['400','SPRINT',true];
     if(cm===80000)return ['800','DEMI-FOND',true];
