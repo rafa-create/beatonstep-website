@@ -750,8 +750,8 @@
   function sportWarningDetails(event){
     if(event.performanceWarning!==true)return null;
     const names={
-      implausible_speed:fr('Vitesse moyenne supérieure à 45 km/h',
-                            'Average speed above 45 km/h'),
+      implausible_speed:fr('Vitesse anormale mesurée',
+                            'Unusual speed measured'),
       invalid_pause_duration:fr('Durée des pauses incohérente',
                                 'Inconsistent pause duration'),
       inconsistent_crossings:fr('Points de passage incohérents',
@@ -760,7 +760,9 @@
     const reasons=Array.isArray(event.warningReasons)
       ?event.warningReasons.filter(code=>Object.hasOwn(names,code)).map(code=>names[code])
       :[];
-    return fr('⚠ Performance non validée : ','⚠ Performance not validated: ')+
+    const peak=Number.isFinite(event.peakSpeedKmh)
+      ?fr('Pointe GPS : ','GPS peak: ')+event.peakSpeedKmh.toLocaleString(lang==='fr'?'fr-FR':'en-US')+' km/h · ':'';
+    return fr('⚠ Performance à vérifier : ','⚠ Performance to review: ')+peak+
       (reasons.length?reasons.join(' · '):
         fr('Motif non conservé','Reason not retained'));
   }
@@ -791,7 +793,9 @@
     summary.append(face,copy);
     if(item.performanceWarning===true)
       copy.append(el('p','sport-warning',
-        fr('⚠ Performance non validée','⚠ Performance not validated')));
+        Number.isFinite(item.peakSpeedKmh)
+          ?fr('⚠ Pointe GPS : ','⚠ GPS peak: ')+item.peakSpeedKmh.toLocaleString(lang==='fr'?'fr-FR':'en-US')+' km/h'
+          :fr('⚠ Performance à vérifier','⚠ Performance to review')));
     if(!detailed&&!inFocus){
       summary.tabIndex=0;
       summary.setAttribute('role','button');

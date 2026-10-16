@@ -164,7 +164,7 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
     UNION ALL
     SELECT r.verified_at AS happened_at,'run:'||r.run_id AS event_key,
       r.card_id,'verified' AS event_type,r.run_id,
-      0 AS performance_warning,NULL AS warning_reasons
+      0 AS performance_warning,NULL AS warning_reasons,NULL AS peak_speed_kmh
     FROM sport_verified_runs r WHERE r.user_id=?
   )
   SELECT e.happened_at,e.event_key,e.card_id,e.event_type,e.run_id,

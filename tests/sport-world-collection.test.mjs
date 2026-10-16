@@ -121,5 +121,6 @@ test('private history explains only the runner own sporting wins, not the winner
   assert.deepEqual(body.items[1].warningReasons,['invalid_pause_duration']);
   assert.match(db.sql,/tr.owner_epoch=e.new_epoch/);
   assert.match(db.sql,/rd.owner_epoch=e.new_epoch/);
-  assert.match(db.sql,/NULL AS warning_reasons/);
+  assert.match(db.sql,/NULL AS warning_reasons,NULL AS peak_speed_kmh/,
+    'both UNION arms expose the same telemetry columns');
 });
