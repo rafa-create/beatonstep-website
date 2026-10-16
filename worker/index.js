@@ -390,7 +390,7 @@ export default {
         return adminRequest(request, env, url);
       }
       if (url.pathname.startsWith('/api/strava/')) {
-        return stravaRequest(request, env, url);
+        return stravaRequest(request, env, url, ctx);
       }
       // Public, consent-aware sporting podiums; read existing D1 ledger only.
       if (url.pathname === '/api/sport/records') {

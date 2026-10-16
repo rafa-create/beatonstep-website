@@ -8,7 +8,7 @@ import {SPORT_CARD_DISTANCES,evaluateSportCardCandidate,longestSportDistance}
 
 const allowedSources=new Set([
   'garmin_watch_saved','garmin_mobile_stop','garmin_live_recap',
-  'phone_gps',
+  'phone_gps','strava_import',
 ]);
 const finite=(n,min,max)=>typeof n==='number'&&Number.isFinite(n)
   &&n>=min&&n<=max;
@@ -42,6 +42,8 @@ export function evaluateOfflineSportSummary(summary){
   // Sporting plausibility is advisory; keep identity and base measurements
   // mandatory, but do not withhold a usable card for telemetry anomalies.
   const warningReasons=[];
+  if(summary.distanceSource==='strava_import'&&summary.stravaFlagged===true)
+    warningReasons.push('strava_flagged');
   if(summary.pausedDurationMs!=null&&
      !finite(summary.pausedDurationMs,0,elapsedMs))
     warningReasons.push('invalid_pause_duration');

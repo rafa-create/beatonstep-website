@@ -465,6 +465,9 @@ export async function accountRequest(request,env,url,ctx) {
         return reply({error:'retry_later'},429);
       const payload=await jsonBody(request);
       if(!payload)return reply({error:'invalid_payload'},400);
+      // Only the server-side Strava adapter can attest this source.
+      if(payload.summary?.distanceSource==='strava_import')
+        return reply({error:'server_verified_source_only'},400);
       return reconcileOfflineSportResult(db,member.id,payload,{
         onAward:env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
           ?review=>{

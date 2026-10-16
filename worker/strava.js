@@ -2,6 +2,8 @@
 // No raw geographic fixes or native GPS upload in the OTA delivery.
 // Requires STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_ENCRYPTION_KEY and D1 migration.
 // No client-side Strava secret. Never log access/refresh tokens or authorization codes.
+import {claimLatestStravaSport} from './strava-world-award.js';
+
 const PREFIX = '/api/strava';
 const SITE = 'https://beatonstep.app';
 const CALLBACK = SITE + PREFIX + '/callback';
@@ -482,7 +484,7 @@ async function recentRuns(env,row){
   }
   return reply({items});
 }
-export async function stravaRequest(request, env, url) {
+export async function stravaRequest(request, env, url, ctx=null) {
   const path = url.pathname;
   // One server-side boolean controls both mobile surfaces and every Strava
   // endpoint. The app can ask for this safely without contacting Strava.
@@ -526,6 +528,13 @@ export async function stravaRequest(request, env, url) {
     }
     if (path === PREFIX+'/activities' && request.method === 'GET') {
       return recentRuns(env,await connection(env.DB,device));
+    }
+    if(path===PREFIX+'/claim-latest'&&request.method==='POST'){
+      const row=await connection(env.DB,device);
+      if(!row)return reply({error:'not_connected'},401);
+      const token=env.STRAVA_IMPORT_AWARDS_ENABLED==='true'
+        ?await accessToken(env,row):null;
+      return claimLatestStravaSport(request,env,row,token,ctx);
     }
     if (path === PREFIX+'/publish' && request.method === 'POST') {
       return publish(request,env,device,await connection(env.DB,device));

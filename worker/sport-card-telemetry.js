@@ -5,6 +5,7 @@
 // Warning reasons use a small, stable public vocabulary, not raw GPS data.
 const REASON_CODES=new Set([
   'implausible_speed','invalid_pause_duration','inconsistent_crossings',
+  'strava_flagged',
 ]);
 export function readSportWarningReasons(raw){
   try{

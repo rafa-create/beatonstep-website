@@ -8,7 +8,6 @@ export function classifyStravaSportImport(activity,streams){
     return {eligible:false,reason:'not_a_run'};
   if(activity.manual===true)return {eligible:false,reason:'manual_activity'};
   if(activity.manual!==false)return {eligible:false,reason:'recording_unknown'};
-  if(activity.athlete_count>1)return {eligible:false,reason:'group_activity'};
   const startedAtMs=Date.parse(activity.start_date||'');
   const elapsed=activity.elapsed_time,meters=activity.distance;
   if(!Number.isSafeInteger(startedAtMs)||startedAtMs<Date.UTC(2020,0,1)||
