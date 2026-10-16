@@ -116,6 +116,7 @@ function safeRun(raw){
     stepCount:num(s.stepCount,1,10000000),
     distanceMeters:num(s.distanceMeters,0,10000000),
     averagePaceSecPerKm:num(s.averagePaceSecPerKm,1,86400),
+    elevationGainMeters:num(s.elevationGainMeters,0,30000),
     averageHeartRateBpm:num(s.averageHeartRateBpm,20,300),
     maxHeartRateBpm:num(s.maxHeartRateBpm,20,300),
     distanceSource:['garmin_mobile_stop','garmin_watch_saved','garmin_live_recap',

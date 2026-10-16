@@ -182,3 +182,19 @@ test('repeat deletion is idempotent and invalid identifiers are rejected',async(
   const rejected=await accountLibraryRequest(request(invalid,'DELETE'),db,url(invalid),'owner-A');
   assert.equal(rejected.status,404);
 });
+
+test('import D+ survives private account sync but exact geo coordinates never reach D1',async()=>{
+  let stored;
+  const db={prepare(){return {bind(...params){stored=JSON.parse(params[2]);
+    return {async run(){return {meta:{changes:1}};}};}}}};
+  const summary={...validSummary(),elevationGainMeters:218.5,
+    geoRoute:[[43.3,5.38],[43.301,5.382]]};
+  const endpoint='/api/account/device/library/runs';
+  const result=await accountLibraryRequest(request(endpoint,'POST',{
+    run:{runId:'run-1791900000000-1791901800000',summary},
+  }),db,url(endpoint),'private-runner');
+  assert.equal(result.status,201);
+  assert.equal(stored.elevationGainMeters,218.5);
+  assert.equal(stored.geoRoute,undefined);
+  assert.deepEqual(stored.runRoute,[[0,500],[1000,500]]);
+});
