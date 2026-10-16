@@ -89,10 +89,14 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   const evidence=classifyStravaSportImport(activity,streams.data||null);
   if(!evidence.eligible)
     return reply({status:'history_only',reason:evidence.reason});
+  const runId='run-'+evidence.startedAtMs+'-'+evidence.endedAtMs;
+  // A crash after the atomic sporting award but before the Strava receipt
+  // is retryable by this same claimant: the existing run has identical ID.
   const duplicate=await env.DB.prepare(
-    'SELECT 1 AS match FROM sport_verified_runs WHERE user_id=? AND completed_at BETWEEN ? AND ? LIMIT 1')
+    'SELECT run_id FROM sport_verified_runs WHERE user_id=? AND completed_at BETWEEN ? AND ? LIMIT 1')
     .bind(member.id,evidence.endedAtMs-30000,evidence.endedAtMs+30000).first();
-  if(duplicate)return reply({status:'history_only',reason:'already_recorded_beatonstep'});
+  if(duplicate&&duplicate.run_id!==runId)
+    return reply({status:'history_only',reason:'already_recorded_beatonstep'});
   const summary={
     startedAtMs:evidence.startedAtMs,endedAtMs:evidence.endedAtMs,
     distanceMeters:evidence.distanceMeters,distanceSource:'strava_import',
@@ -102,7 +106,6 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   const candidate=evaluateOfflineSportSummary(summary);
   if(candidate.status!=='candidate')
     return reply({status:'history_only',reason:candidate.reason||'below_threshold'});
-  const runId='run-'+evidence.startedAtMs+'-'+evidence.endedAtMs;
   // First valid trophy attempt binds the Strava athlete to one BeatOnStep
   // account. Reinstalls and account switches do NOT reset that relationship.
   await env.DB.prepare(
