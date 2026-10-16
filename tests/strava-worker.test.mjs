@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { stravaRequest } from '../worker/strava.js';
+import { stravaRequest,buildStravaTcx } from '../worker/strava.js';
 
 const ROOT = 'https://beatonstep.app';
 const SECRET = 'a'.repeat(64);
@@ -142,7 +142,7 @@ async function publishingFixture() {
         bind(...values){args=values;return this;},
         async first(){
           if(sql.startsWith('SELECT * FROM strava_connections')) return row;
-          if(sql.startsWith('SELECT status,activity_id FROM strava_exports'))
+          if(sql.startsWith('SELECT status,activity_id,upload_id FROM strava_exports'))
             return exports.get(args[0]+'|'+args[1])||null;
           throw Error('Unexpected SQL first: '+sql);
         },
@@ -157,6 +157,13 @@ async function publishingFixture() {
             const identity=args[0]+'|'+args[1];
             if(exports.get(identity)?.status!=='pending')return {meta:{changes:0}};
             exports.delete(identity);
+            return {meta:{changes:1}};
+          }
+          if(sql.startsWith('UPDATE strava_exports SET upload_id=')){
+            const identity=args[1]+'|'+args[2];
+            const exportRow=exports.get(identity);
+            if(!exportRow)throw Error('unknown pending Strava upload');
+            exportRow.upload_id=args[0];
             return {meta:{changes:1}};
           }
           if(sql.startsWith('UPDATE strava_exports')){
@@ -465,4 +472,59 @@ test('Strava import reports outdated read authorization and rate limits explicit
       assert.deepEqual(await response.json(),{error});
     }
   }finally{globalThis.fetch=original;}
+});
+
+test('geographic route uploads TCX, then polls Strava without duplicate activity',async()=>{
+ const {db,call}=await publishingFixture();
+ const start=Date.now()-180000;
+ const gpsTrack=[[48.8566,2.3522,start],[48.8567,2.3523,start+10000],
+   [48.8568,2.3524,start+20000]];
+ const original=globalThis.fetch;let uploads=0,polls=0;
+ globalThis.fetch=async(url,options)=>{
+   if(String(url)==='https://www.strava.com/api/v3/uploads'){
+     uploads++;
+     assert.equal(options.headers.authorization,'Bearer mock-access-token');
+     assert.equal(options.headers['content-type'],undefined);
+     assert.equal(options.body.get('data_type'),'tcx');
+     const tcx=await options.body.get('file').text();
+     assert.match(tcx,/<LatitudeDegrees>48\.8566<\/LatitudeDegrees>/);
+     assert.match(tcx,/<AverageHeartRateBpm><Value>145<\/Value><\/AverageHeartRateBpm>/);
+     return {ok:true,status:201,json:async()=>({id:456})};
+   }
+   if(String(url)==='https://www.strava.com/api/v3/uploads/456'){
+     polls++;return {ok:true,status:200,json:async()=>({activity_id:7890})};
+   }
+   throw Error('unexpected Strava request '+url);
+ };
+ try{
+   const result=await call({startedAtMs:start,runId:'bos-'+start,
+     elapsedTime:60,distanceMeters:350,heartRateBpm:145,gpsTrack});
+   assert.equal(result.status,200);
+   assert.deepEqual(await result.json(),{ok:true,url:'https://www.strava.com/activities/7890'});
+   const again=await call({startedAtMs:start,runId:'bos-'+start,gpsTrack});
+   assert.equal((await again.json()).alreadyPublished,true);
+   assert.equal(uploads,1);
+   assert.equal(polls,1);
+   assert.equal(db.exports.size,1);
+ }finally{globalThis.fetch=original;}
+});
+
+test('reject invalid raw GPS coordinates rather than sending them to Strava',async()=>{
+ const {call}=await publishingFixture();
+ const start=Date.now()-120000;
+ const invalid=await call({startedAtMs:start,runId:'bos-'+start,
+   gpsTrack:[[200,2,start],[201,2,start+1000]]});
+ assert.equal(invalid.status,400);
+ assert.deepEqual(await invalid.json(),{error:'invalid_run'});
+});
+
+test('TCX builder does not invent missing heart-rate or cadence measurements',()=>{
+ const start=Date.now()-120000;
+ const xml=buildStravaTcx({start,elapsed:60,distance:250,
+   gps:[[48.0,2.0,start],[48.01,2.01,start+60000]],
+   heart:null,maxHeart:null,cadence:null,pace:null});
+ assert.match(xml,/<DistanceMeters>250<\/DistanceMeters>/);
+ assert.doesNotMatch(xml,/<AverageHeartRateBpm>/);
+ assert.doesNotMatch(xml,/<Cadence>/);
+ assert.match(xml,/<Trackpoint>/);
 });
