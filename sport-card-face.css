@@ -1,20 +1,20 @@
 /* #451 — Canonical website face of the BeatOnStep sporting collectible.
    The seven accents/marks and distance crests match mobile-app/src/utils/sportCardVisual.ts.
    Rarity color follows the validated 1–7 star tier, never ownership or guessed performance. */
-.bos-sport-face{--sport-accent:#B98442;--sport-shade:#50321F;
+.bos-sport-face{--sport-accent:#8E969A;--sport-shade:#30383C;
   position:relative;box-sizing:border-box;width:157px;height:218px;flex:none;
   padding:12px;border:1.7px solid var(--sport-accent);border-radius:19px;
   background:#181811;display:flex;flex-direction:column;justify-content:space-between;
   color:#f4f1e0;box-shadow:0 8px 24px #0007,0 0 17px color-mix(in srgb,var(--sport-accent) 23%,transparent);
   overflow:hidden;font-family:system-ui,-apple-system,sans-serif;text-align:left}
 .bos-sport-face *{box-sizing:border-box}
-.sport-skin--beginner{--sport-accent:#B98442;--sport-shade:#50321F}
-.sport-skin--amateur{--sport-accent:#C9963A;--sport-shade:#533A1C}
-.sport-skin--regular{--sport-accent:#E1C15A;--sport-shade:#625121}
-.sport-skin--intermediate{--sport-accent:#52B788;--sport-shade:#1D4B3C}
-.sport-skin--expert{--sport-accent:#5C7CFA;--sport-shade:#263D78}
-.sport-skin--legend{--sport-accent:#A06BFF;--sport-shade:#462C77}
-.sport-skin--world_elite{--sport-accent:#E35D6A;--sport-shade:#792F3E}
+.sport-skin--beginner{--sport-accent:#8E969A;--sport-shade:#30383C}
+.sport-skin--amateur{--sport-accent:#AD7856;--sport-shade:#4A3024}
+.sport-skin--regular{--sport-accent:#C5AC67;--sport-shade:#4C4228}
+.sport-skin--intermediate{--sport-accent:#55977B;--sport-shade:#214237}
+.sport-skin--expert{--sport-accent:#587DB3;--sport-shade:#233956}
+.sport-skin--legend{--sport-accent:#9370AB;--sport-shade:#3D2E51}
+.sport-skin--world_elite{--sport-accent:#B65767;--sport-shade:#4C2530}
 /* Distance changes the crest, not the jewel finish assigned by stars. */
 .bos-sport-top{display:flex;justify-content:space-between;align-items:center;
   gap:4px;color:#fcea07;font-size:9px;letter-spacing:1.2px;font-weight:900}
@@ -51,8 +51,8 @@
   box-shadow:0 0 18px color-mix(in srgb,var(--sport-accent) 28%,transparent)}
 .sport-skin--legend .bos-sport-art,
 .sport-skin--world_elite .bos-sport-art{box-shadow:inset 0 0 13px #fff4bc12}
-.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 12px #E35D6A44}
-.sport-skin--legend .bos-sport-crest{box-shadow:0 0 12px #A06BFF44}
+.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 12px color-mix(in srgb,var(--sport-accent) 27%,transparent)}
+.sport-skin--legend .bos-sport-crest{box-shadow:0 0 12px color-mix(in srgb,var(--sport-accent) 27%,transparent)}
 /* Catalogue: real card face + public metadata. Musical layout untouched. */
 .sport-card .sport-summary{display:flex;flex-wrap:wrap;align-items:center;
   justify-content:flex-start;gap:14px}
