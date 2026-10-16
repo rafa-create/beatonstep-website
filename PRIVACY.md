@@ -246,4 +246,4 @@ Le catalogue « Mix démo » est composé exclusivement de morceaux libres de dr
 Les BPM sont mesurés côté serveur (`librosa.beat.beat_track`, seuil de confiance ≥ 0,77). Ils peuvent différer légèrement des BPM publiés par les auteurs.
 
 **Liste complète des titres (obligatoire pour l'attribution CC-BY) :**  
-[Crédits musicaux — Mix démo](https://rafa-create.github.io/beatonstep-website/music-credits.html)
+[Crédits musicaux — Mix démo](https://beatonstep.app/music-credits.html)
