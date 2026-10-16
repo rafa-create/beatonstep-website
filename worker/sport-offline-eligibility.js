@@ -45,7 +45,12 @@ export function evaluateOfflineSportSummary(summary){
   if(summary.pausedDurationMs!=null&&
      !finite(summary.pausedDurationMs,0,elapsedMs))
     warningReasons.push('invalid_pause_duration');
-  if(summary.distanceMeters/(elapsedMs/1000)>12.5)
+  // A GPS peak is evidence for the existing advisory pipeline, never an
+  // eligibility gate. Unknown/older mobile binaries omit this field.
+  const peakSpeedKmh=finite(summary.peakSpeedKmh,0,10000)
+    ?Math.round(summary.peakSpeedKmh*10)/10:null;
+  if(summary.distanceMeters/(elapsedMs/1000)>12.5 ||
+     (peakSpeedKmh!==null&&peakSpeedKmh>45))
     warningReasons.push('implausible_speed');
 
   // Downward only: floating-point noise must never manufacture an extra cm.
@@ -87,5 +92,5 @@ export function evaluateOfflineSportSummary(summary){
     splitTiming:hasRecordedSplit?'recorded':'conservative_finish',
     // Advisory and internal; never a gate on the D1 transfer.
     needsReviewWarning:warningReasons.length>0,warningReasons,
-    autoAwarded:false};
+    peakSpeedKmh,autoAwarded:false};
 }

@@ -37,6 +37,7 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   const canonical=JSON.stringify([
     userId,runId,candidate.performanceKey,summary.distanceSource,
     summary.startedAtMs,summary.endedAtMs,summary.distanceMeters,
+    candidate.peakSpeedKmh,
   ]);
   const digest=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',
     new TextEncoder().encode(canonical))));
@@ -110,7 +111,8 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   if(transferred&&typeof onAward==='function'){
     try{onAward({cardId:current[0].id,ownerEpoch:current[0].owner_epoch,
       needsWarning:candidate.needsReviewWarning===true,
-      warningReasons:candidate.warningReasons||[],now});}
+      warningReasons:candidate.warningReasons||[],
+      peakSpeedKmh:candidate.peakSpeedKmh,now});}
     catch{ /* optional telemetry is non-blocking */ }
   }
   const acquisition=!newRun?'already_processed':!owned?'superseded':

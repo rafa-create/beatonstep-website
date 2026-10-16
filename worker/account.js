@@ -440,6 +440,7 @@ export async function accountRequest(request,env,url,ctx) {
                 await enqueueSportTelemetryReview(db,review.cardId,
                   review.ownerEpoch,review.needsWarning,{
                     now:review.now,reasonCodes:review.warningReasons,
+                    peakSpeedKmh:review.peakSpeedKmh,
                   });
                 await processPendingSportTelemetryReviews(db);
               })().catch(()=>{console.warn('sport review processing unavailable');});

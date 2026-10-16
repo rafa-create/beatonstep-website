@@ -38,10 +38,40 @@ export async function ensureSportTelemetrySchema(db){
     FOREIGN KEY(card_id,owner_epoch)
       REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
   )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sport_card_telemetry_speed_details (
+    card_id INTEGER NOT NULL,
+    owner_epoch INTEGER NOT NULL,
+    peak_speed_kmh REAL NOT NULL CHECK(peak_speed_kmh>=0 AND peak_speed_kmh<=10000),
+    PRIMARY KEY(card_id,owner_epoch),
+    FOREIGN KEY(card_id,owner_epoch)
+      REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
+  )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sport_card_telemetry_admin_actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    card_id INTEGER NOT NULL,
+    owner_epoch INTEGER NOT NULL,
+    admin_email TEXT NOT NULL,
+    action TEXT NOT NULL CHECK(action IN ('lift_warning')),
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(card_id,owner_epoch)
+      REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
+  )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sport_card_telemetry_mail_delivery (
+    card_id INTEGER NOT NULL,
+    owner_epoch INTEGER NOT NULL,
+    state TEXT NOT NULL DEFAULT 'pending'
+      CHECK(state IN ('pending','sending','sent')),
+    attempts INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at INTEGER NOT NULL DEFAULT 0,
+    sent_at INTEGER,
+    PRIMARY KEY(card_id,owner_epoch),
+    FOREIGN KEY(card_id,owner_epoch)
+      REFERENCES sport_card_telemetry_reviews(card_id,owner_epoch) ON DELETE CASCADE
+  )`).run();
 }
 
 export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{
-  now=Date.now(),reasonCodes=[],
+  now=Date.now(),reasonCodes=[],peakSpeedKmh=null,
 }={}){
   if(!Number.isSafeInteger(cardId)||cardId<1||!Number.isSafeInteger(epoch)||epoch<1)
     return false;
@@ -62,6 +92,21 @@ export async function enqueueSportTelemetryReview(db,cardId,epoch,needsWarning,{
       (card_id,owner_epoch,reason_codes) VALUES(?,?,?)
       ON CONFLICT(card_id,owner_epoch) DO NOTHING`)
       .bind(cardId,epoch,JSON.stringify(reasons)).run();
+  }
+  if(needsWarning&&typeof peakSpeedKmh==='number'&&
+     Number.isFinite(peakSpeedKmh)&&peakSpeedKmh>=0&&peakSpeedKmh<=10000){
+    await db.prepare(`INSERT INTO sport_card_telemetry_speed_details
+      (card_id,owner_epoch,peak_speed_kmh)
+      VALUES(?,?,?) ON CONFLICT(card_id,owner_epoch) DO NOTHING`)
+      .bind(cardId,epoch,Math.round(peakSpeedKmh*10)/10).run();
+  }
+  // One notification per award epoch, not per reconciliation or ownership.
+  if(needsWarning){
+    await db.prepare(`INSERT INTO sport_card_telemetry_mail_delivery
+      (card_id,owner_epoch,state)
+      SELECT card_id,owner_epoch,'pending' FROM sport_card_telemetry_reviews
+      WHERE card_id=? AND owner_epoch=? AND needs_warning=1
+      ON CONFLICT(card_id,owner_epoch) DO NOTHING`).bind(cardId,epoch).run();
   }
   return (result?.meta?.changes||0)>0;
 }
