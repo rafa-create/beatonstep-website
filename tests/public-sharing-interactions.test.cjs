@@ -3,11 +3,18 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const html=fs.readFileSync(path.resolve(__dirname,'../partages.html'),'utf8');
-const script=fs.readFileSync(path.resolve(__dirname,'../sport-card-face.js'),'utf8')+'\n'+
-  fs.readFileSync(path.resolve(__dirname,'../sport-card-percentile.js'),'utf8')+'\n'+
+// Exercise exactly the generated static assets uploaded by the Cloudflare build.
+// sport-card-face.js in the source tree contains an empty levels placeholder;
+// scripts/build-static.mjs replaces it with the official seven-tier manifest.
+const dist=path.resolve(__dirname,'../dist');
+const html=fs.readFileSync(path.join(dist,'partages.html'),'utf8');
+const face=fs.readFileSync(path.join(dist,'sport-card-face.js'),'utf8');
+assert.doesNotMatch(face,/\/\*__SPORT_CARD_LEVELS__\*\//,
+  'the deployed sporting face must include the generated visual tier metadata');
+const script=face+'\n'+
+  fs.readFileSync(path.join(dist,'sport-card-percentile.js'),'utf8')+'\n'+
   html.match(/<script>([\s\S]*?)<\/script>/)[1];
-const rules=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../sport-card-rules.json'),'utf8'));
+const rules=JSON.parse(fs.readFileSync(path.join(dist,'sport-card-rules.json'),'utf8'));
 assert.match(html,/Durée totale : /);
 assert.match(html,/Séance du /);
 assert.match(html,/event\.session/);
