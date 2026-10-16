@@ -184,3 +184,45 @@ test('each historic sporting winner keeps their OWN warning after later transfer
   assert.match(query.sql,/e.reason='sport_win'/);
   assert.doesNotMatch(JSON.stringify(body),/latitude|longitude|evidence_digest|user_id/);
 });
+
+test('verified sport wins show whole run totals only, with strict SQL linking',async()=>{
+  const sample={endedAtMs:1792200000000,durationSeconds:1721,
+    distanceMeters:5745,averagePaceSecPerKm:300,
+    tracks:[{title:'SECRET'}],runRoute:[[123,456]]};
+  const rows=[{reason:'sport_win',changed_at:1792200000100,
+    to_handle:'runner_a',public_run_json:JSON.stringify(sample)}];
+  const {db,queries}=mockDb({},rows);
+  const body=await (await readPublicSportCards(db,url('/api/sport/cards/17'))).json();
+  assert.deepEqual(body.history[0].session,{
+    at:1792200000000,durationSeconds:1721,
+    distanceMeters:5745,averagePaceSecPerKm:300});
+  assert.doesNotMatch(JSON.stringify(body),/SECRET|runRoute|snapshot_json|runId/);
+  const sql=queries.find(q=>q.sql.includes('ORDER BY e.new_epoch DESC LIMIT 101')).sql;
+  assert.match(sql,/verified\.run_id/);
+  assert.match(sql,/verified\.verified_at=e\.changed_at/);
+  assert.match(sql,/saved\.ended_at=verified\.completed_at/);
+  assert.match(sql,/consent\.show_challenges=1/);
+  assert.match(sql,/prior_pref\.show_challenges=1/);
+  assert.match(sql,/recipient_pref\.show_challenges=1/);
+});
+test('gifts, invalid or missing saved records do not fabricate sport performances',async()=>{
+  const rows=[
+    {reason:'sport_win',changed_at:1000,public_run_json:null},
+    {reason:'sport_win',changed_at:900,
+      public_run_json:JSON.stringify({endedAtMs:2,durationSeconds:-4})},
+    {reason:'gift_claim',changed_at:800,
+      public_run_json:JSON.stringify({endedAtMs:1792200000000,durationSeconds:10})},
+  ];
+  const {db}=mockDb({},rows);
+  const body=await (await readPublicSportCards(db,url('/api/sport/cards/17'))).json();
+  assert.ok(body.history.every(e=>!Object.hasOwn(e,'session')));
+});
+test('all card-owner identities use the existing explicit opt-in',async()=>{
+  const {db,queries}=mockDb();
+  await readPublicSportCards(db,url('/api/sport/cards'));
+  await readPublicSportCards(db,url('/api/sport/cards/17'));
+  const sql=queries.map(q=>q.sql).join('\n');
+  assert.match(sql,/visibility\.show_challenges=1/);
+  assert.match(sql,/prior_pref\.show_challenges=1/);
+  assert.match(sql,/recipient_pref\.show_challenges=1/);
+});

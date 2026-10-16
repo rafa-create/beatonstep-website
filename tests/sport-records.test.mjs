@@ -60,7 +60,7 @@ test('longest ownership uses existing epochs, still-running periods and immutabl
   assert.match(ownership.sql,/ORDER BY \(COALESCE\(next.changed_at,\?\)-e.changed_at\) DESC/);
   assert.deepEqual(ownership.args,[now,now]);
   const publicCollections=queries.find(q=>q.sql.includes('COUNT(*) AS cards'));
-  assert.match(publicCollections.sql,/COALESCE\(p.show_challenges,1\)=1/);
+  assert.match(publicCollections.sql,/p\.show_challenges=1/);
   assert.match(publicCollections.sql,/COUNT\(\*\) AS cards/);
 });
 

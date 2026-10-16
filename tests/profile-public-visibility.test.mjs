@@ -45,6 +45,14 @@ function fixture({migrationReady=true,legacyChallenge=false}={}){
               ...(legacyChallenge?[{id:3,name:'Legacy challenge secret',
                 kind:'challenge',source:'none',created_at:2000,imports:0}]:[]),
             ]};
+          if(sql.includes('FROM account_run_records WHERE user_id=?')){
+            assert.deepEqual(args,['u1']);
+            return {results:[{snapshot_json:JSON.stringify({
+              endedAtMs:1792000000000,durationSeconds:1517,
+              distanceMeters:5200,averagePaceSecPerKm:291,
+              tracks:[{title:'PRIVATE SONG'}],runRoute:[[1,2],[3,4]],
+            })}]};
+          }
           if(sql.includes('FROM sport_world_cards WHERE current_owner_id=?')){
             state.worldReads++;
             assert.deepEqual(args,['u1']);
@@ -83,8 +91,10 @@ test('manual migration is additive, default-visible, and changes no sporting own
   assert.doesNotMatch(sql,/ALTER TABLE|DELETE FROM|DROP TABLE|sport_world_cards SET|signed_shares SET/i);
 });
 
-test('world challenges appear with signed musical sessions by default',async()=>{
+test('explicit public consent shares signed cards and sanitized sessions',async()=>{
   const f=fixture();
+  await dispatch(f,'/api/account/profile/preferences',{
+    method:'POST',loggedIn:true,data:{showChallenges:true}});
   const response=await dispatch(f,'/api/account/profile?handle=runner');
   assert.equal(response.status,200);
   const publicData=await response.json();
@@ -99,7 +109,10 @@ test('world challenges appear with signed musical sessions by default',async()=>
     id:42,distanceCm:500000,timeUnit:'minute',subValue:25,difficulty:'intermediate',
   });
   assert.equal(f.state.worldReads,1);
+  assert.deepEqual(publicData.runs,[{at:1792000000000,durationSeconds:1517,
+    distanceMeters:5200,averagePaceSecPerKm:291}]);
   assert.ok(!JSON.stringify(publicData).includes('u1'),'no private D1 user IDs');
+  assert.doesNotMatch(JSON.stringify(publicData),/PRIVATE SONG|runRoute|snapshot_json|runId/);
 });
 
 test('authenticated checkbox hides all challenges in public profile JSON',async()=>{
@@ -114,7 +127,8 @@ test('authenticated checkbox hides all challenges in public profile JSON',async(
   assert.equal(data.showChallenges,false);
   assert.equal(Object.hasOwn(data,'challenges'),false,'no card IDs or counts are leaked');
   assert.equal(f.state.worldReads,0,'do not even read private profile cards');
-  assert.equal(data.items.length,1,'public musical creations remain visible');
+  assert.equal(data.items.length,0,'private profile hides its signed creations');
+  assert.deepEqual(data.runs,[],'private profile never exposes saved runs');
   assert.equal(JSON.stringify(data).includes('Legacy challenge secret'),false,
     'legacy challenges must never leak through signed shares when hidden');
   const own=await dispatch(f,'/api/account/profile/preferences',{loggedIn:true});
@@ -146,9 +160,9 @@ test('staged deployment does not break public profiles before D1 migration',asyn
   const f=fixture({migrationReady:false});
   const publicResponse=await dispatch(f,'/api/account/profile?handle=runner');
   assert.equal(publicResponse.status,200);
-  assert.equal((await publicResponse.json()).showChallenges,true);
+  assert.equal((await publicResponse.json()).showChallenges,false);
   const settings=await dispatch(f,'/api/account/profile/preferences',{loggedIn:true});
-  assert.deepEqual(await settings.json(),{showChallenges:true,settingsReady:false});
+  assert.deepEqual(await settings.json(),{showChallenges:false,settingsReady:false});
 });
 
 test('public profile tabs are hidden when challenges are disabled',()=>{
@@ -161,9 +175,29 @@ test('public profile tabs are hidden when challenges are disabled',()=>{
   assert.match(page,/id="show-public-challenges" type="checkbox"/);
   assert.match(page,/api\('\/api\/account\/profile\/preferences','POST',\{showChallenges:choice\}\)/);
   assert.match(page,/\$\('public-show-challenges'\)\.hidden=!visible/);
-  assert.match(page,/if\(data\.showChallenges===false\)/);
+  assert.match(page,/if\(data\.showChallenges===true\)/);
+  assert.match(page,/id="public-show-history"/);
+  assert.match(page,/id="public-private-notice"/);
+  assert.match(page,/function renderPublicRuns\(items\)/);
   assert.match(page,/publicSelectedDeck='sessions'/);
   assert.match(page,/renderPublicChallenges\(data\.challenges\|\|\[\]\)/);
   assert.match(page,/\/partages\.html\?kind=challenge&sport=/);
   assert.match(page,/item\.kind==='workout'/);
+});
+
+test('missing preference is private, owner account still has signed cards',async()=>{
+  const f=fixture();
+  const visitor=await dispatch(f,'/api/account/profile?handle=runner');
+  const data=await visitor.json();
+  assert.equal(data.showChallenges,false);
+  assert.deepEqual(data.items,[]);
+  assert.deepEqual(data.runs,[]);
+  assert.equal(f.state.worldReads,0);
+  const prefs=await dispatch(f,'/api/account/profile/preferences',{loggedIn:true});
+  assert.deepEqual(await prefs.json(),{showChallenges:false,settingsReady:true});
+  const owner=await dispatch(f,'/api/account/profile?handle=runner',{loggedIn:true});
+  const mine=await owner.json();
+  assert.equal(mine.items.length,1);
+  assert.equal(mine.challenges.length,1);
+  assert.deepEqual(mine.runs,[]);
 });
