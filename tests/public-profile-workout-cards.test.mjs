@@ -50,8 +50,8 @@ test('published sessions display as the same two-column collectible grid as chal
   assert.match(page,/\.public-sport-cards,\.public-session-cards\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(page,/width:157px;max-width:100%;height:218px/);
   assert.doesNotMatch(page,/class="public-sessions-list"/);
-  assert.match(page,/renderPublicSessions\(data\.items\.filter\(item=>item\.kind==='workout'\)\)/);
-  assert.match(page,/renderPublicChallenges\(data\.challenges\|\|\[\]\)/);
+  assert.match(page,/renderPublicSessions\(\(data\.items\|\|\[\]\)\.filter\(item=>item\.kind==='workout'\)\)/);
+  assert.match(page,/renderPublicChallenges\(data\.challenges\|\|\[\],data\.ghosts\|\|\[\]\)/);
   assert.doesNotThrow(()=>new vm.Script(page.match(/<script>([\s\S]*?)<\/script>/)[1]));
 });
 

@@ -97,6 +97,9 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .public-sport-cards .bos-sport-face{margin:auto;max-width:100%}
 .public-challenge-rank{display:block;font-size:12px;color:var(--sub);line-height:1.35;overflow-wrap:anywhere}
 .public-sport-cards a,.public-session-cards a{color:var(--accent);font-weight:750;font-size:13px;line-height:1.3}
+.sport-face-link{display:inline-block;text-decoration:none;border-radius:18px;max-width:100%}
+.sport-face-link:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.sport-face-link .bos-sport-face{cursor:pointer}
 .public-session-cards .bos-workout-face{box-sizing:border-box;width:157px;max-width:100%;height:218px;padding:12px;border:1.7px solid #dbc56d;border-radius:19px;background:#181811;display:flex;flex-direction:column;justify-content:space-between;gap:6px;color:#f4f1e0;box-shadow:0 8px 24px #0007;overflow:hidden;text-align:left}
 .bos-workout-face .bos-workout-top{display:flex;align-items:center;justify-content:space-between;gap:4px;color:var(--accent);font-size:9px;letter-spacing:1.2px;font-weight:900}
 .bos-workout-top span:last-child{color:#dfc877;font-size:18px;letter-spacing:0;line-height:1}
@@ -582,7 +585,12 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         const copy=document.createElement('div');copy.className='sport-deck-copy';
         copy.append(title,meta);
         li.className='deck-tile sport-deck-tile';
-        li.append(face,copy);
+        const faceLink=document.createElement('a');
+        faceLink.className='sport-face-link';
+        faceLink.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
+        faceLink.setAttribute('aria-label','Voir la fiche : '+displaySportName(card.name));
+        faceLink.append(face);
+        li.append(faceLink,copy);
         if(card.verifiedAfterGiftAt){
           const history=document.createElement('small');
           history.textContent='Reçue le '+date(card.verifiedGiftAt||card.firstGiftAt)+
@@ -938,7 +946,13 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
       link.textContent='Voir la fiche';
       link.setAttribute('aria-label','Voir la fiche : '+title);
-      li.append(face,rank,link);
+      const faceLink=document.createElement('a');
+      faceLink.className='sport-face-link';
+      faceLink.href=link.href;
+      faceLink.setAttribute('aria-label','Ouvrir la fiche de '+title+
+        (isGhost?' (carte fantôme)':''));
+      faceLink.append(face);
+      li.append(faceLink,rank,link);
       if(isGhost){
         const tag=document.createElement('small');
         tag.className='public-challenge-rank';

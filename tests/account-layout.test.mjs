@@ -77,3 +77,10 @@ test('musical cards are split by time or distance without mixing sporting trophi
     'ghost sporting trophies require a prior personal validated achievement');
   assert.match(html,/\$\('session-type-filter'\)\.hidden=!sessions/);
 });
+
+test('owned, gifted and ghost sporting cards open the exact public detail URL',()=>{
+  assert.match(html,/faceLink\.href='\/partages\.html\?kind=challenge&sport='\+encodeURIComponent\(card\.id\)/);
+  assert.match(html,/faceLink\.append\(face\)/);
+  assert.match(html,/for\(const card of ghosts\)addCard\(card,'ghost'\)/);
+  assert.match(html,/renderPublicChallenges\(data\.challenges\|\|\[\],data\.ghosts\|\|\[\]\)/);
+});

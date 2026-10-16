@@ -71,7 +71,10 @@ test('outdated D1 difficulty is not used for public card face or world top label
   const list=await render();
   assert.equal(list.children.length,1);
   const tile=list.children[0];
-  const face=tile.children[0];
+  const faceLink=tile.children[0];
+  assert.equal(faceLink.tagName,'a');
+  assert.equal(faceLink.href,'/partages.html?kind=challenge&sport=42');
+  const face=faceLink.children[0];
   assert.match(face.className,/sport-skin--expert/);
   assert.equal(face.attributes.role,'img');
   assert.match(face.attributes['aria-label'],/Expert, 5 étoiles sur 7/);
@@ -87,7 +90,7 @@ test('a future official JSON revision automatically changes the public card',asy
   future.revision='future-tier-test';
   future.capsByDistance['500000'].expert=28;
   const list=await render({rules:future});
-  assert.match(list.children[0].children[0].className,
+  assert.match(list.children[0].children[0].children[0].className,
     /sport-skin--intermediate/);
   assert.equal(firstNode(list,'public-challenge-rank').textContent,
     'Top ≈ 24 % mondial');
@@ -95,7 +98,7 @@ test('a future official JSON revision automatically changes the public card',asy
 
 test('unavailable official rules fall back to the stored tier, never invent a percentile',async()=>{
   const list=await render({available:false});
-  assert.match(list.children[0].children[0].className,/sport-skin--amateur/);
+  assert.match(list.children[0].children[0].children[0].className,/sport-skin--amateur/);
   assert.equal(firstNode(list,'public-challenge-rank').textContent,'Amateur');
 });
 
@@ -109,7 +112,9 @@ test('ghosts on a public profile reuse the true card face and previous-ownership
   const list=await render({cards:[],ghosts:[{...card(),id:61,ghost:true}]});
   assert.equal(list.children.length,1);
   const tile=list.children[0];
-  assert.match(tile.children[0].className,/is-ghost/);
+  assert.match(tile.children[0].children[0].className,/is-ghost/);
+  assert.equal(tile.children[0].href,'/partages.html?kind=challenge&sport=61');
+  assert.match(tile.children[0].attributes['aria-label'],/carte fantôme/);
   assert.match(tile.textContent,/Carte fantôme · Ancienne possession validée/);
   assert.equal(tile.children[2].href,'/partages.html?kind=challenge&sport=61');
 });
