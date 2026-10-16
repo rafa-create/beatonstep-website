@@ -1,5 +1,6 @@
 import { backfillWorkoutCards, requireCardSchema } from './cards.js';
 import { hashGiftToken } from './pack.js';
+import { readSportWarningReasons } from './sport-card-telemetry.js';
 
 // Restricted catalogue moderation, modelled on the D1/session design in rafa-create/saas.
 // No public registration and no access to music-provider credentials.
@@ -230,6 +231,54 @@ async function sportCards(db,request,url){
     }))});
 }
 
+// Review EVERY historical warning by its original card + owner epoch, not only
+// warnings of current owners. This endpoint is strictly read-only; removing
+// an attested run would break linked achievements and immutable ownership events.
+async function sportWarnings(db,request,url){
+  if(!await currentAdmin(db,request))return respond({error:'admin_required'},401);
+  const page=adminPage(url.searchParams.get('page'));
+  if(page===null||[...url.searchParams.keys()].some(key=>key!=='page'))
+    return respond({error:'invalid_filter'},400);
+  try{
+    const total=await db.prepare(
+      "SELECT COUNT(*) AS total FROM sport_card_telemetry_reviews WHERE state='warning'"
+    ).first();
+    const rows=await db.prepare(`SELECT tr.card_id,tr.owner_epoch,tr.created_at,
+        tr.reviewed_at,rd.reason_codes,c.distance_cm,c.time_unit,c.sub_value,
+        CASE WHEN COALESCE(pref.show_challenges,1)=1
+          THEN athlete.handle ELSE NULL END AS athlete_handle,
+        e.changed_at AS earned_at,
+        CASE WHEN c.owner_epoch=tr.owner_epoch THEN 1 ELSE 0 END AS current_epoch
+      FROM sport_card_telemetry_reviews tr
+      JOIN sport_world_cards c ON c.id=tr.card_id
+      LEFT JOIN sport_card_telemetry_reason_details rd
+        ON rd.card_id=tr.card_id AND rd.owner_epoch=tr.owner_epoch
+      LEFT JOIN sport_card_ownership_events e
+        ON e.card_id=tr.card_id AND e.new_epoch=tr.owner_epoch
+        AND e.reason='sport_win'
+      LEFT JOIN community_users athlete ON athlete.id=e.new_owner_id
+      LEFT JOIN community_profile_settings pref ON pref.user_id=athlete.id
+      WHERE tr.state='warning'
+      ORDER BY tr.created_at DESC,tr.card_id DESC,tr.owner_epoch DESC
+      LIMIT ? OFFSET ?`).bind(ADMIN_PAGE_SIZE,(page-1)*ADMIN_PAGE_SIZE).all();
+    return respond({page,pageSize:ADMIN_PAGE_SIZE,total:Number(total?.total)||0,
+      items:(rows.results||[]).map(row=>({
+        cardId:row.card_id,ownerEpoch:row.owner_epoch,
+        distanceCm:row.distance_cm,timeUnit:row.time_unit,
+        subValue:row.sub_value,owner:typeof row.athlete_handle==='string'
+          ?row.athlete_handle:null,
+        earnedAt:Number.isSafeInteger(row.earned_at)?row.earned_at:null,
+        reviewedAt:Number.isSafeInteger(row.reviewed_at)?row.reviewed_at:null,
+        reasons:readSportWarningReasons(row.reason_codes),
+        currentEpoch:row.current_epoch===1,
+      }))});
+  }catch(error){
+    // Telemetry is optional; do not CREATE tables or change the sporting ledger.
+    console.error('sport warnings read unavailable',String(error?.name||'unknown'));
+    return respond({error:'telemetry_unavailable'},503);
+  }
+}
+
 // Protected account inventory: public handles and aggregate counts only,
 // without email, password hashes, tokens, routes or full private run snapshots.
 async function accounts(db,request,url){
@@ -279,6 +328,8 @@ export async function adminRequest(request, env, url) {
       return overview(env.DB,request);
     if (path === '/api/admin/sport/cards' && method === 'GET')
       return sportCards(env.DB,request,url);
+    if (path === '/api/admin/sport/warnings' && method === 'GET')
+      return sportWarnings(env.DB,request,url);
     if (path === '/api/admin/accounts' && method === 'GET')
       return accounts(env.DB,request,url);
     if (path === '/api/admin/login' && method === 'POST') return await login(env.DB, env, request);

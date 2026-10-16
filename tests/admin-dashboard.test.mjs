@@ -22,11 +22,21 @@ function fixture({authorized=true}={}){
             verified_runs:4,accounts:9};
         if(sql==='SELECT COUNT(*) AS total FROM sport_world_cards')
           return {total:2};
+        if(sql.includes("FROM sport_card_telemetry_reviews WHERE state='warning'"))
+          return {total:2};
         if(sql.includes('SELECT COUNT(*) AS total FROM community_users u'))
           return {total:1};
         throw Error('Unknown admin first: '+sql);
       },
       async all(){
+        if(sql.includes('FROM sport_card_telemetry_reviews tr')){
+          return {results:[{
+            card_id:17,owner_epoch:3,created_at:1792000000000,
+            reviewed_at:1792000010000,reason_codes:'["implausible_speed"]',
+            distance_cm:500000,time_unit:'minute',sub_value:25,
+            athlete_handle:null,earned_at:1792000000000,current_epoch:0,
+          }]};
+        }
         // Account rows include a correlated sport_world_cards subquery, so
         // match the outer FROM before the nested sport table.
         if(sql.includes('FROM community_users u')){
@@ -53,7 +63,7 @@ function fixture({authorized=true}={}){
 test('public browser and community cookie cannot reach privileged overview or sport list',async()=>{
   const f=fixture({authorized:false});
   for(const path of ['/api/admin/overview','/api/admin/sport/cards',
-    '/api/admin/accounts']){
+    '/api/admin/sport/warnings','/api/admin/accounts']){
     const r=await f.send(path,false);
     assert.equal(r.status,401);
     assert.deepEqual(await r.json(),{error:'admin_required'});
@@ -93,9 +103,10 @@ test('invalid admin sports filters fail without touching sport tables',async()=>
 });
 test('admin UI has named sections and no award or transfer action',()=>{
   const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
-  for(const name of ['overview','sessions','sports','accounts','tools'])
+  for(const name of ['overview','sessions','sports','warnings','accounts','tools'])
     assert.match(html,new RegExp('id="tab-'+name+'"'));
   assert.match(html,/id="sport-items"/);
+  assert.match(html,/id="warning-items"/);
   assert.match(html,/id="account-items"/);
   assert.match(html,/id="admin-stats"/);
   assert.match(html,/\/api\/admin\/sport\/cards\?page=/);
@@ -131,4 +142,33 @@ test('admin account search rejects wildcard injection and unrecognized parameter
     assert.equal(res.status,400);
   }
   assert(!f.queries.some(q=>q.sql.includes('FROM community_users u')));
+});
+
+test('flagged performances list ALL warning epochs, without altering card ownership',async()=>{
+  const f=fixture();
+  const res=await f.send('/api/admin/sport/warnings?page=2');
+  assert.equal(res.status,200);
+  assert.deepEqual(await res.json(),{page:2,pageSize:25,total:2,
+    items:[{cardId:17,ownerEpoch:3,distanceCm:500000,timeUnit:'minute',
+      subValue:25,owner:null,earnedAt:1792000000000,
+      reviewedAt:1792000010000,reasons:['implausible_speed'],
+      currentEpoch:false}]});
+  const query=f.queries.find(x=>x.sql.includes('FROM sport_card_telemetry_reviews tr'));
+  assert.ok(query,'warnings are read from the existing epoch-scoped review table');
+  assert.match(query.sql,/WHERE tr.state='warning'/);
+  assert.match(query.sql,/tr.owner_epoch/);
+  assert.match(query.sql,/LEFT JOIN sport_card_ownership_events e/);
+  assert.match(query.sql,/COALESCE\(pref.show_challenges,1\)=1/);
+  assert.deepEqual(query.args,[25,25]);
+  assert(f.queries.every(x=>/^\s*SELECT/.test(x.sql)),'warning moderation remains read-only');
+});
+test('admin warning filters reject unexpected parameters and invalid pagination',async()=>{
+  const f=fixture();
+  for(const path of ['/api/admin/sport/warnings?page=0',
+    '/api/admin/sport/warnings?user_id=secret',
+    '/api/admin/sport/warnings?page=-1']){
+    const res=await f.send(path);
+    assert.equal(res.status,400);
+  }
+  assert(!f.queries.some(x=>x.sql.includes('FROM sport_card_telemetry_reviews')));
 });

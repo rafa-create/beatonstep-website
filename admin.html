@@ -76,6 +76,7 @@
         <button type="button" id="tab-overview" aria-pressed="true">Vue d'ensemble</button>
         <button type="button" id="tab-sessions" aria-pressed="false">♫ Séances</button>
         <button type="button" id="tab-sports" aria-pressed="false">🏆 Défis</button>
+        <button type="button" id="tab-warnings" aria-pressed="false">⚠ Performances signalées</button>
         <button type="button" id="tab-accounts" aria-pressed="false">👤 Comptes</button>
         <button type="button" id="tab-tools" aria-pressed="false">⚙ Outils</button>
       </nav>
@@ -116,6 +117,19 @@
           <button type="button" id="sport-next">Suivant →</button>
         </div>
       </section>
+      <section id="warnings-panel" hidden aria-label="Performances sportives signalées">
+        <h2>Performances Défis avec un warning</h2>
+        <p class="muted">Toutes les alertes enregistrées, y compris les anciens détenteurs.
+          Une alerte n'annule pas automatiquement une victoire.
+          Les suppressions sont désactivées tant que leurs effets sur les cartes et
+          les historiques ne sont pas définis.</p>
+        <ul class="items" id="warning-items"></ul>
+        <div class="pagination">
+          <button type="button" id="warning-previous">← Précédent</button>
+          <span id="warning-position" aria-live="polite"></span>
+          <button type="button" id="warning-next">Suivant →</button>
+        </div>
+      </section>
       <section id="accounts-panel" hidden aria-label="Répertoire des comptes">
         <h2>Comptes BeatOnStep</h2>
         <p class="muted">Rechercher un pseudo et consulter ses compteurs de séances et de cartes sans afficher les e-mails, données GPS ni mots de passe. Aucun accès aux comptes privés n'est accordé par cette page.</p>
@@ -143,8 +157,8 @@
   <script type="module">
     const byId = id => document.getElementById(id);
     const OFFSET = 1_000_000_000_000;
-    let page = 1, sportPage = 1, accountPage = 1;
-    const TABS=['overview','sessions','sports','accounts','tools'];
+    let page = 1, sportPage = 1, accountPage = 1, warningPage = 1;
+    const TABS=['overview','sessions','sports','warnings','accounts','tools'];
     function labelId(id) {
       return '#' + String(id > OFFSET ? id - OFFSET : id).padStart(4, '0');
     }
@@ -170,10 +184,10 @@
         // Clear confidential dashboard counts, lists and unclaimed gift links
         // from the DOM when the admin cookie is no longer authenticated.
         byId('account').textContent='';
-        for(const name of ['admin-stats','items','sport-items','account-items',
-          'gift-link','backfill-info','position','sport-position','account-position'])
+        for(const name of ['admin-stats','items','sport-items','warning-items','account-items',
+          'gift-link','backfill-info','position','sport-position','warning-position','account-position'])
           byId(name).replaceChildren();
-        page=1;sportPage=1;accountPage=1;
+        page=1;sportPage=1;accountPage=1;warningPage=1;
       }
     }
     function showTab(name){
@@ -183,7 +197,8 @@
         byId('tab-'+tab).setAttribute('aria-pressed',String(tab===name));
       }
       const loaders={overview:loadOverview,sessions:loadItems,
-        sports:loadSportItems,accounts:loadAccounts,tools:async()=>{}};
+        sports:loadSportItems,warnings:loadWarnings,
+        accounts:loadAccounts,tools:async()=>{}};
       loaders[name]().catch(e=>status(e.message));
     }
     async function loadOverview(){
@@ -233,6 +248,45 @@
       byId('sport-position').textContent='Page '+sportPage+' / '+last+' · '+data.total+' cartes';
       byId('sport-previous').disabled=sportPage<=1;
       byId('sport-next').disabled=sportPage>=last;
+    }
+    const warningNames={
+      implausible_speed:'Vitesse invraisemblable',
+      invalid_pause_duration:'Durée de pause incohérente',
+      inconsistent_crossings:'Passages incohérents',
+    };
+    async function loadWarnings(){
+      const data=await api('/api/admin/sport/warnings?page='+warningPage);
+      const list=byId('warning-items');list.replaceChildren();
+      if(!data.items.length){
+        const li=document.createElement('li');
+        li.textContent='Aucune performance signalée.';
+        list.append(li);
+      }
+      for(const warning of data.items){
+        const li=document.createElement('li');li.className='item';
+        const info=document.createElement('div');
+        const title=document.createElement('h2');title.textContent=sportName(warning);
+        const meta=document.createElement('div');meta.className='meta';
+        const reasons=warning.reasons.length
+          ?warning.reasons.map(code=>warningNames[code]||'Motif inconnu').join(' · ')
+          :'Motif non conservé';
+        const date=warning.earnedAt?new Date(warning.earnedAt).toLocaleDateString('fr-FR'):'Date indisponible';
+        meta.textContent='Carte #'+warning.cardId+' · Époque '+warning.ownerEpoch+
+          ' · '+date+' · '+(warning.owner?'@'+warning.owner:'Compte privé ou supprimé')+
+          ' · '+(warning.currentEpoch?'Détenteur actuel':'Ancien détenteur')+
+          ' · '+reasons;
+        info.append(title,meta);
+        const link=document.createElement('a');
+        link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(warning.cardId);
+        link.textContent='Consulter la carte et son historique';
+        link.target='_blank';link.rel='noopener noreferrer';
+        li.append(info,link);list.append(li);
+      }
+      const max=Math.max(1,Math.ceil(data.total/data.pageSize));
+      byId('warning-position').textContent='Page '+warningPage+' / '+max+
+        ' · '+data.total+' performances signalées';
+      byId('warning-previous').disabled=warningPage<=1;
+      byId('warning-next').disabled=warningPage>=max;
     }
     async function loadAccounts(){
       const raw=byId('account-search').value.trim().toLowerCase();
@@ -396,6 +450,12 @@
     });
     byId('sport-next').addEventListener('click',()=>{
       sportPage++;loadSportItems().catch(e=>status(e.message));
+    });
+    byId('warning-previous').addEventListener('click',()=>{
+      if(warningPage>1){warningPage--;loadWarnings().catch(e=>status(e.message))}
+    });
+    byId('warning-next').addEventListener('click',()=>{
+      warningPage++;loadWarnings().catch(e=>status(e.message));
     });
     byId('account-search-button').addEventListener('click',()=>{
       accountPage=1;loadAccounts().catch(e=>status(e.message));
