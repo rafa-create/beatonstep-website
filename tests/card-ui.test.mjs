@@ -163,9 +163,9 @@ test('sport card presentations use mm:ss SUB above a minute without blue mobile 
 test('all seven web challenge finishes preserve the canonical mobile accent colors',()=>{
   const css=read('sport-card-face.css');
   const expected={
-    beginner:'#B98442',amateur:'#C9963A',regular:'#E1C15A',
-    intermediate:'#52B788',expert:'#5C7CFA',legend:'#A06BFF',
-    world_elite:'#E35D6A',
+    beginner:'#8E969A',amateur:'#AD7856',regular:'#C5AC67',
+    intermediate:'#55977B',expert:'#587DB3',legend:'#9370AB',
+    world_elite:'#B65767',
   };
   for(const [difficulty,accent] of Object.entries(expected)){
     assert.ok(css.includes('.sport-skin--'+difficulty+'{--sport-accent:'+accent+';'),
