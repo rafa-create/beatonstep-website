@@ -924,7 +924,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   let publicSelectedDeck='challenges',publicProfileData=null;
   const sportPublicName=card=>{
     const cm=Number(card.distanceCm);
-    const distance=cm===40000?'400 m':cm===2109750?'Semi-marathon':
+    const distance=cm===40000?'400 m':cm===80000?'800 m':
+      cm===150000?'1 500 m':cm===160934?'1 mile':cm===2109750?'Semi-marathon':
       cm===4219500?'Marathon':(cm/100000).toLocaleString('fr-FR')+' km';
     const sub=card.timeUnit==='second'
       ?Math.floor(card.subValue/60)+' min '+String(card.subValue%60).padStart(2,'0')+' s'

@@ -707,6 +707,9 @@
   };
   function sportDistanceLabel(cm){
     if(cm===40000)return '400 m';
+    if(cm===80000)return '800 m';
+    if(cm===150000)return '1 500 m';
+    if(cm===160934)return fr('1 mile','1 mile');
     if(cm===2109750)return fr('Semi-marathon','Half marathon');
     if(cm===4219500)return fr('Marathon','Marathon');
     return number(cm/100000)+' km';
