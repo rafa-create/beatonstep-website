@@ -172,6 +172,8 @@ function renameFixture() {
         async all(){
           if(sql.includes('FROM signed_shares s JOIN shared_items x'))
             return {results:[]};
+          if(sql.includes('FROM account_run_records WHERE user_id=?'))
+            return {results:[]};
           throw Error('Unexpected all: '+sql);
         },
         async run(){

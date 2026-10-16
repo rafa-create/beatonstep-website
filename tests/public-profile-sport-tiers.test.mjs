@@ -30,7 +30,7 @@ const card=(difficulty='amateur')=>({
   id:42,distanceCm:500000,timeUnit:'minute',subValue:29,difficulty,
 });
 
-async function render({rules=officialRules,available=true,cards=[card()]}={}){
+async function render({rules=officialRules,available=true,cards=[card()],ghosts=[]}={}){
   const list=new Node('ul');
   const context={
     fetch:async()=>available
@@ -43,7 +43,7 @@ async function render({rules=officialRules,available=true,cards=[card()]}={}){
   const renderCards=vm.runInNewContext(
     publicRenderer+';renderPublicChallenges',context);
   await context.BeatOnStepSportPercentiles.ready();
-  renderCards(cards);
+  renderCards(cards,ghosts);
   return list;
 }
 
@@ -63,7 +63,7 @@ test('public profile loads the same centralized rules as the authenticated deck'
   assert.match(publicRenderer,/BeatOnStepSportPercentiles\.label\(card,'fr'\)/);
   assert.doesNotMatch(publicRenderer,/difficulty:card\.difficulty/);
   assert.doesNotMatch(publicRenderer,/capsByDistance|percentileCalibration/);
-  assert.match(profile,/if\(data\.showChallenges===false\)[\s\S]*?else\{[\s\S]*?await BeatOnStepSportPercentiles\.ready\(\);[\s\S]*?renderPublicChallenges\(data\.challenges\|\|\[\]\)/);
+  assert.match(profile,/if\(data\.showChallenges===true\)[\s\S]*?await BeatOnStepSportPercentiles\.ready\(\);[\s\S]*?renderPublicChallenges\(data\.challenges\|\|\[\],data\.ghosts\|\|\[\]\)/);
   assert.doesNotThrow(()=>new vm.Script(page.match(/<script>([\s\S]*?)<\/script>/)[1]));
 });
 
@@ -103,4 +103,13 @@ test('empty public challenge list is unchanged',async()=>{
   const list=await render({cards:[]});
   assert.equal(list.children.length,1);
   assert.match(list.children[0].textContent,/Aucune carte Défi/);
+});
+
+test('ghosts on a public profile reuse the true card face and previous-ownership label',async()=>{
+  const list=await render({cards:[],ghosts:[{...card(),id:61,ghost:true}]});
+  assert.equal(list.children.length,1);
+  const tile=list.children[0];
+  assert.match(tile.children[0].className,/is-ghost/);
+  assert.match(tile.textContent,/Carte fantôme · Ancienne possession validée/);
+  assert.equal(tile.children[2].href,'/partages.html?kind=challenge&sport=61');
 });
