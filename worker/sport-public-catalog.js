@@ -33,6 +33,7 @@ const card=row=>({
   // without exposing the user's ID or any private profile information.
   hasOwner:row.has_owner===1,
   performanceWarning:row.performance_warning===1,
+  peakSpeedKmh:row.performance_warning===1?(row.peak_speed_kmh??null):null,
 });
 
 export async function readPublicSportCards(db,url,{
@@ -75,6 +76,10 @@ export async function readPublicSportCards(db,url,{
         FROM sport_card_telemetry_reviews tr
         WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
       'AS performance_warning,'+
+      (telemetryEnabled?`(SELECT sp.peak_speed_kmh
+        FROM sport_card_telemetry_speed_details sp
+        WHERE sp.card_id=c.id AND sp.owner_epoch=c.owner_epoch) `:'NULL ')+
+      'AS peak_speed_kmh,'+
       `(SELECT COUNT(DISTINCT e.new_owner_id)
         FROM sport_card_ownership_events e
         WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim'))
@@ -98,6 +103,10 @@ export async function readPublicSportCards(db,url,{
       FROM sport_card_telemetry_reviews tr
       WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
     'AS performance_warning,'+
+    (telemetryEnabled?`(SELECT sp.peak_speed_kmh
+      FROM sport_card_telemetry_speed_details sp
+      WHERE sp.card_id=c.id AND sp.owner_epoch=c.owner_epoch) `:'NULL ')+
+    'AS peak_speed_kmh,'+
     `(SELECT COUNT(DISTINCT e.new_owner_id)
       FROM sport_card_ownership_events e
       WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim'))
@@ -156,14 +165,16 @@ export async function readPublicSportCards(db,url,{
        LIMIT 1) AS public_run_json,`+
     (telemetryEnabled
       ? "CASE WHEN e.reason='sport_win' AND tr.state='warning' THEN 1 ELSE 0 END "
-        +"AS performance_warning,rd.reason_codes AS warning_reasons "
-      : '0 AS performance_warning,NULL AS warning_reasons ')+
+        +"AS performance_warning,rd.reason_codes AS warning_reasons,spd.peak_speed_kmh AS peak_speed_kmh "
+      : '0 AS performance_warning,NULL AS warning_reasons,NULL AS peak_speed_kmh ')+
     'FROM sport_card_ownership_events e '+
     (telemetryEnabled
       ? 'LEFT JOIN sport_card_telemetry_reviews tr ON tr.card_id=e.card_id '+
         'AND tr.owner_epoch=e.new_epoch '+
         'LEFT JOIN sport_card_telemetry_reason_details rd ON rd.card_id=e.card_id '+
-        'AND rd.owner_epoch=e.new_epoch '
+        'AND rd.owner_epoch=e.new_epoch '+
+        'LEFT JOIN sport_card_telemetry_speed_details spd ON spd.card_id=e.card_id '+
+        'AND spd.owner_epoch=e.new_epoch '
       : '')+
     'LEFT JOIN community_users prior ON prior.id=e.previous_owner_id '+
     'LEFT JOIN community_profile_settings prior_pref ON prior_pref.user_id=prior.id '+
@@ -182,7 +193,8 @@ export async function readPublicSportCards(db,url,{
       ...(e.reason==='sport_win'&&performance(e)?{session:performance(e)}:{}),
       ...(e.reason==='sport_win'&&Number(e.performance_warning)===1
         ?{performanceWarning:true,
-          warningReasons:readSportWarningReasons(e.warning_reasons)}
+          warningReasons:readSportWarningReasons(e.warning_reasons),
+          peakSpeedKmh:e.peak_speed_kmh??null}
         :{}),
     })),historyHasMore:events.length>100});
 }
