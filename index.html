@@ -631,36 +631,12 @@
       </div>
     </section>
 
-    <section class="app-preview" id="source-settings" hidden>
-      <p class="tag" data-fr>Réglages</p>
-      <p class="tag" data-en>Settings</p>
-      <h2 data-fr>Commun à toutes les sources</h2>
-      <h2 data-en>Shared across every source</h2>
-      <p class="section-lead" data-fr>Détection, sources cochées, changement de titre.</p>
-      <p class="section-lead" data-en>Detection, ticked sources, when the track changes.</p>
-      <div class="shots" aria-label="Réglages">
-        <figure class="shot">
-          <div class="phone">
-            <img src="assets/screenshots/app/settings-sources.png" width="575" height="1074" alt="Réglages : sources cochées" loading="lazy" />
-          </div>
-          <figcaption>
-            <strong data-fr>Sources</strong>
-            <strong data-en>Sources</strong>
-            <span data-fr>Coche les sources que tu veux en course.</span>
-            <span data-en>Tick the sources you want on a run.</span>
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
     <section class="modes reveal">
       <p class="tag" data-fr>En course</p>
       <p class="tag" data-en>On a run</p>
       <header class="section-head">
         <h2 data-fr>Quand le titre change</h2>
         <h2 data-en>When the track changes</h2>
-        <p data-fr>Dans Réglages : quelques secondes (défaut 15 s) ou fin du morceau — seulement s’il existe un meilleur titre dans tes sources cochées.</p>
-        <p data-en>In Settings: a few seconds (default 15 s) or end of track — only if a better match exists in your ticked sources.</p>
       </header>
       <div class="pillars reveal-stagger">
         <article class="pillar">
@@ -1647,7 +1623,6 @@
         if (!root) return;
         var cards = root.querySelectorAll(".source-card");
         var rows = root.querySelectorAll(".source-matrix tbody tr[data-src]");
-        var sharedSettings = document.getElementById("source-settings");
         function clear() {
           cards.forEach(function (c) {
             c.setAttribute("aria-pressed", "false");
@@ -1658,14 +1633,12 @@
             r.classList.remove("is-on");
           });
           root.removeAttribute("data-src");
-          if (sharedSettings) sharedSettings.hidden = true;
         }
         function select(key) {
           var already = root.getAttribute("data-src") === key;
           clear();
           if (already || !key) return;
           root.setAttribute("data-src", key);
-          if (sharedSettings) sharedSettings.hidden = false;
           cards.forEach(function (c) {
             if (c.getAttribute("data-src") !== key) return;
             c.setAttribute("aria-pressed", "true");

@@ -102,6 +102,9 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .bos-workout-top span:last-child{color:#dfc877;font-size:18px;letter-spacing:0;line-height:1}
 .bos-workout-face .bos-workout-art{flex:1;min-height:0;border:1.2px solid #d2bc70;border-radius:11px;background:radial-gradient(ellipse at 50% 72%,#4b422489,transparent 70%),#222016;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:6px;overflow:hidden}
 .bos-workout-art .bos-workout-disc{width:52px;height:52px;border-radius:50%;border:2px solid #e1cb7f;background:#514525;display:grid;place-items:center;color:#fff5c9;font-size:31px;line-height:1}
+/* Use the saved phase durations and target PPM, never a decorative fake graph. */
+.bos-workout-art .collection-effort{box-sizing:border-box;align-self:stretch;width:100%;height:68px;min-height:0;margin:0;padding:7px 4px 4px;gap:2px;border-color:#776833;background:#211f15}
+.bos-workout-art .collection-effort span{min-width:1px;border-radius:2px 2px 0 0}
 .bos-workout-art .bos-workout-goal{color:#ead28a;font-size:9px;font-weight:900;letter-spacing:.12em;text-align:center;overflow-wrap:anywhere}
 .bos-workout-face .bos-workout-foot{display:flex;flex-direction:column;gap:3px;min-width:0}
 .bos-workout-foot .bos-workout-category{color:#e1c576;font-size:8px;font-weight:900;letter-spacing:.65px}
@@ -932,8 +935,8 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
     }
   }
   // Public sessions are genuine collectible-looking cards, not a text list.
-  // The public profile API only supplies title, goal and source; do not invent
-  // musical phases, effort graphs, ownership or a session duration.
+  // The public profile API includes only persisted workout effort phases.
+  // Never synthesize an effort curve for old/missing/invalid profiles.
   function renderPublicSessions(items){
     const list=$('public-items');
     list.replaceChildren();
@@ -960,7 +963,9 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       goal.textContent=distance&&Number.isSafeInteger(item.distanceMeters)&&item.distanceMeters>0
         ?(item.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' KM'
         :distance?'DISTANCE':'DURÉE';
-      art.append(disc,goal);
+      const effort=elEffort(item.profile);
+      if(effort.className==='collection-effort')art.append(effort,goal);
+      else art.append(disc,goal);
       const foot=document.createElement('div');foot.className='bos-workout-foot';
       const category=document.createElement('span');category.className='bos-workout-category';
       category.textContent='CARTE SÉANCE';

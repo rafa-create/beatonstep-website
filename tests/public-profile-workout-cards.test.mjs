@@ -8,7 +8,7 @@ const page=readFileSync(new URL('../compte.html',import.meta.url),'utf8');
 class Node {
   constructor(tag){
     this.tagName=tag;this.className='';this.children=[];this.attributes={};
-    this.href='';this._text='';
+    this.href='';this._text='';this.style={};
   }
   set textContent(value){this._text=String(value);this.children=[];}
   get textContent(){return this._text+this.children.map(child=>child.textContent).join('');}
@@ -22,12 +22,16 @@ function render(items){
   const end=page.indexOf('  function showPublicDeck(){',start);
   assert.ok(start>0&&end>start,'dedicated public workout card rendering exists');
   const source=page.slice(start,end);
+  const effortStart=page.indexOf('  function elEffort(profile){');
+  const effortEnd=page.indexOf('  async function reusableGiftLink(',effortStart);
+  assert.ok(effortStart>0&&effortEnd>effortStart,'saved graph helper exists');
+  const effortSource=page.slice(effortStart,effortEnd);
   const context={
     document:{createElement:tag=>new Node(tag)},
     $:id=>{assert.equal(id,'public-items');return list;},
     currentCardGoal:item=>item?.goalMode==='distance'?'distance':'time',
   };
-  const run=vm.runInNewContext(source+';renderPublicSessions',context);
+  const run=vm.runInNewContext(effortSource+'\n'+source+';renderPublicSessions',context);
   run(items);
   return list;
 }
@@ -84,4 +88,26 @@ test('unknown goals, long untrusted names and empty lists remain safe',()=>{
   const empty=render([]);
   assert.equal(empty.children.length,1);
   assert.match(empty.children[0].textContent,/Aucune séance publiée/);
+});
+
+
+test('real saved phase profile draws proportionate effort bars on public cards',()=>{
+  const rows=render([{id:1000000000004,name:'Fractionné 20 min',goalMode:'time',
+    source:'spotify',imports:2,profile:[[300,120],[240,170],[360,130]]}]);
+  const graph=firstClass(rows,'collection-effort');
+  assert.ok(graph,'valid saved phase profile is drawn');
+  assert.equal(graph.children.length,3);
+  assert.equal(graph.children[0].style.flexGrow,'300');
+  assert.equal(graph.children[1].style.flexGrow,'240');
+  assert.equal(graph.attributes['aria-label'],'Profil d’effort de cette séance');
+  assert.equal(firstClass(rows,'bos-workout-disc'),null,'no redundant musical icon');
+  assert.equal(firstClass(rows,'bos-workout-goal').textContent,'DURÉE');
+});
+
+test('missing or invalid phase profiles retain safe note icon, never invented bars',()=>{
+  const rows=render([{id:12,name:'Sans phases',goalMode:'distance',source:'apple',
+    profile:[[0,-40]]},{id:13,name:'Ancienne séance',goalMode:'time',source:'spotify'}]);
+  assert.equal(firstClass(rows,'collection-effort'),null);
+  assert.equal(firstClass(rows.children[0],'bos-workout-disc').textContent,'♫');
+  assert.equal(firstClass(rows.children[1],'bos-workout-disc').textContent,'♫');
 });

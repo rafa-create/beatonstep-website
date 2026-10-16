@@ -320,6 +320,7 @@ export async function accountRequest(request,env,url,ctx) {
       // Settings belong to the account ID and survive pseudonym changes.
       const {showChallenges}=await profileVisibility(db,user.id);
       const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports,
+        COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
         json_extract(x.payload_json,'$.g') AS workout_goal,
         CASE WHEN json_extract(x.payload_json,'$.g')='distance'
           THEN (SELECT SUM(value) FROM json_each(x.payload_json,'$.m')) END AS workout_distance_meters
@@ -339,7 +340,7 @@ export async function accountRequest(request,env,url,ctx) {
         items:(items.results||[]).filter(x=>showChallenges||x.kind==='workout').map(x=>({
           id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
           createdAt:x.created_at,imports:Number(x.imports)||0,
-          ...(x.kind==='workout'?workoutCardType(x):{}),
+          ...(x.kind==='workout'?{...workoutCardType(x),profile:cardProfile(x.profile_json)}:{}),
         })),
         ...(showChallenges?{challenges:(challenges?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,

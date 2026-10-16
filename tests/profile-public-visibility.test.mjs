@@ -40,7 +40,8 @@ function fixture({migrationReady=true,legacyChallenge=false}={}){
           if(sql.includes('FROM signed_shares s JOIN shared_items x'))
             return {results:[
               {id:2,name:'Run 10 km',kind:'workout',source:'spotify',
-                created_at:1000,imports:4,workout_goal:'distance',workout_distance_meters:10000},
+                created_at:1000,imports:4,workout_goal:'distance',workout_distance_meters:10000,
+                profile_json:JSON.stringify([['Warmup',300,125,130],['Fast',180,172,165]])},
               ...(legacyChallenge?[{id:3,name:'Legacy challenge secret',
                 kind:'challenge',source:'none',created_at:2000,imports:0}]:[]),
             ]};
@@ -91,6 +92,8 @@ test('world challenges appear with signed musical sessions by default',async()=>
   assert.equal(publicData.showChallenges,true);
   assert.equal(publicData.items.length,1);
   assert.equal(publicData.items[0].goalMode,'distance');
+  assert.deepEqual(publicData.items[0].profile,[[300,125],[180,172]],
+    'public API reuses signed, persisted cadence/duration phases');
   assert.equal(publicData.challenges.length,1);
   assert.deepEqual(publicData.challenges[0],{
     id:42,distanceCm:500000,timeUnit:'minute',subValue:25,difficulty:'intermediate',
