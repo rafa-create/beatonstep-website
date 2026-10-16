@@ -3,6 +3,7 @@
 // Requires STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_ENCRYPTION_KEY and D1 migration.
 // No client-side Strava secret. Never log access/refresh tokens or authorization codes.
 import {claimLatestStravaSport} from './strava-world-award.js';
+import {stravaApiEnabled} from './strava-api-config.js';
 
 const PREFIX = '/api/strava';
 const SITE = 'https://beatonstep.app';
@@ -46,7 +47,7 @@ async function unseal(key, nonce, encrypted) {
 function configured(env) {
   return Boolean(env.DB && /^[0-9]+$/.test(String(env.STRAVA_CLIENT_ID || '')) &&
     env.STRAVA_CLIENT_SECRET && /^[a-f0-9]{64}$/.test(env.STRAVA_ENCRYPTION_KEY || '') &&
-    env.STRAVA_EXPORT_ENABLED === 'true');
+    stravaApiEnabled(env));
 }
 function capacity(env) {
   const n = Number(env.STRAVA_ATHLETE_CAPACITY || 1);
@@ -603,7 +604,7 @@ export async function stravaRequest(request, env, url, ctx=null) {
     if(path===PREFIX+'/claim-latest'&&request.method==='POST'){
       const row=await connection(env.DB,device);
       if(!row)return reply({error:'not_connected'},401);
-      const token=env.STRAVA_IMPORT_AWARDS_ENABLED==='true'
+      const token=stravaApiEnabled(env)
         ?await accessToken(env,row):null;
       return claimLatestStravaSport(request,env,row,token,ctx);
     }
