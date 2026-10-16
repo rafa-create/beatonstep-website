@@ -74,6 +74,10 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
     'SELECT 1 AS match FROM strava_exports WHERE athlete_id=? AND activity_id=? LIMIT 1')
     .bind(row.athlete_id,activityId).first();
   if(exported)return reply({status:'history_only',reason:'already_recorded_beatonstep'});
+  // Native TCX exports also carry the BeatOnStep external ID; the Strava
+  // activity may appear before its asynchronous upload receipt is complete.
+  // We verify the source only after retrieving the detailed activity below.
+
 
   const detail=await stravaGet(token,'https://www.strava.com/api/v3/activities/'+activityId);
   if(detail.error)return reply({error:detail.error},detail.status);
@@ -81,6 +85,8 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   if(!activity||String(activity.id||'')!==activityId||
      (activity.athlete?.id!=null&&String(activity.athlete.id)!==String(row.athlete_id)))
     return reply({error:'strava_invalid_response'},502);
+  if(/^bos-[0-9]{12,14}\.tcx$/.test(String(activity.external_id||'')))
+    return reply({status:'history_only',reason:'already_recorded_beatonstep'});
   // Coordinates are inspected in memory only; never returned to the caller or D1.
   const streams=await stravaGet(token,'https://www.strava.com/api/v3/activities/'+activityId+
     '/streams?keys=time,latlng,distance,cadence,heartrate&key_by_type=true');
@@ -101,12 +107,13 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
     overlapsRecordedSportRun(v.run_id,evidence.startedAtMs,evidence.endedAtMs)&&
     (v.run_id!==runId||!old)))
     return reply({status:'history_only',reason:'already_recorded_beatonstep'});
-  // Even an archived BeatOnStep run which has not yet been reconciled should
-  // not win a second card through its later mirror in Strava. Strava archives
-  // use strava-IDs, not run-IDs; they never self-block on first import.
+  // Existing imported Strava archives ALSO use run-<id>-<start>, but
+  // carry a Strava-prefixed workoutName. Exclude those self-archives.
   const archived=await env.DB.prepare(
     "SELECT run_id FROM account_run_records WHERE user_id=? "+
-    "AND started_at BETWEEN ? AND ? AND run_id LIKE 'run-%' LIMIT 50")
+    "AND started_at BETWEEN ? AND ? AND run_id LIKE 'run-%' "+
+    "AND COALESCE(json_extract(snapshot_json,'$.workoutName'),'') "+
+    "NOT LIKE 'Strava · %' LIMIT 50")
     .bind(member.id,evidence.startedAtMs-60000,evidence.endedAtMs+60000).all();
   if((archived.results||[]).some(v=>
     overlapsRecordedSportRun(v.run_id,evidence.startedAtMs,evidence.endedAtMs)&&
