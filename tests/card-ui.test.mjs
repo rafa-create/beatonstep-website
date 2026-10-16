@@ -163,17 +163,18 @@ test('sport card presentations use mm:ss SUB above a minute without blue mobile 
 test('all seven web challenge finishes preserve the canonical mobile accent colors',()=>{
   const css=read('sport-card-face.css');
   const expected={
-    beginner:'#dec26b',amateur:'#f1bd85',regular:'#c6ad74',
-    intermediate:'#b7b0a0',expert:'#d6ad79',legend:'#e4cc82',
-    world_elite:'#d5d2c6',
+    beginner:'#B98442',amateur:'#C9963A',regular:'#E1C15A',
+    intermediate:'#52B788',expert:'#5C7CFA',legend:'#A06BFF',
+    world_elite:'#E35D6A',
   };
   for(const [difficulty,accent] of Object.entries(expected)){
     assert.ok(css.includes('.sport-skin--'+difficulty+'{--sport-accent:'+accent+';'),
       'web '+difficulty+' must keep the same accent as mobile');
   }
   const helper=read('sport-card-face.js');
-  assert.match(css,/\.bos-sport-face\.sport-finish--400m\{--sport-accent:#dec26b;--sport-shade:#6b562b\}/);
-  assert.match(css,/\.bos-sport-face\.sport-finish--5k\{--sport-accent:#f1bd85;--sport-shade:#805132\}/);
+  assert.doesNotMatch(css,/\.bos-sport-face\.sport-finish--400m\{--sport-accent:/);
+  assert.doesNotMatch(css,/\.bos-sport-face\.sport-finish--5k\{--sport-accent:/);
+  assert.match(css,/color-mix\(in srgb,var\(--sport-accent\) 23%,transparent\)/);
   assert.match(helper,/item\?\.distanceCm===40000\?' sport-finish--400m'/);
   assert.match(helper,/item\?\.distanceCm===500000\?' sport-finish--5k'/);
   assert.match(helper,/CARTE UNIQUE AU MONDE/);

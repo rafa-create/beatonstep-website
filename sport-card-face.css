@@ -1,31 +1,28 @@
 /* #451 — Canonical website face of the BeatOnStep sporting collectible.
    The seven accents/marks and distance crests match mobile-app/src/utils/sportCardVisual.ts.
-   No rarity tier, owner identity or performance verification is inferred here. */
-.bos-sport-face{--sport-accent:#dec26b;--sport-shade:#6b562b;
+   Rarity color follows the validated 1–7 star tier, never ownership or guessed performance. */
+.bos-sport-face{--sport-accent:#B98442;--sport-shade:#50321F;
   position:relative;box-sizing:border-box;width:157px;height:218px;flex:none;
   padding:12px;border:1.7px solid var(--sport-accent);border-radius:19px;
   background:#181811;display:flex;flex-direction:column;justify-content:space-between;
-  color:#f4f1e0;box-shadow:0 8px 24px #0007,0 0 17px #fcea0714;
+  color:#f4f1e0;box-shadow:0 8px 24px #0007,0 0 17px color-mix(in srgb,var(--sport-accent) 23%,transparent);
   overflow:hidden;font-family:system-ui,-apple-system,sans-serif;text-align:left}
 .bos-sport-face *{box-sizing:border-box}
-.sport-skin--beginner{--sport-accent:#dec26b;--sport-shade:#6b562b}
-.sport-skin--amateur{--sport-accent:#f1bd85;--sport-shade:#805132}
-.sport-skin--regular{--sport-accent:#c6ad74;--sport-shade:#655333}
-.sport-skin--intermediate{--sport-accent:#b7b0a0;--sport-shade:#555047}
-.sport-skin--expert{--sport-accent:#d6ad79;--sport-shade:#70513a}
-.sport-skin--legend{--sport-accent:#e4cc82;--sport-shade:#7d6330}
-.sport-skin--world_elite{--sport-accent:#d5d2c6;--sport-shade:#676256}
-/* Distance finishes are permanent: leveling up never recolors an existing
-   gold sprint or copper 5K. Star slots still encode the mathematical tier. */
-.bos-sport-face.sport-finish--400m{--sport-accent:#dec26b;--sport-shade:#6b562b}
-.bos-sport-face.sport-finish--5k{--sport-accent:#f1bd85;--sport-shade:#805132}
+.sport-skin--beginner{--sport-accent:#B98442;--sport-shade:#50321F}
+.sport-skin--amateur{--sport-accent:#C9963A;--sport-shade:#533A1C}
+.sport-skin--regular{--sport-accent:#E1C15A;--sport-shade:#625121}
+.sport-skin--intermediate{--sport-accent:#52B788;--sport-shade:#1D4B3C}
+.sport-skin--expert{--sport-accent:#5C7CFA;--sport-shade:#263D78}
+.sport-skin--legend{--sport-accent:#A06BFF;--sport-shade:#462C77}
+.sport-skin--world_elite{--sport-accent:#E35D6A;--sport-shade:#792F3E}
+/* Distance changes the crest, not the jewel finish assigned by stars. */
 .bos-sport-top{display:flex;justify-content:space-between;align-items:center;
   gap:4px;color:#fcea07;font-size:9px;letter-spacing:1.2px;font-weight:900}
 .bos-sport-top .bos-tier-icon{font-size:21px;line-height:1;color:var(--sport-accent);
   letter-spacing:0}
 .bos-sport-art{flex:1;min-height:0;margin:6px 0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:1px;border:1.2px solid var(--sport-accent);
-  border-radius:11px;background:#222016;overflow:hidden;padding:3px}
+  border-radius:11px;background:#1F1E1B;overflow:hidden;padding:3px}
 .bos-sport-bars{display:flex;justify-content:center;gap:4px;align-items:center;height:4px}
 .bos-sport-bars i{display:block;width:7px;height:2px;background:var(--sport-accent);border-radius:2px}
 .bos-sport-bars i:nth-child(even){opacity:.45}
@@ -41,8 +38,7 @@
 .bos-sport-category{font-size:8px;letter-spacing:.65px;color:var(--sport-accent);font-weight:900}
 .bos-sport-name{font-size:13px;line-height:1.18;font-weight:900;overflow-wrap:anywhere;
   color:#f4f1e0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-/* Seven visible slots: full stars convey the tier; outlined slots show the
-   scale independently of the existing difficulty-dependent border colour. */
+/* Seven star slots and jewel accents both express the validated tier. */
 .bos-sport-stars{display:flex;align-items:center;gap:2px;min-height:14px;
   margin-top:2px;white-space:nowrap;font-size:13px;line-height:1}
 .bos-sport-stars .is-filled{color:var(--sport-accent)}
@@ -55,8 +51,8 @@
   box-shadow:0 0 18px color-mix(in srgb,var(--sport-accent) 28%,transparent)}
 .sport-skin--legend .bos-sport-art,
 .sport-skin--world_elite .bos-sport-art{box-shadow:inset 0 0 13px #fff4bc12}
-.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 12px #d5d2c644}
-.sport-skin--legend .bos-sport-crest{box-shadow:0 0 12px #e4cc8244}
+.sport-skin--world_elite .bos-sport-crest{box-shadow:0 0 12px #E35D6A44}
+.sport-skin--legend .bos-sport-crest{box-shadow:0 0 12px #A06BFF44}
 /* Catalogue: real card face + public metadata. Musical layout untouched. */
 .sport-card .sport-summary{display:flex;flex-wrap:wrap;align-items:center;
   justify-content:flex-start;gap:14px}
