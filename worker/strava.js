@@ -432,6 +432,72 @@ async function publish(request, env, device, row) {
     return reply({error:'publication_pending_verify_strava'},503);
   }
 }
+// The import tap explicitly requests geographic samples; they are returned
+// only to this connected athlete's phone and NEVER persisted on Cloudflare.
+async function importActivityRoute(env,row,activityId){
+  if(!row)return reply({error:'not_connected'},401);
+  if(!/^[1-9][0-9]{0,19}$/.test(activityId))
+    return reply({error:'invalid_activity_id'},400);
+  let token;
+  try{token=await accessToken(env,row);}
+  catch{return reply({error:'strava_token_unavailable'},503);}
+  const headers={authorization:'Bearer '+token,accept:'application/json'};
+  const read=async path=>{
+    let response;
+    try{response=await fetch('https://www.strava.com/api/v3/'+path,{headers});}
+    catch{return {error:'strava_unavailable',status:503};}
+    if(response.status===429)return {error:'strava_rate_limited',status:429};
+    if(response.status===401||response.status===403)
+      return {error:'strava_read_permission_required',status:403};
+    if(response.status===404)return {error:'strava_not_found',status:404};
+    if(!response.ok)return {error:'strava_unavailable',status:502};
+    try{return {data:await response.json()};}
+    catch{return {error:'strava_invalid_response',status:502};}
+  };
+  const activity=await read('activities/'+activityId);
+  if(activity.error)return reply({error:activity.error},activity.status);
+  const detail=activity.data;
+  if(!detail||String(detail.id)!==activityId||
+     String(detail.athlete?.id||'')!==String(row.athlete_id))
+    return reply({error:'strava_invalid_response'},502);
+  const gain=optionalMetric(detail.total_elevation_gain,0,30000);
+  const response=await read('activities/'+activityId+
+    '/streams?keys=latlng,time,altitude&key_by_type=true');
+  // Missing/hidden route must never prevent importing the summary.
+  if(response.error)return reply({
+    geoRoute:null,
+    elevationGainMeters:Number.isFinite(gain)?gain:null,
+    routeUnavailableReason:response.error,
+  });
+  const geo=response.data?.latlng?.data;
+  const time=response.data?.time?.data;
+  let points=null;
+  if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000&&
+     Array.isArray(time)&&time.length===geo.length){
+    const sampled=[];
+    const limit=Math.min(120,geo.length);
+    let valid=true,lastT=-1;
+    for(let i=0;i<geo.length;i++){
+      const a=geo[i],t=time[i];
+      if(!Array.isArray(a)||a.length!==2||
+         !Number.isFinite(a[0])||!Number.isFinite(a[1])||
+         Math.abs(a[0])>85||Math.abs(a[1])>180||
+         !Number.isFinite(t)||t<0||t<=lastT){valid=false;break;}
+      lastT=t;
+    }
+    if(valid)for(let i=0;i<limit;i++){
+      const n=Math.floor(i*(geo.length-1)/(limit-1));
+      sampled.push(geo[n]);
+    }
+    if(valid&&Math.max(...sampled.map(a=>a[1]))-
+       Math.min(...sampled.map(a=>a[1]))<=180)points=sampled;
+  }
+  return reply({
+    geoRoute:points,
+    elevationGainMeters:Number.isFinite(gain)?gain:null,
+  });
+}
+
 async function recentRuns(env,row){
   if(!row)return reply({error:'not_connected'},401);
   let token;
@@ -529,6 +595,9 @@ export async function stravaRequest(request, env, url, ctx=null) {
     if (path === PREFIX+'/activities' && request.method === 'GET') {
       return recentRuns(env,await connection(env.DB,device));
     }
+    const route=/^\/api\/strava\/activities\/([1-9][0-9]{0,19})\/route$/.exec(path);
+    if(route&&request.method==='GET')
+      return importActivityRoute(env,await connection(env.DB,device),route[1]);
     if(path===PREFIX+'/claim-latest'&&request.method==='POST'){
       const row=await connection(env.DB,device);
       if(!row)return reply({error:'not_connected'},401);

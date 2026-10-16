@@ -528,3 +528,29 @@ test('TCX builder does not invent missing heart-rate or cadence measurements',()
  assert.doesNotMatch(xml,/<Cadence>/);
  assert.match(xml,/<Trackpoint>/);
 });
+
+test('Strava private route is returned temporarily to its athlete without D1 storage',async()=>{
+  const {db}=await publishingFixture();
+  const original=globalThis.fetch;
+  globalThis.fetch=async(url)=>{
+    const value=String(url);
+    if(value==='https://www.strava.com/api/v3/activities/123456789')
+      return {ok:true,status:200,json:async()=>({
+        id:123456789,athlete:{id:123},total_elevation_gain:52.5,
+      })};
+    if(value.endsWith('/streams?keys=latlng,time,altitude&key_by_type=true'))
+      return {ok:true,status:200,json:async()=>({
+        latlng:{data:[[43.30,5.38],[43.301,5.382]]},
+        time:{data:[0,100]},
+      })};
+    throw Error('unexpected Strava URL '+value);
+  };
+  try{
+    const url=new URL(ROOT+'/api/strava/activities/123456789/route');
+    const response=await stravaRequest(request('activities/123456789/route'),env(db),url);
+    assert.equal(response.status,200);
+    const result=await response.json();
+    assert.deepEqual(result.geoRoute,[[43.30,5.38],[43.301,5.382]]);
+    assert.equal(result.elevationGainMeters,52.5);
+  }finally{globalThis.fetch=original;}
+});
