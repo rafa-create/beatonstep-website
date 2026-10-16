@@ -39,15 +39,24 @@
     .item a { display:inline-block; padding:.5rem; }
     .pagination { display:flex; justify-content:center; gap:1rem; margin-top:1.2rem; align-items:center; }
     .notice { margin:.7rem 0; padding:.75rem 1rem; border-left:3px solid #ffe55e; background:#242e32; }
+    .admin-tabs{display:flex;flex-wrap:wrap;gap:.65rem;margin:1rem 0 1.4rem}
+    .admin-tabs button[aria-pressed="true"]{background:#ffe55e;color:#121717;font-weight:800;border-color:#ffe55e}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin:1rem 0}
+    .stat{border:1px solid #48575d;border-radius:12px;background:#131b20;padding:1rem}
+    .stat strong{display:block;font-size:1.5rem;color:#ffe55e}
+    .stat span{color:#c5d1d5;font-size:.86rem}
+    .quick-links{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0}
+    .quick-links a{border:1px solid #708087;padding:.65rem;border-radius:9px}
+    select{background:#10181b;border:1px solid #73868c;border-radius:9px;color:#fff;padding:.7rem;font:inherit;min-height:44px}
     [hidden] { display:none !important; }
     @media(max-width:560px) { .item { align-items:flex-start; flex-direction:column; } .item .actions { width:100%; } }
   </style>
 </head>
 <body>
-  <header><div class="shell"><a class="brand" href="/">BEATONSTEP</a><a href="/partages.html">← Catalogue public</a></div></header>
+  <header><div class="shell"><a class="brand" href="/">BEATONSTEP</a><a href="/compte.html">← Mon compte</a></div></header>
   <main class="shell">
-    <h1>Administration du catalogue</h1>
-    <p class="muted intro">Espace privé réservé à l'administrateur. La suppression d'une carte est définitive et rend son lien public indisponible.</p>
+    <h1>Administration BeatOnStep</h1>
+    <p class="muted intro">Gérer le catalogue musical et consulter les défis sportifs. Cette page nécessite une connexion administrateur indépendante du compte public.</p>
     <p class="notice" id="message" role="status" aria-live="polite">Vérification de la session…</p>
     <section class="panel" id="login-panel" hidden aria-labelledby="login-title">
       <h2 id="login-title">Se connecter</h2>
@@ -60,10 +69,28 @@
     </section>
     <section id="admin-panel" hidden aria-labelledby="cards-title">
       <div class="top">
-        <div><h2 id="cards-title">Cartes publiées</h2><p class="muted" id="account"></p></div>
+        <div><h2 id="cards-title">Centre de gestion</h2><p class="muted" id="account"></p></div>
         <button type="button" id="logout">Déconnexion</button>
       </div>
-      <div class="panel" style="margin:16px 0"><h2>Collection de séances</h2>
+      <nav class="admin-tabs" role="group" aria-label="Rubriques de gestion">
+        <button type="button" id="tab-overview" aria-pressed="true">Vue d'ensemble</button>
+        <button type="button" id="tab-sessions" aria-pressed="false">♫ Séances</button>
+        <button type="button" id="tab-sports" aria-pressed="false">🏆 Défis</button>
+        <button type="button" id="tab-tools" aria-pressed="false">⚙ Outils</button>
+      </nav>
+      <section id="overview-panel" class="panel" aria-label="Vue d'ensemble">
+        <h2>Indicateurs de la plateforme</h2>
+        <div id="admin-stats" class="stats" aria-live="polite"></div>
+        <div class="quick-links">
+          <a href="/partages.html?kind=challenge">Catalogue des défis</a>
+          <a href="/partages.html?kind=challenge&amp;view=records">Records sportifs</a>
+          <a href="/compte.html">Mon compte</a>
+        </div>
+      </section>
+      <section id="sessions-panel" hidden aria-label="Administration des séances musicales">
+        <h2>Séances musicales</h2>
+        <p class="muted">Consulter, supprimer une séance publiée ou créer un lien de don de carte.</p>
+      <div class="panel" style="margin:16px 0"><h2>Maintenance des séances</h2>
         <p class="muted">Après la migration SQL 0004, préparer les cartes historiques avant d'activer la collection. Les anciens liens sont conservés.</p>
         <button type="button" id="backfill">Réconcilier les séances historiques</button>
         <p class="meta" id="backfill-info" aria-live="polite"></p>
@@ -75,12 +102,35 @@
         <span id="position" aria-live="polite"></span>
         <button type="button" id="next">Suivant →</button>
       </div>
+      </section>
+      <section id="sports-panel" hidden aria-label="Inspection des défis sportifs">
+        <h2>Défis sportifs mondiaux</h2>
+        <p class="muted">Inspection des cartes, détenteurs publics, périodes et historique. Les attributions et transferts vérifiés ne sont pas modifiables manuellement.</p>
+        <label for="sport-sort">Tri des cartes</label>
+        <select id="sport-sort"><option value="recent">Identifiants récents</option><option value="holders">Plus de détenteurs</option></select>
+        <ul id="sport-items" class="items"></ul>
+        <div class="pagination">
+          <button type="button" id="sport-previous">← Précédent</button>
+          <span id="sport-position" aria-live="polite"></span>
+          <button type="button" id="sport-next">Suivant →</button>
+        </div>
+      </section>
+      <section id="tools-panel" class="panel" hidden aria-label="Liens de gestion">
+        <h2>Outils et vérifications</h2>
+        <p class="muted">Le bouton de réconciliation est dans « Séances ». Les défis doivent être attribués uniquement par la validation sportive existante.</p>
+        <div class="quick-links">
+          <a href="/partages.html?kind=challenge&amp;view=records">Voir les records</a>
+          <a href="/partages.html">Voir les publications</a>
+          <a href="/compte.html">Retour à mon compte</a>
+        </div>
+      </section>
     </section>
   </main>
   <script type="module">
     const byId = id => document.getElementById(id);
     const OFFSET = 1_000_000_000_000;
-    let page = 1;
+    let page = 1, sportPage = 1;
+    const TABS=['overview','sessions','sports','tools'];
     function labelId(id) {
       return '#' + String(id > OFFSET ? id - OFFSET : id).padStart(4, '0');
     }
@@ -102,8 +152,66 @@
       byId('admin-panel').hidden = !admin;
       if (admin) byId('account').textContent = admin.email;
     }
+    function showTab(name){
+      if(!TABS.includes(name))return;
+      for(const tab of TABS){
+        byId(tab+'-panel').hidden=tab!==name;
+        byId('tab-'+tab).setAttribute('aria-pressed',String(tab===name));
+      }
+      const loaders={overview:loadOverview,sessions:loadItems,
+        sports:loadSportItems,tools:async()=>{}};
+      loaders[name]().catch(e=>status(e.message));
+    }
+    async function loadOverview(){
+      const data=await api('/api/admin/overview');
+      const fields=[['Séances publiées',data.shares],['Cartes Défis',data.sportCards],
+        ['Changements de détenteur',data.ownershipEvents],
+        ['Courses vérifiées',data.verifiedRuns],['Comptes',data.accounts]];
+      const list=byId('admin-stats');list.replaceChildren();
+      for(const [label,count] of fields){
+        const item=document.createElement('div');item.className='stat';
+        const num=document.createElement('strong');
+        num.textContent=Number(count).toLocaleString('fr-FR');
+        const caption=document.createElement('span');caption.textContent=label;
+        item.append(num,caption);list.append(item);
+      }
+    }
+    function sportName(item){
+      const cm=Number(item.distanceCm),distance=cm===40000?'400 m':
+        cm===2109750?'Semi-marathon':cm===4219500?'Marathon':
+          (cm/100000).toLocaleString('fr-FR')+' km';
+      return distance+' · SUB '+item.subValue+
+        (item.timeUnit==='second'?' s':' min');
+    }
+    async function loadSportItems(){
+      const data=await api('/api/admin/sport/cards?page='+sportPage+
+        '&sort='+encodeURIComponent(byId('sport-sort').value));
+      const list=byId('sport-items');list.replaceChildren();
+      if(!data.items.length){
+        const li=document.createElement('li');li.textContent='Aucun défi.';
+        list.append(li);
+      }
+      for(const card of data.items){
+        const li=document.createElement('li');li.className='item';
+        const info=document.createElement('div');
+        const title=document.createElement('h2');title.textContent=sportName(card);
+        const meta=document.createElement('div');meta.className='meta';
+        meta.textContent='#'+card.id+' · '+card.holderCount+' détenteur(s) · époque '+
+          card.ownerEpoch+' · '+(card.owner?'@'+card.owner:'Réserve / compte privé');
+        info.append(title,meta);
+        const link=document.createElement('a');
+        link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
+        link.target='_blank';link.rel='noopener noreferrer';
+        link.textContent='Voir la fiche et son historique';
+        li.append(info,link);list.append(li);
+      }
+      const last=Math.max(1,Math.ceil(data.total/data.pageSize));
+      byId('sport-position').textContent='Page '+sportPage+' / '+last+' · '+data.total+' cartes';
+      byId('sport-previous').disabled=sportPage<=1;
+      byId('sport-next').disabled=sportPage>=last;
+    }
     async function loadItems() {
-      const data = await api('/api/shared?sort=recent&page=' + page);
+      const data = await api('/api/shared?kind=workout&sort=recent&page=' + page);
       const list = byId('items');
       list.replaceChildren();
       if (!data.items.length) {
@@ -177,6 +285,7 @@
       byId('next').disabled = page >= last;
     }
     byId('backfill').addEventListener('click',async()=>{
+      if(!confirm('Réconcilier les séances et écrire dans les tables existantes ?'))return;
       const button=byId('backfill');button.disabled=true;
       let afterId=0,scanned=0,created=0,aliases=0,skipped=0;
       try {
@@ -208,8 +317,8 @@
         byId('login-form').reset();
         showAdmin(admin);
         page = 1;
-        await loadItems();
-        status('Connecté. Suppressions réservées à l’administrateur.');
+        showTab('overview');
+        status('Session administrateur active.');
       } catch (error) { status(error.message); }
       finally { button.disabled = false; }
     });
@@ -219,6 +328,16 @@
         showAdmin(null);
         status('Déconnecté.');
       } catch (error) { status(error.message); }
+    });
+    for(const tab of TABS)byId('tab-'+tab).addEventListener('click',()=>showTab(tab));
+    byId('sport-sort').addEventListener('change',()=>{
+      sportPage=1;loadSportItems().catch(e=>status(e.message));
+    });
+    byId('sport-previous').addEventListener('click',()=>{
+      if(sportPage>1){sportPage--;loadSportItems().catch(e=>status(e.message));}
+    });
+    byId('sport-next').addEventListener('click',()=>{
+      sportPage++;loadSportItems().catch(e=>status(e.message));
     });
     byId('previous').addEventListener('click', () => {
       if (page > 1) { page--; loadItems().catch(e => status(e.message)); }
@@ -231,7 +350,7 @@
         const current = await api('/api/admin/me');
         showAdmin(current.authenticated ? current : null);
         if (current.authenticated) {
-          await loadItems();
+          showTab('overview');
           status('Session administrateur active.');
         } else status('Connexion administrateur requise.');
       } catch (error) { showAdmin(null); status(error.message); }
