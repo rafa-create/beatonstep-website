@@ -61,7 +61,8 @@ function setup(search,data=example){
     'sport-guide-link','sport-guide-label',
     'catalog-toolbar','records-panel','records-heading','records-help',
     'record-sort-label','record-sort','record-level-picker','record-level-label','record-level',
-    'records-holdings-heading','records-holdings','records-collections-heading',
+    'records-holdings-heading','records-holdings','records-popular-heading',
+    'records-popular','records-collections-heading',
     'records-collections','records-privacy'])
     elements[name]=new Node(name);
   // Mirror the actual accessible profile label inside #community-link.
@@ -103,7 +104,8 @@ function setup(search,data=example){
           difficulty:'expert',holder:'runner_a',durationMs:86400000,ongoing:false},
         {cardId:19,distanceCm:1000000,subValue:40,timeUnit:'minute',
           difficulty:'world_elite',holder:null,durationMs:3600000,ongoing:true},
-      ],collections:[{holder:'runner_a',cards:2}],
+      ],mostHeldCards:[{cardId:17,distanceCm:500000,timeUnit:'minute',
+        subValue:25,holderCount:3}],collections:[{holder:'runner_a',cards:2}],
     })};
     if(url.endsWith('/view'))return {ok:true,json:async()=>({counted:true})};
     if(url.includes('?'))return {ok:true,json:async()=>({total:items.length,page:1,pageSize:20,
@@ -122,6 +124,7 @@ function setup(search,data=example){
   const sport={id:17,kind:'challenge',distanceCm:500000,timeUnit:'minute',
     subValue:25,difficulty:'amateur',owner:'runner_b',createdAt:1000,
     firstHolder:'runner_a',longestHolder:'runner_a',longestHeldMs:86400000,
+    holderCount:2,
     history:[{reason:'sport_win',at:1000,from:null,to:'runner_a'},
       {reason:'gift_claim',at:2000,from:'runner_a',to:'runner_b'}],
     historyHasMore:false};
@@ -160,6 +163,9 @@ function setup(search,data=example){
   assert.equal(records.elements['records-panel'].hidden,false);
   assert.equal(records.elements['records-holdings-heading'].textContent,
     'Cartes gardées le plus longtemps');
+  assert.match(records.elements['records-popular'].textContent,/3 détenteurs/);
+  assert.equal(records.elements['records-popular-heading'].textContent,
+    'Cartes ayant eu le plus de détenteurs');
   assert.equal(records.elements['record-sort'].value,'duration');
   assert.equal(records.elements['record-level-picker'].hidden,false);
   assert.equal(records.elements['catalog-toolbar'].hidden,true);
@@ -261,6 +267,7 @@ function setup(search,data=example){
     'English challenge detail page also has no self-referential link');
   const history=walk(landing.elements.results,x=>x.className==='sport-details')[0];
   assert(history&&!history.open,'history is folded by default');
+  assert.match(history.textContent,/Historique des détenteurs \(2\)/);
   // Switching languages keeps the field understandable and leaves the typed value alone.
   const localeDistance=setup('',sport);
   await flush();
