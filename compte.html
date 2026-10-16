@@ -171,8 +171,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div class="profile-visibility" id="profile-visibility">
 <h3>Visibilité de mon profil public</h3>
-<label for="show-public-challenges"><input id="show-public-challenges" type="checkbox" checked>Afficher mes cartes Défis sur mon profil public</label>
-<p class="field-help">Cela ne masque pas le détenteur des cartes dans le catalogue mondial.</p>
+<label for="show-public-challenges"><input id="show-public-challenges" type="checkbox">Rendre mon profil public (cartes Défis et séances enregistrées)</label>
+<p class="field-help">Profil privé par défaut. Si vous rendez votre profil public, vos séances déjà sauvegardées (date, durée, distance et allure) peuvent être consultées. Les publications musicales déjà partagées restent accessibles par leurs liens.</p>
 <p class="field-help" id="visibility-status" role="status" aria-live="polite"></p>
 </div>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
@@ -239,9 +239,12 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
 <div class="profile-switch" role="group" aria-label="Collections publiques">
 <button type="button" id="public-show-challenges" aria-pressed="true">🏅 Défis</button>
 <button type="button" id="public-show-sessions" aria-pressed="false">♫ Séances</button>
+<button type="button" id="public-show-history" aria-pressed="false">◷ Historique</button>
 </div>
+<p id="public-private-notice" hidden>Ce profil est privé. Les séances et la collection personnelle ne sont pas publiques.</p>
 <div id="public-challenges"><ul id="public-challenge-cards" class="public-sport-cards"></ul></div>
 <div id="public-sessions" hidden><ul id="public-items" class="public-session-cards"></ul></div>
+<div id="public-history" hidden><ul id="public-run-items"></ul></div>
 </section>
 </main>
 <script src="/sport-card-face.js"></script>
@@ -689,7 +692,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   }
   async function loadProfileVisibility(){
     const setting=await api('/api/account/profile/preferences');
-    storedShowChallenges=setting.showChallenges!==false;
+    storedShowChallenges=setting.showChallenges===true;
     $('show-public-challenges').checked=storedShowChallenges;
     $('visibility-status').textContent='';
     return setting;
@@ -702,8 +705,8 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       const setting=await api('/api/account/profile/preferences','POST',{showChallenges:choice});
       storedShowChallenges=setting.showChallenges;
       $('visibility-status').textContent=storedShowChallenges
-        ?'Mes cartes Défis sont visibles sur mon profil.'
-        :'Mes cartes Défis sont masquées sur mon profil.';
+        ?'Profil public : mes séances et cartes peuvent être consultées.'
+        :'Profil privé : mes séances et cartes personnelles sont masquées.';
     }catch(error){
       input.checked=storedShowChallenges;
       $('visibility-status').textContent='Modification impossible : '+error.message;
@@ -988,18 +991,50 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       list.append(li);
     }
   }
+  function renderPublicRuns(items){
+    const list=$('public-run-items');
+    list.replaceChildren();
+    if(!items.length){
+      const li=document.createElement('li');
+      li.textContent='Aucune séance sauvegardée à afficher.';
+      list.append(li);return;
+    }
+    for(const run of items){
+      const li=document.createElement('li'),heading=document.createElement('strong');
+      const meta=document.createElement('small');
+      li.className='deck-tile';
+      heading.textContent='Séance du '+historyDateTime(run.at);
+      const distance=Number.isFinite(run.distanceMeters)
+        ?(run.distanceMeters/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km':null;
+      const pace=historyPace(run.averagePaceSecPerKm);
+      meta.textContent=[historyClock(run.durationSeconds),distance,
+        pace?'Allure moyenne : '+pace:null].filter(Boolean).join(' · ');
+      const label=document.createElement('p');
+      label.className='small';
+      label.textContent='Séance enregistrée (ne constitue pas une validation sportive).';
+      li.append(heading,meta,label);list.append(li);
+    }
+  }
   function showPublicDeck(){
     if(!publicProfileData)return;
-    const visible=publicProfileData.showChallenges!==false;
+    const visible=publicProfileData.showChallenges===true;
     const challenges=visible&&publicSelectedDeck==='challenges';
+    const sessions=visible&&publicSelectedDeck==='sessions';
+    const runs=visible&&publicSelectedDeck==='history';
+    $('public-private-notice').hidden=visible;
     $('public-show-challenges').hidden=!visible;
+    $('public-show-sessions').hidden=!visible;
+    $('public-show-history').hidden=!visible;
     $('public-challenges').hidden=!challenges;
-    $('public-sessions').hidden=challenges;
+    $('public-sessions').hidden=!sessions;
+    $('public-history').hidden=!runs;
     $('public-show-challenges').setAttribute('aria-pressed',String(challenges));
-    $('public-show-sessions').setAttribute('aria-pressed',String(!challenges));
+    $('public-show-sessions').setAttribute('aria-pressed',String(sessions));
+    $('public-show-history').setAttribute('aria-pressed',String(runs));
   }
   $('public-show-challenges').onclick=()=>{publicSelectedDeck='challenges';showPublicDeck()};
   $('public-show-sessions').onclick=()=>{publicSelectedDeck='sessions';showPublicDeck()};
+  $('public-show-history').onclick=()=>{publicSelectedDeck='history';showPublicDeck()};
   (async()=>{
     if(handle){
       panel('public-profile');$('heading').textContent='Profil de coureur';
@@ -1008,14 +1043,16 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
         const data=await api('/api/account/profile?handle='+encodeURIComponent(handle));
         publicProfileData=data;
         $('public-handle').textContent='@'+data.handle;
-        renderPublicSessions(data.items.filter(item=>item.kind==='workout'));
-        if(data.showChallenges===false){
-          publicSelectedDeck='sessions';
-          $('intro').textContent='Ses séances en musique.';
-        }else{
+        if(data.showChallenges===true){
+          renderPublicSessions((data.items||[]).filter(item=>item.kind==='workout'));
+          renderPublicRuns(data.runs||[]);
           publicSelectedDeck='challenges';
           await BeatOnStepSportPercentiles.ready();
           renderPublicChallenges(data.challenges||[]);
+          $('intro').textContent='Ses cartes Défis, séances musicales et courses enregistrées.';
+        }else{
+          publicSelectedDeck='sessions';
+          $('intro').textContent='Ce coureur a choisi un profil privé.';
         }
         showPublicDeck();
         status('Profil public.');

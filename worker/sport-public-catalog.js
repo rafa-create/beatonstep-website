@@ -2,6 +2,7 @@
 // Independent of historical musical shares and retired publishable V2 challenges.
 // Only public handles and transfer motives leave D1; never account IDs or run proofs.
 import {canonicalSportDistance,difficultyForSportCard,sportCardDifficultyFilterSql,sportCardDifficultyOrderSql} from './sport-card-rules.js';
+import {publicRunSummary} from './public-run-summary.js';
 import {readSportWarningReasons} from './sport-card-telemetry.js';
 
 const DIFFICULTIES=new Set([
@@ -16,6 +17,7 @@ const safeTime=value=>Number.isSafeInteger(value)&&value>0?value:null;
 // A deleted or anonymised account must never leak its internal D1 identifier.
 const safeHandle=value=>typeof value==='string'&&
   /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(value)?value:null;
+const performance=row=>publicRunSummary(row.public_run_json);
 
 const card=row=>({
   kind:'challenge',id:row.id,distanceCm:row.distance_cm,
@@ -65,8 +67,10 @@ export async function readPublicSportCards(db,url,{
       (telemetryEnabled?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
         FROM sport_card_telemetry_reviews tr
         WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
-      'AS performance_warning,u.handle AS owner_handle FROM sport_world_cards c '+
-      'LEFT JOIN community_users u ON u.id=c.current_owner_id'+where+
+      'AS performance_warning,'+
+      'CASE WHEN visibility.show_challenges=1 THEN u.handle ELSE NULL END AS owner_handle '+
+      'FROM sport_world_cards c LEFT JOIN community_users u ON u.id=c.current_owner_id '+
+      'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id'+where+
       ' ORDER BY '+order+' LIMIT 20 OFFSET ?'
     ).bind(...args,(page-1)*20).all();
     return response({items:(rows.results||[]).map(card),total:Number(count?.total)||0,
@@ -81,33 +85,55 @@ export async function readPublicSportCards(db,url,{
     (telemetryEnabled?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
       FROM sport_card_telemetry_reviews tr
       WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch) `:'0 ')+
-    'AS performance_warning,u.handle AS owner_handle FROM sport_world_cards c '+
-    'LEFT JOIN community_users u ON u.id=c.current_owner_id WHERE c.id=?'
+    'AS performance_warning,'+
+    'CASE WHEN visibility.show_challenges=1 THEN u.handle ELSE NULL END AS owner_handle '+
+    'FROM sport_world_cards c LEFT JOIN community_users u ON u.id=c.current_owner_id '+
+    'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id WHERE c.id=?'
   ).bind(id).first();
   if(!row)return response({error:'card_not_found'},404);
 
   // An ownership epoch is a continuous holding period. The next epoch ends it;
   // the ongoing owner is measured up to this request, not counted as finished.
   const longest=await db.prepare(
-    'SELECT u.handle AS handle, e.changed_at AS started_at,'+
+    'SELECT CASE WHEN visibility.show_challenges=1 THEN u.handle ELSE NULL END AS handle, e.changed_at AS started_at,'+
     'next.changed_at AS ended_at '+
     'FROM sport_card_ownership_events e '+
     'LEFT JOIN sport_card_ownership_events next ON '+
     'next.card_id=e.card_id AND next.previous_epoch=e.new_epoch '+
     'LEFT JOIN community_users u ON u.id=e.new_owner_id '+
+    'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id '+
     'WHERE e.card_id=? AND e.reason IN (\'sport_win\',\'gift_claim\') '+
     'ORDER BY (COALESCE(next.changed_at,?)-e.changed_at) DESC,e.new_epoch ASC LIMIT 1'
   ).bind(id,now).first();
   const first=await db.prepare(
-    'SELECT u.handle AS handle FROM sport_card_ownership_events e '+
+    'SELECT CASE WHEN visibility.show_challenges=1 THEN u.handle ELSE NULL END AS handle FROM sport_card_ownership_events e '+
     'LEFT JOIN community_users u ON u.id=e.new_owner_id '+
+    'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id '+
     'WHERE e.card_id=? AND e.reason=\'sport_win\' '+
     'ORDER BY e.new_epoch ASC LIMIT 1'
   ).bind(id).first();
   // Reverse chronology, bounded. No GPS, email, IDs, device or evidence data.
   const historyRows=await db.prepare(
-    'SELECT e.reason,e.changed_at,prior.handle AS from_handle,'+
-    'recipient.handle AS to_handle,'+
+    'SELECT e.reason,e.changed_at,'+
+    'CASE WHEN prior_pref.show_challenges=1 THEN prior.handle ELSE NULL END AS from_handle,'+
+    'CASE WHEN recipient_pref.show_challenges=1 THEN recipient.handle ELSE NULL END AS to_handle,'+
+    // A win's epoch uses NEW.verified_at, so an equal verified_at + card/user
+    // uniquely identifies a qualifying receipt. Match its separately saved
+    // private run only by exact run ID AND completed timestamp. Return only
+    // allowlisted numbers, never its complete snapshot or proof.
+    `(SELECT json_object('endedAtMs',json_extract(saved.snapshot_json,'$.endedAtMs'),
+       'durationSeconds',json_extract(saved.snapshot_json,'$.durationSeconds'),
+       'distanceMeters',json_extract(saved.snapshot_json,'$.distanceMeters'),
+       'averagePaceSecPerKm',json_extract(saved.snapshot_json,'$.averagePaceSecPerKm'))
+       FROM sport_verified_runs verified
+       JOIN account_run_records saved ON saved.user_id=verified.user_id
+         AND saved.run_id=verified.run_id AND saved.ended_at=verified.completed_at
+       JOIN community_profile_settings consent ON consent.user_id=verified.user_id
+         AND consent.show_challenges=1
+       WHERE e.reason='sport_win' AND verified.card_id=e.card_id
+         AND verified.user_id=e.new_owner_id AND verified.verified_at=e.changed_at
+         AND json_extract(saved.snapshot_json,'$.endedAtMs')=verified.completed_at
+       ORDER BY verified.run_id LIMIT 1) AS public_run_json,`+
     (telemetryEnabled
       ? "CASE WHEN e.reason='sport_win' AND tr.state='warning' THEN 1 ELSE 0 END "
         +"AS performance_warning,rd.reason_codes AS warning_reasons "
@@ -120,7 +146,9 @@ export async function readPublicSportCards(db,url,{
         'AND rd.owner_epoch=e.new_epoch '
       : '')+
     'LEFT JOIN community_users prior ON prior.id=e.previous_owner_id '+
+    'LEFT JOIN community_profile_settings prior_pref ON prior_pref.user_id=prior.id '+
     'LEFT JOIN community_users recipient ON recipient.id=e.new_owner_id '+
+    'LEFT JOIN community_profile_settings recipient_pref ON recipient_pref.user_id=recipient.id '+
     'WHERE e.card_id=? ORDER BY e.new_epoch DESC LIMIT 101'
   ).bind(id).all();
   const events=historyRows.results||[];
@@ -131,6 +159,7 @@ export async function readPublicSportCards(db,url,{
     history:events.slice(0,100).map(e=>({
       reason:e.reason,at:safeTime(e.changed_at),
       from:safeHandle(e.from_handle),to:safeHandle(e.to_handle),
+      ...(e.reason==='sport_win'&&performance(e)?{session:performance(e)}:{}),
       ...(e.reason==='sport_win'&&Number(e.performance_warning)===1
         ?{performanceWarning:true,
           warningReasons:readSportWarningReasons(e.warning_reasons)}

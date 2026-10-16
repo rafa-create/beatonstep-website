@@ -1,3 +1,4 @@
+import {publicRunSummary} from './public-run-summary.js';
 import { cardsEnabled } from './cards.js';
 import { accountLibraryRequest } from './account-library.js';
 import { readSportWorldCollection } from './sport-world-collection.js';
@@ -78,18 +79,18 @@ async function personByToken(db, token, table) {
     .bind(await hash(token), Date.now()).first();
 }
 async function webUser(db, req) { return personByToken(db, browserToken(req), 'community_sessions'); }
-// Keep existing public profiles readable during a staged deployment.
-// Before manual migration 0010, the safe historical default is visible.
-// The settings UI is disabled until the settings table is installed.
+// The existing show_challenges bit is now the global profile opt-in.
+// Missing preferences (or an uninstalled settings table) mean PRIVATE.
+// No historic private run is exposed merely because a public URL exists.
 async function profileVisibility(db,userId) {
   try {
     const row=await db.prepare(
       'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
     ).bind(userId).first();
-    return {showChallenges:row?.show_challenges!==0,settingsReady:true};
+    return {showChallenges:row?.show_challenges===1,settingsReady:true};
   } catch(error) {
     if (/no such table:\s*community_profile_settings/i.test(String(error)))
-      return {showChallenges:true,settingsReady:false};
+      return {showChallenges:false,settingsReady:false};
     throw error;
   }
 }
@@ -316,36 +317,44 @@ export async function accountRequest(request,env,url,ctx) {
       if (!/^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle)) return reply({error:'not_found'},404);
       const user=await db.prepare('SELECT id,handle FROM community_users WHERE handle=?').bind(handle).first();
       if (!user) return reply({error:'not_found'},404);
-      // A missing settings row means the default: show sporting challenges.
-      // Settings belong to the account ID and survive pseudonym changes.
+      // Owner still sees their own created cards in the private dashboard.
+      // Public visitors cannot list a private person's saved runs or creations.
       const {showChallenges}=await profileVisibility(db,user.id);
-      const items=await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports,
+      const viewer=await webUser(db,request);
+      const ownerView=viewer?.id===user.id;
+      const items=showChallenges||ownerView?await db.prepare(`SELECT x.id,x.name,x.kind,x.source,x.created_at,x.imports,
         COALESCE(x.profile_json,json_extract(x.payload_json,'$.p')) AS profile_json,
         json_extract(x.payload_json,'$.g') AS workout_goal,
         CASE WHEN json_extract(x.payload_json,'$.g')='distance'
           THEN (SELECT SUM(value) FROM json_each(x.payload_json,'$.m')) END AS workout_distance_meters
         FROM signed_shares s JOIN shared_items x ON x.id=s.share_id
         WHERE s.user_id=? ORDER BY CASE WHEN x.kind='workout' THEN 0 ELSE 1 END,
-          x.imports DESC,x.created_at DESC,x.id DESC LIMIT 100`).bind(user.id).all();
-      // This query is skipped entirely when the runner hides challenges:
+          x.imports DESC,x.created_at DESC,x.id DESC LIMIT 100`).bind(user.id).all():{results:[]};
+      // This query is skipped entirely for other viewers when the profile is private:
       // no collection, item IDs or counts leave the public profile API.
-      const challenges=showChallenges && env.SPORT_WORLD_CARDS_ENABLED==='true'
+      const challenges=(showChallenges||ownerView) && env.SPORT_WORLD_CARDS_ENABLED==='true'
         ?await db.prepare(`SELECT id,distance_cm,time_unit,sub_value,difficulty
           FROM sport_world_cards WHERE current_owner_id=?
           ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
           .bind(user.id).all():null;
+      const runRows=showChallenges?await db.prepare(
+        'SELECT snapshot_json FROM account_run_records WHERE user_id=? '+
+        'ORDER BY ended_at DESC,run_id DESC LIMIT 50'
+      ).bind(user.id).all():{results:[]};
+      const runs=(runRows.results||[]).map(x=>publicRunSummary(x.snapshot_json)).filter(Boolean);
       return reply({handle:user.handle,showChallenges,
-        // If the runner hides challenges, also exclude any legacy signed
-        // challenge items; only musical workouts remain in the public list.
-        items:(items.results||[]).filter(x=>showChallenges||x.kind==='workout').map(x=>({
+        // Direct signed catalogue links remain independent of account privacy.
+        // Only the account owner may view unpublished/private profile entries.
+        items:(items.results||[]).filter(x=>showChallenges||ownerView).map(x=>({
           id:x.id+1000000000000,name:x.name,kind:x.kind,source:x.source,
           createdAt:x.created_at,imports:Number(x.imports)||0,
           ...(x.kind==='workout'?{...workoutCardType(x),profile:cardProfile(x.profile_json)}:{}),
         })),
-        ...(showChallenges?{challenges:(challenges?.results||[]).map(x=>({
+        ...(showChallenges||ownerView?{challenges:(challenges?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
           subValue:x.sub_value,difficulty:x.difficulty,
-        }))}:{})
+        }))}:{}),
+        runs
       });
     }
     // Owned musical cards and the original signed creations are different:

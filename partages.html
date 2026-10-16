@@ -134,6 +134,7 @@
     .sport-timeline li::before{content:'';position:absolute;left:-20px;top:7px;background:var(--yellow);width:8px;height:8px;border-radius:50%}
     .sport-date{display:block;color:var(--muted);font-size:11px}
     .sport-history-warning{display:block;width:fit-content;margin:7px 0 0;white-space:normal}
+    .sport-history-session{display:block;margin:6px 0 0;font-size:12px;color:var(--text);font-weight:650}
     /* Reading a shared workout: session > phase cards > songs, never an editor. */
     .tree-content--workout{padding:12px 4px 0}
     .workout-phases{padding:14px 13px 16px;border:1px solid #665c38;border-radius:16px;background:linear-gradient(180deg,#242319,#1b1b15);box-shadow:inset 0 1px 0 #ffffff08}
@@ -828,6 +829,25 @@
               profileHandle(event.to));
           }else line.append(el('span','',fr('Carte libérée','Card released')));
           line.append(el('span','sport-date',sportDate(event.at)));
+          // Only a precisely matched, saved, consented and verified run
+          // contains these metrics. It is the WHOLE session, not a split.
+          if(event.reason==='sport_win'&&event.session){
+            const s=event.session;
+            const clock=value=>{
+              if(!Number.isFinite(value)||value<0)return null;
+              const seconds=Math.round(value),m=Math.floor(seconds/60);
+              return seconds>=3600
+                ?Math.floor(seconds/3600)+':'+String(m%60).padStart(2,'0')+
+                  ':'+String(seconds%60).padStart(2,'0')
+                :m+':'+String(seconds%60).padStart(2,'0');
+            };
+            const distance=Number.isFinite(s.distanceMeters)
+              ?number(s.distanceMeters/1000)+' km':null;
+            const pace=clock(s.averagePaceSecPerKm);
+            const parts=[fr('Séance totale : ','Whole session: ')+clock(s.durationSeconds),
+              distance,pace?fr('Allure : ','Pace: ')+pace+'/km':null].filter(Boolean);
+            line.append(el('span','sport-history-session',parts.join(' · ')));
+          }
           const warning=sportWarningDetails(event);
           if(warning)line.append(el('p','sport-warning sport-history-warning',warning));
           timeline.append(line);

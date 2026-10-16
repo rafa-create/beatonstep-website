@@ -22,7 +22,7 @@ const epochSql=(filter='')=>`SELECT
  c.sub_value AS sub_value,e.changed_at AS started_at,
  next.changed_at AS ended_at,
  CASE WHEN next.id IS NULL THEN 1 ELSE 0 END AS ongoing,
- CASE WHEN COALESCE(p.show_challenges,1)=0 THEN NULL ELSE u.handle END
+ CASE WHEN COALESCE(p.show_challenges,0)=0 THEN NULL ELSE u.handle END
   AS holder_handle
  FROM sport_card_ownership_events e
  JOIN sport_world_cards c ON c.id=e.card_id
@@ -90,7 +90,7 @@ export async function readSportRecords(db,url,{now=Date.now()}={}){
       FROM sport_world_cards c
       JOIN community_users u ON u.id=c.current_owner_id
       LEFT JOIN community_profile_settings p ON p.user_id=u.id
-      WHERE COALESCE(p.show_challenges,1)=1
+      WHERE p.show_challenges=1
       GROUP BY u.id,u.handle
       ORDER BY cards DESC,u.handle ASC LIMIT 3`).all(),
   ]);
