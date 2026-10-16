@@ -265,3 +265,16 @@ test('sport card faces keep seven difficulty finishes and honour marathon at eve
     assert.match(html,/BeatOnStepSportCards\.createFace/);
   }
 });
+
+test('all masked sporting owners are described as private, not unavailable',()=>{
+  const page=read('partages.html'),admin=read('admin.html');
+  assert.match(page,/fallback\|\|fr\('Compte privé','Private account'\)/);
+  assert.match(page,/item\.hasOwner===true[\s\S]*?'Compte privé','Private account'/);
+  assert.match(page,/profileHandle\(full\.firstHolder\)/);
+  assert.match(page,/profileHandle\(full\.longestHolder\)/);
+  assert.match(page,/profileHandle\(event\.to\)/);
+  assert.doesNotMatch(page,/Compte indisponible|Profil privé ou supprimé/);
+  assert.match(page,/Réserve BeatOnStep/,'true reserve label remains');
+  assert.match(admin,/card\.hasOwner\?'Compte privé':'Réserve BeatOnStep'/);
+  assert.doesNotMatch(admin,/Compte privé ou supprimé/);
+});
