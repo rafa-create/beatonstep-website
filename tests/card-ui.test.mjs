@@ -27,8 +27,12 @@ test('account opens challenge deck first, with sessions on the right',()=>{
   assert.match(html,/id="deck-sessions" aria-pressed="false"/);
   assert.match(html,/let selectedDeck='challenges'/,
     'a signed-in account defaults to its sporting challenges');
-  assert.match(html,/id="challenge-deck"><h2>Mes défis sportifs/,
-    'challenge deck must be visible before hydration');
+  assert.match(html,/id="deck-heading">Mon deck · Défis<\/h2>/,
+    'one challenge-deck title remains visible before hydration');
+  assert.match(html,/id="challenge-deck">\s*<a id="account-records-link"/,
+    'sporting card collection remains accessible beneath that title');
+  assert.doesNotMatch(html,/<h2>Mes défis sportifs<\/h2>/,
+    'do not reintroduce a redundant challenge heading');
   assert.match(html,/id="session-deck" hidden/,
     'workout cards stay available on the second tab');
   assert.match(html,/id="history-challenges-panel"><p/,
