@@ -179,7 +179,7 @@ function setup(search,data=example){
   assert.match(records.apiCalls.at(-1),/\/api\/sport\/records\?sort=duration&level=all/);
   assert.match(records.elements['records-holdings'].textContent,/SUB 25/);
   assert.match(records.elements['records-holdings'].textContent,/Gardée : 1 jour/);
-  assert.match(records.elements['records-holdings'].textContent,/Profil privé ou supprimé/);
+  assert.match(records.elements['records-holdings'].textContent,/Compte privé/);
   assert.match(records.elements['records-collections'].textContent,/2 cartes/);
   records.elements['record-level'].value='expert';
   records.elements['record-level'].onchange();await flush();await flush();
