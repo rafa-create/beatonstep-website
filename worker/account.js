@@ -338,7 +338,11 @@ export async function accountRequest(request,env,url,ctx) {
             ?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
                 FROM sport_card_telemetry_reviews tr
                 WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch)`:'0'}
-            AS performance_warning
+            AS performance_warning,
+          ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
+            ?`(SELECT sp.peak_speed_kmh FROM sport_card_telemetry_speed_details sp
+                WHERE sp.card_id=c.id AND sp.owner_epoch=c.owner_epoch)`:'NULL'}
+            AS peak_speed_kmh
           FROM sport_world_cards c WHERE current_owner_id=?
           ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
           .bind(user.id).all():null;
@@ -352,7 +356,17 @@ export async function accountRequest(request,env,url,ctx) {
                   AND e.new_epoch=tr.owner_epoch
                 WHERE tr.card_id=c.id AND tr.state='warning'
                   AND e.reason='sport_win' AND e.new_owner_id=a.user_id)`:'0'}
-            AS performance_warning
+            AS performance_warning,
+          ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
+            ?`(SELECT MAX(sp.peak_speed_kmh)
+                FROM sport_card_telemetry_speed_details sp
+                JOIN sport_card_telemetry_reviews tr
+                  ON tr.card_id=sp.card_id AND tr.owner_epoch=sp.owner_epoch
+                JOIN sport_card_ownership_events e
+                  ON e.card_id=sp.card_id AND e.new_epoch=sp.owner_epoch
+                WHERE sp.card_id=c.id AND tr.state='warning'
+                  AND e.reason='sport_win' AND e.new_owner_id=a.user_id)`:'NULL'}
+            AS peak_speed_kmh
           FROM sport_world_cards c
           JOIN sport_card_achievements a ON a.card_id=c.id AND a.user_id=?
           WHERE (c.current_owner_id IS NULL OR c.current_owner_id<>?)
@@ -377,12 +391,16 @@ export async function accountRequest(request,env,url,ctx) {
         ...(showChallenges||ownerView?{challenges:(challenges?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
           subValue:x.sub_value,difficulty:x.difficulty,
-          performanceWarning:x.performance_warning===1,
+          ...(x.performance_warning===1?{performanceWarning:true,
+            ...(typeof x.peak_speed_kmh==='number'
+              ?{peakSpeedKmh:x.peak_speed_kmh}:{})}:{}),
         })),
         ghosts:(ghosts?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
           subValue:x.sub_value,difficulty:x.difficulty,ghost:true,
-          performanceWarning:x.performance_warning===1,
+          ...(x.performance_warning===1?{performanceWarning:true,
+            ...(typeof x.peak_speed_kmh==='number'
+              ?{peakSpeedKmh:x.peak_speed_kmh}:{})}:{}),
         }))}:{}),
         runs
       });

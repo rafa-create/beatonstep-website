@@ -59,7 +59,7 @@ function fixture({migrationReady=true,legacyChallenge=false}={}){
             return {results:[{id:43,distance_cm:1000000,time_unit:'minute',
               sub_value:60,difficulty:'regular'}]};
           }
-          if(sql.includes('FROM sport_world_cards WHERE current_owner_id=?')){
+          if(sql.includes('FROM sport_world_cards c WHERE current_owner_id=?')){
             state.worldReads++;
             assert.deepEqual(args,['u1']);
             assert.match(sql,/LIMIT 100/);
