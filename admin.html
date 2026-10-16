@@ -164,7 +164,17 @@
     function showAdmin(admin) {
       byId('login-panel').hidden = Boolean(admin);
       byId('admin-panel').hidden = !admin;
-      if (admin) byId('account').textContent = admin.email;
+      if(admin){
+        byId('account').textContent=admin.email;
+      }else{
+        // Clear confidential dashboard counts, lists and unclaimed gift links
+        // from the DOM when the admin cookie is no longer authenticated.
+        byId('account').textContent='';
+        for(const name of ['admin-stats','items','sport-items','account-items',
+          'gift-link','backfill-info','position','sport-position','account-position'])
+          byId(name).replaceChildren();
+        page=1;sportPage=1;accountPage=1;
+      }
     }
     function showTab(name){
       if(!TABS.includes(name))return;
