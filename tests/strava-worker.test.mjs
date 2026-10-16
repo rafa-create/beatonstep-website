@@ -536,7 +536,7 @@ test('Strava private route is returned temporarily to its athlete without D1 sto
     const value=String(url);
     if(value==='https://www.strava.com/api/v3/activities/123456789')
       return {ok:true,status:200,json:async()=>({
-        id:123456789,athlete:{id:123},total_elevation_gain:52.5,
+        id:123456789,athlete:{id:'athlete-123'},total_elevation_gain:52.5,
       })};
     if(value.endsWith('/streams?keys=latlng,time,altitude&key_by_type=true'))
       return {ok:true,status:200,json:async()=>({
