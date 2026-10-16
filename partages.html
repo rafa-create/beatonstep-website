@@ -844,8 +844,9 @@
             const distance=Number.isFinite(s.distanceMeters)
               ?number(s.distanceMeters/1000)+' km':null;
             const pace=clock(s.averagePaceSecPerKm);
-            const parts=[fr('Séance totale : ','Whole session: ')+clock(s.durationSeconds),
-              distance,pace?fr('Allure : ','Pace: ')+pace+'/km':null].filter(Boolean);
+            const parts=[fr('Séance du ','Run on ')+sportDate(s.at),
+              fr('Durée totale : ','Total duration: ')+clock(s.durationSeconds),
+              distance,pace?fr('Allure moyenne : ','Mean pace: ')+pace+'/km':null].filter(Boolean);
             line.append(el('span','sport-history-session',parts.join(' · ')));
           }
           const warning=sportWarningDetails(event);

@@ -200,6 +200,7 @@ test('verified sport wins show whole run totals only, with strict SQL linking',a
   const sql=queries.find(q=>q.sql.includes('ORDER BY e.new_epoch DESC LIMIT 101')).sql;
   assert.match(sql,/verified\.run_id/);
   assert.match(sql,/verified\.verified_at=e\.changed_at/);
+  assert.match(sql,/COUNT\(\*\) FROM sport_verified_runs candidate/);
   assert.match(sql,/saved\.ended_at=verified\.completed_at/);
   assert.match(sql,/consent\.show_challenges=1/);
   assert.match(sql,/prior_pref\.show_challenges=1/);

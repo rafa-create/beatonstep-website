@@ -133,7 +133,10 @@ export async function readPublicSportCards(db,url,{
        WHERE e.reason='sport_win' AND verified.card_id=e.card_id
          AND verified.user_id=e.new_owner_id AND verified.verified_at=e.changed_at
          AND json_extract(saved.snapshot_json,'$.endedAtMs')=verified.completed_at
-       ORDER BY verified.run_id LIMIT 1) AS public_run_json,`+
+         AND (SELECT COUNT(*) FROM sport_verified_runs candidate
+           WHERE candidate.card_id=e.card_id AND candidate.user_id=e.new_owner_id
+             AND candidate.verified_at=e.changed_at)=1
+       LIMIT 1) AS public_run_json,`+
     (telemetryEnabled
       ? "CASE WHEN e.reason='sport_win' AND tr.state='warning' THEN 1 ELSE 0 END "
         +"AS performance_warning,rd.reason_codes AS warning_reasons "
