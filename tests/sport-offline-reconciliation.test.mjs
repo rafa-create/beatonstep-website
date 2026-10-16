@@ -64,6 +64,44 @@ test('finish-only Garmin report is authenticated by caller, not via GPS stream',
   assert.equal(calls[2].args[5],'verified_import');
   assert.doesNotMatch(JSON.stringify(calls),/longitude|latitude|playlist/);
 });
+test('old 1.7.2 can still redeem a 1km card for 1600m after track tiers activate',async()=>{
+  const {db,calls}=sqlCalls();
+  const previous=body();
+  previous.summary={
+    startedAtMs:now-540001,endedAtMs:now-1,
+    distanceMeters:1600,distanceSource:'phone_gps',
+  };
+  previous.runId='run-'+previous.summary.startedAtMs+'-'+previous.summary.endedAtMs;
+  previous.clientPerformanceKey='100000:minute:10';
+  const response=await reconcileOfflineSportResult(db,'runner-a',previous,{now});
+  assert.equal(response.status,200);
+  const result=await response.json();
+  assert.equal(result.performanceKey,'100000:minute:10');
+  assert.deepEqual(calls[0].args.slice(0,3),[100000,'minute',10]);
+});
+
+test('new 1.7.3 awards 1500m and rejects arbitrary client performance keys',async()=>{
+  const {db,calls}=sqlCalls();
+  const current=body();
+  current.summary={
+    startedAtMs:now-540001,endedAtMs:now-1,
+    distanceMeters:1600,distanceSource:'phone_gps',
+  };
+  current.runId='run-'+current.summary.startedAtMs+'-'+current.summary.endedAtMs;
+  current.clientPerformanceKey='150000:second:541';
+  const response=await reconcileOfflineSportResult(db,'runner-a',current,{now});
+  assert.equal(response.status,200);
+  assert.equal((await response.json()).performanceKey,'150000:second:541');
+  assert.deepEqual(calls[0].args.slice(0,3),[150000,'second',541]);
+
+  const arbitrary={...current,clientPerformanceKey:'40000:second:1'};
+  const rejected=await reconcileOfflineSportResult({
+    prepare(){throw Error('must not touch D1 for an arbitrary tier')},
+  },'runner-a',arbitrary,{now});
+  assert.equal(rejected.status,409);
+  assert.equal((await rejected.json()).error,'performance_key_mismatch');
+});
+
 test('phone GPS without any pause record qualifies as well',async()=>{
   const {db,calls}=sqlCalls();
   const raw=body();raw.summary.distanceSource='phone_gps';
