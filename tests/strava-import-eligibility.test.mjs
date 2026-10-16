@@ -37,7 +37,14 @@ test('treadmill recorded by a wearable qualifies without geographic points',()=>
     ...base(),trainer:true,device_name:'Garmin Forerunner 265',
   },null);
   assert.equal(result.eligible,true);
-  assert.equal(result.deviceType,'stationary_device');
+  assert.equal(result.deviceType,'recorded_device');
+});
+test('a Garmin activity without GPS is accepted if device and timed distance samples exist',()=>{
+  const result=classifyStravaSportImport({
+    ...base(),device_name:'Garmin Forerunner 265',
+  },{time:{data:[0,540]},distance:{data:[0,1600]}});
+  assert.equal(result.eligible,true);
+  assert.equal(result.deviceType,'recorded_device');
 });
 test('watch without measurable evidence stays history only',()=>{
   assert.equal(classifyStravaSportImport(base(),null).reason,

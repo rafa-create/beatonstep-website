@@ -37,9 +37,15 @@ export function classifyStravaSportImport(activity,streams){
   }
   const trainer=activity.trainer===true||activity.sport_type==='VirtualRun';
   const device=typeof activity.device_name==='string'&&activity.device_name.trim().length>1;
+  const dist=streams?.distance?.data;
+  const timed=Array.isArray(clock)&&Array.isArray(dist)&&clock.length>=2&&
+    clock.length===dist.length&&Number.isFinite(clock[0])&&
+    Number.isFinite(clock.at(-1))&&clock.at(-1)>clock[0]&&
+    measured(dist[0],0,200000)&&measured(dist.at(-1),0,200000)&&
+    dist.at(-1)>dist[0];
   // A device name is advisory, not proof. Stationary/treadmill activities
   // need a recorded device; GPS outdoors needs sampled geographical movement.
-  if(!hasGps&&!(trainer&&device))
+  if(!hasGps&&!(device&&(trainer||timed)))
     return {eligible:false,reason:'no_measured_route_or_device'};
   const peak=measured(activity.max_speed,0,1000)
     ?Math.round(activity.max_speed*36)/10:null;
@@ -49,6 +55,6 @@ export function classifyStravaSportImport(activity,streams){
   return {
     eligible:true,startedAtMs,endedAtMs:end,distanceMeters:meters,
     peakSpeedKmh:peak,warningReasons:warnings,
-    deviceType:trainer?'stationary_device':'gps',
+    deviceType:hasGps?'gps':'recorded_device',
   };
 }

@@ -18,6 +18,7 @@ async function stravaGet(token,url){
   try{res=await fetch(url,{headers:{authorization:'Bearer '+token,accept:'application/json'}});}
   catch{return {error:'strava_unavailable',status:503};}
   if(res.status===429)return {error:'strava_rate_limited',status:429};
+  if(res.status===404)return {error:'strava_not_found',status:404};
   if(res.status===401||res.status===403)
     return {error:'strava_read_permission_required',status:403};
   if(!res.ok)return {error:'strava_unavailable',status:502};
@@ -77,7 +78,8 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   // Coordinates are inspected in memory only; never returned to the caller or D1.
   const streams=await stravaGet(token,'https://www.strava.com/api/v3/activities/'+activityId+
     '/streams?keys=time,latlng,distance,cadence,heartrate&key_by_type=true');
-  if(streams.error&&streams.error!=='strava_read_permission_required')
+  if(streams.error&&streams.error!=='strava_read_permission_required'&&
+     streams.error!=='strava_not_found')
     return reply({error:streams.error},streams.status);
   const evidence=classifyStravaSportImport(activity,streams.data||null);
   if(!evidence.eligible)
