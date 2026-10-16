@@ -230,6 +230,38 @@ async function sportCards(db,request,url){
     }))});
 }
 
+// Protected account inventory: public handles and aggregate counts only,
+// without email, password hashes, tokens, routes or full private run snapshots.
+async function accounts(db,request,url){
+  if(!await currentAdmin(db,request))return respond({error:'admin_required'},401);
+  const page=adminPage(url.searchParams.get('page'));
+  const handle=(url.searchParams.get('handle')||'').trim().toLowerCase();
+  if(page===null||(handle&&!/^[a-z0-9][a-z0-9_.-]{0,23}$/.test(handle))||
+    [...url.searchParams.keys()].some(k=>!['page','handle'].includes(k)))
+    return respond({error:'invalid_filter'},400);
+  const filter=handle?' WHERE u.handle GLOB ?':'';
+  const params=handle?[handle+'*']:[];
+  const count=await db.prepare('SELECT COUNT(*) AS total FROM community_users u'+filter)
+    .bind(...params).first();
+  const rows=await db.prepare(`SELECT u.handle,u.created_at,
+      COALESCE(settings.show_challenges,1) AS is_public,
+      (SELECT COUNT(*) FROM sport_world_cards c WHERE c.current_owner_id=u.id)
+        AS cards,
+      (SELECT COUNT(*) FROM account_run_records r WHERE r.user_id=u.id)
+        AS runs
+    FROM community_users u
+    LEFT JOIN community_profile_settings settings ON settings.user_id=u.id
+    ${filter}
+    ORDER BY u.created_at DESC,u.handle ASC LIMIT ? OFFSET ?`)
+    .bind(...params,ADMIN_PAGE_SIZE,(page-1)*ADMIN_PAGE_SIZE).all();
+  return respond({page,pageSize:ADMIN_PAGE_SIZE,total:Number(count?.total)||0,
+    items:(rows.results||[]).map(x=>({
+      handle:x.handle,createdAt:x.created_at,
+      public:Number(x.is_public)===1,cards:Number(x.cards)||0,
+      runs:Number(x.runs)||0,
+    }))});
+}
+
 export async function adminRequest(request, env, url) {
   if (!env.DB || env.CATALOG_BACKEND !== 'd1') {
     return respond({ error: 'admin_unavailable' }, 503);
@@ -247,6 +279,8 @@ export async function adminRequest(request, env, url) {
       return overview(env.DB,request);
     if (path === '/api/admin/sport/cards' && method === 'GET')
       return sportCards(env.DB,request,url);
+    if (path === '/api/admin/accounts' && method === 'GET')
+      return accounts(env.DB,request,url);
     if (path === '/api/admin/login' && method === 'POST') return await login(env.DB, env, request);
     if (path === '/api/admin/logout' && method === 'POST') return await logout(env.DB, request);
     if (path==='/api/admin/cards/backfill' && method==='POST') {

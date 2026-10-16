@@ -76,6 +76,7 @@
         <button type="button" id="tab-overview" aria-pressed="true">Vue d'ensemble</button>
         <button type="button" id="tab-sessions" aria-pressed="false">♫ Séances</button>
         <button type="button" id="tab-sports" aria-pressed="false">🏆 Défis</button>
+        <button type="button" id="tab-accounts" aria-pressed="false">👤 Comptes</button>
         <button type="button" id="tab-tools" aria-pressed="false">⚙ Outils</button>
       </nav>
       <section id="overview-panel" class="panel" aria-label="Vue d'ensemble">
@@ -115,6 +116,19 @@
           <button type="button" id="sport-next">Suivant →</button>
         </div>
       </section>
+      <section id="accounts-panel" hidden aria-label="Répertoire des comptes">
+        <h2>Comptes BeatOnStep</h2>
+        <p class="muted">Rechercher un pseudo et consulter ses compteurs de séances et de cartes sans afficher les e-mails, données GPS ni mots de passe. Aucun accès aux comptes privés n'est accordé par cette page.</p>
+        <label for="account-search">Rechercher un pseudo (début)</label>
+        <input id="account-search" type="search" maxlength="24" autocomplete="off" placeholder="Pseudo">
+        <button type="button" id="account-search-button">Rechercher</button>
+        <ul class="items" id="account-items"></ul>
+        <div class="pagination">
+          <button type="button" id="account-previous">← Précédent</button>
+          <span id="account-position" aria-live="polite"></span>
+          <button type="button" id="account-next">Suivant →</button>
+        </div>
+      </section>
       <section id="tools-panel" class="panel" hidden aria-label="Liens de gestion">
         <h2>Outils et vérifications</h2>
         <p class="muted">Le bouton de réconciliation est dans « Séances ». Les défis doivent être attribués uniquement par la validation sportive existante.</p>
@@ -129,8 +143,8 @@
   <script type="module">
     const byId = id => document.getElementById(id);
     const OFFSET = 1_000_000_000_000;
-    let page = 1, sportPage = 1;
-    const TABS=['overview','sessions','sports','tools'];
+    let page = 1, sportPage = 1, accountPage = 1;
+    const TABS=['overview','sessions','sports','accounts','tools'];
     function labelId(id) {
       return '#' + String(id > OFFSET ? id - OFFSET : id).padStart(4, '0');
     }
@@ -159,7 +173,7 @@
         byId('tab-'+tab).setAttribute('aria-pressed',String(tab===name));
       }
       const loaders={overview:loadOverview,sessions:loadItems,
-        sports:loadSportItems,tools:async()=>{}};
+        sports:loadSportItems,accounts:loadAccounts,tools:async()=>{}};
       loaders[name]().catch(e=>status(e.message));
     }
     async function loadOverview(){
@@ -209,6 +223,40 @@
       byId('sport-position').textContent='Page '+sportPage+' / '+last+' · '+data.total+' cartes';
       byId('sport-previous').disabled=sportPage<=1;
       byId('sport-next').disabled=sportPage>=last;
+    }
+    async function loadAccounts(){
+      const raw=byId('account-search').value.trim().toLowerCase();
+      // Only a literal prefix, not SQL wildcards or arbitrary query text.
+      if(raw&&!/^[a-z0-9][a-z0-9_.-]{0,23}$/.test(raw)){
+        status('Pseudo invalide : lettres, chiffres, points, tirets ou soulignement.');
+        return;
+      }
+      const data=await api('/api/admin/accounts?page='+accountPage+
+        '&handle='+encodeURIComponent(raw));
+      const list=byId('account-items');list.replaceChildren();
+      if(!data.items.length){
+        const li=document.createElement('li');
+        li.textContent='Aucun compte pour cette recherche.';
+        list.append(li);
+      }
+      for(const member of data.items){
+        const li=document.createElement('li');li.className='item';
+        const info=document.createElement('div');
+        const title=document.createElement('h2');title.textContent='@'+member.handle;
+        const meta=document.createElement('div');meta.className='meta';
+        meta.textContent=(member.public?'Profil public':'Profil privé')+
+          ' · '+member.cards+' défi(s) · '+member.runs+' séance(s) enregistrée(s)';
+        info.append(title,meta);
+        const link=document.createElement('a');
+        link.href='/compte.html?profil='+encodeURIComponent(member.handle);
+        link.textContent='Voir le profil';link.target='_blank';link.rel='noopener noreferrer';
+        li.append(info,link);list.append(li);
+      }
+      const last=Math.max(1,Math.ceil(data.total/data.pageSize));
+      byId('account-position').textContent='Page '+accountPage+' / '+last+
+        ' · '+data.total+' comptes';
+      byId('account-previous').disabled=accountPage<=1;
+      byId('account-next').disabled=accountPage>=last;
     }
     async function loadItems() {
       const data = await api('/api/shared?kind=workout&sort=recent&page=' + page);
@@ -338,6 +386,21 @@
     });
     byId('sport-next').addEventListener('click',()=>{
       sportPage++;loadSportItems().catch(e=>status(e.message));
+    });
+    byId('account-search-button').addEventListener('click',()=>{
+      accountPage=1;loadAccounts().catch(e=>status(e.message));
+    });
+    byId('account-search').addEventListener('keydown',event=>{
+      if(event.key==='Enter'){
+        event.preventDefault();accountPage=1;
+        loadAccounts().catch(e=>status(e.message));
+      }
+    });
+    byId('account-previous').addEventListener('click',()=>{
+      if(accountPage>1){accountPage--;loadAccounts().catch(e=>status(e.message))}
+    });
+    byId('account-next').addEventListener('click',()=>{
+      accountPage++;loadAccounts().catch(e=>status(e.message));
     });
     byId('previous').addEventListener('click', () => {
       if (page > 1) { page--; loadItems().catch(e => status(e.message)); }
