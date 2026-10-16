@@ -1,7 +1,7 @@
 // Existing Resend configuration, already used for account-password emails.
 // One alert per original sporting win. The mobile user never supplies a mail
 // recipient, and credentials and full GPS traces never leave the Worker.
-export async function processPendingSportWarningEmails(db,env,{now=Date.now()}={}){
+export async function processPendingSportWarningEmails(db,env,{now=Date.now(),send=fetch}={}){
   if(!env.RESEND_API_KEY||!env.PASSWORD_RESET_EMAIL_FROM)return 0;
   // Exactly the existing admin-account address. No separate destination secret.
   const admin=await db.prepare(
@@ -34,7 +34,7 @@ export async function processPendingSportWarningEmails(db,env,{now=Date.now()}={
       ?'⚠ Pointe GPS mesurée : '+item.peak_speed_kmh.toLocaleString('fr-FR')+' km/h.\n'
       :'⚠ Anomalie de télémétrie détectée.\n';
     try{
-      const result=await fetch('https://api.resend.com/emails',{
+      const result=await send('https://api.resend.com/emails',{
         method:'POST',
         headers:{
           authorization:'Bearer '+env.RESEND_API_KEY,
