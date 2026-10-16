@@ -171,8 +171,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div class="profile-visibility" id="profile-visibility">
 <h3>Visibilité de mon profil public</h3>
-<label for="show-public-challenges"><input id="show-public-challenges" type="checkbox">Rendre mon profil public (cartes Défis et séances enregistrées)</label>
-<p class="field-help">Profil privé par défaut. Si vous rendez votre profil public, vos séances déjà sauvegardées (date, durée, distance et allure) peuvent être consultées. Les publications musicales déjà partagées restent accessibles par leurs liens.</p>
+<label for="show-public-challenges"><input id="show-public-challenges" type="checkbox" checked>Profil public (cartes Défis, cartes fantômes et séances enregistrées)</label>
+<p class="field-help">Profil public par défaut. Décochez cette option pour masquer votre collection et vos performances personnelles. Les séances musicales déjà partagées par lien restent accessibles.</p>
 <p class="field-help" id="visibility-status" role="status" aria-live="polite"></p>
 </div>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
@@ -692,7 +692,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   }
   async function loadProfileVisibility(){
     const setting=await api('/api/account/profile/preferences');
-    storedShowChallenges=setting.showChallenges===true;
+    storedShowChallenges=setting.showChallenges!==false;
     $('show-public-challenges').checked=storedShowChallenges;
     $('visibility-status').textContent='';
     return setting;
@@ -911,21 +911,22 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       :card.subValue+' min';
     return distance+' · SUB '+sub;
   };
-  function renderPublicChallenges(cards){
+  function renderPublicChallenges(cards,ghosts=[]){
     const list=$('public-challenge-cards');
     list.replaceChildren();
-    if(!cards.length){
+    if(!cards.length&&!ghosts.length){
       const li=document.createElement('li');
       li.textContent='Aucune carte Défi pour le moment.';
       list.append(li);
       return;
     }
-    for(const card of cards){
+    for(const card of [...cards,...ghosts]){
       const li=document.createElement('li');
-      const title=sportPublicName(card);
+      const title=sportPublicName(card),isGhost=card.ghost===true;
       const face=BeatOnStepSportCards.createFace(document,{
         title,distanceCm:card.distanceCm,
         difficulty:BeatOnStepSportPercentiles.visibleTier(card),
+        ...(isGhost?{variant:'ghost'}:{}),
       },'fr');
       const rank=document.createElement('small');
       rank.className='public-challenge-rank';
@@ -934,7 +935,14 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
       link.textContent='Voir la fiche';
       link.setAttribute('aria-label','Voir la fiche : '+title);
-      li.append(face,rank,link);list.append(li);
+      li.append(face,rank,link);
+      if(isGhost){
+        const tag=document.createElement('small');
+        tag.className='public-challenge-rank';
+        tag.textContent='Carte fantôme · Ancienne possession validée';
+        li.append(tag);
+      }
+      list.append(li);
     }
   }
   // Public sessions are genuine collectible-looking cards, not a text list.
@@ -1048,7 +1056,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
           renderPublicRuns(data.runs||[]);
           publicSelectedDeck='challenges';
           await BeatOnStepSportPercentiles.ready();
-          renderPublicChallenges(data.challenges||[]);
+          renderPublicChallenges(data.challenges||[],data.ghosts||[]);
           $('intro').textContent='Ses cartes Défis, séances musicales et courses enregistrées.';
         }else{
           publicSelectedDeck='sessions';

@@ -331,6 +331,7 @@
           <select id="record-sort" aria-labelledby="record-sort-label">
             <option value="duration">Cartes gardées le plus longtemps</option>
             <option value="difficulty">Cartes les plus difficiles</option>
+            <option value="holders">Cartes ayant eu le plus de détenteurs</option>
           </select>
         </div>
         <div class="filter-picker" id="record-level-picker">
@@ -349,6 +350,8 @@
       </div>
       <h3 id="records-holdings-heading">Cartes gardées le plus longtemps</h3>
       <ol id="records-holdings" class="record-podium" aria-live="polite"></ol>
+      <h3 id="records-popular-heading">Cartes ayant eu le plus de détenteurs</h3>
+      <ol id="records-popular" class="record-podium"></ol>
       <h3 id="records-collections-heading">Plus grandes collections</h3>
       <ol id="records-collections" class="record-podium"></ol>
     </section>
@@ -407,7 +410,7 @@
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
   let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
   recordsView=!id&&!sportId&&kind==='challenge'&&params.get('view')==='records';
-  if(['duration','difficulty'].includes(params.get('recordSort')))
+  if(['duration','difficulty','holders'].includes(params.get('recordSort')))
     recordSort=params.get('recordSort');
   if(['all','world_elite','legend','expert','intermediate','regular','amateur','beginner']
     .includes(params.get('level')))recordLevel=params.get('level');
@@ -799,7 +802,8 @@
     }
     card.append(summary);
     const details=el('details','sport-details');
-    const heading=el('summary','',fr('Historique des détenteurs','Holder history'));
+    const heading=el('summary','',fr('Historique des détenteurs','Holder history')+
+      ' ('+(Number.isSafeInteger(item.holderCount)?item.holderCount:0)+')');
     const content=el('div','sport-detail-content');
     details.append(heading,content);
     details.addEventListener('toggle',async()=>{
@@ -1000,8 +1004,9 @@
   // Every podium entry is a historical ownership epoch; no reward or transfer.
   // The active period keeps growing until the next ownership event.
   function renderSportRecords(data){
-    const podium=$('records-holdings'),collections=$('records-collections');
-    podium.replaceChildren();collections.replaceChildren();
+    const podium=$('records-holdings'),collections=$('records-collections'),
+      popular=$('records-popular');
+    podium.replaceChildren();collections.replaceChildren();popular.replaceChildren();
     const holdingRows=Array.isArray(data.holdings)?data.holdings:[];
     if(!holdingRows.length)podium.append(el('li','record-sub',
       fr('Aucune possession pour ce filtre.','No holdings for this filter.')));
@@ -1025,6 +1030,18 @@
       li.append(label,cardLink,tier,owner,time,status);
       podium.append(li);
     });
+    const mostHeld=Array.isArray(data.mostHeldCards)?data.mostHeldCards:[];
+    if(!mostHeld.length)popular.append(el('li','record-sub',fr(
+      'Aucun détenteur historique identifié.','No identifiable past holders.')));
+    mostHeld.forEach((item,index)=>{
+      const li=el('li','');
+      const link=el('a','record-value',sportName(item));
+      link.href='partages.html?kind=challenge&sport='+encodeURIComponent(item.cardId);
+      li.append(el('strong','record-position','#'+(index+1)),link,
+        el('span','record-sub',item.holderCount+' '+(item.holderCount===1
+          ?fr('détenteur','holder'):fr('détenteurs','holders'))));
+      popular.append(li);
+    });
     const ranked=Array.isArray(data.collections)?data.collections:[];
     if(!ranked.length)collections.append(el('li','record-sub',
       fr('Aucune collection publique.','No public collections yet.')));
@@ -1040,16 +1057,20 @@
   async function showRecords(){
     // A difficulty-first ranking includes every tier. Never apply an invisible
     // difficulty filter, including when opening a saved URL with ?level=...
-    const hardest=recordSort==='difficulty';
+    const hardest=recordSort==='difficulty'||recordSort==='holders';
     $('record-level-picker').hidden=hardest;
     if(hardest)recordLevel='all';
-    $('records-holdings-heading').textContent=hardest
+    $('records-holdings-heading').textContent=recordSort==='difficulty'
       ?fr('Cartes les plus difficiles','Hardest cards')
       :fr('Cartes gardées le plus longtemps','Longest-held cards');
+    $('records-popular-heading').textContent=fr(
+      'Cartes ayant eu le plus de détenteurs','Cards with the most holders');
     const ticket=++recordTicket;
-    const holder=$('records-holdings'),collections=$('records-collections');
+    const holder=$('records-holdings'),collections=$('records-collections'),
+      popular=$('records-popular');
     holder.replaceChildren(el('li','record-sub',fr('Chargement…','Loading…')));
     collections.replaceChildren();
+    popular.replaceChildren();
     $('record-sort').value=recordSort;
     $('record-level').value=recordLevel;
     try{
@@ -1184,6 +1205,8 @@
       fr('Cartes gardées le plus longtemps','Longest-held cards');
     document.querySelector('#record-sort option[value=difficulty]').textContent=
       fr('Cartes les plus difficiles','Hardest cards');
+    document.querySelector('#record-sort option[value=holders]').textContent=
+      fr('Cartes ayant eu le plus de détenteurs','Cards with the most holders');
     for(const [key,names] of Object.entries(difficultyLabels)){
       document.querySelector('#record-level option[value='+key+']').textContent=
         names[lang==='en'?1:0];
@@ -1193,6 +1216,8 @@
     $('records-holdings-heading').textContent=recordSort==='difficulty'
       ?fr('Cartes les plus difficiles','Hardest cards')
       :fr('Cartes gardées le plus longtemps','Longest-held cards');
+    $('records-popular-heading').textContent=fr(
+      'Cartes ayant eu le plus de détenteurs','Cards with the most holders');
     $('records-collections-heading').textContent=fr(
       'Plus grandes collections','Largest collections');
 
