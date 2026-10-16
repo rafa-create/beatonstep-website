@@ -99,6 +99,20 @@ test('sporting telemetry anomalies warn but structurally invalid measurements do
   assert.equal(splits.needsReviewWarning,true);
   assert.deepEqual(splits.warningReasons,['inconsistent_crossings']);
 });
+test('a 75 km/h measured GPS peak warns without refusing an otherwise ordinary run',()=>{
+  const warned=evaluateOfflineSportSummary(run('phone_gps',5000,30*60000,{
+    peakSpeedKmh:75,
+  }));
+  assert.equal(warned.status,'candidate');
+  assert.equal(warned.needsReviewWarning,true);
+  assert.deepEqual(warned.warningReasons,['implausible_speed']);
+  assert.equal(warned.peakSpeedKmh,75);
+  const safe=evaluateOfflineSportSummary(run('phone_gps',5000,30*60000,{
+    peakSpeedKmh:35,
+  }));
+  assert.equal(safe.needsReviewWarning,false);
+});
+
 test('there is no running-time server dependency or telemetry schema',()=>{
   const path=new URL('../worker/account.js',import.meta.url);
   const account=readFileSync(path,'utf8');

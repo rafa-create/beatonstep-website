@@ -33,7 +33,8 @@ const card=row=>({
   // without exposing the user's ID or any private profile information.
   hasOwner:row.has_owner===1,
   performanceWarning:row.performance_warning===1,
-  peakSpeedKmh:row.performance_warning===1?(row.peak_speed_kmh??null):null,
+  ...(row.performance_warning===1&&typeof row.peak_speed_kmh==='number'
+    ?{peakSpeedKmh:row.peak_speed_kmh}:{}),
 });
 
 export async function readPublicSportCards(db,url,{

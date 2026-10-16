@@ -274,7 +274,8 @@ async function sportWarnings(db,request,url){
         earnedAt:Number.isSafeInteger(row.earned_at)?row.earned_at:null,
         reviewedAt:Number.isSafeInteger(row.reviewed_at)?row.reviewed_at:null,
         reasons:readSportWarningReasons(row.reason_codes),
-        peakSpeedKmh:typeof row.peak_speed_kmh==='number'?row.peak_speed_kmh:null,
+        ...(typeof row.peak_speed_kmh==='number'
+          ?{peakSpeedKmh:row.peak_speed_kmh}:{}),
         currentEpoch:row.current_epoch===1,
       }))});
   }catch(error){
