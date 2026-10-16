@@ -7,9 +7,14 @@ const page=readFileSync(new URL('../compte.html',import.meta.url),'utf8');
 const percentileSource=readFileSync(
   new URL('../sport-card-percentile.js',import.meta.url),'utf8');
 const faceSource=readFileSync(
-  new URL('../sport-card-face.js',import.meta.url),'utf8');
+  new URL('../dist/sport-card-face.js',import.meta.url),'utf8');
 const officialRules=JSON.parse(readFileSync(
   new URL('../sport-card-rules.json',import.meta.url),'utf8'));
+
+// npm run build generates the seven card skins before running browser tests.
+// The source template deliberately contains an empty placeholder and cannot
+// render real cards without the official JSON-derived compiled levels.
+assert.doesNotMatch(faceSource,/__SPORT_CARD_LEVELS__/);
 
 class Node {
   constructor(tag){
