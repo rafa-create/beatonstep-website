@@ -49,14 +49,14 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
 
   // Client-supplied "evidenceVerified" / "won" fields are ignored. The
   // server independently applies the same published game thresholds.
-  const current=evaluateOfflineSportSummary(summary);
-  if(current.status!=='candidate')
-    return reply({status:'not_eligible',reason:current.reason||'invalid_run'},422);
+  const canonicalCandidate=evaluateOfflineSportSummary(summary);
+  if(canonicalCandidate.status!=='candidate')
+    return reply({status:'not_eligible',reason:canonicalCandidate.reason||'invalid_run'},422);
   const requested=body?.clientPerformanceKey;
-  let candidate=current;
-  if((requested==null||requested!==current.performanceKey)&&
-     NEW_TRACK_CM.has(current.distanceCm)){
-    const legacy=legacySportCard(summary,current);
+  let candidate=canonicalCandidate;
+  if((requested==null||requested!==canonicalCandidate.performanceKey)&&
+     NEW_TRACK_CM.has(canonicalCandidate.distanceCm)){
+    const legacy=legacySportCard(summary,canonicalCandidate);
     if(legacy&&(requested==null||requested===legacy.performanceKey))
       candidate=legacy;
   }
