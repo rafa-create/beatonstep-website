@@ -22,7 +22,7 @@ const epochSql=(filter='')=>`SELECT
  c.sub_value AS sub_value,e.changed_at AS started_at,
  next.changed_at AS ended_at,
  CASE WHEN next.id IS NULL THEN 1 ELSE 0 END AS ongoing,
- CASE WHEN COALESCE(p.show_challenges,0)=0 THEN NULL ELSE u.handle END
+ CASE WHEN COALESCE(p.show_challenges,1)=0 THEN NULL ELSE u.handle END
   AS holder_handle
  FROM sport_card_ownership_events e
  JOIN sport_world_cards c ON c.id=e.card_id
@@ -84,19 +84,30 @@ export async function readSportRecords(db,url,{now=Date.now()}={}){
     return json({error:'invalid_record_filter'},400);
   if(!Number.isSafeInteger(now)||now<=0)
     return json({error:'invalid_timestamp'},500);
-  const [holders,counts]=await Promise.all([
+  const [holders,counts,mostHeld]=await Promise.all([
     sort==='duration'?longest(db,now,level):hardest(db,now,level),
     db.prepare(`SELECT u.handle AS holder_handle,COUNT(*) AS cards
       FROM sport_world_cards c
       JOIN community_users u ON u.id=c.current_owner_id
       LEFT JOIN community_profile_settings p ON p.user_id=u.id
-      WHERE p.show_challenges=1
+      WHERE COALESCE(p.show_challenges,1)=1
       GROUP BY u.id,u.handle
       ORDER BY cards DESC,u.handle ASC LIMIT 3`).all(),
+    // Re-winning a card does not create another holder. Exact for known accounts.
+    db.prepare(`SELECT c.id AS card_id,c.distance_cm,c.time_unit,c.sub_value,
+        COUNT(DISTINCT e.new_owner_id) AS holder_count
+      FROM sport_world_cards c JOIN sport_card_ownership_events e ON e.card_id=c.id
+      WHERE e.reason IN ('sport_win','gift_claim') AND e.new_owner_id IS NOT NULL
+      GROUP BY c.id ORDER BY holder_count DESC,c.id ASC LIMIT 3`).all(),
   ]);
   return json({
     sort,level,asOf:now,tierRevision:manifest.revision,
     holdings:holders.slice(0,maxTop),
+    mostHeldCards:(mostHeld.results||[]).filter(row=>
+      Number.isSafeInteger(Number(row.holder_count))&&Number(row.holder_count)>0)
+      .map(row=>({cardId:row.card_id,distanceCm:row.distance_cm,
+        timeUnit:row.time_unit,subValue:row.sub_value,
+        holderCount:Number(row.holder_count)})),
     collections:(counts.results||[]).map(row=>({
       holder:safeHandle(row.holder_handle),cards:Number(row.cards)||0,
     })).filter(row=>row.holder&&row.cards>0),

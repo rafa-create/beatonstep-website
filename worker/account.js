@@ -79,18 +79,17 @@ async function personByToken(db, token, table) {
     .bind(await hash(token), Date.now()).first();
 }
 async function webUser(db, req) { return personByToken(db, browserToken(req), 'community_sessions'); }
-// The existing show_challenges bit is now the global profile opt-in.
-// Missing preferences (or an uninstalled settings table) mean PRIVATE.
-// No historic private run is exposed merely because a public URL exists.
+// The existing show_challenges bit controls the entire public profile.
+// A missing preference is PUBLIC (the existing D1 default); explicit 0 is private.
 async function profileVisibility(db,userId) {
   try {
     const row=await db.prepare(
       'SELECT show_challenges FROM community_profile_settings WHERE user_id=?'
     ).bind(userId).first();
-    return {showChallenges:row?.show_challenges===1,settingsReady:true};
+    return {showChallenges:row?.show_challenges!==0,settingsReady:true};
   } catch(error) {
     if (/no such table:\s*community_profile_settings/i.test(String(error)))
-      return {showChallenges:false,settingsReady:false};
+      return {showChallenges:true,settingsReady:false};
     throw error;
   }
 }
@@ -337,6 +336,18 @@ export async function accountRequest(request,env,url,ctx) {
           FROM sport_world_cards WHERE current_owner_id=?
           ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
           .bind(user.id).all():null;
+      // Ghosts are former holdings personally verified by this account,
+      // not merely a sporting threshold reached while somebody else owned it.
+      const ghosts=(showChallenges||ownerView)&&env.SPORT_WORLD_CARDS_ENABLED==='true'
+        ?await db.prepare(`SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty
+          FROM sport_world_cards c
+          JOIN sport_card_achievements a ON a.card_id=c.id AND a.user_id=?
+          WHERE (c.current_owner_id IS NULL OR c.current_owner_id<>?)
+            AND EXISTS (SELECT 1 FROM sport_card_ownership_events e
+              WHERE e.card_id=c.id AND e.new_owner_id=?
+                AND e.reason IN ('sport_win','gift_claim'))
+          ORDER BY c.distance_cm ASC,c.sub_value ASC,c.id ASC LIMIT 100`)
+        .bind(user.id,user.id,user.id).all():null;
       const runRows=showChallenges?await db.prepare(
         'SELECT snapshot_json FROM account_run_records WHERE user_id=? '+
         'ORDER BY ended_at DESC,run_id DESC LIMIT 50'
@@ -353,6 +364,10 @@ export async function accountRequest(request,env,url,ctx) {
         ...(showChallenges||ownerView?{challenges:(challenges?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
           subValue:x.sub_value,difficulty:x.difficulty,
+        })),
+        ghosts:(ghosts?.results||[]).map(x=>({
+          id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
+          subValue:x.sub_value,difficulty:x.difficulty,ghost:true,
         }))}:{}),
         runs
       });
