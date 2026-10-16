@@ -1,6 +1,7 @@
 // Server-only award of a single Strava activity. No mobile-supplied
 // distance, speed, timestamps, or GPS position can mint a world card.
 import {devicePublisher} from './account.js';
+import {stravaApiEnabled} from './strava-api-config.js';
 import {evaluateOfflineSportSummary} from './sport-offline-eligibility.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
 import {classifyStravaSportImport,overlapsRecordedSportRun}
@@ -29,11 +30,11 @@ async function stravaGet(token,url){
 
 /**
  * Caller authenticates BOTH the existing Strava installation (row, decrypted
- * token) and a live BeatOnStep device session. The new gate stays off by
- * default until D1 migration, privacy review and device testing.
+ * token) and a live BeatOnStep device session. The single deployment
+ * switch must be explicitly enabled; the sporting protections remain separate.
  */
 export async function claimLatestStravaSport(request,env,row,token,ctx){
-  if(env.STRAVA_IMPORT_AWARDS_ENABLED!=='true'||
+  if(!stravaApiEnabled(env)||
      env.SPORT_WORLD_CARDS_ENABLED!=='true'||
      env.SPORT_AUTO_AWARDS_ENABLED!=='true')
     return reply({status:'not_enabled'});
