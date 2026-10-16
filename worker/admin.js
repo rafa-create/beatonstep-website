@@ -179,6 +179,57 @@ async function deleteShare(db, request, idText) {
   return respond({ deleted: true, id: publicId });
 }
 
+
+// Read-only management tools reuse current D1 tables, never sporting awards.
+const ADMIN_PAGE_SIZE=25;
+const adminPage=value=>{
+  const page=Number(value||'1');
+  return Number.isSafeInteger(page)&&page>=1&&page<=10000?page:null;
+};
+async function overview(db,request){
+  if(!await currentAdmin(db,request))return respond({error:'admin_required'},401);
+  const result=await db.prepare(`SELECT
+    (SELECT COUNT(*) FROM shared_items) AS shares,
+    (SELECT COUNT(*) FROM sport_world_cards) AS sport_cards,
+    (SELECT COUNT(*) FROM sport_card_ownership_events) AS ownership_events,
+    (SELECT COUNT(*) FROM sport_verified_runs) AS verified_runs,
+    (SELECT COUNT(*) FROM community_users) AS accounts`).first();
+  const count=key=>Math.max(0,Number(result?.[key])||0);
+  return respond({shares:count('shares'),sportCards:count('sport_cards'),
+    ownershipEvents:count('ownership_events'),verifiedRuns:count('verified_runs'),
+    accounts:count('accounts')});
+}
+async function sportCards(db,request,url){
+  if(!await currentAdmin(db,request))return respond({error:'admin_required'},401);
+  const page=adminPage(url.searchParams.get('page'));
+  const sort=url.searchParams.get('sort')||'recent';
+  if(page===null||!['recent','holders'].includes(sort)||
+    [...url.searchParams.keys()].some(k=>!['page','sort'].includes(k)))
+    return respond({error:'invalid_filter'},400);
+  const count=await db.prepare('SELECT COUNT(*) AS total FROM sport_world_cards').first();
+  const order=sort==='holders'?'holder_count DESC,c.id ASC':'c.id DESC';
+  const rows=await db.prepare(`SELECT
+      c.id,c.distance_cm,c.time_unit,c.sub_value,c.owner_epoch,
+      CASE WHEN COALESCE(preferences.show_challenges,1)=1
+        THEN owner.handle ELSE NULL END AS owner_handle,
+      (SELECT COUNT(DISTINCT e.new_owner_id)
+        FROM sport_card_ownership_events e
+        WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim'))
+        AS holder_count
+    FROM sport_world_cards c
+    LEFT JOIN community_users owner ON owner.id=c.current_owner_id
+    LEFT JOIN community_profile_settings preferences ON preferences.user_id=owner.id
+    ORDER BY ${order} LIMIT ? OFFSET ?`)
+    .bind(ADMIN_PAGE_SIZE,(page-1)*ADMIN_PAGE_SIZE).all();
+  return respond({page,pageSize:ADMIN_PAGE_SIZE,total:Number(count?.total)||0,
+    items:(rows.results||[]).map(row=>({
+      id:row.id,distanceCm:row.distance_cm,timeUnit:row.time_unit,
+      subValue:row.sub_value,ownerEpoch:row.owner_epoch,
+      owner:typeof row.owner_handle==='string'?row.owner_handle:null,
+      holderCount:Number(row.holder_count)||0,
+    }))});
+}
+
 export async function adminRequest(request, env, url) {
   if (!env.DB || env.CATALOG_BACKEND !== 'd1') {
     return respond({ error: 'admin_unavailable' }, 503);
@@ -192,6 +243,10 @@ export async function adminRequest(request, env, url) {
         ? { authenticated: true, email: admin.email }
         : { authenticated: false });
     }
+    if (path === '/api/admin/overview' && method === 'GET')
+      return overview(env.DB,request);
+    if (path === '/api/admin/sport/cards' && method === 'GET')
+      return sportCards(env.DB,request,url);
     if (path === '/api/admin/login' && method === 'POST') return await login(env.DB, env, request);
     if (path === '/api/admin/logout' && method === 'POST') return await logout(env.DB, request);
     if (path==='/api/admin/cards/backfill' && method==='POST') {

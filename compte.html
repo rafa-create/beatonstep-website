@@ -159,7 +159,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div class="actions"><button type="submit">Créer mon compte</button><button type="button" class="secondary" id="go-signin">J’ai déjà un compte</button></div>
 </form></section>
 <section id="account" hidden>
-<div class="account-name"><h2 id="hello"></h2><button type="button" class="secondary" id="handle-edit">Modifier mon pseudo</button></div>
+<div class="account-name"><h2 id="hello"></h2><button type="button" class="secondary" id="handle-edit">Modifier mon pseudo</button><a id="admin-entry" class="account-records-link" href="/admin.html" hidden>⚙ Administration →</a></div>
 <form id="handle-form" hidden>
 <label for="handle-input">Nouveau pseudo public</label>
 <input id="handle-input" minlength="3" maxlength="24" pattern="[a-z0-9][a-z0-9_.-]{2,23}"
@@ -715,6 +715,7 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
   async function account(){
     const me=await api('/api/account/me');
     if(!me.authenticated){
+      $('admin-entry').hidden=true;
       panel('signin');
       status(giftCode
         ?'Connecte-toi ou crée un compte pour accepter ta carte cadeau BeatOnStep. Le lien restera disponible après la connexion.'
@@ -724,6 +725,8 @@ Les courses sont normales ; la musique n'intervient pas dans l'attribution.</p>
       return;
     }
     panel('account');currentHandle=me.handle;
+    // Link access is cosmetic; /admin.html always checks admin credentials.
+    $('admin-entry').hidden=me.adminEligible!==true;
     $('hello').textContent='Connecté : @'+me.handle;
     $('handle-input').value=me.handle;
     $('handle-form').hidden=true;

@@ -576,7 +576,21 @@ export async function accountRequest(request,env,url,ctx) {
     }
     if (path==='/api/account/me' && method==='GET') {
       const user=await webUser(db,request);
-      return reply(user?{authenticated:true,handle:user.handle}:{authenticated:false});
+      // Dashboard link eligibility only; NEVER grants admin access.
+      // Actual permissions depend on separate admin password and admin session.
+      let adminEligible=false;
+      if(user){
+        try{
+          const match=await db.prepare(
+            'SELECT email FROM admin_users WHERE email=? AND disabled=0'
+          ).bind(user.email).first();
+          adminEligible=Boolean(match);
+        }catch{
+          // No admin schema or a read error must not interrupt normal accounts.
+        }
+      }
+      return reply(user?{authenticated:true,handle:user.handle,adminEligible}
+        :{authenticated:false});
     }
     if (path==='/api/account/profile/preferences' && method==='GET') {
       const user=await webUser(db,request);
