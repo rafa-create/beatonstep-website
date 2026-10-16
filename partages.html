@@ -726,7 +726,7 @@
     /^[a-z0-9][a-z0-9_.-]{2,23}$/.test(handle);
   function profileHandle(handle,fallback){
     if(!validPublicHandle(handle))
-      return el('span','',fallback||fr('Compte indisponible','Unavailable account'));
+      return el('span','',fallback||fr('Compte privé','Private account'));
     const link=el('a','profile-handle','@'+handle);
     link.href='compte.html?profil='+encodeURIComponent(handle);
     link.setAttribute('aria-label',fr('Voir le profil de @','View profile of @')+handle);
@@ -783,7 +783,9 @@
       BeatOnStepSportPercentiles.label(item,lang));
     const owner=el('p','sport-ownership');
     const ownerValue=el('strong');
-    ownerValue.append(profileHandle(item.owner,fr('Réserve BeatOnStep','BeatOnStep reserve')));
+    ownerValue.append(profileHandle(item.owner,item.hasOwner===true
+      ?fr('Compte privé','Private account')
+      :fr('Réserve BeatOnStep','BeatOnStep reserve')));
     owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),ownerValue);
     copy.append(head,title,difficulty,owner);
     summary.append(face,copy);
@@ -1020,8 +1022,7 @@
         ?difficulty[lang==='en'?1:0]:fr('Niveau indisponible','Tier unavailable'));
       const owner=el('div','record-sub');
       owner.append(el('span','',fr('Détenteur : ','Holder: ')),
-        profileHandle(item.holder,fr('Profil privé ou supprimé',
-          'Private or deleted profile')));
+        profileHandle(item.holder,fr('Compte privé','Private account')));
       const time=el('span','record-value',fr('Gardée : ','Held: ')+sportPeriod(item.durationMs));
       const status=el('span','record-sub',item.ongoing
         ?fr('En cours','Ongoing')
@@ -1047,7 +1048,7 @@
     ranked.forEach((item,index)=>{
       const li=el('li','');
       li.append(el('strong','record-position','#'+(index+1)),
-        profileHandle(item.holder,fr('Profil privé','Private profile')),
+        profileHandle(item.holder,fr('Compte privé','Private account')),
         el('strong','record-value',String(item.cards)+' '+
           (item.cards===1?fr('carte','card'):fr('cartes','cards'))));
       collections.append(li);

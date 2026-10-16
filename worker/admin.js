@@ -211,6 +211,7 @@ async function sportCards(db,request,url){
   const order=sort==='holders'?'holder_count DESC,c.id ASC':'c.id DESC';
   const rows=await db.prepare(`SELECT
       c.id,c.distance_cm,c.time_unit,c.sub_value,c.owner_epoch,
+      CASE WHEN c.current_owner_id IS NOT NULL THEN 1 ELSE 0 END AS has_owner,
       CASE WHEN COALESCE(preferences.show_challenges,1)=1
         THEN owner.handle ELSE NULL END AS owner_handle,
       (SELECT COUNT(DISTINCT e.new_owner_id)
@@ -226,6 +227,7 @@ async function sportCards(db,request,url){
     items:(rows.results||[]).map(row=>({
       id:row.id,distanceCm:row.distance_cm,timeUnit:row.time_unit,
       subValue:row.sub_value,ownerEpoch:row.owner_epoch,
+      hasOwner:row.has_owner===1,
       owner:typeof row.owner_handle==='string'?row.owner_handle:null,
       holderCount:Number(row.holder_count)||0,
     }))});

@@ -236,7 +236,7 @@
         const title=document.createElement('h2');title.textContent=sportName(card);
         const meta=document.createElement('div');meta.className='meta';
         meta.textContent='#'+card.id+' · '+card.holderCount+' détenteur(s) · époque '+
-          card.ownerEpoch+' · '+(card.owner?'@'+card.owner:'Réserve / compte privé');
+          card.ownerEpoch+' · '+(card.owner?'@'+card.owner:card.hasOwner?'Compte privé':'Réserve BeatOnStep');
         info.append(title,meta);
         const link=document.createElement('a');
         link.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
@@ -272,7 +272,7 @@
           :'Motif non conservé';
         const date=warning.earnedAt?new Date(warning.earnedAt).toLocaleDateString('fr-FR'):'Date indisponible';
         meta.textContent='Carte #'+warning.cardId+' · Époque '+warning.ownerEpoch+
-          ' · '+date+' · '+(warning.owner?'@'+warning.owner:'Compte privé ou supprimé')+
+          ' · '+date+' · '+(warning.owner?'@'+warning.owner:'Compte privé')+
           ' · '+(warning.currentEpoch?'Détenteur actuel':'Ancien détenteur')+
           ' · '+reasons;
         info.append(title,meta);

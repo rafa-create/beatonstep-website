@@ -29,6 +29,9 @@ const card=row=>({
   difficulty:difficultyForSportCard(row.distance_cm,row.sub_value)?.difficulty??null,
   createdAt:row.created_at,holderCount:holderCount(row),
   owner:safeHandle(row.owner_handle),
+  // This boolean distinguishes an actual reserve card from a hidden owner,
+  // without exposing the user's ID or any private profile information.
+  hasOwner:row.has_owner===1,
   performanceWarning:row.performance_warning===1,
 });
 
@@ -76,6 +79,7 @@ export async function readPublicSportCards(db,url,{
         FROM sport_card_ownership_events e
         WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim'))
         AS holder_count,`+
+      'CASE WHEN c.current_owner_id IS NOT NULL THEN 1 ELSE 0 END AS has_owner,'+
       'CASE WHEN COALESCE(visibility.show_challenges,1)=1 THEN u.handle ELSE NULL END AS owner_handle '+
       'FROM sport_world_cards c LEFT JOIN community_users u ON u.id=c.current_owner_id '+
       'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id'+where+
@@ -98,7 +102,8 @@ export async function readPublicSportCards(db,url,{
       FROM sport_card_ownership_events e
       WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim'))
       AS holder_count,`+
-    'CASE WHEN COALESCE(visibility.show_challenges,1)=1 THEN u.handle ELSE NULL END AS owner_handle '+
+    'CASE WHEN c.current_owner_id IS NOT NULL THEN 1 ELSE 0 END AS has_owner,'+
+      'CASE WHEN COALESCE(visibility.show_challenges,1)=1 THEN u.handle ELSE NULL END AS owner_handle '+
     'FROM sport_world_cards c LEFT JOIN community_users u ON u.id=c.current_owner_id '+
     'LEFT JOIN community_profile_settings visibility ON visibility.user_id=u.id WHERE c.id=?'
   ).bind(id).first();
@@ -141,8 +146,8 @@ export async function readPublicSportCards(db,url,{
        JOIN account_run_records saved ON saved.user_id=verified.user_id
          AND saved.run_id=verified.run_id AND saved.ended_at=verified.completed_at
        LEFT JOIN community_profile_settings consent ON consent.user_id=verified.user_id
-         AND COALESCE(consent.show_challenges,1)=1
-       WHERE e.reason='sport_win' AND verified.card_id=e.card_id
+       WHERE e.reason='sport_win' AND COALESCE(consent.show_challenges,1)=1
+         AND verified.card_id=e.card_id
          AND verified.user_id=e.new_owner_id AND verified.verified_at=e.changed_at
          AND json_extract(saved.snapshot_json,'$.endedAtMs')=verified.completed_at
          AND (SELECT COUNT(*) FROM sport_verified_runs candidate
