@@ -6,7 +6,7 @@
 // The endpoint is FEATURE DISABLED until the offline-first end-to-end tests
 // and release gate have passed.
 import {evaluateOfflineSportSummary} from './sport-offline-eligibility.js';
-import {SPORT_CARD_RULESET} from './sport-card-rules.js';
+import {SPORT_CARD_RULESET,SPORT_CARD_DISTANCES} from './sport-card-rules.js';
 
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -15,6 +15,27 @@ const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,heade
 const digits=value=>Number.isSafeInteger(value)&&value>=0;
 const hex=bytes=>[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');
 const source=(v)=>v==='phone_gps'?'attested_phone':'verified_import';
+// Compatibility with existing 1.7.2 cards, which cannot know the newly
+// activated 800m/1500m/mile families. Never trust arbitrary client tiers.
+const NEW_TRACK_CM=new Set([80000,150000,160934]);
+const legacySportCard=(summary,current)=>{
+  const actualCm=Math.floor(summary.distanceMeters*100+0.00001);
+  const tier=[...SPORT_CARD_DISTANCES].reverse().find(c=>
+    !NEW_TRACK_CM.has(c.distanceCm)&&c.distanceCm<=actualCm);
+  if(!tier)return null;
+  const old=evaluateOfflineSportSummary({
+    ...summary,distanceMeters:tier.distanceCm/100,
+  });
+  if(old.status!=='candidate')return null;
+  // Preserve speed warnings from the original measured distance, without
+  // generating a false "inconsistent crossings" for a valid old 1km split.
+  const reasons=[...new Set([
+    ...(old.warningReasons||[]),
+    ...(current.warningReasons||[]).filter(r=>r!=='inconsistent_crossings'),
+  ])];
+  return {...old,peakSpeedKmh:current.peakSpeedKmh,
+    warningReasons:reasons,needsReviewWarning:reasons.length>0};
+};
 
 export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now(),onAward=null}={}){
   const runId=body?.runId,summary=body?.summary;
@@ -28,9 +49,20 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
 
   // Client-supplied "evidenceVerified" / "won" fields are ignored. The
   // server independently applies the same published game thresholds.
-  const candidate=evaluateOfflineSportSummary(summary);
-  if(candidate.status!=='candidate')
-    return reply({status:'not_eligible',reason:candidate.reason||'invalid_run'},422);
+  const current=evaluateOfflineSportSummary(summary);
+  if(current.status!=='candidate')
+    return reply({status:'not_eligible',reason:current.reason||'invalid_run'},422);
+  const requested=body?.clientPerformanceKey;
+  let candidate=current;
+  if((requested==null||requested!==current.performanceKey)&&
+     NEW_TRACK_CM.has(current.distanceCm)){
+    const legacy=legacySportCard(summary,current);
+    if(legacy&&(requested==null||requested===legacy.performanceKey))
+      candidate=legacy;
+  }
+  // The client cannot demand a different, unverified distance or SUB tier.
+  if(requested!=null&&requested!==candidate.performanceKey)
+    return reply({error:'performance_key_mismatch'},409);
 
   // A digest tracks exact canonical input; it is NOT a claim that the source
   // has a Garmin cryptographic signature (good-faith policy is documented).
