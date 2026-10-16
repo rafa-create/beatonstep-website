@@ -62,4 +62,44 @@ const guide = {
   ].sort((a,b)=>a.distanceCm-b.distanceCm),
 };
 writeFileSync(join(out, 'sport-card-paliers.json'), JSON.stringify(guide));
+
+// Derive the seven visual finishes from the SAME official JSON as the
+// sporting thresholds. Neither the CSS nor the browser JS owns a palette.
+if(manifest.cardVisuals){
+  const visualKeys=[...manifest.tierOrder].reverse();
+  const visuals=manifest.cardVisuals;
+  if(Object.keys(visuals).length!==visualKeys.length)
+    throw Error('Card visuals must define precisely the seven tiers');
+  const names={
+    beginner:['Débutant','Beginner'],
+    amateur:['Amateur','Amateur'],
+    regular:['Régulier','Regular'],
+    intermediate:['Intermédiaire','Intermediate'],
+    expert:['Expert','Expert'],
+    legend:['Légende','Legend'],
+    world_elite:['Élite mondiale','World elite'],
+  };
+  const generatedCss=[],generatedLevels={};
+  for(const [index,tier] of visualKeys.entries()){
+    const skin=visuals[tier];
+    if(!skin||!/^#[0-9a-fA-F]{6}$/.test(skin.accent)||
+       !/^#[0-9a-fA-F]{6}$/.test(skin.shade)||
+       typeof skin.symbol!=='string'||skin.symbol.length<1||skin.symbol.length>8)
+      throw Error('Invalid card visual skin for '+tier);
+    generatedCss.push('.sport-skin--'+tier+
+      '{--sport-accent:'+skin.accent+';--sport-shade:'+skin.shade+'}');
+    generatedLevels[tier]=[...names[tier],skin.symbol,index+1];
+  }
+  const cssFile=join(out,'sport-card-face.css');
+  const css=readFileSync(cssFile,'utf8');
+  const cssMarker='/*__SPORT_CARD_COLORS__*/';
+  if(!css.includes(cssMarker))throw Error('Card CSS generator marker missing');
+  writeFileSync(cssFile,css.replace(cssMarker,generatedCss.join('\n')));
+  const jsFile=join(out,'sport-card-face.js');
+  const js=readFileSync(jsFile,'utf8');
+  const jsMarker='/*__SPORT_CARD_LEVELS__*/{}';
+  if(!js.includes(jsMarker))throw Error('Card JS generator marker missing');
+  writeFileSync(jsFile,js.replace(jsMarker,JSON.stringify(generatedLevels)));
+}
+
 console.log('Cloudflare static assets prepared in dist/');
