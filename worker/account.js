@@ -334,9 +334,10 @@ export async function accountRequest(request,env,url,ctx) {
       // no collection, item IDs or counts leave the public profile API.
       const challenges=(showChallenges||ownerView) && env.SPORT_WORLD_CARDS_ENABLED==='true'
         ?await db.prepare(`SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,
-          (SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
-            FROM sport_card_telemetry_reviews tr
-            WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch)
+          ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
+            ?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
+                FROM sport_card_telemetry_reviews tr
+                WHERE tr.card_id=c.id AND tr.owner_epoch=c.owner_epoch)`:'0'}
             AS performance_warning
           FROM sport_world_cards c WHERE current_owner_id=?
           ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
@@ -345,11 +346,12 @@ export async function accountRequest(request,env,url,ctx) {
       // not merely a sporting threshold reached while somebody else owned it.
       const ghosts=(showChallenges||ownerView)&&env.SPORT_WORLD_CARDS_ENABLED==='true'
         ?await db.prepare(`SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,
-          EXISTS(SELECT 1 FROM sport_card_telemetry_reviews tr
-            JOIN sport_card_ownership_events e ON e.card_id=tr.card_id
-              AND e.new_epoch=tr.owner_epoch
-            WHERE tr.card_id=c.id AND tr.state='warning'
-              AND e.reason='sport_win' AND e.new_owner_id=a.user_id)
+          ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
+            ?`EXISTS(SELECT 1 FROM sport_card_telemetry_reviews tr
+                JOIN sport_card_ownership_events e ON e.card_id=tr.card_id
+                  AND e.new_epoch=tr.owner_epoch
+                WHERE tr.card_id=c.id AND tr.state='warning'
+                  AND e.reason='sport_win' AND e.new_owner_id=a.user_id)`:'0'}
             AS performance_warning
           FROM sport_world_cards c
           JOIN sport_card_achievements a ON a.card_id=c.id AND a.user_id=?
