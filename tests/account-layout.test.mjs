@@ -106,3 +106,17 @@ test('minimal profile copy keeps distinct deck titles and actionable controls',(
   assert.match(html,/if\(giftCode\)\{\$\('heading'\)\.textContent='Ta carte cadeau t’attend';/);
   assert.match(html,/\$\('intro'\)\.hidden=false;/);
 });
+
+test('private-profile opt-in is subtle and at the bottom of the signed-in account',()=>{
+  const accountStart=at('<section id="account" hidden>');
+  const accountEnd=at('<div id="card-reveal"');
+  const footer=at('id="profile-visibility"');
+  assert.ok(footer>accountStart&&footer<accountEnd);
+  assert.ok(footer>at('id="history-deck"'),'privacy checkbox follows both decks');
+  assert.ok(footer>at('id="delete-panel"'),'privacy checkbox is near the footer');
+  assert.ok(footer<at('id="account-signout"'),'logout stays final account action');
+  assert.match(html,/id="show-public-challenges" type="checkbox">Rendre mon profil privé/);
+  assert.doesNotMatch(html,/id="show-public-challenges" type="checkbox" checked/);
+  assert.match(html,/\.profile-visibility\{[^}]*border-top:1px solid var\(--line\)/);
+  assert.doesNotMatch(html,/Visibilité de mon profil public/);
+});
