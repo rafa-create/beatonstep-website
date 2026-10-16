@@ -576,6 +576,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
           title:displaySportName(card.name),distanceCm:card.distanceCm,
           difficulty:BeatOnStepSportPercentiles.visibleTier(card),
           variant:category==='ghost'?'ghost':'owned',
+          performanceWarning:card.performanceWarning,
+          peakSpeedKmh:card.peakSpeedKmh,
         },'fr');
         const copy=document.createElement('div');copy.className='sport-deck-copy';
         copy.append(title,meta);
@@ -945,6 +947,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         title,distanceCm:card.distanceCm,
         difficulty:BeatOnStepSportPercentiles.visibleTier(card),
         ...(isGhost?{variant:'ghost'}:{}),
+        performanceWarning:card.performanceWarning,
+        peakSpeedKmh:card.peakSpeedKmh,
       },'fr');
       const rank=document.createElement('small');
       rank.className='public-challenge-rank';

@@ -38,6 +38,8 @@
 .bos-sport-stars .is-filled{color:var(--sport-accent)}
 .bos-sport-stars .is-outline{color:#716e61}
 .bos-sport-unique{font-size:7.4px;line-height:1.25;font-weight:900;color:var(--sport-accent)}
+.bos-sport-warning-icon{font-size:18px;font-weight:900;color:#ffc764;line-height:1}
+.bos-sport-warning-label{font-size:7.2px;line-height:1.2;font-weight:900;color:#ffc764;overflow-wrap:anywhere}
 .bos-sport-face.is-ghost{opacity:.72}
 .bos-sport-face.is-ghost .bos-sport-unique{color:#b7b2a5}
 .bos-sport-face.is-rejected{--sport-accent:#96938a}

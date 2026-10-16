@@ -778,6 +778,8 @@
     const face=BeatOnStepSportCards.createFace(document,{
       title:sportName(item),distanceCm:item.distanceCm,
       difficulty:BeatOnStepSportPercentiles.visibleTier(item),
+      performanceWarning:item.performanceWarning,
+      peakSpeedKmh:item.peakSpeedKmh,
     },lang);
     const copy=el('div','bos-sport-copy');
     const title=el('h2','',sportName(item));
