@@ -1,6 +1,6 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { SPORT_CARD_DISTANCES,sportCardRulesManifest } from '../worker/sport-card-rules.js';
 
 const root = process.cwd();
@@ -14,6 +14,11 @@ const directories = ['assets', 'badges', 'store', 'screenshots-archive'];
 const rootFile = /^(?:[a-zA-Z0-9_-]+\.(?:html|css|js|json|md))$/;
 for (const entry of readdirSync(root)) {
   if (!rootFile.test(entry) || !statSync(join(root, entry)).isFile()) continue;
+  // Published pages, JS and public documents must never point to the retired
+  // GitHub Pages site rather than the canonical Cloudflare domain.
+  if (readFileSync(join(root, entry), 'utf8').includes('rafa-create.github.io/beatonstep-website')) {
+    throw Error('Retired public site URL found in ' + entry + '; use https://beatonstep.app/');
+  }
   cpSync(join(root, entry), join(out, entry));
 }
 for (const dir of directories) {
