@@ -3,7 +3,7 @@
 // No continuous network connection, route upload or mandatory pauses.
 // This is a NON-AWARDING eligibility preview. A future authenticated,
 // once-per-run post-finish transfer must still handle server anti-replay.
-import {evaluateSportCardCandidate,longestSportDistance}
+import {SPORT_CARD_DISTANCES,evaluateSportCardCandidate,longestSportDistance}
   from './sport-card-rules.js';
 
 const allowedSources=new Set([
@@ -64,7 +64,7 @@ export function evaluateOfflineSportSummary(summary){
   if(Array.isArray(summary.sportCrossings)&&summary.sportCrossings.length){
     let previousDistance=0,previousTime=0,valid=true;
     const verified=[];
-    if(summary.sportCrossings.length>203)valid=false;
+    if(summary.sportCrossings.length>SPORT_CARD_DISTANCES.length)valid=false;
     if(valid)for(const crossing of summary.sportCrossings){
       if(!crossing||!Number.isSafeInteger(crossing.distanceCm)||
          !Number.isSafeInteger(crossing.elapsedMs)||

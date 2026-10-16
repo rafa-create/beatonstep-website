@@ -16,6 +16,9 @@ export const SPORT_CARD_400M_TIERS=Object.freeze(
 const CATALOG=sportTierRules.distancesCm.map(distanceCm=>({
   distanceCm,
   code:distanceCm===40000?'400m':
+    distanceCm===80000?'800m':
+    distanceCm===150000?'1500m':
+    distanceCm===160934?'mile':
     distanceCm===2109750?'half_marathon':
     distanceCm===4219500?'marathon':(distanceCm/100000)+'km',
 }));

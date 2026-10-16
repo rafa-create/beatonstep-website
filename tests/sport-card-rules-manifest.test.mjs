@@ -22,20 +22,16 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     rules.tierOrder.map(tier=>rules.capsByDistance['40000'][tier]));
   assert.equal(rules.ultraStartCm,4300000);
   assert.equal(rules.ultraDifficulty,'legend');
-  assert.deepEqual(rules.pendingTrackDistancesCm,[80000,150000,160934]);
-  assert.equal(rules.pendingTrackUnit,'second');
-  assert.equal(rules.pendingTrackNotes.status,
-    'preview_only_until_d1_schema_migration');
-  for(const distanceCm of rules.pendingTrackDistancesCm){
-    assert.equal(rules.distancesCm.includes(distanceCm),false,
-      'preview distances are not awardable by the Worker before D1 migration');
-    const caps=rules.pendingTrackCapsByDistance[String(distanceCm)];
+  assert.deepEqual(rules.secondResolutionDistancesCm,
+    [40000,80000,150000,160934]);
+  assert.equal(rules.pendingTrackDistancesCm,undefined);
+  for(const distanceCm of [80000,150000,160934]){
+    assert.equal(rules.distancesCm.includes(distanceCm),true);
+    const caps=rules.capsByDistance[String(distanceCm)];
     assert.ok(caps&&Object.keys(caps).length===7);
-    let previous=0;
-    for(const tier of rules.tierOrder){
-      assert.ok(caps[tier]>previous);
-      previous=caps[tier];
-    }
+    assert.equal(maxSubMinuteByTier(distanceCm),null);
+    for(const tier of rules.tierOrder)
+      assert.ok(Number.isSafeInteger(caps[tier])&&caps[tier]>0);
   }
   for(const {distanceCm} of SPORT_CARD_DISTANCES){
     if(distanceCm>=rules.ultraStartCm){
@@ -45,7 +41,7 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     }
     const caps=rules.capsByDistance[distanceCm];
     assert.equal(Object.keys(caps).length,7,String(distanceCm));
-    if(distanceCm!==40000){
+    if(!rules.secondResolutionDistancesCm.includes(distanceCm)){
       assert.deepEqual(caps,maxSubMinuteByTier(distanceCm));
     }
     let previous=0;
@@ -70,7 +66,8 @@ test('manual D1 reclassification plan uses the same 45 v2 rows without changing 
   assert.match(sql,/SET difficulty=/);
   assert.match(sql,/c\.difficulty IS NOT/,'idempotent update on changed labels only');
   assert.doesNotMatch(sql,/UPDATE sport_card_ownership_events|SET current_owner_id|SET owner_epoch|DELETE FROM/);
-  for(const [cm,caps] of Object.entries(rules.capsByDistance)){
+  for(const [cm,caps] of Object.entries(rules.capsByDistance)
+    .filter(([cm])=>![80000,150000,160934].includes(Number(cm)))){
     const literal='('+[Number(cm),...rules.tierOrder.map(t=>caps[t])].join(',')+')';
     assert.ok(sql.includes(literal),'D1 plan must match official limits at '+cm);
   }

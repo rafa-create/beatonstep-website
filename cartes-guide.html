@@ -270,8 +270,7 @@
     return guide?.distances.find(row=>String(row.distanceCm)===$('distance').value);
   }
   function distanceOption(row){
-    return distanceName(row.distanceCm)+(row.previewOnly
-      ?t(' · aperçu',' · preview'):'');
+    return distanceName(row.distanceCm);
   }
   function timeLabel(n,unit){
     if(unit==='second'){
@@ -420,25 +419,17 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?ultraName():
       levelNames[difficulty][lang==='fr'?0:1];
-    target.textContent=(row.previewOnly
-      ?t('Aperçu en préparation : ','Upcoming preview: ')
-      :t('Ta carte possible : ','Your possible card: '))+title+' · '+name+'.';
+    target.textContent=t('Ta carte possible : ','Your possible card: ')+title+' · '+name+'.';
     $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
       title,distanceCm:row.distanceCm,difficulty,
     },lang));
     // SUB comparisons use the card's strict minute/second threshold.
-    $('calc-card-world-note').textContent=row.previewOnly
-      ?t('Référence mondiale indisponible pour cette distance en préparation.',
-        'World benchmark unavailable for this upcoming distance.')
-      :BeatOnStepSportPercentiles.label({
-          distanceCm:row.distanceCm,subValue:sub,difficulty,
-        },lang);
+    $('calc-card-world-note').textContent=BeatOnStepSportPercentiles.label({
+      distanceCm:row.distanceCm,subValue:sub,difficulty,
+    },lang);
     const note=$('calc-card-preview').querySelector('.calc-preview-note');
-    if(note)note.textContent=row.previewOnly
-      ?t('Distance en préparation : cette carte ne peut pas encore être gagnée. Les seuils sont provisoires.',
-         'Upcoming distance: this card cannot be won yet. These thresholds are provisional.')
-      :t('Simulation de carte : seul un résultat de course validé peut la faire gagner.',
-         'Card preview: only a validated run can earn this card.');
+    if(note)note.textContent=t('Simulation de carte : seul un résultat de course validé peut la faire gagner.',
+      'Card preview: only a validated run can earn this card.');
     $('calc-card-preview').hidden=false;
   }
   function setLanguage(next){

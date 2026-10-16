@@ -12,6 +12,9 @@ const date=x=>whole(n(x),1,4102444800000)?n(x):null;
 const bool=x=>Number(x)===1;
 export const displaySportCard=(distanceCm,timeUnit,subValue)=>{
   const distance=distanceCm===40000?'400 m':
+    distanceCm===80000?'800 m':
+    distanceCm===150000?'1 500 m':
+    distanceCm===160934?'1 mile':
     distanceCm===2109750?'Semi-marathon':
     distanceCm===4219500?'Marathon':
     (distanceCm/100000).toLocaleString('fr-FR')+' km';

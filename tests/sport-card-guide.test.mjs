@@ -75,8 +75,8 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
   assert.doesNotMatch(page,/Distance modélisée à partir des quatre références|Exception ultra-distance|aucun percentile mondial de chrono fiable/,
     'technical notes are removed from the running-focused calculator');
-  assert.match(page,/Aperçu en préparation/);
-  assert.match(page,/Distance en préparation : cette carte ne peut pas encore être gagnée/);
+  assert.doesNotMatch(page,/Aperçu en préparation/);
+  assert.doesNotMatch(page,/Distance en préparation : cette carte ne peut pas encore être gagnée/);
   assert.match(page,/data.revision!==official.revision/);
   assert.match(page,/const official=await BeatOnStepSportPercentiles.ready\(\)/);
   assert.doesNotMatch(page,/data.distances.length!==206/,
@@ -96,12 +96,10 @@ test('generated guide and every difficulty explanation follow the canonical JSON
   assert.deepEqual(json.percentileTargets,
     canonical.percentileCalibration.estimatedPercentileTargets);
   assert.deepEqual(json.distances.map(row=>row.distanceCm),
-    [...canonical.distancesCm,...canonical.pendingTrackDistancesCm].sort((a,b)=>a-b));
+    [...canonical.distancesCm].sort((a,b)=>a-b));
   for(const row of json.distances){
-    assert.equal(row.unit,(canonical.secondResolutionDistancesCm.includes(row.distanceCm)||
-      canonical.pendingTrackDistancesCm.includes(row.distanceCm))?'second':'minute');
-    assert.deepEqual(row.caps,canonical.capsByDistance[String(row.distanceCm)]||
-      canonical.pendingTrackCapsByDistance[String(row.distanceCm)]||null);
+    assert.equal(row.unit,canonical.secondResolutionDistancesCm.includes(row.distanceCm)?'second':'minute');
+    assert.deepEqual(row.caps,canonical.capsByDistance[String(row.distanceCm)]||null);
   }
   const script=page.match(/<script>([\s\S]*?)<\/script>/)[1];
   const formula=script.match(/  const levelNames=\{[\s\S]*?  const t=\(fr,en\)=>lang==='fr'\?fr:en;/)?.[0];
@@ -174,28 +172,26 @@ test('tier table shows readable percentiles and exact chrono intervals, not SUB-
     'the full individual SUB listing still uses exact card identifiers');
 });
 
-test('guide preserves 203 awardable distances and previews 3 track distances',()=>{
+test('guide awards all 206 distances, including three track specialties',()=>{
   assert.equal(json.ruleset,'sport-cards-v1');
   assert.deepEqual(json.levels,
     ['world_elite','legend','expert','intermediate','regular','amateur','beginner']);
   assert.equal(json.distances.length,206);
   assert.deepEqual(json.distances.filter(row=>!row.previewOnly).map(row=>row.distanceCm),
     SPORT_CARD_DISTANCES.map(row=>row.distanceCm));
-  assert.deepEqual(json.distances.filter(row=>row.previewOnly).map(row=>row.distanceCm),
-    [80000,150000,160934]);
+  assert.deepEqual(json.distances.filter(row=>row.previewOnly),[]);
   assert.equal(new Set(json.distances.map(row=>row.distanceCm)).size,206);
   for(const distanceCm of [80000,150000,160934]){
     const row=json.distances.find(item=>item.distanceCm===distanceCm);
     assert.equal(row.unit,'second');
     assert.equal(row.ultra,false);
-    assert.equal(row.previewOnly,true);
+    assert.equal(row.previewOnly,false);
     let lower=0;
     for(const tier of json.levels){
       assert.ok(row.caps[tier]>lower);
       lower=row.caps[tier];
     }
-    assert.equal(difficultyForSportCard(distanceCm,1),null,
-      'a preview-only track family must never bypass the unmodified D1 schema');
+    assert.equal(difficultyForSportCard(distanceCm,1)?.difficulty,'world_elite');
   }
 });
 
@@ -212,12 +208,11 @@ test('all public SUB difficulty boundaries agree with the official award engine'
       }
       continue;
     }
-    const expected=distanceCm===40_000
-      ?Object.fromEntries(SPORT_CARD_400M_TIERS.map(
-        ({difficulty,maxSubSecond})=>[difficulty,maxSubSecond]))
+    const expected=unit==='second'
+      ?canonical.capsByDistance[String(distanceCm)]
       :maxSubMinuteByTier(distanceCm);
     assert.deepEqual(caps,expected,'distance='+distanceCm);
-    assert.equal(unit,distanceCm===40_000?'second':'minute');
+    assert.equal(unit,canonical.secondResolutionDistancesCm.includes(distanceCm)?'second':'minute');
     let previous=0;
     for(const difficulty of json.levels){
       assert.ok(caps[difficulty]>previous,'ordered caps '+distanceCm+' '+difficulty);

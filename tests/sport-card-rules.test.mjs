@@ -16,12 +16,12 @@ const result=(finalKm,crossings,finishedMinutes,verified=true)=>
   });
 
 test('catalog: 400m with multiple second thresholds plus EVERY km 1..200',()=>{
-  assert.equal(SPORT_CARD_DISTANCES.length,203);
+  assert.equal(SPORT_CARD_DISTANCES.length,206);
   assert.deepEqual(SPORT_CARD_DISTANCES.map(x=>x.distanceCm),[
-    cm(.4),...Array.from({length:200},(_,i)=>cm(i+1)),
+    cm(.4),cm(.8),cm(1.5),160934,...Array.from({length:200},(_,i)=>cm(i+1)),
     cm(21.0975),cm(42.195),
   ].sort((a,b)=>a-b));
-  assert.equal(new Set(SPORT_CARD_DISTANCES.map(x=>x.distanceCm)).size,203);
+  assert.equal(new Set(SPORT_CARD_DISTANCES.map(x=>x.distanceCm)).size,206);
   assert.equal(Object.isFrozen(SPORT_CARD_DISTANCES),true);
   assert.equal(SPORT_CARD_RULESET,'sport-cards-v1');
   assert.equal(SPORT_CARD_DIFFICULTY_RULESET,'v2');
@@ -40,8 +40,9 @@ test('catalog: 400m with multiple second thresholds plus EVERY km 1..200',()=>{
 
 test('longest crossed distance at unrounded half/full and every integer km',()=>{
   for(const [finished,chosen] of [
-    [0,null],[.39999,null],[.4,.4],[.99,.4],[1,1],
-    [2,2],[3.5,3],[7,7],[14,14],[14.99,14],
+    [0,null],[.39999,null],[.4,.4],[.79999,.4],[.8,.8],
+    [.99,.8],[1,1],[1.4999,1],[1.5,1.5],[1.6,1.5],
+    [1.60933,1.5],[1.60934,1.60934],[2,2],[3.5,3],[7,7],[14,14],[14.99,14],
     [21.0974,21],[21.0975,21.0975],[21.5,21.0975],
     [22,22],[29.9,29],[30,30],[40,40],[42.1949,42],
     [42.195,42.195],[42.3,42.195],[43,43],[50,50],
@@ -199,6 +200,35 @@ test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=
   // or silently reuse the per-minute 5km identity scheme.
 });
 
+test('800m, 1500m, mile are real one-second SUB collectibles',()=>{
+  for(const [cmDistance,elapsedMs,expectedSub] of [
+    [80000,179999,180],[150000,450123,451],
+    [160934,499999,500],
+  ]){
+    const card=evaluateSportCardCandidate({
+      finalized:true,evidenceVerified:true,
+      finalDistanceCm:cmDistance,
+      finishedElapsedMs:elapsedMs,
+      crossings:[{distanceCm:cmDistance,elapsedMs}],
+    });
+    assert.equal(card.status,'candidate');
+    assert.equal(card.distanceCm,cmDistance);
+    assert.equal(card.timeUnit,'second');
+    assert.equal(card.subValue,expectedSub);
+    assert.equal(card.performanceKey,cmDistance+':second:'+expectedSub);
+  }
+  const sixteen=evaluateSportCardCandidate({
+    finalized:true,evidenceVerified:true,finalDistanceCm:160000,
+    finishedElapsedMs:500000,
+    crossings:[{distanceCm:150000,elapsedMs:500000}],
+  });
+  assert.equal(sixteen.distanceCm,150000);
+  assert.equal(sixteen.timeUnit,'second');
+  assert.equal(sixteen.performanceKey,'150000:second:501');
+  assert.equal(longestSportDistance(160933),150000);
+  assert.equal(longestSportDistance(160934),160934);
+});
+
 test('unverified/fake samples are never eligible for cards',()=>{
   const base={finalized:true,evidenceVerified:true,finalDistanceCm:cm(5),
     finishedElapsedMs:ms(30),
@@ -221,7 +251,7 @@ test('unverified/fake samples are never eligible for cards',()=>{
     distanceCm:entry.distanceCm,elapsedMs:(i+1)*60_000,
   }));
   assert.equal(evaluateSportCardCandidate({
-    ...base,finalDistanceCm:cm(200),finishedElapsedMs:204*60_000,
+    ...base,finalDistanceCm:cm(200),finishedElapsedMs:210*60_000,
     crossings:all,
   }).status,'candidate');
   assert.equal(evaluateSportCardCandidate({

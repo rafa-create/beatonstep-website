@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-15.6",
+  "revision": "2026-10-16.1",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -14,7 +14,10 @@
   ],
   "distancesCm": [
     40000,
+    80000,
     100000,
+    150000,
+    160934,
     200000,
     300000,
     400000,
@@ -227,6 +230,15 @@
       "amateur": 178,
       "beginner": 201
     },
+    "80000": {
+      "world_elite": 164,
+      "legend": 190,
+      "expert": 250,
+      "intermediate": 302,
+      "regular": 362,
+      "amateur": 439,
+      "beginner": 491
+    },
     "100000": {
       "world_elite": 4,
       "legend": 5,
@@ -235,6 +247,24 @@
       "regular": 8,
       "amateur": 10,
       "beginner": 11
+    },
+    "150000": {
+      "world_elite": 319,
+      "legend": 369,
+      "expert": 486,
+      "intermediate": 587,
+      "regular": 704,
+      "amateur": 855,
+      "beginner": 955
+    },
+    "160934": {
+      "world_elite": 343,
+      "legend": 397,
+      "expert": 524,
+      "intermediate": 632,
+      "regular": 758,
+      "amateur": 921,
+      "beginner": 1029
     },
     "200000": {
       "world_elite": 8,
@@ -636,7 +666,7 @@
       2109750,
       4219500
     ],
-    "modeledDistancesCm": "400 m and 1-42 km other than 5 km, 10 km, half-marathon and marathon",
+    "modeledDistancesCm": "400 m, 800 m, 1500 m, 1 mile and 1-42 km other than 5 km, 10 km, half-marathon and marathon",
     "estimatedPercentileTargets": {
       "world_elite": 1,
       "legend": 5,
@@ -650,51 +680,11 @@
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
     "interpretation": "For non-elite cards, approximate worldwide share of recorded race finishes, not an official ranking. For elite cards, show only the time gap from the strict SUB threshold to the absolute world record or modeled reference; never invent a fractional Top percentage."
   },
-  "pendingTrackDistancesCm": [
+  "secondResolutionDistancesCm": [
+    40000,
     80000,
     150000,
     160934
-  ],
-  "pendingTrackUnit": "second",
-  "pendingTrackCapsByDistance": {
-    "80000": {
-      "world_elite": 164,
-      "legend": 190,
-      "expert": 250,
-      "intermediate": 302,
-      "regular": 362,
-      "amateur": 439,
-      "beginner": 491
-    },
-    "150000": {
-      "world_elite": 319,
-      "legend": 369,
-      "expert": 486,
-      "intermediate": 587,
-      "regular": 704,
-      "amateur": 855,
-      "beginner": 955
-    },
-    "160934": {
-      "world_elite": 343,
-      "legend": 397,
-      "expert": 524,
-      "intermediate": 632,
-      "regular": 758,
-      "amateur": 921,
-      "beginner": 1029
-    }
-  },
-  "pendingTrackNotes": {
-    "status": "preview_only_until_d1_schema_migration",
-    "description": "800 m, 1500 m and 1 mile use 1-second strict SUB tiers; preview values may be explored but must never be awarded until Cloudflare D1 accepts additional second-resolution distances",
-    "mileDistanceCm": 160934,
-    "distanceReference": "1609.344 m exact mile, represented as 160934 cm because canonical integer centimeters are used",
-    "model": "Estimated from 5km finisher tiers using time ∝ distance^1.06 and rounded to strict integer-second SUB caps; not direct world measured percentiles",
-    "activation": "Requires reviewed D1 constraint migration, full local/mobile/server tests and coordinated deployment. Do not silently insert these distances into distancesCm"
-  },
-  "secondResolutionDistancesCm": [
-    40000
   ],
   "absoluteWorldRecordAnchors": [
     {

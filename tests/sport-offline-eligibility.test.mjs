@@ -8,6 +8,16 @@ const run=(source,distance,elapsedMs,extra={})=>({
   distanceSource:source,distanceMeters:distance,
   startedAtMs:start,endedAtMs:start+elapsedMs,...extra,
 });
+test('1600m awards the 1500m one-second trophy; mile needs 160934cm',()=>{
+  const summary=evaluateOfflineSportSummary(run('phone_gps',1600,540000));
+  assert.equal(summary.status,'candidate');
+  assert.equal(summary.performanceKey,'150000:second:541');
+  assert.equal(summary.distanceCm,150000);
+  assert.equal(summary.timeUnit,'second');
+  const mile=evaluateOfflineSportSummary(run('phone_gps',1609.34,540000));
+  assert.equal(mile.status,'candidate');
+  assert.equal(mile.performanceKey,'160934:second:541');
+});
 test('a normal Garmin watch 10km, with NO pause event or GPS trace, qualifies',()=>{
   const result=evaluateOfflineSportSummary(
     run('garmin_watch_saved',10000,39*60000+30000));
