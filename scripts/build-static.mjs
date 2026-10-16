@@ -65,7 +65,8 @@ writeFileSync(join(out, 'sport-card-paliers.json'), JSON.stringify(guide));
 
 // Derive the seven visual finishes from the SAME official JSON as the
 // sporting thresholds. Neither the CSS nor the browser JS owns a palette.
-if(manifest.cardVisuals){
+if(!manifest.cardVisuals)throw Error('Official card visuals are missing');
+{
   const visualKeys=[...manifest.tierOrder].reverse();
   const visuals=manifest.cardVisuals;
   if(Object.keys(visuals).length!==visualKeys.length)
