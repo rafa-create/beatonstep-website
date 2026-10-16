@@ -37,7 +37,9 @@ export async function reconcileOfflineSportResult(db,userId,body,{now=Date.now()
   const canonical=JSON.stringify([
     userId,runId,candidate.performanceKey,summary.distanceSource,
     summary.startedAtMs,summary.endedAtMs,summary.distanceMeters,
-    candidate.peakSpeedKmh,
+    // Legacy receipts used exactly seven fields. Preserve their digest when
+    // no native GPS peak exists, including for repeated offline retries.
+    ...(candidate.peakSpeedKmh===null?[]:[candidate.peakSpeedKmh]),
   ]);
   const digest=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',
     new TextEncoder().encode(canonical))));
