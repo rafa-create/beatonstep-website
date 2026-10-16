@@ -6,7 +6,7 @@ const ROOT = 'https://beatonstep.app';
 const SECRET = 'a'.repeat(64);
 const DEVICE = '1'.repeat(64);
 const env = db => ({
-  DB: db, STRAVA_EXPORT_ENABLED: 'true', STRAVA_CLIENT_ID: '123456',
+  DB: db, STRAVA_API_ENABLED: 'true', STRAVA_CLIENT_ID: '123456',
   STRAVA_CLIENT_SECRET: 'test-only-secret', STRAVA_ENCRYPTION_KEY: SECRET,
   STRAVA_ATHLETE_CAPACITY: '10',
 });
@@ -393,7 +393,7 @@ test('OTA: reject forged out-of-range optional metrics before posting to Strava'
 });
 
 test('single paid/API availability switch hides Strava and denies all operations when OFF',async()=>{
-  const db=fakeDb(0),disabled={...env(db),STRAVA_EXPORT_ENABLED:'false'};
+  const db=fakeDb(0),disabled={...env(db),STRAVA_API_ENABLED:'false'};
   const status=await stravaRequest(request('status'),disabled,new URL(ROOT+'/api/strava/status'));
   assert.deepEqual(await status.json(),{
     enabled:false,connected:false,canConnect:false,used:0,capacity:0,
