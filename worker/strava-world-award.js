@@ -39,6 +39,11 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   if(!row||!token)return reply({error:'not_connected'},401);
   const member=await devicePublisher(env.DB,request);
   if(!member)return reply({status:'account_required'});
+  const previouslyBound=await env.DB.prepare(
+    'SELECT user_id FROM strava_athlete_award_bindings WHERE athlete_id=?')
+    .bind(row.athlete_id).first();
+  if(previouslyBound&&previouslyBound.user_id!==member.id)
+    return reply({status:'history_only',reason:'strava_account_linked_elsewhere'});
   const listings=await stravaGet(token,
     'https://www.strava.com/api/v3/athlete/activities?per_page=30&page=1');
   if(listings.error)return reply({error:listings.error},listings.status);
@@ -98,6 +103,17 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   if(candidate.status!=='candidate')
     return reply({status:'history_only',reason:candidate.reason||'below_threshold'});
   const runId='run-'+evidence.startedAtMs+'-'+evidence.endedAtMs;
+  // First valid trophy attempt binds the Strava athlete to one BeatOnStep
+  // account. Reinstalls and account switches do NOT reset that relationship.
+  await env.DB.prepare(
+    'INSERT INTO strava_athlete_award_bindings (athlete_id,user_id,linked_at) '+
+    'VALUES (?,?,?) ON CONFLICT DO NOTHING'
+  ).bind(row.athlete_id,member.id,Date.now()).run();
+  const bound=await env.DB.prepare(
+    'SELECT user_id FROM strava_athlete_award_bindings WHERE athlete_id=?')
+    .bind(row.athlete_id).first();
+  if(!bound||bound.user_id!==member.id)
+    return reply({status:'history_only',reason:'strava_account_linked_elsewhere'});
   if(!old){
     const inserted=await env.DB.prepare(
       "INSERT INTO strava_activity_award_claims (athlete_id,activity_id,user_id,run_id,state,created_at) "+

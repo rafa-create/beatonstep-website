@@ -15,3 +15,11 @@ CREATE TABLE IF NOT EXISTS strava_activity_award_claims (
 );
 CREATE INDEX IF NOT EXISTS strava_award_claims_by_user
   ON strava_activity_award_claims(user_id,created_at DESC);
+
+-- Immutable athlete-to-community account binding for Strava world trophies.
+-- A shared phone or a later account switch cannot transfer Strava history.
+CREATE TABLE IF NOT EXISTS strava_athlete_award_bindings (
+  athlete_id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE REFERENCES community_users(id) ON DELETE CASCADE,
+  linked_at INTEGER NOT NULL
+);

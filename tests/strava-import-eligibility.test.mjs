@@ -80,4 +80,6 @@ test('world awards are separately gated and require server evidence',()=>{
   assert.match(worker,/already_recorded_beatonstep/);
   assert.match(account,/payload\.summary\?\.distanceSource==='strava_import'/);
   assert.match(migration,/PRIMARY KEY\(athlete_id,activity_id\)/);
+  assert.match(migration,/strava_athlete_award_bindings/);
+  assert.match(worker,/strava_account_linked_elsewhere/);
 });
