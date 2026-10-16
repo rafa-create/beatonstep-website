@@ -25,6 +25,9 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'one-card rule, strict SUB and ownership are already summarized in three steps');
   assert.match(page,/Après une course validée, tu peux gagner/);
   assert.match(page,/Ton chrono fait la différence/);
+  assert.match(page,/Pour chaque distance, plusieurs cartes existent selon ta performance/);
+  assert.match(page,/Each distance has several cards depending on your performance/);
+  assert.doesNotMatch(page,/À chaque palier, sa carte !/);
   assert.match(page,/tu peux la voler à un autre coureur/);
   assert.match(page,/id="threshold-title"/);
   assert.match(page,/Et avec mon chrono/);

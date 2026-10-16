@@ -91,8 +91,11 @@
     const unit=(rules.secondResolutionDistancesCm||[40000])
       .includes(item.distanceCm)?1:60;
     const delta=item.subValue*unit-reference.seconds;
-    return {seconds:Math.max(0,Math.round(delta)),estimated:reference.estimated,
-      atOrBeyondReference:delta<=0};
+    // A strict SUB threshold does not reveal the runner's exact finish time.
+    // Report the conservative minimum lead over the record, not an exact gap.
+    return {seconds:Math.max(0,Math.round(delta)),
+      leadSeconds:Math.max(0,Math.floor(-delta+1e-9)),
+      estimated:reference.estimated,atOrBeyondReference:delta<=0};
   }
   function gapText(seconds,lang){
     const minutes=Math.floor(seconds/60),remainder=seconds%60;
@@ -130,9 +133,19 @@
   function label(item,lang='fr'){
     const gap=recordGap(item);
     if(gap){
-      if(gap.atOrBeyondReference)return gap.estimated
-        ?(lang==='en'?'Estimated world benchmark bracket':'Palier de référence mondiale estimée')
-        :(lang==='en'?'World record time bracket':'Palier du record mondial');
+      if(gap.atOrBeyondReference){
+        const minimum=gap.leadSeconds>0?gapText(gap.leadSeconds,lang):null;
+        if(gap.estimated)return minimum
+          ?(lang==='en'?'Estimated world benchmark exceeded by at least '+minimum
+            :'Référence mondiale estimée dépassée d’au moins '+minimum)
+          :(lang==='en'?'Estimated world benchmark exceeded'
+            :'Référence mondiale estimée dépassée');
+        return minimum
+          ?(lang==='en'?'World record beaten by at least '+minimum
+            :'Record du monde battu de '+minimum+' minimum')
+          :(lang==='en'?'World record beaten (exact gap unknown)'
+            :'Record du monde battu (écart exact inconnu)');
+      }
       const duration=gapText(gap.seconds,lang);
       return gap.estimated
         ?(lang==='en'?duration+' from the estimated world benchmark'

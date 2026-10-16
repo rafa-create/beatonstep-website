@@ -61,7 +61,9 @@ test('percentiles progress for individual SUB thresholds and world record is the
   }
   assert.equal(client.label(card(500000,14),'en'),
     '1 min 11 sec from the world record');
-  assert.equal(client.label(card(500000,12),'fr'),'Palier du record mondial');
+  assert.equal(client.label(card(500000,12),'fr'),'Record du monde battu de 49 s minimum');
+  assert.equal(client.label(card(500000,12),'en'),'World record beaten by at least 49 sec');
+  assert.equal(client.recordGap(card(500000,12))?.leadSeconds,49);
   assert.equal(client.percentile(card(40000,44)),null);
   assert.equal(client.label(card(40000,44),'fr'),'À 1 s du record mondial');
   assert.equal(client.recordBracket(card(40000,44)),'official');
