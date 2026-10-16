@@ -331,7 +331,6 @@
           <select id="record-sort" aria-labelledby="record-sort-label">
             <option value="duration">Cartes gardées le plus longtemps</option>
             <option value="difficulty">Cartes les plus difficiles</option>
-            <option value="holders">Cartes ayant eu le plus de détenteurs</option>
           </select>
         </div>
         <div class="filter-picker" id="record-level-picker">
@@ -410,7 +409,7 @@
   let musicSource=VALID_SOURCES.includes(params.get('source'))?params.get('source'):'all';
   let sort=['recent','popular'].includes(params.get('sort'))?params.get('sort'):'popular',page=1,listTicket=0;
   recordsView=!id&&!sportId&&kind==='challenge'&&params.get('view')==='records';
-  if(['duration','difficulty','holders'].includes(params.get('recordSort')))
+  if(['duration','difficulty'].includes(params.get('recordSort')))
     recordSort=params.get('recordSort');
   if(['all','world_elite','legend','expert','intermediate','regular','amateur','beginner']
     .includes(params.get('level')))recordLevel=params.get('level');
@@ -1057,7 +1056,7 @@
   async function showRecords(){
     // A difficulty-first ranking includes every tier. Never apply an invisible
     // difficulty filter, including when opening a saved URL with ?level=...
-    const hardest=recordSort==='difficulty'||recordSort==='holders';
+    const hardest=recordSort==='difficulty';
     $('record-level-picker').hidden=hardest;
     if(hardest)recordLevel='all';
     $('records-holdings-heading').textContent=recordSort==='difficulty'
@@ -1205,8 +1204,6 @@
       fr('Cartes gardées le plus longtemps','Longest-held cards');
     document.querySelector('#record-sort option[value=difficulty]').textContent=
       fr('Cartes les plus difficiles','Hardest cards');
-    document.querySelector('#record-sort option[value=holders]').textContent=
-      fr('Cartes ayant eu le plus de détenteurs','Cards with the most holders');
     for(const [key,names] of Object.entries(difficultyLabels)){
       document.querySelector('#record-level option[value='+key+']').textContent=
         names[lang==='en'?1:0];
