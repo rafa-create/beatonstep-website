@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-15.5",
+  "revision": "2026-10-15.6",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -760,5 +760,42 @@
     "percentileMethod": "Use interpolation only between observed/modeled race finisher thresholds, from Top 90% down to the Top 1% reference boundary. Do NOT extrapolate a fractional percentile within world_elite: display the card's SUB threshold gap to the absolute world record or modeled benchmark instead. A SUB threshold is not proof of the runner's exact finish time or an official record.",
     "ultraException": "43-200 km still has no comparable calibrated percentile curve; world-record based Top percentages remain unavailable pending validation of ultra finishers. Never extrapolate below/above the outer reference anchors.",
     "warning": "Comparison model only: a SUB card is a time interval, not proof of a ratified record."
+  },
+  "cardVisuals": {
+    "beginner": {
+      "accent": "#8E969A",
+      "shade": "#30383C",
+      "symbol": "✦"
+    },
+    "amateur": {
+      "accent": "#AD7856",
+      "shade": "#4A3024",
+      "symbol": "✧"
+    },
+    "regular": {
+      "accent": "#C5AC67",
+      "shade": "#4C4228",
+      "symbol": "◆"
+    },
+    "intermediate": {
+      "accent": "#55977B",
+      "shade": "#214237",
+      "symbol": "◇"
+    },
+    "expert": {
+      "accent": "#587DB3",
+      "shade": "#233956",
+      "symbol": "✶"
+    },
+    "legend": {
+      "accent": "#9370AB",
+      "shade": "#3D2E51",
+      "symbol": "✹"
+    },
+    "world_elite": {
+      "accent": "#B65767",
+      "shade": "#4C2530",
+      "symbol": "✷"
+    }
   }
 }
