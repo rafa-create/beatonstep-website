@@ -27,13 +27,15 @@ function fixture({authorized=true}={}){
         throw Error('Unknown admin first: '+sql);
       },
       async all(){
-        if(sql.includes('FROM sport_world_cards c')){
-          return {results:[{id:3,distance_cm:500000,time_unit:'minute',
-            sub_value:25,owner_epoch:4,owner_handle:null,holder_count:3}]};
-        }
+        // Account rows include a correlated sport_world_cards subquery, so
+        // match the outer FROM before the nested sport table.
         if(sql.includes('FROM community_users u')){
           return {results:[{handle:'runner',created_at:1792100000000,
             is_public:0,cards:2,runs:8}]};
+        }
+        if(sql.includes('FROM sport_world_cards c')){
+          return {results:[{id:3,distance_cm:500000,time_unit:'minute',
+            sub_value:25,owner_epoch:4,owner_handle:null,holder_count:3}]};
         }
         throw Error('Unknown admin all: '+sql);
       },
