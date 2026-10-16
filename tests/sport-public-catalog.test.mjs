@@ -6,7 +6,7 @@ import {sportCardDifficultyFilterSql,sportCardDifficultyOrderSql,
 
 const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
-  difficulty:'amateur',created_at:1000,owner_handle:'runner_b',holder_count:2};
+  difficulty:'amateur',created_at:1000,owner_handle:'runner_b',has_owner:1,holder_count:2};
 
 function mockDb(overrides={},historyRows=null){
   const queries=[];
@@ -48,7 +48,8 @@ test('default view lists only verified world cards without personal identifiers'
   const body=await r.json();
   assert.deepEqual(body.items,[{kind:'challenge',id:17,distanceCm:500000,
     timeUnit:'minute',subValue:25,difficulty:'expert',
-    createdAt:1000,holderCount:2,owner:'runner_b',performanceWarning:false}]);
+    createdAt:1000,holderCount:2,owner:'runner_b',hasOwner:true,
+    performanceWarning:false}]);
   assert.equal(body.total,1);
   assert.equal(body.page,1);
   assert(queries.every(q=>q.sql.includes('sport_world_cards')),
@@ -115,6 +116,7 @@ test('holder timeline reveals only public pseudonyms, gift/win motives and dates
   assert.equal(r.status,200);
   const body=await r.json();
   assert.equal(body.owner,'runner_b');
+  assert.equal(body.hasOwner,true);
   assert.equal(body.holderCount,2);
   assert.ok(queries.filter(q=>q.sql.includes('AS holder_count')).every(q=>
     q.sql.includes('COUNT(DISTINCT e.new_owner_id)')),
@@ -207,6 +209,8 @@ test('verified sport wins show whole run totals only, with strict SQL linking',a
   assert.match(sql,/COUNT\(\*\) FROM sport_verified_runs candidate/);
   assert.match(sql,/saved\.ended_at=verified\.completed_at/);
   assert.match(sql,/COALESCE\(consent\.show_challenges,1\)=1/);
+  assert.match(sql,/WHERE e\.reason='sport_win' AND COALESCE\(consent\.show_challenges,1\)=1/,
+    'consent must be required in WHERE, not only LEFT JOIN');
   assert.match(sql,/COALESCE\(prior_pref\.show_challenges,1\)=1/);
   assert.match(sql,/COALESCE\(recipient_pref\.show_challenges,1\)=1/);
 });
@@ -230,4 +234,23 @@ test('all card-owner identities use the existing explicit opt-in',async()=>{
   assert.match(sql,/COALESCE\(visibility\.show_challenges,1\)=1/);
   assert.match(sql,/COALESCE\(prior_pref\.show_challenges,1\)=1/);
   assert.match(sql,/COALESCE\(recipient_pref\.show_challenges,1\)=1/);
+});
+
+test('private owner is distinct from an unowned reserve card',async()=>{
+  const {db,queries}=mockDb({owner_handle:null,has_owner:1});
+  const list=await (await readPublicSportCards(db,url('/api/sport/cards'))).json();
+  const detail=await (await readPublicSportCards(db,url('/api/sport/cards/17'))).json();
+  assert.equal(list.items[0].owner,null);
+  assert.equal(list.items[0].hasOwner,true);
+  assert.equal(detail.owner,null);
+  assert.equal(detail.hasOwner,true);
+  assert.match(queries.map(q=>q.sql).join('\n'),
+    /c\.current_owner_id IS NOT NULL THEN 1 ELSE 0 END AS has_owner/);
+  assert.doesNotMatch(JSON.stringify(detail),/current_owner_id|owner_user_id/);
+});
+test('genuine reserve has no owner',async()=>{
+  const {db}=mockDb({owner_handle:null,has_owner:0});
+  const data=await (await readPublicSportCards(db,url('/api/sport/cards'))).json();
+  assert.equal(data.items[0].owner,null);
+  assert.equal(data.items[0].hasOwner,false);
 });
