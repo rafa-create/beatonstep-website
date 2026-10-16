@@ -45,7 +45,7 @@ function fixture({authorized=true}={}){
         }
         if(sql.includes('FROM sport_world_cards c')){
           return {results:[{id:3,distance_cm:500000,time_unit:'minute',
-            sub_value:25,owner_epoch:4,owner_handle:null,holder_count:3}]};
+            sub_value:25,owner_epoch:4,owner_handle:null,has_owner:1,holder_count:3}]};
         }
         throw Error('Unknown admin all: '+sql);
       },
@@ -85,11 +85,12 @@ test('sport card inspection sorts and paginates, hides private owner identity',a
   assert.equal(res.status,200);
   assert.deepEqual(await res.json(),{page:2,pageSize:25,total:2,
     items:[{id:3,distanceCm:500000,timeUnit:'minute',subValue:25,
-      ownerEpoch:4,owner:null,holderCount:3}]});
+      ownerEpoch:4,owner:null,hasOwner:true,holderCount:3}]});
   const query=f.queries.find(q=>q.sql.includes('FROM sport_world_cards c'));
   assert.deepEqual(query.args,[25,25]);
   assert.match(query.sql,/ORDER BY holder_count DESC,c.id ASC/);
   assert.match(query.sql,/COALESCE\(preferences.show_challenges,1\)=1/);
+  assert.match(query.sql,/c\.current_owner_id IS NOT NULL THEN 1 ELSE 0 END AS has_owner/);
   assert.match(query.sql,/COUNT\(DISTINCT e.new_owner_id\)/);
 });
 test('invalid admin sports filters fail without touching sport tables',async()=>{
