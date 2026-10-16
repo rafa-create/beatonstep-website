@@ -3,7 +3,8 @@
 import {devicePublisher} from './account.js';
 import {evaluateOfflineSportSummary} from './sport-offline-eligibility.js';
 import {reconcileOfflineSportResult} from './sport-offline-reconciliation.js';
-import {classifyStravaSportImport} from './strava-import-eligibility.js';
+import {classifyStravaSportImport,overlapsRecordedSportRun}
+  from './strava-import-eligibility.js';
 import {ensureSportTelemetrySchema,enqueueSportTelemetryReview,
   processPendingSportTelemetryReviews} from './sport-card-telemetry.js';
 import {processPendingSportWarningEmails} from './sport-warning-email.js';
@@ -90,12 +91,26 @@ export async function claimLatestStravaSport(request,env,row,token,ctx){
   if(!evidence.eligible)
     return reply({status:'history_only',reason:evidence.reason});
   const runId='run-'+evidence.startedAtMs+'-'+evidence.endedAtMs;
-  // A crash after the atomic sporting award but before the Strava receipt
-  // is retryable by this same claimant: the existing run has identical ID.
-  const duplicate=await env.DB.prepare(
-    'SELECT run_id FROM sport_verified_runs WHERE user_id=? AND completed_at BETWEEN ? AND ? LIMIT 1')
-    .bind(member.id,evidence.endedAtMs-30000,evidence.endedAtMs+30000).first();
-  if(duplicate&&duplicate.run_id!==runId)
+  // Detect the same physical run recorded by both systems, including device
+  // clock drift. A crash during THIS Strava claim can still be retried safely.
+  const verified=await env.DB.prepare(
+    'SELECT run_id FROM sport_verified_runs '+
+    'WHERE user_id=? AND completed_at BETWEEN ? AND ? LIMIT 50')
+    .bind(member.id,evidence.startedAtMs-60000,evidence.endedAtMs+60000).all();
+  if((verified.results||[]).some(v=>
+    overlapsRecordedSportRun(v.run_id,evidence.startedAtMs,evidence.endedAtMs)&&
+    (v.run_id!==runId||!old)))
+    return reply({status:'history_only',reason:'already_recorded_beatonstep'});
+  // Even an archived BeatOnStep run which has not yet been reconciled should
+  // not win a second card through its later mirror in Strava. Strava archives
+  // use strava-IDs, not run-IDs; they never self-block on first import.
+  const archived=await env.DB.prepare(
+    "SELECT run_id FROM account_run_records WHERE user_id=? "+
+    "AND started_at BETWEEN ? AND ? AND run_id LIKE 'run-%' LIMIT 50")
+    .bind(member.id,evidence.startedAtMs-60000,evidence.endedAtMs+60000).all();
+  if((archived.results||[]).some(v=>
+    overlapsRecordedSportRun(v.run_id,evidence.startedAtMs,evidence.endedAtMs)&&
+    (v.run_id!==runId||!old)))
     return reply({status:'history_only',reason:'already_recorded_beatonstep'});
   const summary={
     startedAtMs:evidence.startedAtMs,endedAtMs:evidence.endedAtMs,

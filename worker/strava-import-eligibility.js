@@ -58,3 +58,18 @@ export function classifyStravaSportImport(activity,streams){
     deviceType:hasGps?'gps':'recorded_device',
   };
 }
+
+/** An overlap of >=80% of the shorter measured interval means the same run
+ * was recorded by two different services or watches. Two consecutive courses
+ * without any overlap remain independent, even when close together in time.
+ */
+export function overlapsRecordedSportRun(runId,start,end){
+  if(typeof runId!=='string')return false;
+  const match=/^run-(\d{10,13})-(\d{10,13})$/.exec(runId);
+  if(!match)return false;
+  const left=Number(match[1]),right=Number(match[2]);
+  if(!Number.isSafeInteger(left)||!Number.isSafeInteger(right)||
+     right<=left||end<=start)return false;
+  const overlap=Math.max(0,Math.min(end,right)-Math.max(start,left));
+  return overlap>=0.8*Math.min(end-start,right-left);
+}

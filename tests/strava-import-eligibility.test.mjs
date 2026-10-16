@@ -83,3 +83,15 @@ test('world awards are separately gated and require server evidence',()=>{
   assert.match(migration,/strava_athlete_award_bindings/);
   assert.match(worker,/strava_account_linked_elsewhere/);
 });
+
+test('overlap dedup permits back-to-back runs but blocks Strava mirroring',async()=>{
+  const {overlapsRecordedSportRun}=await import('../worker/strava-import-eligibility.js');
+  const firstStart=1700000000000,firstEnd=firstStart+600000;
+  assert.equal(overlapsRecordedSportRun(
+    'run-'+(firstStart+8000)+'-'+(firstEnd+10000),firstStart,firstEnd),true);
+  assert.equal(overlapsRecordedSportRun(
+    'run-'+(firstEnd+10000)+'-'+(firstEnd+400000),firstStart,firstEnd),false);
+  assert.equal(overlapsRecordedSportRun('strava-999',firstStart,firstEnd),false);
+  assert.equal(overlapsRecordedSportRun(
+    'run-'+(firstStart+100000)+'-'+(firstEnd+100000),firstStart,firstEnd),true);
+});
