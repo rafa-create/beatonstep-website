@@ -278,3 +278,18 @@ test('all masked sporting owners are described as private, not unavailable',()=>
   assert.match(admin,/card\.hasOwner\?'Compte privé':'Réserve BeatOnStep'/);
   assert.doesNotMatch(admin,/Compte privé ou supprimé/);
 });
+
+test('home removes both repeated cadence/BPM explanation lines in French and English',()=>{
+  const home=read('index.html');
+  const css=read('site.css');
+  for(const legend of [
+    'Cadence = pas/min · BPM = tempo du titre',
+    'Cadence = steps/min · BPM = track tempo',
+  ])assert.doesNotMatch(home,new RegExp(legend),
+    'remove duplicated educational legend without changing the live controls');
+  assert.doesNotMatch(home,/class="beat-legend(?: beat-legend-section)?"/);
+  assert.doesNotMatch(css,/\.beat-legend(?:-section)?\s*\{/);
+  assert.match(home,/data-mismatch-ppm/,'keep cadence demonstration');
+  assert.match(home,/data-pace-run/,'keep interactive running pace display');
+  assert.match(home,/Cadence et BPM, c’est quoi \?/,'keep the opt-in FAQ');
+});
