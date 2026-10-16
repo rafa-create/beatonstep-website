@@ -10,7 +10,7 @@ const epoch=(extra={})=>({
   sub_value:25,started_at:1000,ended_at:4000,ongoing:0,
   holder_handle:'runner_a',...extra,
 });
-function mockDb(byTier={},allRows=[],collections=[]){
+function mockDb(byTier={},allRows=[],collections=[],mostHeld=[]){
   const queries=[];
   const db={prepare(sql){
     const record={sql,args:[]};queries.push(record);
@@ -18,6 +18,8 @@ function mockDb(byTier={},allRows=[],collections=[]){
       bind(...args){record.args=args;return this;},
       async all(){
         if(sql.includes('COUNT(*) AS cards'))return {results:collections};
+        if(sql.includes('COUNT(DISTINCT e.new_owner_id) AS holder_count'))
+          return {results:mostHeld};
         if(sql.includes('FROM sport_card_ownership_events e')){
           if(sql.includes('c.sub_value BETWEEN 1 AND 19'))return {results:byTier.world_elite||[]};
           if(sql.includes('c.sub_value BETWEEN 20 AND 22'))return {results:byTier.legend||[]};
@@ -48,7 +50,7 @@ test('longest ownership uses existing epochs, still-running periods and immutabl
   assert.equal(body.holdings[1].difficulty,'expert',
     'the persisted D1 difficulty cannot override official JSON thresholds');
   assert.deepEqual(body.collections,[{holder:'runner_a',cards:2}]);
-  assert.equal(queries.length,2);
+  assert.equal(queries.length,3);
   assert(queries.every(q=>/^\s*SELECT/i.test(q.sql)));
   assert(!queries.some(q=>/\b(?:DELETE|UPDATE|INSERT|ALTER|DROP|CREATE)\b/i.test(q.sql)),
     'podiums must never modify D1');
@@ -60,7 +62,7 @@ test('longest ownership uses existing epochs, still-running periods and immutabl
   assert.match(ownership.sql,/ORDER BY \(COALESCE\(next.changed_at,\?\)-e.changed_at\) DESC/);
   assert.deepEqual(ownership.args,[now,now]);
   const publicCollections=queries.find(q=>q.sql.includes('COUNT(*) AS cards'));
-  assert.match(publicCollections.sql,/p\.show_challenges=1/);
+  assert.match(publicCollections.sql,/COALESCE\(p\.show_challenges,1\)=1/);
   assert.match(publicCollections.sql,/COUNT\(\*\) AS cards/);
 });
 
@@ -116,4 +118,21 @@ test('privacy-masked collections and anonymized epoch are response-safe',async()
   assert.equal(data.holdings[0].holder,null);
   assert.doesNotMatch(JSON.stringify(data),
     /email|password|evidence_digest|run_id|current_owner_id|latitude/i);
+});
+
+
+test('holder popularity podium ranks unique historical recipients without D1 writes',async()=>{
+  const ranked=[{card_id:5,distance_cm:500000,time_unit:'minute',
+    sub_value:25,holder_count:3},{card_id:9,distance_cm:1000000,
+      time_unit:'minute',sub_value:60,holder_count:2}];
+  const {db,queries}=mockDb({},[],[],ranked);
+  const result=await (await readSportRecords(db,url(''),{now})).json();
+  assert.deepEqual(result.mostHeldCards,[
+    {cardId:5,distanceCm:500000,timeUnit:'minute',subValue:25,holderCount:3},
+    {cardId:9,distanceCm:1000000,timeUnit:'minute',subValue:60,holderCount:2},
+  ]);
+  const sql=queries.find(q=>q.sql.includes('COUNT(DISTINCT e.new_owner_id)'));
+  assert.match(sql.sql,/GROUP BY c\.id/);
+  assert.match(sql.sql,/ORDER BY holder_count DESC,c\.id ASC LIMIT 3/);
+  assert.ok(queries.every(q=>/^\s*SELECT/i.test(q.sql)));
 });

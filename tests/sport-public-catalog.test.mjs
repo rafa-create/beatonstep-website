@@ -6,7 +6,7 @@ import {sportCardDifficultyFilterSql,sportCardDifficultyOrderSql,
 
 const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
-  difficulty:'amateur',created_at:1000,owner_handle:'runner_b'};
+  difficulty:'amateur',created_at:1000,owner_handle:'runner_b',holder_count:2};
 
 function mockDb(overrides={},historyRows=null){
   const queries=[];
@@ -48,7 +48,7 @@ test('default view lists only verified world cards without personal identifiers'
   const body=await r.json();
   assert.deepEqual(body.items,[{kind:'challenge',id:17,distanceCm:500000,
     timeUnit:'minute',subValue:25,difficulty:'expert',
-    createdAt:1000,owner:'runner_b',performanceWarning:false}]);
+    createdAt:1000,holderCount:2,owner:'runner_b',performanceWarning:false}]);
   assert.equal(body.total,1);
   assert.equal(body.page,1);
   assert(queries.every(q=>q.sql.includes('sport_world_cards')),
@@ -115,6 +115,10 @@ test('holder timeline reveals only public pseudonyms, gift/win motives and dates
   assert.equal(r.status,200);
   const body=await r.json();
   assert.equal(body.owner,'runner_b');
+  assert.equal(body.holderCount,2);
+  assert.ok(queries.filter(q=>q.sql.includes('AS holder_count')).every(q=>
+    q.sql.includes('COUNT(DISTINCT e.new_owner_id)')),
+    'one runner winning twice must count as one distinct holder');
   assert.equal(body.firstHolder,'runner_a');
   assert.equal(body.longestHolder,'runner_a');
   assert.equal(body.longestHeldMs,3000);
@@ -202,9 +206,9 @@ test('verified sport wins show whole run totals only, with strict SQL linking',a
   assert.match(sql,/verified\.verified_at=e\.changed_at/);
   assert.match(sql,/COUNT\(\*\) FROM sport_verified_runs candidate/);
   assert.match(sql,/saved\.ended_at=verified\.completed_at/);
-  assert.match(sql,/consent\.show_challenges=1/);
-  assert.match(sql,/prior_pref\.show_challenges=1/);
-  assert.match(sql,/recipient_pref\.show_challenges=1/);
+  assert.match(sql,/COALESCE\(consent\.show_challenges,1\)=1/);
+  assert.match(sql,/COALESCE\(prior_pref\.show_challenges,1\)=1/);
+  assert.match(sql,/COALESCE\(recipient_pref\.show_challenges,1\)=1/);
 });
 test('gifts, invalid or missing saved records do not fabricate sport performances',async()=>{
   const rows=[
@@ -223,7 +227,7 @@ test('all card-owner identities use the existing explicit opt-in',async()=>{
   await readPublicSportCards(db,url('/api/sport/cards'));
   await readPublicSportCards(db,url('/api/sport/cards/17'));
   const sql=queries.map(q=>q.sql).join('\n');
-  assert.match(sql,/visibility\.show_challenges=1/);
-  assert.match(sql,/prior_pref\.show_challenges=1/);
-  assert.match(sql,/recipient_pref\.show_challenges=1/);
+  assert.match(sql,/COALESCE\(visibility\.show_challenges,1\)=1/);
+  assert.match(sql,/COALESCE\(prior_pref\.show_challenges,1\)=1/);
+  assert.match(sql,/COALESCE\(recipient_pref\.show_challenges,1\)=1/);
 });
