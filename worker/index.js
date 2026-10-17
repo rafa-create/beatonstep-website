@@ -4,7 +4,6 @@ import { sharePageResponse } from './share-preview.js';
 import { cardsEnabled, requireCardSchema, canonicalShareId, cardPeople, publishUniqueWorkout } from './cards.js';
 import { runMixBpmProfile, legacyRunMixBpmProfile } from './runmix-profile.js';
 import { stravaRequest } from './strava.js';
-import { voyageStravaBridge } from './voyage-strava-bridge.js';
 import { challengeRule } from './distance-challenge.js';
 import { readPublicSportCards } from './sport-public-catalog.js';
 import { readSportRecords } from './sport-records.js';
@@ -384,9 +383,6 @@ export default {
         database: Boolean(env.DB), schemaReady,
         publishingConfigured: Boolean(env.CATALOG_RATE_SALT),
         sport });
-    }
-    if (url.pathname === '/api/voyage/strava-retour') {
-      return voyageStravaBridge(request,url);
     }
     if (url.pathname.startsWith('/api/')) {
       // Private moderation is isolated from the CORS-enabled public share API.
