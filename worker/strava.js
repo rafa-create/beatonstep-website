@@ -553,6 +553,35 @@ async function recentRuns(env,row){
   }
   return reply({items});
 }
+// Pont privé à usage strictement personnel : Voyage ne reçoit jamais les jetons,
+// et les données ne sont consultables que par son administrateur authentifié.
+export async function voyageStravaInternal(request,env,url){
+  const path=url.pathname;
+  const secret=String(env.VOYAGE_BRIDGE_KEY||"");
+  const provided=request.headers.get("X-Voyage-Bridge-Key")||"";
+  if(request.method!=="GET")return reply({error:"method_not_allowed"},405);
+  if(secret.length<40 || provided.length!==secret.length){
+    return reply({error:"not_found"},404);
+  }
+  let difference=0;
+  for(let i=0;i<secret.length;i++)difference|=secret.charCodeAt(i)^provided.charCodeAt(i);
+  if(difference!==0)return reply({error:"not_found"},404);
+  if(!configured(env)||!env.DB)return reply({error:"strava_unavailable"},503);
+  // L'identité est celle du propriétaire du carnet Voyage.
+  const athlete=String(env.VOYAGE_STRAVA_ATHLETE_ID||"149399419");
+  if(!/^[1-9][0-9]{0,19}$/.test(athlete))return reply({error:"invalid_config"},503);
+  const row=await env.DB.prepare(
+    "SELECT * FROM strava_connections WHERE athlete_id=?"
+  ).bind(athlete).first();
+  if(!row)return reply({error:"strava_not_connected"},404);
+  if(path==="/api/voyage/strava/activities"){
+    return recentRuns(env,row);
+  }
+  const match=/^\/api\/voyage\/strava\/activities\/([1-9][0-9]{0,19})\/route$/.exec(path);
+  if(match)return importActivityRoute(env,row,match[1]);
+  return reply({error:"not_found"},404);
+}
+
 export async function stravaRequest(request, env, url, ctx=null) {
   const path = url.pathname;
   // One server-side boolean controls both mobile surfaces and every Strava
