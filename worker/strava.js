@@ -475,8 +475,8 @@ async function importActivityRoute(env,row,activityId){
   const geo=response.data?.latlng?.data;
   const time=response.data?.time?.data;
   let points=null;
-  if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000&&
-     Array.isArray(time)&&time.length===geo.length){
+  if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000){
+    const hasTimes=Array.isArray(time)&&time.length===geo.length;
     const sampled=[];
     const limit=Math.min(120,geo.length);
     let valid=true,lastT=-1;
@@ -485,8 +485,8 @@ async function importActivityRoute(env,row,activityId){
       if(!Array.isArray(a)||a.length!==2||
          !Number.isFinite(a[0])||!Number.isFinite(a[1])||
          Math.abs(a[0])>85||Math.abs(a[1])>180||
-         !Number.isFinite(t)||t<0||t<=lastT){valid=false;break;}
-      lastT=t;
+         (hasTimes&&(!Number.isFinite(t)||t<0||t<=lastT))){valid=false;break;}
+      if(hasTimes)lastT=t;
     }
     if(valid)for(let i=0;i<limit;i++){
       const n=Math.floor(i*(geo.length-1)/(limit-1));
@@ -594,6 +594,11 @@ async function recentVoyageActivities(env,row,page=1){
         :sportType,
       visibility:['everyone','followers_only','only_me'].includes(a.visibility)?a.visibility:'unknown',
       distanceMeters:Number.isFinite(distance)?Math.round(distance):null,
+      // Le tracé résumé fourni par Strava permet à Voyage d'afficher une
+      // carte dès l'import, avant le chargement du flux GPS détaillé.
+      summaryPolyline:typeof a.map?.summary_polyline==='string'&&
+        a.map.summary_polyline.length<=16000
+        ?a.map.summary_polyline:null,
     });
     if(items.length>=100)break;
   }
