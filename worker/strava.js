@@ -599,6 +599,9 @@ async function recentVoyageActivities(env,row,page=1){
       summaryPolyline:typeof a.map?.summary_polyline==='string'&&
         a.map.summary_polyline.length<=16000
         ?a.map.summary_polyline:null,
+      startLatlng:Array.isArray(a.start_latlng)&&a.start_latlng.length===2&&
+        a.start_latlng.every(Number.isFinite)&&Math.abs(a.start_latlng[0])<=85&&
+        Math.abs(a.start_latlng[1])<=180?a.start_latlng:null,
     });
     if(items.length>=100)break;
   }
