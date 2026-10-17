@@ -2,16 +2,16 @@
   "schemaVersion": 1,
   "ios": {
     "enabled": true,
-    "latestVersion": "1.7.1",
+    "latestVersion": "1.7.2",
     "minimumVersion": "1.0.0",
     "latestBuild": null,
     "minimumBuild": null
   },
   "android": {
     "enabled": true,
-    "latestVersion": "1.7.2",
+    "latestVersion": "1.7.3",
     "minimumVersion": "1.0.0",
-    "latestBuild": 38,
+    "latestBuild": 40,
     "minimumBuild": null
   }
 }
