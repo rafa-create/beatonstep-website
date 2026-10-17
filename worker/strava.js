@@ -437,7 +437,7 @@ async function publish(request, env, device, row) {
 }
 // The import tap explicitly requests geographic samples; they are returned
 // only to this connected athlete's phone and NEVER persisted on Cloudflare.
-async function importActivityRoute(env,row,activityId){
+async function importActivityRoute(env,row,activityId,allowMissingTimes=false){
   if(!row)return reply({error:'not_connected'},401);
   if(!/^[1-9][0-9]{0,19}$/.test(activityId))
     return reply({error:'invalid_activity_id'},400);
@@ -475,13 +475,14 @@ async function importActivityRoute(env,row,activityId){
   const geo=response.data?.latlng?.data;
   const time=response.data?.time?.data;
   let points=null;
-  if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000){
+  if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000&&
+    (allowMissingTimes||(Array.isArray(time)&&time.length===geo.length))){
     const hasTimes=Array.isArray(time)&&time.length===geo.length;
     const sampled=[];
     const limit=Math.min(120,geo.length);
     let valid=true,lastT=-1;
     for(let i=0;i<geo.length;i++){
-      const a=geo[i],t=time[i];
+      const a=geo[i],t=hasTimes?time[i]:null;
       if(!Array.isArray(a)||a.length!==2||
          !Number.isFinite(a[0])||!Number.isFinite(a[1])||
          Math.abs(a[0])>85||Math.abs(a[1])>180||
@@ -633,7 +634,7 @@ export async function voyageStravaInternal(request,env,url){
     return recentVoyageActivities(env,row,page);
   }
   const match=/^\/api\/voyage\/strava\/activities\/([1-9][0-9]{0,19})\/route$/.exec(path);
-  if(match)return importActivityRoute(env,row,match[1]);
+  if(match)return importActivityRoute(env,row,match[1],true);
   return reply({error:"not_found"},404);
 }
 
