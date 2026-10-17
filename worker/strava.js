@@ -559,14 +559,14 @@ async function recentRuns(env,row){
 // Toutes les disciplines de l'athlète sont visibles dans son carnet personnel.
 // L'API publique BeatOnStep continue de renvoyer uniquement les courses,
 // afin que les autres utilisateurs de BeatOnStep ne voient aucun changement.
-async function recentVoyageActivities(env,row){
+async function recentVoyageActivities(env,row,page=1){
   if(!row)return reply({error:'not_connected'},401);
   let token;
   try{token=await accessToken(env,row);}
   catch{return reply({error:'strava_token_unavailable'},503);}
   let response;
   try{
-    response=await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=100&page=1',{
+    response=await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=100&page='+page,{
       headers:{authorization:'Bearer '+token,accept:'application/json'}
     });
   }catch{return reply({error:'strava_unavailable'},503);}
@@ -621,7 +621,11 @@ export async function voyageStravaInternal(request,env,url){
   ).bind(athlete).first();
   if(!row)return reply({error:"strava_not_connected"},404);
   if(path==="/api/voyage/strava/activities"){
-    return recentVoyageActivities(env,row);
+    const values=[...url.searchParams.keys()];
+    const page=Number(url.searchParams.get("page")||"1");
+    if(values.some(key=>key!=="page")||!Number.isSafeInteger(page)||page<1||page>10)
+      return reply({error:"invalid_page"},400);
+    return recentVoyageActivities(env,row,page);
   }
   const match=/^\/api\/voyage\/strava\/activities\/([1-9][0-9]{0,19})\/route$/.exec(path);
   if(match)return importActivityRoute(env,row,match[1]);
