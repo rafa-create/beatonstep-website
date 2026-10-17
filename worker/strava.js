@@ -541,6 +541,9 @@ async function recentRuns(env,row){
     const maxHeartRate=optionalMetric(a.max_heartrate,20,300);
     items.push({
       id,startedAtMs,durationSeconds,
+      // Indicateur de visibilité Strava pour éviter de diffuser par erreur
+      // une activité réservée à l'athlète ou à ses abonnés.
+      visibility:['everyone','followers_only','only_me'].includes(a.visibility)?a.visibility:'unknown',
       name:typeof a.name==='string'
         ?[...a.name.replace(/[\u0000-\u001f\u007f]/g,' ').trim()].slice(0,60).join('')
         :'Course',
