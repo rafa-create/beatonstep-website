@@ -556,6 +556,49 @@ async function recentRuns(env,row){
   }
   return reply({items});
 }
+// Toutes les disciplines de l'athlète sont visibles dans son carnet personnel.
+// L'API publique BeatOnStep continue de renvoyer uniquement les courses,
+// afin que les autres utilisateurs de BeatOnStep ne voient aucun changement.
+async function recentVoyageActivities(env,row){
+  if(!row)return reply({error:'not_connected'},401);
+  let token;
+  try{token=await accessToken(env,row);}
+  catch{return reply({error:'strava_token_unavailable'},503);}
+  let response;
+  try{
+    response=await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=100&page=1',{
+      headers:{authorization:'Bearer '+token,accept:'application/json'}
+    });
+  }catch{return reply({error:'strava_unavailable'},503);}
+  if(response.status===401||response.status===403)return reply({error:'strava_read_permission_required'},403);
+  if(response.status===429)return reply({error:'strava_rate_limited'},429);
+  if(!response.ok)return reply({error:'strava_unavailable'},502);
+  let raw;
+  try{raw=await response.json();}
+  catch{return reply({error:'strava_invalid_response'},502);}
+  if(!Array.isArray(raw))return reply({error:'strava_invalid_response'},502);
+  const items=[];
+  for(const a of raw){
+    if(!a||typeof a!=='object')continue;
+    const id=String(a.id||''),startedAtMs=Date.parse(a.start_date||'');
+    const durationSeconds=Number(a.elapsed_time);
+    if(!/^[1-9][0-9]{0,19}$/.test(id)||!Number.isSafeInteger(startedAtMs)||
+       startedAtMs<Date.UTC(2020,0,1)||startedAtMs>Date.now()+300000||
+       !Number.isFinite(durationSeconds)||durationSeconds<0||durationSeconds>604800)continue;
+    const distance=optionalMetric(a.distance,0,1000000);
+    const sportType=String(a.sport_type||a.type||'Workout').replace(/[^A-Za-z0-9]/g,'').slice(0,32)||'Workout';
+    items.push({
+      id,startedAtMs,durationSeconds,sportType,
+      name:typeof a.name==='string'
+        ?[...a.name.replace(/[\\u0000-\\u001f\\u007f]/g,' ').trim()].slice(0,100).join('')
+        :sportType,
+      visibility:['everyone','followers_only','only_me'].includes(a.visibility)?a.visibility:'unknown',
+      distanceMeters:Number.isFinite(distance)?Math.round(distance):null,
+    });
+    if(items.length>=100)break;
+  }
+  return reply({items});
+}
 // Pont privé à usage strictement personnel : Voyage ne reçoit jamais les jetons,
 // et les données ne sont consultables que par son administrateur authentifié.
 export async function voyageStravaInternal(request,env,url){
@@ -578,7 +621,7 @@ export async function voyageStravaInternal(request,env,url){
   ).bind(athlete).first();
   if(!row)return reply({error:"strava_not_connected"},404);
   if(path==="/api/voyage/strava/activities"){
-    return recentRuns(env,row);
+    return recentVoyageActivities(env,row);
   }
   const match=/^\/api\/voyage\/strava\/activities\/([1-9][0-9]{0,19})\/route$/.exec(path);
   if(match)return importActivityRoute(env,row,match[1]);
