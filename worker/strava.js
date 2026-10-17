@@ -590,7 +590,7 @@ async function recentVoyageActivities(env,row){
     items.push({
       id,startedAtMs,durationSeconds,sportType,
       name:typeof a.name==='string'
-        ?[...a.name.replace(/[\\u0000-\\u001f\\u007f]/g,' ').trim()].slice(0,100).join('')
+        ?[...a.name.replace(/[\x00-\x1f\x7f]/g,' ').trim()].slice(0,100).join('')
         :sportType,
       visibility:['everyone','followers_only','only_me'].includes(a.visibility)?a.visibility:'unknown',
       distanceMeters:Number.isFinite(distance)?Math.round(distance):null,
