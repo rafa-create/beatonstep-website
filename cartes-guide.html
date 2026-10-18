@@ -500,7 +500,7 @@
     }
   }
   $('distance').addEventListener('change',()=>{
-    resetTime();
+    // Keep the current time when the distance changes; only the card thresholds update.
     renderThresholds();
     const url=new URL(location.href);
     url.searchParams.set('distance',$('distance').value);
