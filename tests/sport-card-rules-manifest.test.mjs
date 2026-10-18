@@ -24,6 +24,20 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.ultraDifficulty,'legend');
   assert.deepEqual(rules.secondResolutionDistancesCm,
     [40000,80000,100000,150000,160934]);
+  assert.equal(rules.timeUnitByDistance['4219500'],'minute');
+  assert.equal(rules.timeUnitByDistance['40000'],'second');
+  assert.deepEqual(rules.legacyCapsByDistanceAndUnit['100000'].minute,
+    {world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11});
+  for(const distanceCm of rules.distancesCm)
+    assert.ok(['minute','second'].includes(rules.timeUnitByDistance[String(distanceCm)]),
+      'each distance declares its time unit: '+distanceCm);
+  assert.equal(rules.timeUnitByDistance['4219500'],'minute');
+  assert.equal(rules.timeUnitByDistance['40000'],'second');
+  assert.deepEqual(rules.legacyCapsByDistanceAndUnit['100000'].minute,
+    {world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11});
+  for(const distanceCm of rules.distancesCm)
+    assert.ok(['minute','second'].includes(rules.timeUnitByDistance[String(distanceCm)]),
+      'each distance declares its time unit: '+distanceCm);
   assert.equal(rules.pendingTrackDistancesCm,undefined);
   for(const distanceCm of [80000,100000,150000,160934]){
     assert.equal(rules.distancesCm.includes(distanceCm),true);

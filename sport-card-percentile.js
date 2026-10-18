@@ -42,21 +42,20 @@
   // The 1 km second-resolution thresholds replaced the current rules, but
   // existing cards explicitly stored with timeUnit="minute" keep their
   // original minute-based SUB values and tier boundaries.
-  const legacy1kmMinuteCaps={
-    world_elite:3,legend:5,expert:6,intermediate:7,
-    regular:8,amateur:10,beginner:11,
-  };
   function capsForItem(item){
     if(!rules||!Number.isSafeInteger(item?.distanceCm))return null;
-    if(item.distanceCm===100000&&item.timeUnit==='minute')
-      return legacy1kmMinuteCaps;
+    const unit=item?.timeUnit;
+    const legacy=unit&&rules.legacyCapsByDistanceAndUnit?.[String(item.distanceCm)]?.[unit];
+    if(legacy)return legacy;
     return rules.capsByDistance[String(item.distanceCm)]||null;
   }
   function unitForItem(item){
     if(item?.timeUnit==='minute')return 60;
     if(item?.timeUnit==='second')return 1;
-    return (rules?.secondResolutionDistancesCm||[40000])
-      .includes(item?.distanceCm)?1:60;
+    const unit=rules?.timeUnitByDistance?.[String(item?.distanceCm)];
+    if(unit==='second')return 1;
+    if(unit==='minute')return 60;
+    return (rules?.secondResolutionDistancesCm||[40000]).includes(item?.distanceCm)?1:60;
   }
   function tier(item){
     if(!rules||!Number.isSafeInteger(item?.distanceCm)||

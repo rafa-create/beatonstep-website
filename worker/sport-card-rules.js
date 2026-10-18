@@ -6,7 +6,13 @@ export const SPORT_CARD_RULESET=sportTierRules.ruleset;
 export const SPORT_CARD_DIFFICULTY_RULESET=sportTierRules.difficultyRuleset;
 export const SPORT_CARD_TIER_REVISION=sportTierRules.revision;
 const ULTRA_START_CM=sportTierRules.ultraStartCm;
-const SECOND_RESOLUTION=new Set(sportTierRules.secondResolutionDistancesCm||[40000]);
+const LEGACY_SECOND_RESOLUTION=new Set(sportTierRules.secondResolutionDistancesCm||[40000]);
+const TIME_UNIT_BY_DISTANCE=sportTierRules.timeUnitByDistance||null;
+export function sportCardTimeUnit(distanceCm){
+  const unit=TIME_UNIT_BY_DISTANCE?.[String(distanceCm)];
+  if(unit==='minute'||unit==='second')return unit;
+  return LEGACY_SECOND_RESOLUTION.has(distanceCm)?'second':'minute';
+}
 const LEVELS=Object.freeze([...sportTierRules.tierOrder]);
 export const SPORT_CARD_400M_TIERS=Object.freeze(
   LEVELS.map(difficulty=>Object.freeze({
@@ -42,7 +48,7 @@ export function longestSportDistance(finalDistanceCm){
 
 export function maxSubMinuteByTier(distanceCm){
   if(canonicalSportDistance(distanceCm)===null||
-     SECOND_RESOLUTION.has(distanceCm)||distanceCm>=ULTRA_START_CM)return null;
+     sportCardTimeUnit(distanceCm)!=='minute'||distanceCm>=ULTRA_START_CM)return null;
   // Return a defensive copy; the canonical thresholds are immutable inputs.
   return {...sportTierRules.capsByDistance[String(distanceCm)]};
 }
@@ -70,7 +76,7 @@ export function effectiveSportSubSecond(elapsedMs){
 export function difficultyForSportCard(distanceCm,subValue){
   if(canonicalSportDistance(distanceCm)===null||
      !Number.isSafeInteger(subValue)||subValue<1)return null;
-  if(SECOND_RESOLUTION.has(distanceCm)){
+  if(sportCardTimeUnit(distanceCm)==='second'){
     const caps=sportTierRules.capsByDistance[String(distanceCm)];
     const found=caps&&LEVELS.find(tier=>subValue<=caps[tier]);
     return found?Object.freeze({
@@ -167,7 +173,7 @@ export function evaluateSportCardCandidate({
   if(chosenMs===null){
     return {status:'unverified',reason:'missing_final_distance_crossing'};
   }
-  const isSecondResolution=SECOND_RESOLUTION.has(distanceCm);
+  const isSecondResolution=sportCardTimeUnit(distanceCm)==='second';
   const timeUnit=isSecondResolution?'second':'minute';
   const subValue=isSecondResolution
     ?effectiveSportSubSecond(chosenMs)

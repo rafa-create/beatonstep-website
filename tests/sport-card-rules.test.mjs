@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   SPORT_CARD_DISTANCES,SPORT_CARD_RULESET,SPORT_CARD_DIFFICULTY_RULESET,
   canonicalSportDistance,longestSportDistance,maxSubMinuteByTier,
-  effectiveSportSubMinute,effectiveSportSubSecond,difficultyForSportCard,evaluateSportCardCandidate,
+  effectiveSportSubMinute,effectiveSportSubSecond,difficultyForSportCard,evaluateSportCardCandidate,sportCardTimeUnit,sportCardTimeUnit,
 } from '../worker/sport-card-rules.js';
 
 const cm=km=>Math.round(km*100_000);
@@ -287,4 +287,20 @@ test('unverified/fake samples are never eligible for cards',()=>{
   assert.equal(evaluateSportCardCandidate({
     ...base,crossings:[...all,all.at(-1)],
   }).status,'unverified');
+});
+
+test('per-distance time-unit configuration preserves existing units and second precision',()=>{
+  assert.equal(sportCardTimeUnit(40000),'second');
+  assert.equal(sportCardTimeUnit(100000),'second');
+  assert.equal(sportCardTimeUnit(500000),'minute');
+  assert.equal(sportCardTimeUnit(4219500),'minute');
+  assert.equal(effectiveSportSubSecond((3*3600+20*60+45)*1000),12046);
+});
+
+test('per-distance time-unit configuration preserves existing units and second precision',()=>{
+  assert.equal(sportCardTimeUnit(40000),'second');
+  assert.equal(sportCardTimeUnit(100000),'second');
+  assert.equal(sportCardTimeUnit(500000),'minute');
+  assert.equal(sportCardTimeUnit(4219500),'minute');
+  assert.equal(effectiveSportSubSecond((3*3600+20*60+45)*1000),12046);
 });
