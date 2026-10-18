@@ -171,8 +171,10 @@ test('tier table shows readable percentiles and exact chrono intervals, not SUB-
   assert.equal(fr(0,67,'second'),'Moins de 1 min 07 s');
   assert.equal(en(19,22,'minute'),'19 min to under 22 min');
   assert.doesNotMatch(page,/subLabel\(first,row\.unit\)\+' — '\+subLabel\(max,row\.unit\)/);
-  assert.match(page,/make\('td','',subLabel\(n,row\.unit\)\)/,
-    'the full individual SUB listing still uses exact card identifiers');
+  assert.match(page,/make\('td','time-range',tierTimeRange\(previous,max,row\.unit\)\)/,
+    'the guide displays readable time intervals for each tier');
+  assert.doesNotMatch(page,/make\('td','',subLabel\(n,row\.unit\)\)/,
+    'the retired individual SUB listing is not part of the current guide');
 });
 
 test('guide awards all 206 distances, including three track specialties',()=>{
