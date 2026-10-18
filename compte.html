@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/sport-card-face.css"><style>
 :root{color-scheme:dark;--bg:#0a0a08;--panel:#1b1b14;--line:#48412d;--ink:#f5f2e4;--accent:#fcea07;--sub:#bcb6a5}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif}
-main{max-width:720px;padding:24px 18px 65px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+main{max-width:720px;padding:24px 18px 65px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:16px}.account-brand{display:inline-flex;align-items:center;gap:10px}.account-brand img{display:block;width:36px;height:36px;border-radius:9px;border:1px solid var(--line);object-fit:cover}.account-brand span{font-weight:800}
 a{color:var(--accent)}header a{color:var(--ink);font-weight:800;text-decoration:none}
 h1{font-size:30px;letter-spacing:-.04em;line-height:1.2;margin:28px 0 8px}h2{font-size:19px;margin:0 0 12px}
 p{margin:6px 0 18px;color:var(--sub)}section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0}
@@ -126,7 +126,7 @@ ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid var(--lin
 li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 [hidden]{display:none!important}*:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 </style></head><body><main>
-<header><a href="/">BeatOnStep</a><a href="/partages.html">← Catalogue</a></header>
+<header><a class="account-brand" href="/"><img src="/assets/brand/logo-400.jpg" width="36" height="36" alt=""><span>BeatOnStep</span></a><a href="/partages.html">← Catalogue</a></header>
 <h1 id="heading">Mon compte</h1><p id="intro" hidden></p>
 <div class="notice" id="status" aria-live="polite">Vérification du compte…</div>
 <section id="signin" hidden><h2>Connexion</h2>
