@@ -71,9 +71,9 @@ test('percentiles progress for individual SUB thresholds and world record is the
   const distance=400000; // 4km has a modeled reference between 3km and road 5km.
   const world=client.worldRecordReference(distance);
   assert.ok(world&&world.estimated===true&&world.seconds>437.55&&world.seconds<769);
-  assert.equal(client.recordGap(card(400000,15))?.estimated,true,
+  assert.equal(client.recordGap(card(400000,11))?.estimated,true,
     'an interpolated world reference is explicitly marked as estimated');
-  assert.match(client.label(card(400000,15),'fr'),/référence mondiale estimée/);
+  assert.match(client.label(card(400000,11),'fr'),/référence mondiale estimée/);
   assert.equal(client.label({...card(500000,15),performanceWarning:true},'fr'),'Élite mondiale');
   assert.equal(client.worldRecordReference(500000).seconds,769);
   assert.equal(client.worldRecordReference(100000).seconds,131.83,
