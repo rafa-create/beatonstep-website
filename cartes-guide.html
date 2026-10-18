@@ -57,6 +57,10 @@
     select{min-width:220px;max-width:100%}
     input{width:min(100%,225px)}
     details{border:1px solid #635b40;border-radius:12px;padding:12px 14px;margin:14px 0;background:#201f18}
+    details.stars-details{display:block;margin:18px 0;padding:clamp(18px,4vw,28px);border:1px solid var(--line);border-radius:19px;background:var(--surface)}
+    details.stars-details>summary{color:var(--text);list-style-position:inside}
+    details.stars-details>summary h2{display:inline;margin:0}
+    details.stars-details[open]>summary{margin-bottom:12px}
     summary{cursor:pointer;font-weight:750}
     details .table-scroll{max-height:440px;overflow:auto}
     .calculator{margin:10px 0 18px;padding:clamp(16px,3vw,24px);background:#292518;border:1px solid #6a5a31;border-radius:14px}
@@ -182,10 +186,12 @@
         </details>
       </details>
     </section>
-    <section class="panel" aria-labelledby="levels-title">
-      <h2 id="levels-title"><span data-fr>Comprendre les étoiles</span><span data-en hidden>Understanding the stars</span></h2>
+    <details class="stars-details" aria-labelledby="levels-title">
+      <summary><h2 id="levels-title"><span data-fr>Comprendre les étoiles</span><span data-en hidden>Understanding the stars</span></h2></summary>
       <p class="fine" data-fr>Référence internationale de coureurs arrivés en course, tous âges et sexes confondus. Pourcentage approximatif, jamais un classement personnel.</p>
       <p class="fine" data-en hidden>International reference of race finishers across all ages and sexes. Percentages are approximate, not individual world rankings.</p>
+      <p class="fine" data-fr>Pour les petites distances, RunRepeat ne fournit pas de percentiles observés : les seuils sont donc estimés. Le palier « Élite mondiale » a été recalibré à partir de références de performance internationale. Seuils actuels : 400 m en 45 s, 800 m en 1 min 44, 1 km en 3 min, 1 500 m en 3 min 34, mile en 3 min 50, 2 km en 5 min, 3 km en 8 min et 4 km en 11 min. Ces repères servent à calibrer les cartes ; ils ne constituent pas des percentiles mesurés.</p>
+      <p class="fine" data-en hidden>For short distances, RunRepeat does not provide observed percentiles, so the thresholds are estimates. The “World Elite” tier has been recalibrated using international performance references. Current thresholds: 400 m in 45 s, 800 m in 1 min 44 s, 1 km in 3 min, 1,500 m in 3 min 34 s, mile in 3 min 50 s, 2 km in 5 min, 3 km in 8 min, and 4 km in 11 min. These benchmarks calibrate the cards; they are not measured percentiles.</p>
       <p class="fine" data-fr>Référence : <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, comparaison des temps d'arrivée</a> (environ 35 millions de résultats historiques, étude publiée en 2017, mise à jour en 2024). Percentiles observés pour 5 km, 10 km, semi-marathon et marathon ; certains percentiles intermédiaires et les autres distances sont estimés. La population ne représente pas tous les coureurs du monde.</p>
       <p class="fine" data-en hidden>Source: <a href="https://runrepeat.com/how-do-you-masure-up-the-runners-percentile-calculator" target="_blank" rel="noopener noreferrer">RunRepeat, race finish-time comparison</a> (about 35 million historical results, published 2017 and updated 2024). Observed percentiles cover 5K, 10K, half and full marathon; some intermediate percentiles and all other distances are modeled. This is not a census of every runner worldwide.</p>
       <div class="table-scroll">
@@ -194,7 +200,7 @@
           <tbody id="levels-rows"></tbody>
         </table>
       </div>
-    </section>
+    </details>
     <p class="footer"><a href="partages.html?kind=challenge"><span data-fr>← Parcourir les cartes gagnées</span><span data-en hidden>← Browse earned cards</span></a></p>
   </main>
 </div>
