@@ -6,7 +6,7 @@
 // The endpoint is FEATURE DISABLED until the offline-first end-to-end tests
 // and release gate have passed.
 import {evaluateOfflineSportSummary} from './sport-offline-eligibility.js';
-import {SPORT_CARD_RULESET,SPORT_CARD_DISTANCES} from './sport-card-rules.js';
+import {SPORT_CARD_RULESET,SPORT_CARD_DISTANCES,sportCardRulesManifest} from './sport-card-rules.js';
 
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -18,9 +18,7 @@ const source=(v)=>v==='phone_gps'?'attested_phone':'verified_import';
 // Compatibility with existing 1.7.2 cards, which cannot know the newly
 // activated 800m/1500m/mile families. Never trust arbitrary client tiers.
 const NEW_TRACK_CM=new Set([80000,150000,160934]);
-const LEGACY_1KM_MINUTE_CAPS=Object.freeze({
-  world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11,
-});
+const LEGACY_1KM_MINUTE_CAPS=Object.freeze(sportCardRulesManifest().legacyCapsByDistanceAndUnit?.['100000']?.minute||{world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11});
 const legacySportCard=(summary,current)=>{
   const actualCm=Math.floor(summary.distanceMeters*100+0.00001);
   const tier=[...SPORT_CARD_DISTANCES].reverse().find(c=>
