@@ -500,8 +500,11 @@
     }
   }
   $('distance').addEventListener('change',()=>{
-    // Keep the current time when the distance changes; only the card thresholds update.
+    // Preserve every chrono field explicitly while the distance-specific thresholds rerender.
+    const chronoIds=['time-hours','time-minutes','time-seconds','time-centiseconds'];
+    const chrono=Object.fromEntries(chronoIds.map(id=>[id,$(id).value]));
     renderThresholds();
+    for(const id of chronoIds)$(id).value=chrono[id];
     const url=new URL(location.href);
     url.searchParams.set('distance',$('distance').value);
     history.replaceState(null,'',url);
