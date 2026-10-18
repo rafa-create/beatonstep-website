@@ -169,7 +169,7 @@
         <p class="fine" data-en hidden>Each threshold represents a different card. Stars and levels stay the same, no matter how many runners join.</p>
         <div class="table-scroll">
           <table aria-label="Paliers par difficulté">
-            <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th><th><span data-fr>Fourchette de temps</span><span data-en hidden>Time range</span></th></tr></thead>
+            <thead><tr><th><span data-fr>Niveau</span><span data-en hidden>Level</span></th><th><span data-fr>Fourchette de temps</span><span data-en hidden>Time range</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th><th><span data-fr>Top mondial</span><span data-en hidden>Worldwide top</span></th></tr></thead>
             <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
           </table>
         </div>
@@ -302,9 +302,9 @@
     if(row.ultra){
       const tr=make('tr');
       tr.append(make('td','tier-name',ultraName()));
+      tr.append(make('td','time-range',t('Tout chrono validé','Any validated finish time')));
       const cell=make('td');cell.append(stars(tierStars(guide.ultraDifficulty)));tr.append(cell);
       tr.append(make('td','muted','—'));
-      tr.append(make('td','time-range',t('Tout chrono validé','Any validated finish time')));
       body.append(tr);
     }else{
       let previous=0;
@@ -313,11 +313,11 @@
         if(!Number.isInteger(max)||max<=previous)continue;
         const tr=make('tr');
         tr.append(make('td','tier-name',levelNames[key][lang==='fr'?0:1]));
+        tr.append(make('td','time-range',tierTimeRange(previous,max,row.unit)));
         const cell=make('td');cell.append(stars(tierStars(key)));tr.append(cell);
         const percentile=worldLabel(key);
         tr.append(percentile
           ?make('td','world-percent',percentile):make('td','muted','—'));
-        tr.append(make('td','time-range',tierTimeRange(previous,max,row.unit)));
         body.append(tr);
         previous=max;
       }
