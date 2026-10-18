@@ -98,7 +98,7 @@ test('generated guide and every difficulty explanation follow the canonical JSON
   assert.deepEqual(json.distances.map(row=>row.distanceCm),
     [...canonical.distancesCm].sort((a,b)=>a-b));
   for(const row of json.distances){
-    assert.equal(row.unit,canonical.timeUnitByDistance[String(row.distanceCm)]||(canonical.secondResolutionDistancesCm.includes(row.distanceCm)?'second':'minute'));
+    assert.equal(row.unit,canonical.timeUnitByDistance[String(row.distanceCm)]||(canonical.timeUnitByDistance[String(row.distanceCm)]||(canonical.secondResolutionDistancesCm.includes(row.distanceCm)?'second':'minute')));
     assert.deepEqual(row.caps,canonical.capsByDistance[String(row.distanceCm)]||null);
   }
   const script=page.match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -214,7 +214,7 @@ test('all public SUB difficulty boundaries agree with the official award engine'
       ?canonical.capsByDistance[String(distanceCm)]
       :maxSubMinuteByTier(distanceCm);
     assert.deepEqual(caps,expected,'distance='+distanceCm);
-    assert.equal(unit,canonical.timeUnitByDistance[String(distanceCm)]||(canonical.secondResolutionDistancesCm.includes(distanceCm)?'second':'minute'));
+    assert.equal(unit,canonical.timeUnitByDistance[String(distanceCm)]||(canonical.timeUnitByDistance[String(distanceCm)]||(canonical.secondResolutionDistancesCm.includes(distanceCm)?'second':'minute')));
     let previous=0;
     for(const difficulty of json.levels){
       assert.ok(caps[difficulty]>previous,'ordered caps '+distanceCm+' '+difficulty);
