@@ -84,6 +84,26 @@ test('percentiles progress for individual SUB thresholds and world record is the
     'no extrapolation beyond reviewed world-record anchors');
 });
 
+test('legacy 1 km minute cards keep minute tiers and never claim a false world-record lead',async()=>{
+  const client=await api();
+  const oldRegular={...card(100000,8),timeUnit:'minute',difficulty:'regular'};
+  assert.equal(client.tier(oldRegular),'regular');
+  assert.equal(client.visibleTier(oldRegular),'regular');
+  assert.equal(client.percentile(oldRegular),75);
+  assert.equal(client.label(oldRegular,'fr'),'Top ≈ 75 % mondial');
+  assert.equal(client.recordGap(oldRegular),null);
+
+  const oldElite={...card(100000,3),timeUnit:'minute',difficulty:'world_elite'};
+  assert.equal(client.tier(oldElite),'world_elite');
+  assert.equal(client.recordGap(oldElite)?.leadSeconds,0);
+  assert.equal(client.recordGap(oldElite)?.seconds,48);
+  assert.equal(client.label(oldElite,'fr'),'À 48 s du record mondial');
+
+  const newSecond={...card(100000,150),timeUnit:'second'};
+  assert.equal(client.tier(newSecond),'world_elite');
+  assert.equal(client.label(newSecond,'fr'),'À 18 s du record mondial');
+});
+
 test('no invented world rank for beginner, warning or ultra',async()=>{
   const client=await api();
   assert.equal(client.percentile(card(500000,57)),null);
