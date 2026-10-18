@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-18.1",
+  "revision": "2026-10-18.2",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -676,9 +676,9 @@
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "For 400 m through 4 km, world_elite is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables (around 1200 points for standard events); non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. Other tiers at these short distances are proportionally recalibrated from the previous ladder, with minute-resolution limits retained for classic kilometre distances. For other distances, 5% and 75% are linearly estimated between published percentiles; log-log time/distance interpolation is used between measured anchor distances; 1-4 km scaling from 5 km is no longer used for elite thresholds. 400 m has its own reference. SUB limits are rounded to the available unit and tier limits remain strictly increasing.",
+    "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The other six tiers retain their previous finisher-percentile-derived thresholds. Minute-resolution limits remain for 1 km, 2 km, 3 km and 4 km; second-resolution limits remain for 400 m, 800 m, 1500 m and the mile. For other distances, published percentiles and log-log time/distance interpolation remain unchanged.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
-    "interpretation": "For distances from 400 m through 4 km, world_elite means a demanding international-level performance benchmark inspired by men's World Athletics scoring tables, not a measured percentile and not a world-record claim. For other non-elite cards, levels approximate the worldwide share of recorded race finishes, not an official ranking. A SUB card is a time interval, not proof of a ratified record."
+    "interpretation": "For distances from 400 m through 4 km, world_elite means a demanding international-level performance benchmark inspired by men's World Athletics scoring tables, not a measured percentile and not a world-record claim. The other tiers retain approximate worldwide shares of recorded race finishes, not official rankings. A SUB card is a time interval, not proof of a ratified record."
   },
   "secondResolutionDistancesCm": [
     40000,
