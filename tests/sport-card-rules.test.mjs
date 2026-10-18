@@ -14,6 +14,12 @@ const result=(finalKm,crossings,finishedMinutes,verified=true)=>
     finishedElapsedMs:ms(finishedMinutes),
     crossings:crossings.map(([km,m])=>({distanceCm:cm(km),elapsedMs:ms(m)})),
   });
+const resultSeconds=(finalKm,crossings,finishedSeconds,verified=true)=>
+  evaluateSportCardCandidate({
+    finalized:true,evidenceVerified:verified,finalDistanceCm:cm(finalKm),
+    finishedElapsedMs:Math.round(finishedSeconds*1000),
+    crossings:crossings.map(([km,s])=>({distanceCm:cm(km),elapsedMs:Math.round(s*1000)})),
+  });
 
 test('catalog: 400m with multiple second thresholds plus EVERY km 1..200',()=>{
   assert.equal(SPORT_CARD_DISTANCES.length,206);
@@ -57,7 +63,7 @@ test('longest crossed distance at unrounded half/full and every integer km',()=>
 test('all 1..42km plus half/marathon have seven unique levels and discreet skin tokens',()=>{
   const names=['beginner','amateur','regular','intermediate',
     'expert','legend','world_elite'];
-  const distances=[...Array.from({length:42},(_,i)=>i+1),21.0975,42.195];
+  const distances=[...Array.from({length:41},(_,i)=>i+2),21.0975,42.195];
   for(const km of distances){
     const caps=maxSubMinuteByTier(cm(km));
     assert.deepEqual(Object.keys(caps).sort(),[...names].sort());
@@ -80,6 +86,30 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
   assert.equal(maxSubMinuteByTier(cm(42.195)).beginner,419);
   assert.equal(maxSubMinuteByTier(cm(.4)),null);
   assert.equal(maxSubMinuteByTier(cm(43)),null);
+});
+
+
+test('1km has second-resolution caps calibrated for all seven levels',()=>{
+  const caps={world_elite:150,legend:225,expert:270,intermediate:360,
+    regular:420,amateur:480,beginner:600};
+  for(const [tier,sub] of Object.entries(caps)){
+    assert.equal(difficultyForSportCard(cm(1),sub)?.difficulty,tier);
+  }
+  assert.equal(maxSubMinuteByTier(cm(1)),null);
+  for(const [seconds,sub,tier] of [
+    [149,150,'world_elite'],[224.999,225,'legend'],[269.999,270,'expert'],
+    [359.999,360,'intermediate'],[419.999,420,'regular'],
+    [479.999,480,'amateur'],[599.999,600,'beginner'],
+  ]){
+    const p=resultSeconds(1,[[1,seconds]],seconds+5);
+    assert.equal(p.status,'candidate');
+    assert.equal(p.timeUnit,'second');
+    assert.equal(p.subSecond,sub);
+    assert.equal(p.subMinute,null);
+    assert.equal(p.difficulty,tier);
+    assert.equal(p.performanceKey,cm(1)+':second:'+sub);
+  }
+  assert.equal(resultSeconds(1,[[1,600]],605).status,'none');
 });
 
 test('novice 10km exactly 90:00 qualifies for beginner sub91',()=>{
