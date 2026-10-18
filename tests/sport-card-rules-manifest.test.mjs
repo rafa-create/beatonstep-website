@@ -23,9 +23,9 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.ultraStartCm,4300000);
   assert.equal(rules.ultraDifficulty,'legend');
   assert.deepEqual(rules.secondResolutionDistancesCm,
-    [40000,80000,150000,160934]);
+    [40000,80000,100000,150000,160934]);
   assert.equal(rules.pendingTrackDistancesCm,undefined);
-  for(const distanceCm of [80000,150000,160934]){
+  for(const distanceCm of [80000,100000,150000,160934]){
     assert.equal(rules.distancesCm.includes(distanceCm),true);
     const caps=rules.capsByDistance[String(distanceCm)];
     assert.ok(caps&&Object.keys(caps).length===7);
@@ -56,9 +56,10 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.capsByDistance[4219500].expert,230,
     'marathon Expert uses website JSON; change it only there');
   assert.equal(rules.capsByDistance[1000000].beginner,100);
+  assert.deepEqual(rules.capsByDistance[100000],{world_elite:150,legend:225,expert:270,intermediate:360,regular:420,amateur:480,beginner:600});
 });
 
-test('manual D1 reclassification plan uses the same 45 v2 rows without changing ownership',()=>{
+test('manual D1 reclassification plan uses the same 44 legacy-unit-compatible v2 rows without changing ownership',()=>{
   const rules=sportCardRulesManifest();
   const sql=execFileSync(process.execPath,
     ['scripts/plan-sport-percentile-backfill.mjs'],{encoding:'utf8'});
@@ -67,11 +68,11 @@ test('manual D1 reclassification plan uses the same 45 v2 rows without changing 
   assert.match(sql,/c\.difficulty IS NOT/,'idempotent update on changed labels only');
   assert.doesNotMatch(sql,/UPDATE sport_card_ownership_events|SET current_owner_id|SET owner_epoch|DELETE FROM/);
   for(const [cm,caps] of Object.entries(rules.capsByDistance)
-    .filter(([cm])=>![80000,150000,160934].includes(Number(cm)))){
+    .filter(([cm])=>![80000,100000,150000,160934].includes(Number(cm)))){
     const literal='('+[Number(cm),...rules.tierOrder.map(t=>caps[t])].join(',')+')';
     assert.ok(sql.includes(literal),'D1 plan must match official limits at '+cm);
   }
-  assert.equal((sql.match(/^    \(\d+,/gm)||[]).length,45);
+  assert.equal((sql.match(/^    \(\d+,/gm)||[]).length,44);
   assert.match(sql,/43-200 km remain unchanged/);
 });
 
