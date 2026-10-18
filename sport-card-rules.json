@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-18.2",
+  "revision": "2026-10-18.3",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -223,75 +223,75 @@
   "capsByDistance": {
     "40000": {
       "world_elite": 45,
-      "legend": 52,
-      "expert": 68,
-      "intermediate": 83,
-      "regular": 100,
-      "amateur": 120,
-      "beginner": 135
+      "legend": 77,
+      "expert": 101,
+      "intermediate": 123,
+      "regular": 148,
+      "amateur": 178,
+      "beginner": 201
     },
     "80000": {
       "world_elite": 104,
-      "legend": 121,
-      "expert": 159,
-      "intermediate": 192,
-      "regular": 230,
-      "amateur": 279,
-      "beginner": 312
+      "legend": 190,
+      "expert": 250,
+      "intermediate": 302,
+      "regular": 362,
+      "amateur": 439,
+      "beginner": 491
     },
     "100000": {
       "world_elite": 3,
-      "legend": 4,
-      "expert": 5,
-      "intermediate": 6,
-      "regular": 7,
-      "amateur": 9,
-      "beginner": 10
+      "legend": 5,
+      "expert": 6,
+      "intermediate": 7,
+      "regular": 8,
+      "amateur": 10,
+      "beginner": 11
     },
     "150000": {
       "world_elite": 214,
-      "legend": 248,
-      "expert": 326,
-      "intermediate": 394,
-      "regular": 473,
-      "amateur": 574,
-      "beginner": 641
+      "legend": 369,
+      "expert": 486,
+      "intermediate": 587,
+      "regular": 704,
+      "amateur": 855,
+      "beginner": 955
     },
     "160934": {
       "world_elite": 230,
-      "legend": 267,
-      "expert": 352,
-      "intermediate": 424,
-      "regular": 509,
-      "amateur": 618,
-      "beginner": 691
+      "legend": 397,
+      "expert": 524,
+      "intermediate": 632,
+      "regular": 758,
+      "amateur": 921,
+      "beginner": 1029
     },
     "200000": {
       "world_elite": 5,
-      "legend": 6,
-      "expert": 7,
-      "intermediate": 9,
-      "regular": 10,
-      "amateur": 12,
-      "beginner": 14
+      "legend": 9,
+      "expert": 11,
+      "intermediate": 14,
+      "regular": 16,
+      "amateur": 19,
+      "beginner": 22
     },
     "300000": {
       "world_elite": 8,
-      "legend": 10,
-      "expert": 13,
-      "intermediate": 16,
-      "regular": 19,
-      "amateur": 22,
-      "beginner": 24
-    },
-    "400000": {
-      "world_elite": 11,
-      "legend": 14,
+      "legend": 13,
       "expert": 17,
       "intermediate": 21,
       "regular": 25,
       "amateur": 30,
       "beginner": 33
+    },
+    "400000": {
+      "world_elite": 11,
+      "legend": 18,
+      "expert": 23,
+      "intermediate": 28,
+      "regular": 33,
+      "amateur": 40,
+      "beginner": 45
     },
     "500000": {
       "world_elite": 19,
