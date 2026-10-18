@@ -6,13 +6,13 @@
 import rules from '../sport-card-rules.json' with {type:'json'};
 
 const tiers=rules.tierOrder;
-// The historical label-only backfill covers the original 45 distances.
-// The three new track tiers have no legacy D1 rows to reclassify.
-const trackCm=new Set([80000,150000,160934]);
+// The historical label-only backfill covers legacy-unit-compatible distances.
+// Do not reinterpret 1 km legacy minute-based sub_value rows as seconds.
+const excludedLegacyUnitDistancesCm=new Set([80000,100000,150000,160934]);
 const list=Object.entries(rules.capsByDistance)
-  .filter(([cm])=>!trackCm.has(Number(cm)))
+  .filter(([cm])=>!excludedLegacyUnitDistancesCm.has(Number(cm)))
   .sort((a,b)=>Number(a[0])-Number(b[0]));
-if(tiers.length!==7||list.length!==45||
+if(tiers.length!==7||list.length!==44||
    !list.every(([cm,caps])=>Number.isSafeInteger(Number(cm))&&
       tiers.every(t=>Number.isSafeInteger(caps[t])&&caps[t]>0))){
   throw Error('Unexpected sport-card threshold manifest; refusing SQL generation');
