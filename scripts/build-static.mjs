@@ -46,8 +46,7 @@ const guide = {
   distances: [
     ...SPORT_CARD_DISTANCES.map(({distanceCm,code}) => ({
       distanceCm,code,
-      unit:(manifest.secondResolutionDistancesCm||[]).includes(distanceCm)
-        ?'second':'minute',
+      unit:manifest.timeUnitByDistance?.[String(distanceCm)]||((manifest.secondResolutionDistancesCm||[]).includes(distanceCm)?'second':'minute'),
       caps:manifest.capsByDistance[String(distanceCm)]||null,
       ultra:distanceCm>=manifest.ultraStartCm,
       previewOnly:false,
