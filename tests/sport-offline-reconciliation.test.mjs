@@ -78,6 +78,18 @@ test('old 1.7.2 can still redeem a 1km card for 1600m after track tiers activate
   const result=await response.json();
   assert.equal(result.performanceKey,'100000:minute:10');
   assert.deepEqual(calls[0].args.slice(0,3),[100000,'minute',10]);
+
+  // The old 1.7.2 beginner ceiling was 11 minutes; second-resolution
+  // 1 km rules must not silently narrow the compatibility window to 10:00.
+  const slower={...body(),summary:{
+    startedAtMs:now-630001,endedAtMs:now-1,
+    distanceMeters:1600,distanceSource:'phone_gps',
+  }};
+  slower.runId='run-'+slower.summary.startedAtMs+'-'+slower.summary.endedAtMs;
+  slower.clientPerformanceKey='100000:minute:11';
+  const second=await reconcileOfflineSportResult(sqlCalls().db,'runner-a',slower,{now});
+  assert.equal(second.status,200);
+  assert.equal((await second.json()).performanceKey,'100000:minute:11');
 });
 
 test('new 1.7.3 awards 1500m and rejects arbitrary client performance keys',async()=>{
