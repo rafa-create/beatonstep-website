@@ -173,17 +173,6 @@
             <tbody id="threshold-rows"><tr><td colspan="4"><span data-fr>Chargement du barème…</span><span data-en hidden>Loading thresholds…</span></td></tr></tbody>
           </table>
         </div>
-        <details id="individual-details">
-          <summary><span data-fr>Voir chaque palier SUB, un par un</span><span data-en hidden>See every SUB threshold individually</span></summary>
-          <p class="fine" data-fr>Chaque valeur SUB correspond à une carte distincte. La grille indique sa difficulté, même si personne n'a encore créé cette carte en courant.</p>
-          <p class="fine" data-en hidden>Each SUB value is a separate card. The table shows its difficulty even if no runner has created the card yet.</p>
-          <div class="table-scroll">
-            <table aria-label="Tous les paliers SUB">
-              <thead><tr><th>SUB</th><th><span data-fr>Difficulté</span><span data-en hidden>Difficulty</span></th><th><span data-fr>Étoiles</span><span data-en hidden>Stars</span></th></tr></thead>
-              <tbody id="individual-rows"></tbody>
-            </table>
-          </div>
-        </details>
       </details>
     </section>
     <details class="stars-details" aria-labelledby="levels-title">
@@ -333,38 +322,11 @@
         previous=max;
       }
     }
-    if($('individual-details').open)renderIndividuals();else $('individual-rows').replaceChildren();
     $('time-centiseconds-part').hidden=row.unit!=='second';
     $('calc-result').textContent='';
     $('calc-result').classList.remove('error');
     $('calc-card-preview').hidden=true;
     $('calc-card-face').replaceChildren();
-  }
-  function renderIndividuals(){
-    const row=selected();if(!row)return;
-    const body=$('individual-rows');body.replaceChildren();
-    if(row.ultra){
-      const tr=make('tr');
-      tr.append(make('td','',t('Tout SUB vérifié','Any validated SUB')));
-      tr.append(make('td','',ultraName()));
-      const cell=make('td');cell.append(stars(tierStars(guide.ultraDifficulty)));tr.append(cell);
-      body.append(tr);return;
-    }
-    const fragment=document.createDocumentFragment();
-    let previous=0;
-    for(const key of guide.levels){
-      const limit=row.caps[key];
-      if(!Number.isInteger(limit))continue;
-      for(let n=previous+1;n<=limit;n++){
-        const tr=make('tr');
-        tr.append(make('td','',subLabel(n,row.unit)));
-        tr.append(make('td','',levelNames[key][lang==='fr'?0:1]));
-        const cell=make('td');cell.append(stars(tierStars(key)));tr.append(cell);
-        fragment.append(tr);
-      }
-      previous=limit;
-    }
-    body.append(fragment);
   }
   // Native dropdowns prevent malformed time strings while preserving 400 m precision.
   function populateTimeSelect(id,max,placeholder=false){
@@ -514,9 +476,6 @@
     const url=new URL(location.href);
     url.searchParams.set('distance',$('distance').value);
     history.replaceState(null,'',url);
-  });
-  $('individual-details').addEventListener('toggle',()=>{
-    if(guide&&$('individual-details').open)renderIndividuals();
   });
   for(const [id,max,placeholder] of [
     ['time-hours',199,false],['time-minutes',59,false],
