@@ -28,7 +28,7 @@ test('world labels are read from the same v2 JSON as official sporting awards',a
     [500000,35,'intermediate',50],
     [500000,42,'regular',75],
     [500000,51,'amateur',90],
-    [1000000,63,'intermediate',50],
+    [100000,360,'intermediate',50],
     [2109750,135,'intermediate',50],
     [4219500,267,'intermediate',50],
   ];
