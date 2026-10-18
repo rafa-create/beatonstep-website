@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-16.1",
+  "revision": "2026-10-18.1",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -222,76 +222,76 @@
   ],
   "capsByDistance": {
     "40000": {
-      "world_elite": 67,
-      "legend": 77,
-      "expert": 101,
-      "intermediate": 123,
-      "regular": 148,
-      "amateur": 178,
-      "beginner": 201
+      "world_elite": 45,
+      "legend": 52,
+      "expert": 68,
+      "intermediate": 83,
+      "regular": 100,
+      "amateur": 120,
+      "beginner": 135
     },
     "80000": {
-      "world_elite": 164,
-      "legend": 190,
-      "expert": 250,
-      "intermediate": 302,
-      "regular": 362,
-      "amateur": 439,
-      "beginner": 491
+      "world_elite": 104,
+      "legend": 121,
+      "expert": 159,
+      "intermediate": 192,
+      "regular": 230,
+      "amateur": 279,
+      "beginner": 312
     },
     "100000": {
-      "world_elite": 4,
-      "legend": 5,
-      "expert": 6,
-      "intermediate": 7,
-      "regular": 8,
-      "amateur": 10,
-      "beginner": 11
+      "world_elite": 3,
+      "legend": 4,
+      "expert": 5,
+      "intermediate": 6,
+      "regular": 7,
+      "amateur": 9,
+      "beginner": 10
     },
     "150000": {
-      "world_elite": 319,
-      "legend": 369,
-      "expert": 486,
-      "intermediate": 587,
-      "regular": 704,
-      "amateur": 855,
-      "beginner": 955
+      "world_elite": 214,
+      "legend": 248,
+      "expert": 326,
+      "intermediate": 394,
+      "regular": 473,
+      "amateur": 574,
+      "beginner": 641
     },
     "160934": {
-      "world_elite": 343,
-      "legend": 397,
-      "expert": 524,
-      "intermediate": 632,
-      "regular": 758,
-      "amateur": 921,
-      "beginner": 1029
+      "world_elite": 230,
+      "legend": 267,
+      "expert": 352,
+      "intermediate": 424,
+      "regular": 509,
+      "amateur": 618,
+      "beginner": 691
     },
     "200000": {
-      "world_elite": 8,
-      "legend": 9,
-      "expert": 11,
-      "intermediate": 14,
-      "regular": 16,
-      "amateur": 19,
-      "beginner": 22
+      "world_elite": 5,
+      "legend": 6,
+      "expert": 7,
+      "intermediate": 9,
+      "regular": 10,
+      "amateur": 12,
+      "beginner": 14
     },
     "300000": {
+      "world_elite": 8,
+      "legend": 10,
+      "expert": 13,
+      "intermediate": 16,
+      "regular": 19,
+      "amateur": 22,
+      "beginner": 24
+    },
+    "400000": {
       "world_elite": 11,
-      "legend": 13,
+      "legend": 14,
       "expert": 17,
       "intermediate": 21,
       "regular": 25,
       "amateur": 30,
       "beginner": 33
-    },
-    "400000": {
-      "world_elite": 15,
-      "legend": 18,
-      "expert": 23,
-      "intermediate": 28,
-      "regular": 33,
-      "amateur": 40,
-      "beginner": 45
     },
     "500000": {
       "world_elite": 19,
@@ -676,9 +676,9 @@
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "5%,75% linearly estimated between published percentiles; log-log time/distance interpolation between measured anchor distances; 1-4 km scaled from 5 km with exponent 1.06; 400 m modeled separately with exponent 1.12; round SUB limits upwards and enforce seven strictly increasing limits; 2026-10-15.5 interpolates 1–90% finishers' tiers only and shows SUB-to-record gap for elite rather than an unsupported 0.1–1% interpolation.",
+    "method": "For 400 m through 4 km, world_elite is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables (around 1200 points for standard events); non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. Other tiers at these short distances are proportionally recalibrated from the previous ladder, with minute-resolution limits retained for classic kilometre distances. For other distances, 5% and 75% are linearly estimated between published percentiles; log-log time/distance interpolation is used between measured anchor distances; 1-4 km scaling from 5 km is no longer used for elite thresholds. 400 m has its own reference. SUB limits are rounded to the available unit and tier limits remain strictly increasing.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
-    "interpretation": "For non-elite cards, approximate worldwide share of recorded race finishes, not an official ranking. For elite cards, show only the time gap from the strict SUB threshold to the absolute world record or modeled reference; never invent a fractional Top percentage."
+    "interpretation": "For distances from 400 m through 4 km, world_elite means a demanding international-level performance benchmark inspired by men's World Athletics scoring tables, not a measured percentile and not a world-record claim. For other non-elite cards, levels approximate the worldwide share of recorded race finishes, not an official ranking. A SUB card is a time interval, not proof of a ratified record."
   },
   "secondResolutionDistancesCm": [
     40000,
