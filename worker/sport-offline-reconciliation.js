@@ -18,15 +18,39 @@ const source=(v)=>v==='phone_gps'?'attested_phone':'verified_import';
 // Compatibility with existing 1.7.2 cards, which cannot know the newly
 // activated 800m/1500m/mile families. Never trust arbitrary client tiers.
 const NEW_TRACK_CM=new Set([80000,150000,160934]);
+const LEGACY_1KM_MINUTE_CAPS=Object.freeze({
+  world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11,
+});
 const legacySportCard=(summary,current)=>{
   const actualCm=Math.floor(summary.distanceMeters*100+0.00001);
   const tier=[...SPORT_CARD_DISTANCES].reverse().find(c=>
     !NEW_TRACK_CM.has(c.distanceCm)&&c.distanceCm<=actualCm);
   if(!tier)return null;
-  const old=evaluateOfflineSportSummary({
-    ...summary,distanceMeters:tier.distanceCm/100,
-  });
-  if(old.status!=='candidate')return null;
+
+  // 1.7.2 stored 1 km as whole minutes. Keep its original minute thresholds
+  // and key even though the current canonical 1 km family now uses seconds.
+  let old;
+  if(tier.distanceCm===100000){
+    const elapsedMs=summary.endedAtMs-summary.startedAtMs;
+    if(!Number.isSafeInteger(elapsedMs)||elapsedMs<=0)return null;
+    const subValue=Math.floor(elapsedMs/60000)+1;
+    const difficulty=Object.keys(LEGACY_1KM_MINUTE_CAPS)
+      .find(level=>subValue<=LEGACY_1KM_MINUTE_CAPS[level]);
+    if(!difficulty)return null;
+    old={
+      status:'candidate',distanceCm:100000,timeUnit:'minute',subValue,
+      subMinute:subValue,subSecond:null,
+      difficulty,skin:'difficulty_'+difficulty+'_v1',
+      performanceKey:'100000:minute:'+subValue,
+      warningReasons:[],
+    };
+  }else{
+    old=evaluateOfflineSportSummary({
+      ...summary,distanceMeters:tier.distanceCm/100,
+    });
+    if(old.status!=='candidate')return null;
+  }
+
   // Preserve speed warnings from the original measured distance, without
   // generating a false "inconsistent crossings" for a valid old 1km split.
   const reasons=[...new Set([
