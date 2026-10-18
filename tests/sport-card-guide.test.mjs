@@ -130,8 +130,10 @@ test('chrono dropdowns preserve hours, minutes, seconds and 400m hundredths',()=
   assert.match(script,/\['time-seconds',59,true\]/);
   assert.match(script,/\['time-centiseconds',99,false\]/);
   assert.match(script,/\$\('time-centiseconds-part'\)\.hidden=row\.unit!=='second'/);
-  assert.match(script,/resetTime\(\);\s*renderThresholds\(\)/,
-    'switching distance resets the previous time');
+  assert.match(script,/const chronoIds=\['time-hours','time-minutes','time-seconds','time-centiseconds'\]/,
+    'switching distance explicitly preserves every chrono field');
+  assert.doesNotMatch(script,/resetTime\(\);\s*renderThresholds\(\)/,
+    'switching distance must not reset the previous time');
   assert.match(script,/\$\('time-minutes'\)\.value='24'/,
     '5km opens with the existing 24:35 example');
   const source=script.match(/function elapsedFromParts\(hours,minutes,seconds,centiseconds=0\)\{[\s\S]*?\n  \}/)?.[0];
@@ -236,6 +238,6 @@ test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
   assert.equal(sub,25);
   assert.equal(difficultyForSportCard(500000,sub).difficulty,'expert');
   assert.equal(difficultyForSportCard(500000,26).difficulty,'expert');
-  assert.equal(difficultyForSportCard(40000,60).difficulty,'world_elite');
+  assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
   assert.equal(difficultyForSportCard(40000,68).difficulty,'legend');
 });
