@@ -39,13 +39,32 @@
       Array.isArray(rules.distancesCm)&&rules.distancesCm.includes(cm)
       ?cm:null;
   }
+  // The 1 km second-resolution thresholds replaced the current rules, but
+  // existing cards explicitly stored with timeUnit="minute" keep their
+  // original minute-based SUB values and tier boundaries.
+  const legacy1kmMinuteCaps={
+    world_elite:3,legend:5,expert:6,intermediate:7,
+    regular:8,amateur:10,beginner:11,
+  };
+  function capsForItem(item){
+    if(!rules||!Number.isSafeInteger(item?.distanceCm))return null;
+    if(item.distanceCm===100000&&item.timeUnit==='minute')
+      return legacy1kmMinuteCaps;
+    return rules.capsByDistance[String(item.distanceCm)]||null;
+  }
+  function unitForItem(item){
+    if(item?.timeUnit==='minute')return 60;
+    if(item?.timeUnit==='second')return 1;
+    return (rules?.secondResolutionDistancesCm||[40000])
+      .includes(item?.distanceCm)?1:60;
+  }
   function tier(item){
     if(!rules||!Number.isSafeInteger(item?.distanceCm)||
        !Number.isSafeInteger(item?.subValue)||item.subValue<1)return null;
     if(item.distanceCm>=rules.ultraStartCm&&
        Array.isArray(rules.distancesCm)&&rules.distancesCm.includes(item.distanceCm))
       return rules.ultraDifficulty;
-    const caps=rules.capsByDistance[String(item.distanceCm)];
+    const caps=capsForItem(item);
     if(!caps)return null;
     return rules.tierOrder.find(key=>item.subValue<=caps[key])||null;
   }
@@ -77,8 +96,7 @@
        !Number.isSafeInteger(item?.subValue)||item.subValue<1)return null;
     const reference=worldRecordReference(item.distanceCm);
     if(!reference)return null;
-    const unit=(rules.secondResolutionDistancesCm||[40000])
-      .includes(item.distanceCm)?1:60;
+    const unit=unitForItem(item);
     return item.subValue<=Math.floor(reference.seconds/unit)+1
       ?(reference.estimated?'estimated':'official'):null;
   }
@@ -88,8 +106,7 @@
     if(!rules||tier(item)!=='world_elite'||item?.performanceWarning===true)return null;
     const reference=worldRecordReference(item.distanceCm);
     if(!reference)return null;
-    const unit=(rules.secondResolutionDistancesCm||[40000])
-      .includes(item.distanceCm)?1:60;
+    const unit=unitForItem(item);
     const delta=item.subValue*unit-reference.seconds;
     // A strict SUB threshold does not reveal the runner's exact finish time.
     // Report the conservative minimum lead over the record, not an exact gap.
@@ -109,7 +126,7 @@
       return null;
     const level=tier(item);
     if(!level||level==='beginner'||level==='world_elite')return null;
-    const caps=rules.capsByDistance[String(item.distanceCm)];
+    const caps=capsForItem(item);
     if(!caps)return null;
     const percentages=rules.percentileCalibration?.estimatedPercentileTargets;
     if(!percentages)return null;
