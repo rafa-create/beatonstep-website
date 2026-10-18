@@ -54,7 +54,8 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/Ta carte possible : /);
   assert.doesNotMatch(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/,
     'the primary preview speaks about the card, not a percentile');
-  assert.match(page,/id="individual-rows"/);
+  // The current guide uses the accessible chrono selector and card preview,
+  // not the retired individual-rows table.
   for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
     assert.match(page,new RegExp('id="'+id+'"'));
     assert.match(page,new RegExp('for="'+id+'"'),
