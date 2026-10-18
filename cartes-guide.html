@@ -64,10 +64,10 @@
     .threshold-details>summary{color:var(--yellow)}
     .calculator-inner{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin-top:10px}
     .chrono-label{font-size:13px;font-weight:700;margin:0 0 8px}
-    .chrono-picker{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
-    .time-part{flex:0 1 86px;min-width:66px}
+    .chrono-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;width:min(100%,320px)}
+    .time-part{min-width:0;width:100%}
     .time-part label{font-size:12px;font-weight:650;margin-bottom:5px}
-    .time-part select{min-width:0;width:100%;padding:11px 9px;font-variant-numeric:tabular-nums}
+    .time-part select{display:block;min-width:0;width:100%;padding:11px 6px;font-variant-numeric:tabular-nums}
     .calculate{padding:11px 17px;border:0;border-radius:11px;background:var(--yellow);color:#17160c;font-weight:800;cursor:pointer}
     #calc-result{min-height:25px;margin-top:14px;font-weight:650}
     #calc-result.error{color:#ffd0b0}
