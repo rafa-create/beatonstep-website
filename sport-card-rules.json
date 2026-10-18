@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-18.3",
+  "revision": "2026-10-18.4",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -240,13 +240,13 @@
       "beginner": 491
     },
     "100000": {
-      "world_elite": 3,
-      "legend": 5,
-      "expert": 6,
-      "intermediate": 7,
-      "regular": 8,
-      "amateur": 10,
-      "beginner": 11
+      "world_elite": 150,
+      "legend": 225,
+      "expert": 270,
+      "intermediate": 360,
+      "regular": 420,
+      "amateur": 480,
+      "beginner": 600
     },
     "150000": {
       "world_elite": 214,
@@ -676,13 +676,14 @@
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The other six tiers retain their previous finisher-percentile-derived thresholds. Minute-resolution limits remain for 1 km, 2 km, 3 km and 4 km; second-resolution limits remain for 400 m, 800 m, 1500 m and the mile. For other distances, published percentiles and log-log time/distance interpolation remain unchanged.",
+    "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The other six tiers retain their previous finisher-percentile-derived thresholds except the 1 km, whose seven levels are manually calibrated as second-resolution targets. Second-resolution limits apply to 400 m, 800 m, 1 km, 1500 m and the mile. Minute-resolution limits remain for 2 km, 3 km and 4 km. For other distances, published percentiles and log-log time/distance interpolation remain unchanged.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
     "interpretation": "For distances from 400 m through 4 km, world_elite means a demanding international-level performance benchmark inspired by men's World Athletics scoring tables, not a measured percentile and not a world-record claim. The other tiers retain approximate worldwide shares of recorded race finishes, not official rankings. A SUB card is a time interval, not proof of a ratified record."
   },
   "secondResolutionDistancesCm": [
     40000,
     80000,
+    100000,
     150000,
     160934
   ],
