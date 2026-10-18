@@ -159,8 +159,8 @@ test('one candidate only at last recognized checkpoint, never fallback',()=>{
 
 test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=>{
   const tiers=[
-    [59.999,'world_elite',60],
-    [66.999,'world_elite',67],
+    [59.999,'legend',60],
+    [66.999,'legend',67],
     [67,'legend',68],
     [76.999,'legend',77],
     [77,'expert',78],
