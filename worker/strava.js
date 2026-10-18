@@ -231,15 +231,32 @@ function validCadenceSamples(samples,start,elapsed){
   }
   return valid;
 }
-function descriptionForMetrics({pace,heart,maxHeart,cadence}){
-  const description=['Course avec BeatOnStep — la musique au rythme des pas.'];
-  if(pace!==null){
-    const rounded=Math.round(pace);
-    description.push('Allure moyenne : '+Math.floor(rounded/60)+':'+String(rounded%60).padStart(2,'0')+'/km');
+function descriptionForMetrics({pace,distance,elapsedTime,hasGps,sportCardId}){
+  const description=['Course avec BeatOnStep — la musique suit tes pas.'];
+  // GPS activities already carry their measured route and lap statistics in TCX.
+  // Keep the description compact; only manual no-GPS activities need summary stats.
+  if(!hasGps){
+    if(distance!==null){
+      description.push('Distance : '+(distance/1000).toFixed(2).replace('.',',')+' km');
+    }
+    const hours=Math.floor(elapsedTime/3600);
+    const minutes=Math.floor((elapsedTime%3600)/60);
+    const seconds=elapsedTime%60;
+    const duration=hours>0
+      ?hours+':'+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0')
+      :minutes+':'+String(seconds).padStart(2,'0');
+    description.push('Durée : '+duration);
+    const paceSeconds=pace!==null?pace:
+      distance!==null&&distance>0?elapsedTime/(distance/1000):null;
+    if(paceSeconds!==null&&Number.isFinite(paceSeconds)&&paceSeconds>0){
+      const rounded=Math.round(paceSeconds);
+      description.push('Allure moyenne : '+Math.floor(rounded/60)+':'+
+        String(rounded%60).padStart(2,'0')+'/km');
+    }
   }
-  if(heart!==null)description.push('FC moyenne : '+Math.round(heart)+' bpm');
-  if(maxHeart!==null)description.push('FC max : '+Math.round(maxHeart)+' bpm');
-  if(cadence!==null)description.push('Cadence moyenne : '+Math.round(cadence)+' pas/min');
+  if(Number.isSafeInteger(sportCardId)&&sportCardId>0){
+    description.push('https://beatonstep.app/partages?kind=challenge&sport='+sportCardId);
+  }
   return description.join(' | ');
 }
 // TCX preserves real geolocated, timestamped points. Aggregate HR/cadence/pace
@@ -332,6 +349,8 @@ async function publish(request, env, device, row) {
   const maxHeart=metric(b?.maxHeartRateBpm,20,300);
   const cadence=metric(b?.cadencePpm,20,300);
   const pace=metric(b?.paceSecPerKm,1,86400);
+  const sportCardId=Number.isSafeInteger(b?.sportCardId)&&b.sportCardId>0
+    ?b.sportCardId:null;
   const gps=validGpsTrack(b?.gpsTrack,startedAt,elapsedTime);
   const cadenceSamples=validCadenceSamples(b?.cadenceSamples,startedAt,elapsedTime);
   if (!/^bos-[0-9]{12,14}$/.test(runId) || !Number.isSafeInteger(startedAt) ||
@@ -365,7 +384,9 @@ async function publish(request, env, device, row) {
   ).bind(row.athlete_id,runId,Date.now()).run();
   if (!inserted.meta?.changes) return reply({error:'publication_pending_verify_strava'},409);
   try {
-    const description=descriptionForMetrics({pace,heart,maxHeart,cadence});
+    const description=descriptionForMetrics({
+      pace,distance,elapsedTime,hasGps:Boolean(gps),sportCardId,
+    });
     let form,endpoint,headers={authorization:'Bearer '+token};
     if(gps){
       const tcx=buildStravaTcx({start:startedAt,elapsed:elapsedTime,distance,
