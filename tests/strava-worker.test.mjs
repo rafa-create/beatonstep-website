@@ -342,36 +342,42 @@ test('Strava 403 during revoke preserves the connection until explicit local unl
   }finally{globalThis.fetch=originalFetch;}
 });
 
-test('OTA: only available measured pace, heart rate and PPM appear in manual activity',async()=>{
+test('no-GPS Strava description includes only base text, distance, duration, pace and optional card link',async()=>{
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
   globalThis.fetch=async(url,init)=>{
     assert.equal(String(url),'https://www.strava.com/api/v3/activities',
-      'OTA never invokes the GPS TCX upload endpoint');
+      'no-GPS activity uses the manual activity endpoint');
     const form=new URLSearchParams(init.body);
-    const text=form.get('description');
-    assert.match(text,/Allure moyenne : 5:20\/km/);
-    assert.match(text,/FC moyenne : 142 bpm/);
-    assert.match(text,/FC max : 171 bpm/);
-    assert.match(text,/Cadence moyenne : 168 pas\/min/);
-    assert.equal(form.get('distance'),null,'no source-backed distance must mean no distance');
+    const description=form.get('description');
+    assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
+    assert.match(description,/Distance : 5,00 km/);
+    assert.match(description,/Durée : 30:00/);
+    assert.match(description,/Allure moyenne : 6:00\/km/);
+    assert.match(description,/https:\/\/beatonstep\.app\/partages\?kind=challenge&sport=456/);
+    assert.doesNotMatch(description,/FC moyenne|FC max|Cadence moyenne/);
+    assert.equal(form.get('distance'),'5000');
     return {ok:true,status:201,json:async()=>({id:101112})};
   };
   try{
     const response=await call({
-      paceSecPerKm:320,heartRateBpm:142,maxHeartRateBpm:171,cadencePpm:168,
+      elapsedTime:1800,distanceMeters:5000,paceSecPerKm:360,
+      heartRateBpm:142,maxHeartRateBpm:171,cadencePpm:168,sportCardId:456,
     });
     assert.equal(response.status,200);
     assert.match((await response.json()).url,/\/activities\/101112$/);
   }finally{globalThis.fetch=realFetch;}
 });
 
-test('OTA: missing metrics stay omitted, not invented',async()=>{
+test('no-GPS description remains publishable without a synchronized card ID',async()=>{
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
   globalThis.fetch=async(_url,init)=>{
     const description=new URLSearchParams(init.body).get('description');
-    assert.doesNotMatch(description,/Allure moyenne|FC moyenne|FC max|Cadence moyenne/);
+    assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
+    assert.match(description,/Durée : 1:30/);
+    assert.doesNotMatch(description,/partages\.app|sport=/,
+      'missing card ID must not block publication or create a fake link');
     return {ok:true,status:201,json:async()=>({id:8888})};
   };
   try{const response=await call(); assert.equal(response.status,200);}
@@ -488,6 +494,11 @@ test('geographic route uploads TCX, then polls Strava without duplicate activity
      assert.equal(options.body.get('data_type'),'tcx');
      const tcx=await options.body.get('file').text();
      assert.match(tcx,/<LatitudeDegrees>48\.8566<\/LatitudeDegrees>/);
+     assert.match(options.body.get('description'),/^Course avec BeatOnStep — la musique suit tes pas\./);
+     assert.doesNotMatch(options.body.get('description'),/Distance :|Durée :|Allure moyenne :|FC moyenne|FC max|Cadence moyenne/,
+       'GPS summary stays in the TCX, not in the description');
+     assert.match(options.body.get('description'),/https:\/\/beatonstep\.app\/partages\?kind=challenge&sport=456/,
+       'GPS activity links the actual synchronized card ID');
      assert.match(tcx,/<AverageHeartRateBpm><Value>145<\/Value><\/AverageHeartRateBpm>/);
      return {ok:true,status:201,json:async()=>({id:456})};
    }
@@ -498,7 +509,7 @@ test('geographic route uploads TCX, then polls Strava without duplicate activity
  };
  try{
    const result=await call({startedAtMs:start,runId:'bos-'+start,
-     elapsedTime:60,distanceMeters:350,heartRateBpm:145,gpsTrack});
+     elapsedTime:60,distanceMeters:350,heartRateBpm:145,sportCardId:456,gpsTrack});
    assert.equal(result.status,200);
    assert.deepEqual(await result.json(),{ok:true,url:'https://www.strava.com/activities/7890'});
    const again=await call({startedAtMs:start,runId:'bos-'+start,gpsTrack});
