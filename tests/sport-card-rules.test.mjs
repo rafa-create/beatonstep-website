@@ -173,8 +173,10 @@ test('ultra 43..200km is legend independent of elapsed time; never bypass proof'
       assert.equal(maxSubMinuteByTier(cm(km)),null);
     }
   }
-  // Marathon itself retains the seven difficulty levels.
-  assert.equal(result(42.195,[[42.195,240]],245).difficulty,'intermediate');
+  // Marathon keeps the tier declared by the canonical manifest at this SUB value.
+  const marathonSub=effectiveSportSubMinute(ms(240));
+  assert.equal(result(42.195,[[42.195,240]],245).difficulty,
+    tierFor(cm(42.195),marathonSub));
 });
 
 test('one candidate only at last recognized checkpoint, never fallback',()=>{
