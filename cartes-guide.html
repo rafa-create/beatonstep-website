@@ -163,7 +163,6 @@
               <div class="time-part"><label for="time-hours"><span data-fr>Heures</span><span data-en hidden>Hours</span></label><select id="time-hours"></select></div>
               <div class="time-part"><label for="time-minutes"><span data-fr>Minutes</span><span data-en hidden>Minutes</span></label><select id="time-minutes"></select></div>
               <div class="time-part"><label for="time-seconds"><span data-fr>Secondes</span><span data-en hidden>Seconds</span></label><select id="time-seconds"></select></div>
-              <div class="time-part" id="time-centiseconds-part" hidden><label for="time-centiseconds"><span data-fr>Centièmes</span><span data-en hidden>Hundredths</span></label><select id="time-centiseconds"></select></div>
             </div>
           </div>
           <button class="calculate" id="check-time" type="button"><span data-fr>Voir ma carte</span><span data-en hidden>See my card</span></button>
@@ -472,13 +471,12 @@
         previous=max;
       }
     }
-    $('time-centiseconds-part').hidden=row.unit!=='second';
     $('calc-result').textContent='';
     $('calc-result').classList.remove('error');
     $('calc-card-preview').hidden=true;
     $('calc-card-face').replaceChildren();
   }
-  // Native dropdowns prevent malformed time strings while preserving 400 m precision.
+  // Native dropdowns keep the chrono input valid and consistent across distances.
   function populateTimeSelect(id,max,placeholder=false){
     const select=$(id);
     select.replaceChildren();
@@ -497,21 +495,18 @@
     $('time-hours').value='0';
     $('time-minutes').value='0';
     $('time-seconds').value='';
-    $('time-centiseconds').value='0';
   }
-  function elapsedFromParts(hours,minutes,seconds,centiseconds=0){
+  function elapsedFromParts(hours,minutes,seconds){
     const inRange=(value,max)=>Number.isInteger(value)&&value>=0&&value<=max;
-    if(!inRange(hours,199)||!inRange(minutes,59)||
-       !inRange(seconds,59)||!inRange(centiseconds,99))return null;
-    const ms=(hours*3600+minutes*60+seconds)*1000+centiseconds*10;
+    if(!inRange(hours,199)||!inRange(minutes,59)||!inRange(seconds,59))return null;
+    const ms=(hours*3600+minutes*60+seconds)*1000;
     return Number.isSafeInteger(ms)&&ms>0?ms:null;
   }
-  function selectedTime(unit){
+  function selectedTime(){
     if($('time-seconds').value==='')return null;
     return elapsedFromParts(
       Number($('time-hours').value),Number($('time-minutes').value),
-      Number($('time-seconds').value),
-      unit==='second'?Number($('time-centiseconds').value):0);
+      Number($('time-seconds').value));
   }
   function checkTime(){
     clearCardLookup();
@@ -520,7 +515,7 @@
     target.classList.remove('error');
     $('calc-card-preview').hidden=true;
     $('calc-card-face').replaceChildren();
-    const ms=selectedTime(row.unit);
+    const ms=selectedTime();
     if(ms===null){
       target.classList.add('error');
       target.textContent=t('Indique un chrono valide au format proposé.',
@@ -621,7 +616,7 @@
   }
   $('distance').addEventListener('change',()=>{
     // Preserve every chrono field explicitly while the distance-specific thresholds rerender.
-    const chronoIds=['time-hours','time-minutes','time-seconds','time-centiseconds'];
+    const chronoIds=['time-hours','time-minutes','time-seconds'];
     const chrono=Object.fromEntries(chronoIds.map(id=>[id,$(id).value]));
     renderThresholds();
     for(const id of chronoIds)$(id).value=chrono[id];
@@ -631,11 +626,11 @@
   });
   for(const [id,max,placeholder] of [
     ['time-hours',199,false],['time-minutes',59,false],
-    ['time-seconds',59,true],['time-centiseconds',99,false],
+    ['time-seconds',59,true],
   ])populateTimeSelect(id,max,placeholder);
   resetTime();
   $('check-time').addEventListener('click',checkTime);
-  for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
+  for(const id of ['time-hours','time-minutes','time-seconds']){
     $(id).addEventListener('change',()=>{
       $('calc-result').textContent='';
       $('calc-result').classList.remove('error');
