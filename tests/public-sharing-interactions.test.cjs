@@ -84,7 +84,7 @@ function setup(search,data=example){
     ['sort-filter',['recent','popular']],
     ['source-filter',['all']],
     ['distance-filter',['all']],
-    ['difficulty-filter',['difficulty_asc','difficulty_desc']],
+    ['difficulty-filter',['activity_desc','activity_asc','difficulty_desc','difficulty_asc']],
     ['record-sort',['duration','difficulty']],
     ['record-level',['all','world_elite','legend','expert','intermediate',
       'regular','amateur','beginner']],
