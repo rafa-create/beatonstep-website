@@ -292,7 +292,7 @@ function setup(search,data=example){
   landing.elements['distance-exact-filter'].value='5';
   landing.elements['distance-exact-filter'].onchange();
   await flush();
-  assert.match(landing.apiCalls.at(-1),/distance=500000&sort=difficulty_desc&page=1/);
+  assert.match(landing.apiCalls.at(-1),/distance=500000&sort=activity_desc&page=1/);
   landing.elements['difficulty-filter'].value='difficulty_asc';
   landing.elements['difficulty-filter'].onchange();
   await flush();
