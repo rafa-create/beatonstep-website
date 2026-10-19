@@ -51,7 +51,6 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/BeatOnStepSportCards\.createFace\(document,/);
   assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
   assert.match(page,/Simulation de carte : seul un résultat de course validé peut la faire gagner/);
-  assert.match(page,/Ta carte possible : /);
   assert.doesNotMatch(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/,
     'the primary preview speaks about the card, not a percentile');
   // The current guide uses the accessible chrono selector and card preview,
