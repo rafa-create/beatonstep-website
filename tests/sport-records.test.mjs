@@ -103,7 +103,7 @@ test('specific difficulty filters durations using shared JSON predicate',async()
   assert.equal(queries.filter(q=>q.sql.includes('FROM sport_card_ownership_events e')).length,1);
   assert.match(queries[0].sql,/c.distance_cm=500000/);
   assert.match(queries[0].sql,new RegExp(
-    `c\\\\.sub_value BETWEEN ${rangeFor('expert').min} AND ${rangeFor('expert').max}`));
+    String.raw`c\.sub_value BETWEEN ${rangeFor('expert').min} AND ${rangeFor('expert').max}`));
 });
 
 test('invalid filters stop before querying D1, empty podium is supported',async()=>{
