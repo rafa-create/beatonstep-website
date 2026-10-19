@@ -323,8 +323,8 @@
     if(!card.hasOwner)return t('Aucun (carte dans la réserve mondiale).',
       'None (card is in the worldwide reserve).');
     if(card.owner)return '@'+card.owner;
-    return t('Propriétaire actuel : profil masqué ou indisponible.',
-      'Current owner: profile hidden or unavailable.');
+    return t('Profil masqué ou indisponible.',
+      'Profile hidden or unavailable.');
   }
   function eventDescription(event){
     const from=event.from?'@'+event.from:null;
