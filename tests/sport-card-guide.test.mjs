@@ -111,14 +111,13 @@ test('generated guide and every difficulty explanation follow the canonical JSON
   const base=render(officialGuide,'fr');
   assert.equal(base.tierStars('world_elite'),7);
   assert.equal(base.tierStars('beginner'),1);
-  assert.match(base.tierDescription('expert'),/20 %/);
-  const future={...officialGuide,percentileTargets:{
-    ...officialGuide.percentileTargets,expert:21,amateur:89}};
+  assert.equal(base.tierDescription('expert'),'—');
+  const future={...officialGuide,percentileTargets:{}};
   const changed=render(future,'fr');
-  assert.match(changed.tierDescription('expert'),/21 %/);
-  assert.match(changed.tierDescription('beginner'),/89 %/);
-  assert.doesNotMatch(changed.tierDescription('expert'),/20 %/,
-    'updating one JSON target must update the informative page');
+  assert.equal(changed.tierDescription('expert'),'—');
+  assert.equal(changed.tierDescription('beginner'),'Premier palier accessible');
+  assert.doesNotMatch(changed.tierDescription('expert'),/Top|20 %|21 %/,
+    'the guide does not present unsupported percentile claims while calibration is pending');
 });
 
 test('chrono dropdowns preserve hours, minutes and seconds without centiseconds',()=>{
@@ -231,7 +230,7 @@ test('all public SUB difficulty boundaries agree with the official award engine'
 test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
   const five=json.distances.find(row=>row.distanceCm===500000);
   assert.deepEqual(five.caps,{
-    world_elite:19,legend:22,expert:29,intermediate:35,regular:42,
+    world_elite:19,legend:21,expert:29,intermediate:35,regular:42,
     amateur:51,beginner:57,
   });
   const sub=Math.floor((24*60+35)*1000/60_000)+1;
@@ -241,9 +240,9 @@ test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
   const oneKm=json.distances.find(row=>row.distanceCm===100000);
   assert.equal(oneKm.unit,'second','1 km uses second-resolution SUBs');
   assert.deepEqual(oneKm.caps,{
-    world_elite:150,legend:225,expert:270,intermediate:360,
+    world_elite:150,legend:230,expert:270,intermediate:360,
     regular:420,amateur:480,beginner:600,
   },'1 km palier thresholds are expressed in seconds');
   assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
-  assert.equal(difficultyForSportCard(40000,68).difficulty,'legend');
+  assert.equal(difficultyForSportCard(40000,61).difficulty,'expert');
 });
