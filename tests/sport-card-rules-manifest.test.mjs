@@ -14,7 +14,14 @@ test('the static website JSON is the exact tier table used for awards',()=>{
   assert.equal(rules.revision,SPORT_CARD_TIER_REVISION);
   assert.equal(rules.ruleset,'sport-cards-v1');
   assert.equal(rules.difficultyRuleset,'v2');
-  assert.equal(rules.percentileCalibration.estimatedPercentileTargets.intermediate,50);
+  assert.ok(rules.percentileCalibration.estimatedPercentileTargets &&
+    typeof rules.percentileCalibration.estimatedPercentileTargets==='object' &&
+    !Array.isArray(rules.percentileCalibration.estimatedPercentileTargets));
+  for(const [tier,target] of Object.entries(rules.percentileCalibration.estimatedPercentileTargets)){
+    assert.ok(rules.tierOrder.includes(tier),'percentile target references a declared tier: '+tier);
+    assert.ok(Number.isFinite(target)&&target>0&&target<100,
+      'percentile target is a valid percentage: '+tier);
+  }
   assert.deepEqual(rules.distancesCm,SPORT_CARD_DISTANCES.map(x=>x.distanceCm));
   assert.deepEqual(rules.tierOrder,
     ['world_elite','legend','expert','intermediate','regular','amateur','beginner']);
@@ -26,8 +33,19 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     [40000,80000,100000,150000,160934]);
   assert.equal(rules.timeUnitByDistance['4219500'],'minute');
   assert.equal(rules.timeUnitByDistance['40000'],'second');
-  assert.deepEqual(rules.legacyCapsByDistanceAndUnit['100000'].minute,
-    {world_elite:3,legend:5,expert:6,intermediate:7,regular:8,amateur:10,beginner:11});
+  for(const [distanceCm,units] of Object.entries(rules.legacyCapsByDistanceAndUnit)){
+    assert.ok(rules.distancesCm.includes(Number(distanceCm)),
+      'legacy caps reference a declared distance: '+distanceCm);
+    for(const [unit,caps] of Object.entries(units)){
+      assert.ok(['minute','second'].includes(unit),
+        'legacy caps declare a supported time unit: '+unit);
+      assert.deepEqual(Object.keys(caps).sort(),[...rules.tierOrder].sort(),
+        'legacy caps cover every declared tier: '+distanceCm+'/'+unit);
+      for(const [tier,cap] of Object.entries(caps))
+        assert.ok(Number.isSafeInteger(cap)&&cap>0,
+          'legacy cap is positive: '+distanceCm+'/'+unit+'/'+tier);
+    }
+  }
   for(const distanceCm of rules.distancesCm)
     assert.ok(['minute','second'].includes(rules.timeUnitByDistance[String(distanceCm)]),
       'each distance declares its time unit: '+distanceCm);
@@ -60,10 +78,16 @@ test('the static website JSON is the exact tier table used for awards',()=>{
     }
     assert.equal(difficultyForSportCard(distanceCm,previous+1),null);
   }
-  assert.equal(rules.capsByDistance[4219500].expert,230,
-    'marathon Expert uses website JSON; change it only there');
-  assert.equal(rules.capsByDistance[1000000].beginner,100);
-  assert.deepEqual(rules.capsByDistance[100000],{world_elite:150,legend:225,expert:270,intermediate:360,regular:420,amateur:480,beginner:600});
+  // Spot-check the public manifest against the canonical runtime functions,
+  // without duplicating mutable business thresholds in this test.
+  for(const distanceCm of rules.distancesCm){
+    const caps=rules.capsByDistance[String(distanceCm)];
+    if(distanceCm>=rules.ultraStartCm) continue;
+    for(const tier of rules.tierOrder){
+      assert.equal(difficultyForSportCard(distanceCm,caps[tier])?.difficulty,tier,
+        'manifest cap maps back to its tier: '+distanceCm+'/'+tier);
+    }
+  }
 });
 
 test('manual D1 reclassification plan uses the same 44 legacy-unit-compatible v2 rows without changing ownership',()=>{
