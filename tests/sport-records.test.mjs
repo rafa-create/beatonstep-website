@@ -1,8 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {readSportRecords} from '../worker/sport-records.js';
 import {sportCardRulesManifest} from '../worker/sport-card-rules.js';
 
+const canonical=JSON.parse(readFileSync(new URL('../sport-card-rules.json',import.meta.url),'utf8'));
+const caps=canonical.capsByDistance['500000'];
+const rangeFor=tier=>{
+  const i=canonical.tierOrder.indexOf(tier);
+  return {min:i===0?1:caps[canonical.tierOrder[i-1]]+1,max:caps[tier]};
+};
 const now=100000;
 const url=query=>new URL('https://beatonstep.app/api/sport/records'+query);
 const epoch=(extra={})=>({
@@ -21,10 +28,11 @@ function mockDb(byTier={},allRows=[],collections=[],mostHeld=[]){
         if(sql.includes('COUNT(DISTINCT e.new_owner_id) AS holder_count'))
           return {results:mostHeld};
         if(sql.includes('FROM sport_card_ownership_events e')){
-          if(sql.includes('c.sub_value BETWEEN 1 AND 19'))return {results:byTier.world_elite||[]};
-          if(sql.includes('c.sub_value BETWEEN 20 AND 21'))return {results:byTier.legend||[]};
-          if(sql.includes('c.sub_value BETWEEN 22 AND 26'))return {results:byTier.expert||[]};
-          if(sql.includes('c.sub_value BETWEEN 27 AND 35'))return {results:byTier.intermediate||[]};
+          for(const tier of canonical.tierOrder){
+            const {min,max}=rangeFor(tier);
+            if(sql.includes(`c.sub_value BETWEEN ${min} AND ${max}`))
+              return {results:byTier[tier]||[]};
+          }
           return {results:allRows};
         }
         throw Error('Unexpected records SQL: '+sql);
@@ -93,7 +101,9 @@ test('specific difficulty filters durations using shared JSON predicate',async()
   assert.equal(response.status,200);
   assert.equal((await response.json()).holdings[0].difficulty,'expert');
   assert.equal(queries.filter(q=>q.sql.includes('FROM sport_card_ownership_events e')).length,1);
-  assert.match(queries[0].sql,/c.distance_cm=500000 AND c.sub_value BETWEEN 22 AND 26/);
+  assert.match(queries[0].sql,/c.distance_cm=500000/);
+  assert.match(queries[0].sql,new RegExp(
+    `c\\\\.sub_value BETWEEN ${rangeFor('expert').min} AND ${rangeFor('expert').max}`));
 });
 
 test('invalid filters stop before querying D1, empty podium is supported',async()=>{
