@@ -22,9 +22,9 @@ function mockDb(byTier={},allRows=[],collections=[],mostHeld=[]){
           return {results:mostHeld};
         if(sql.includes('FROM sport_card_ownership_events e')){
           if(sql.includes('c.sub_value BETWEEN 1 AND 19'))return {results:byTier.world_elite||[]};
-          if(sql.includes('c.sub_value BETWEEN 20 AND 22'))return {results:byTier.legend||[]};
-          if(sql.includes('c.sub_value BETWEEN 23 AND 29'))return {results:byTier.expert||[]};
-          if(sql.includes('c.sub_value BETWEEN 30 AND 35'))return {results:byTier.intermediate||[]};
+          if(sql.includes('c.sub_value BETWEEN 20 AND 21'))return {results:byTier.legend||[]};
+          if(sql.includes('c.sub_value BETWEEN 22 AND 26'))return {results:byTier.expert||[]};
+          if(sql.includes('c.sub_value BETWEEN 27 AND 35'))return {results:byTier.intermediate||[]};
           return {results:allRows};
         }
         throw Error('Unexpected records SQL: '+sql);
@@ -69,7 +69,7 @@ test('longest ownership uses existing epochs, still-running periods and immutabl
 test('difficulty-first ranks highest official tier before holding length',async()=>{
   const {db,queries}=mockDb({
     world_elite:[epoch({card_id:9,sub_value:19,started_at:999,ended_at:2999})],
-    legend:[epoch({card_id:8,sub_value:22,started_at:900,ended_at:8000})],
+    legend:[epoch({card_id:8,sub_value:21,started_at:900,ended_at:8000})],
     expert:[epoch({card_id:7,sub_value:25,started_at:100,ended_at:80000})],
   },[epoch({card_id:7,sub_value:25,started_at:100,ended_at:80000})]);
   const r=await readSportRecords(db,url('?sort=difficulty'),{now});
@@ -93,7 +93,7 @@ test('specific difficulty filters durations using shared JSON predicate',async()
   assert.equal(response.status,200);
   assert.equal((await response.json()).holdings[0].difficulty,'expert');
   assert.equal(queries.filter(q=>q.sql.includes('FROM sport_card_ownership_events e')).length,1);
-  assert.match(queries[0].sql,/c.distance_cm=500000 AND c.sub_value BETWEEN 23 AND 29/);
+  assert.match(queries[0].sql,/c.distance_cm=500000 AND c.sub_value BETWEEN 22 AND 26/);
 });
 
 test('invalid filters stop before querying D1, empty podium is supported',async()=>{
