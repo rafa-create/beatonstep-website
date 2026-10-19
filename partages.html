@@ -314,9 +314,9 @@
       <div class="filter-picker" id="difficulty-picker">
         <label id="difficulty-label" for="difficulty-filter">Tri par difficulté</label>
         <select id="difficulty-filter" aria-labelledby="difficulty-label">
-          <option value="activity_desc" selected>Modification la plus récente</option>
+          <option value="activity_desc">Modification la plus récente</option>
           <option value="activity_asc">Modification la moins récente</option>
-          <option value="difficulty_desc">Difficulté décroissante</option>
+          <option value="difficulty_desc" selected>Difficulté décroissante</option>
           <option value="difficulty_asc">Difficulté croissante</option>
         </select>
       </div>
@@ -404,7 +404,7 @@
   // Old playlist catalogue URLs land on sessions rather than a vanished tab.
   let kind=VALID_KINDS.includes(params.get('kind'))?params.get('kind'):
     ['all','runmix'].includes(params.get('kind'))?'workout':'challenge';
-  let sportDistance='all',sportDifficultyOrder=['activity_desc','activity_asc','difficulty_desc','difficulty_asc'].includes(params.get('sportSort'))?params.get('sportSort'):'activity_desc',sportDistanceExact='';
+  let sportDistance='all',sportDifficultyOrder=['activity_desc','activity_asc','difficulty_desc','difficulty_asc'].includes(params.get('sportSort'))?params.get('sportSort'):'difficulty_desc',sportDistanceExact='';
   let recordsView=false,recordSort='duration',recordLevel='all',recordTicket=0;
   let musicGoal=['all','time','distance'].includes(params.get('goal'))?
     params.get('goal'):'all';
