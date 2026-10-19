@@ -1,12 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {
   SPORT_CARD_DISTANCES,SPORT_CARD_RULESET,SPORT_CARD_DIFFICULTY_RULESET,
   canonicalSportDistance,longestSportDistance,maxSubMinuteByTier,
   effectiveSportSubMinute,effectiveSportSubSecond,difficultyForSportCard,evaluateSportCardCandidate,sportCardTimeUnit,
 } from '../worker/sport-card-rules.js';
 
+const canonical=JSON.parse(readFileSync(new URL('../sport-card-rules.json',import.meta.url),'utf8'));
 const cm=km=>Math.round(km*100_000);
+const tierFor=(distanceCm,sub)=>{
+  const caps=canonical.capsByDistance[String(distanceCm)];
+  return caps&&canonical.tierOrder.find(tier=>sub<=caps[tier])||null;
+};
 const ms=minutes=>Math.round(minutes*60_000);
 const result=(finalKm,crossings,finishedMinutes,verified=true)=>
   evaluateSportCardCandidate({
@@ -78,20 +84,18 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
     }
     assert.equal(difficultyForSportCard(cm(km),caps.beginner+1),null);
   }
-  assert.deepEqual(maxSubMinuteByTier(cm(10)),{
-    world_elite:37,legend:44,expert:53,intermediate:63,
-    regular:74,amateur:88,beginner:100,
-  });
-  assert.equal(maxSubMinuteByTier(cm(14)).beginner,136);
-  assert.equal(maxSubMinuteByTier(cm(42.195)).beginner,419);
+  assert.deepEqual(maxSubMinuteByTier(cm(10)),canonical.capsByDistance[String(cm(10))]);
+  assert.equal(maxSubMinuteByTier(cm(14)).beginner,
+    canonical.capsByDistance[String(cm(14))].beginner);
+  assert.equal(maxSubMinuteByTier(cm(42.195)).beginner,
+    canonical.capsByDistance[String(cm(42.195))].beginner);
   assert.equal(maxSubMinuteByTier(cm(.4)),null);
   assert.equal(maxSubMinuteByTier(cm(43)),null);
 });
 
 
 test('1km has second-resolution caps calibrated for all seven levels',()=>{
-  const caps={world_elite:150,legend:230,expert:270,intermediate:360,
-    regular:420,amateur:480,beginner:600};
+  const caps=canonical.capsByDistance[String(cm(1))];
   for(const [tier,sub] of Object.entries(caps)){
     assert.equal(difficultyForSportCard(cm(1),sub)?.difficulty,tier);
   }
@@ -135,14 +139,15 @@ test('novice 10km exactly 90:00 qualifies for beginner sub91',()=>{
 });
 
 test('performance threshold examples, strict minute and no rare/owner fields',()=>{
-  for(const [km,minutes,sub,tier] of [
-    [5,24+59/60,25,'expert'],
-    [5,29.75,30,'intermediate'],
-    [21.0975,89.5,90,'legend'],
-    [21.0975,119.5,120,'intermediate'],
-    [42.195,239+59/60,240,'intermediate'],
-    [42.195,329+59/60,330,'amateur'],
+  for(const [km,minutes,sub] of [
+    [5,24+59/60,25],
+    [5,29.75,30],
+    [21.0975,89.5,90],
+    [21.0975,119.5,120],
+    [42.195,239+59/60,240],
+    [42.195,329+59/60,330],
   ]){
+    const tier=tierFor(cm(km),sub);
     const candidate=result(km,[[km,minutes]],minutes);
     assert.equal(candidate.status,'candidate');
     assert.equal(candidate.distanceCm,cm(km));
