@@ -84,6 +84,7 @@ function setup(search,data=example){
     ['sort-filter',['recent','popular']],
     ['source-filter',['all']],
     ['distance-filter',['all']],
+    // Keep every sort value queried by partages.html's setLanguage() in this DOM fixture.
     ['difficulty-filter',['activity_desc','activity_asc','difficulty_desc','difficulty_asc']],
     ['record-sort',['duration','difficulty']],
     ['record-level',['all','world_elite','legend','expert','intermediate',
