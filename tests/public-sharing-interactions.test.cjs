@@ -151,7 +151,7 @@ function setup(search,data=example){
   assert.equal(landing.elements['source-picker'].hidden,true);
   assert.equal(landing.elements['distance-exact-picker'].hidden,false);
   assert(landing.apiCalls.some(url=>
-    /^\/api\/sport\/cards\?distance=all&sort=difficulty_desc&page=1$/.test(url)));
+    /^\/api\/sport\/cards\?distance=all&sort=activity_desc&page=1$/.test(url)));
   assert.equal(landing.elements['difficulty-hint'].textContent,'',
     'the long Top-world paragraph is no longer rendered below the filters');
   assert.doesNotMatch(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
