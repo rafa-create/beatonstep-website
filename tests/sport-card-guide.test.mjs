@@ -238,6 +238,8 @@ test('5km sample classification and 1km second caps follow the canonical JSON',(
   assert.equal(oneKm.unit,'second','1 km uses second-resolution SUBs');
   assert.deepEqual(oneKm.caps,canonical.capsByDistance['100000'],
     '1 km palier thresholds are expressed in seconds');
-  assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
-  assert.equal(difficultyForSportCard(40000,61).difficulty,'expert');
+  const sprintCaps=canonical.capsByDistance['40000'];
+  assert.equal(difficultyForSportCard(40000,sprintCaps.world_elite).difficulty,'world_elite');
+  assert.equal(difficultyForSportCard(40000,sprintCaps.legend).difficulty,'legend');
+  assert.equal(difficultyForSportCard(40000,sprintCaps.expert).difficulty,'expert');
 });
