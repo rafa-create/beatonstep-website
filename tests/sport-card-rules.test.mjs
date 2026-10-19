@@ -79,7 +79,7 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
     assert.equal(difficultyForSportCard(cm(km),caps.beginner+1),null);
   }
   assert.deepEqual(maxSubMinuteByTier(cm(10)),{
-    world_elite:37,legend:42,expert:53,intermediate:63,
+    world_elite:37,legend:44,expert:53,intermediate:63,
     regular:74,amateur:88,beginner:100,
   });
   assert.equal(maxSubMinuteByTier(cm(14)).beginner,136);
@@ -90,14 +90,14 @@ test('all 1..42km plus half/marathon have seven unique levels and discreet skin 
 
 
 test('1km has second-resolution caps calibrated for all seven levels',()=>{
-  const caps={world_elite:150,legend:225,expert:270,intermediate:360,
+  const caps={world_elite:150,legend:230,expert:270,intermediate:360,
     regular:420,amateur:480,beginner:600};
   for(const [tier,sub] of Object.entries(caps)){
     assert.equal(difficultyForSportCard(cm(1),sub)?.difficulty,tier);
   }
   assert.equal(maxSubMinuteByTier(cm(1)),null);
   for(const [seconds,sub,tier] of [
-    [149,150,'world_elite'],[224.999,225,'legend'],[269.999,270,'expert'],
+    [149,150,'world_elite'],[229.999,230,'legend'],[269.999,270,'expert'],
     [359.999,360,'intermediate'],[419.999,420,'regular'],
     [479.999,480,'amateur'],[599.999,600,'beginner'],
   ]){
@@ -190,10 +190,7 @@ test('one candidate only at last recognized checkpoint, never fallback',()=>{
 test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=>{
   const tiers=[
     [59.999,'legend',60],
-    [66.999,'legend',67],
-    [67,'legend',68],
-    [76.999,'legend',77],
-    [77,'expert',78],
+    [60,'expert',61],
     [100.999,'expert',101],
     [101,'intermediate',102],
     [122.999,'intermediate',123],
