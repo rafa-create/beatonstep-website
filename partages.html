@@ -793,8 +793,8 @@
     ownerValue.append(profileHandle(item.owner,item.hasOwner===true
       ?fr('Compte privé','Private account')
       :fr('Réserve BeatOnStep','BeatOnStep reserve')));
-    owner.append(el('span','',fr('Détenteur actuel : ','Current holder: ')),ownerValue);
-    copy.append(head,title,difficulty,owner);
+    owner.append(el('span','',fr('La carte que tu peux voler à ','The card you can steal from ')),ownerValue);
+    copy.append(head,owner,title,difficulty);
     summary.append(face,copy);
     if(item.performanceWarning===true)
       copy.append(el('p','sport-warning',
