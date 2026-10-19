@@ -4,6 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 // Exercise exactly the generated static assets uploaded by the Cloudflare build.
+// Deployment smoke-test marker; intentionally no runtime behavior change.
 // sport-card-face.js in the source tree contains an empty levels placeholder;
 // scripts/build-static.mjs replaces it with the official seven-tier manifest.
 const dist=path.resolve(__dirname,'../dist');
