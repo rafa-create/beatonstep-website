@@ -1,9 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {readPublicSportCards} from '../worker/sport-public-catalog.js';
 import {sportCardDifficultyFilterSql,sportCardDifficultyOrderSql,
   difficultyForSportCard} from '../worker/sport-card-rules.js';
 
+const canonical=JSON.parse(readFileSync(new URL('../sport-card-rules.json',import.meta.url),'utf8'));
+const caps=canonical.capsByDistance['500000'];
+const tierRange=tier=>{
+  const index=canonical.tierOrder.indexOf(tier);
+  const lower=index===0?1:caps[canonical.tierOrder[index-1]]+1;
+  return {lower,upper:caps[tier]};
+};
+const sqlRange=tier=>{
+  const {lower,upper}=tierRange(tier);
+  return new RegExp('c\\\\.sub_value BETWEEN '+lower+' AND '+upper);
+};
 const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
   difficulty:'amateur',created_at:1000,owner_handle:'runner_b',has_owner:1,holder_count:2};
@@ -64,7 +76,8 @@ test('SUB and difficulty filters use JSON-derived ranges before SQL paging',asyn
   assert.equal(r.status,200);
   const q=queries.find(q=>q.sql.includes(' LIMIT 20 OFFSET ?'));
   assert.match(q.sql,/c\.distance_cm=\?/);
-  assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 22 AND 26/);
+  assert.match(q.sql,/c\.distance_cm=500000/);
+  assert.match(q.sql,sqlRange('expert'));
   assert.doesNotMatch(q.sql,/c\.difficulty\s*(?:=|BETWEEN)/,
     'the old stored D1 tier is not the source of truth');
   assert.match(q.sql,/c\.sub_value<=\?/);
@@ -80,7 +93,8 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
     assert.equal(result.status,200);
     const q=queries.find(item=>item.sql.includes(' LIMIT 20 OFFSET ?'));
     assert.match(q.sql,/ORDER BY CASE WHEN /);
-    assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 22 AND 26/);
+    assert.match(q.sql,/c\.distance_cm=500000/);
+  assert.match(q.sql,sqlRange('expert'));
     assert.match(q.sql,new RegExp(
       'END '+(direction==='difficulty_asc'?'ASC':'DESC')+',c\\.distance_cm ASC'));
     assert.doesNotMatch(q.sql,/ORDER BY c\.difficulty/);
@@ -88,9 +102,9 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
   }
   assert.equal(difficultyForSportCard(500000,25).difficulty,'expert');
   assert.match(sportCardDifficultyFilterSql('world_elite',500000),
-    /c\.sub_value BETWEEN 1 AND 19/);
+    sqlRange('world_elite'));
   assert.match(sportCardDifficultyFilterSql('legend',500000),
-    /c\.sub_value BETWEEN 20 AND 21/);
+    sqlRange('legend'));
   assert.match(sportCardDifficultyFilterSql('legend',5000000),
     /c\.distance_cm IN \(5000000\)/);
   assert.equal(sportCardDifficultyFilterSql('expert',5000000),'(1=0)',
