@@ -55,7 +55,7 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'the primary preview speaks about the card, not a percentile');
   // The current guide uses the accessible chrono selector and card preview,
   // not the retired individual-rows table.
-  for(const id of ['time-hours','time-minutes','time-seconds','time-centiseconds']){
+  for(const id of ['time-hours','time-minutes','time-seconds']){
     assert.match(page,new RegExp('id="'+id+'"'));
     assert.match(page,new RegExp('for="'+id+'"'),
       'each dropdown has its own accessible label');
@@ -121,31 +121,29 @@ test('generated guide and every difficulty explanation follow the canonical JSON
     'updating one JSON target must update the informative page');
 });
 
-test('chrono dropdowns preserve hours, minutes, seconds and 400m hundredths',()=>{
+test('chrono dropdowns preserve hours, minutes and seconds without centiseconds',()=>{
   const script=page.match(/<script>([\s\S]*?)<\/script>/)?.[1];
   assert.ok(script);
   assert.doesNotThrow(()=>new vm.Script(script),'guide JavaScript must parse');
   assert.match(script,/\['time-hours',199,false\]/);
   assert.match(script,/\['time-minutes',59,false\]/);
   assert.match(script,/\['time-seconds',59,true\]/);
-  assert.match(script,/\['time-centiseconds',99,false\]/);
-  assert.match(script,/\$\('time-centiseconds-part'\)\.hidden=row\.unit!=='second'/);
-  assert.match(script,/const chronoIds=\['time-hours','time-minutes','time-seconds','time-centiseconds'\]/,
+  assert.doesNotMatch(page,/time-centiseconds|Centièmes|Hundredths/,
+    'the guide no longer offers hundredths of a second');
+  assert.match(script,/const chronoIds=\['time-hours','time-minutes','time-seconds'\]/,
     'switching distance explicitly preserves every chrono field');
   assert.doesNotMatch(script,/resetTime\(\);\s*renderThresholds\(\)/,
     'switching distance must not reset the previous time');
   assert.match(script,/\$\('time-minutes'\)\.value='24'/,
     '5km opens with the existing 24:35 example');
-  const source=script.match(/function elapsedFromParts\(hours,minutes,seconds,centiseconds=0\)\{[\s\S]*?\n  \}/)?.[0];
+  const source=script.match(/function elapsedFromParts\(hours,minutes,seconds\)\{[\s\S]*?\n  \}/)?.[0];
   assert.ok(source,'converter is present');
   const elapsed=new Function(source+'\nreturn elapsedFromParts;')();
   assert.equal(elapsed(0,24,35),24*60_000+35_000);
   assert.equal(elapsed(1,30,0),90*60_000);
-  assert.equal(elapsed(0,0,59,80),59_800);
-  assert.equal(elapsed(0,1,2,40),62_400);
   assert.equal(elapsed(0,25,0),25*60_000);
-  for(const time of [[0,0,0,0],[0,24,60,0],[0,60,0,0],
-    [1,30,-1,0],[0,0,59,100],[200,0,0,0]]){
+  for(const time of [[0,0,0],[0,24,60],[0,60,0],
+    [1,30,-1],[200,0,0]]){
     assert.equal(elapsed(...time),null,'invalid time '+time.join(':'));
   }
 });
@@ -185,7 +183,7 @@ test('guide awards all 206 distances, including three track specialties',()=>{
     SPORT_CARD_DISTANCES.map(row=>row.distanceCm));
   assert.deepEqual(json.distances.filter(row=>row.previewOnly),[]);
   assert.equal(new Set(json.distances.map(row=>row.distanceCm)).size,206);
-  for(const distanceCm of [80000,150000,160934]){
+  for(const distanceCm of [80000,100000,150000,160934]){
     const row=json.distances.find(item=>item.distanceCm===distanceCm);
     assert.equal(row.unit,'second');
     assert.equal(row.ultra,false);
@@ -240,6 +238,12 @@ test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
   assert.equal(sub,25);
   assert.equal(difficultyForSportCard(500000,sub).difficulty,'expert');
   assert.equal(difficultyForSportCard(500000,26).difficulty,'expert');
+  const oneKm=json.distances.find(row=>row.distanceCm===100000);
+  assert.equal(oneKm.unit,'second','1 km uses second-resolution SUBs');
+  assert.deepEqual(oneKm.caps,{
+    world_elite:150,legend:225,expert:270,intermediate:360,
+    regular:420,amateur:480,beginner:600,
+  },'1 km palier thresholds are expressed in seconds');
   assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
   assert.equal(difficultyForSportCard(40000,68).difficulty,'legend');
 });
