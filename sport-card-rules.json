@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-19.3",
+  "revision": "2026-10-19.4",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -668,15 +668,15 @@
     ],
     "modeledDistancesCm": "400 m, 800 m, 1500 m, 1 mile and 1-42 km other than 5 km, 10 km, half-marathon and marathon",
     "estimatedPercentileTargets": {
-      "world_elite": 1,
-      "legend": 5,
+      "world_elite": 0.5,
+      "legend": 2,
       "expert": 20,
       "intermediate": 50,
       "regular": 75,
       "amateur": 90
     },
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
-    "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The Legend tier was manually recalibrated on 2026-10-19. The Expert tier was manually calibrated at 400 m, 800 m, 1 km, 1500 m, 1 mile, 2 km, 3 km, 4 km, 5 km, 10 km, half-marathon and marathon, with intermediate minute-resolution distances linearly interpolated by distance and rounded to the nearest minute. Percentile display is re-enabled using the existing estimated target anchors: world_elite 1%, legend 5%, expert 20%, intermediate 50%, regular 75%, amateur 90%. These are approximate model anchors, not measured shares for every distance; beginner and ultra cards remain unranked. Second-resolution limits apply to 400 m, 800 m, 1 km, 1500 m and the mile. For other distances, prior non-Expert thresholds remain unchanged pending review.",
+    "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The Legend tier was manually recalibrated on 2026-10-19. The Expert tier was manually calibrated at 400 m, 800 m, 1 km, 1500 m, 1 mile, 2 km, 3 km, 4 km, 5 km, 10 km, half-marathon and marathon, with intermediate minute-resolution distances linearly interpolated by distance and rounded to the nearest minute. Percentile display is re-enabled using revised estimated target anchors: world_elite 0.5% (numeric proxy for a share below 1%), legend 2%, expert 20%, intermediate 50%, regular 75%, amateur 90%. These are approximate model anchors, not measured shares for every distance; beginner and ultra cards remain unranked. Second-resolution limits apply to 400 m, 800 m, 1 km, 1500 m and the mile. For other distances, prior non-Expert thresholds remain unchanged pending review.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
     "interpretation": "For distances from 400 m through 4 km, world_elite means a demanding international-level performance benchmark inspired by men's World Athletics scoring tables, not a measured percentile and not a world-record claim. The other tiers retain approximate worldwide shares of recorded race finishes, not official rankings. A SUB card is a time interval, not proof of a ratified record."
   },
