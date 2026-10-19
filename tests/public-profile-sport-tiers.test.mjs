@@ -94,7 +94,7 @@ test('outdated D1 difficulty is not used for public card face or tier label',asy
   const face=faceLink.children[0];
   assert.ok(face.className.split(' ').includes(`sport-skin--${expected.tier}`));
   assert.equal(face.attributes.role,'img');
-  assert.match(face.attributes['aria-label'],/, .+, \\d+ étoiles sur 7/);
+  assert.match(face.attributes['aria-label'],/, .+, \d+ étoiles sur 7/);
   assert.equal(firstNode(tile,'public-challenge-rank').textContent,
     expected.label);
   assert.equal(tile.children[2].href,
