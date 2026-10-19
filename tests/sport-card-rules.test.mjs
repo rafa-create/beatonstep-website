@@ -221,9 +221,11 @@ test('400m is timed per SECOND with manifest-driven tiers and strict boundaries'
   assert.equal(effectiveSportSubSecond(59_999),60);
   assert.equal(effectiveSportSubSecond(60_000),61);
   assert.equal(effectiveSportSubSecond(0),null);
-  assert.equal(difficultyForSportCard(cm(.4),201).difficulty,'beginner');
-  assert.equal(difficultyForSportCard(cm(.4),202),null);
-  assert.equal(result(.4,[[.4,202/60]],203/60).status,'none');
+  const max400mSub=caps.beginner;
+  assert.equal(difficultyForSportCard(cm(.4),max400mSub).difficulty,
+    canonical.tierOrder.at(-1));
+  assert.equal(difficultyForSportCard(cm(.4),max400mSub+1),null);
+  assert.equal(result(.4,[[.4,(max400mSub+1)/60]],(max400mSub+2)/60).status,'none');
   assert.equal(result(1,[[.4,.5],[1,8]],9).distanceCm,cm(1));
   // A normal 400 m is a sprint; never use a minute-rounded sub1
   // or silently reuse the per-minute 5km identity scheme.
