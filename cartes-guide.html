@@ -357,8 +357,9 @@
       if(!response.ok)throw Error('catalog_unavailable');
       const data=await response.json();
       if(request!==lookupRequest)return;
-      const card=Array.isArray(data.items)?data.items.find(item=>
-        item.distanceCm===distanceCm&&item.subValue===subValue):null;
+      if(!Array.isArray(data.items))throw Error('invalid_catalog_response');
+      const card=data.items.find(item=>
+        item.distanceCm===distanceCm&&item.subValue===subValue);
       panel.replaceChildren();
       if(!card){
         addLookupText(panel,'p','lookup-status',t(
