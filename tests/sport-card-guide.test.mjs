@@ -111,7 +111,7 @@ test('generated guide and every difficulty explanation follow the canonical JSON
   const base=render(officialGuide,'fr');
   assert.equal(base.tierStars('world_elite'),7);
   assert.equal(base.tierStars('beginner'),1);
-  assert.equal(base.tierDescription('expert'),'—');
+  assert.equal(base.tierDescription('expert'),'Environ top 20 % des arrivants');
   const future={...officialGuide,percentileTargets:{}};
   const changed=render(future,'fr');
   assert.equal(changed.tierDescription('expert'),'—');
