@@ -366,6 +366,13 @@
         item.distanceCm===distanceCm&&item.subValue===subValue);
       panel.replaceChildren();
       if(!card){
+        const row=selected();
+        const ms=row?selectedTime(row.unit):null;
+        const sub=ms===null?null:Math.floor(ms/(row.unit==='second'?1000:60000))+1;
+        const difficulty=row?(row.ultra?guide.ultraDifficulty:guide.levels.find(key=>sub<=row.caps[key])):null;
+        const title=row?distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit):'';
+        const name=difficulty?(row.ultra?ultraName():levelNames[difficulty][lang==='fr'?0:1]):'';
+        $('calc-result').textContent=t('La carte que tu peux créer : ','The card you can create: ')+title+(name?' · '+name:'')+'.';
         addLookupText(panel,'p','lookup-status',t(
           'Cette carte n\'a pas encore été créée.',
           'This card has not been created yet.'));
@@ -380,10 +387,26 @@
       faceContainer.append(cardLink);
       addLookupText(faceContainer,'span','calc-existing-card-link-label',
         t('Voir la carte existante ↗','View existing card ↗'));
+      const currentOwner=card.hasOwner&&card.owner?String(card.owner):null;
+      const selectedRow=selected();
+      const selectedMs=selectedRow?selectedTime(selectedRow.unit):null;
+      const selectedSub=selectedMs===null?null:Math.floor(selectedMs/(selectedRow.unit==='second'?1000:60000))+1;
+      const selectedDifficulty=selectedRow?(selectedRow.ultra?guide.ultraDifficulty:guide.levels.find(key=>selectedSub<=selectedRow.caps[key])):null;
+      const selectedTitle=selectedRow?distanceName(selectedRow.distanceCm)+' · '+subLabel(selectedSub,selectedRow.unit):'';
+      const selectedName=selectedDifficulty?(selectedRow.ultra?ultraName():levelNames[selectedDifficulty][lang==='fr'?0:1]):'';
+      $('calc-result').textContent=currentOwner
+        ?t('La carte que tu peux voler à @','The card you can steal from @')+currentOwner+' : '+selectedTitle+(selectedName?' · '+selectedName:'')+'.'
+        :t('La carte que tu peux créer : ','The card you can create: ')+selectedTitle+(selectedName?' · '+selectedName:'')+'.';
       addLookupText(panel,'h3','',t('Carte déjà créée','Card already created'));
       const owner=addLookupText(panel,'p','', '');
       owner.append(document.createTextNode(t('Propriétaire actuel : ','Current owner: ')));
-      addLookupText(owner,'strong','',ownerLabel(card));
+      if(currentOwner){
+        const profileLink=addLookupText(owner,'a','', '@'+currentOwner);
+        profileLink.href='compte.html?profil='+encodeURIComponent(currentOwner);
+        profileLink.setAttribute('aria-label',t('Voir le profil public de @'+currentOwner,'View @'+currentOwner+' public profile'));
+      }else{
+        addLookupText(owner,'strong','',ownerLabel(card));
+      }
       const detailResponse=await fetch('/api/sport/cards/'+encodeURIComponent(String(card.id)),{cache:'no-store'});
       if(request!==lookupRequest)return;
       if(!detailResponse.ok){
@@ -515,7 +538,7 @@
     const title=distanceName(row.distanceCm)+' · '+subLabel(sub,row.unit);
     const name=row.ultra?ultraName():
       levelNames[difficulty][lang==='fr'?0:1];
-    target.textContent=t('Ta carte possible : ','Your possible card: ')+title+' · '+name+'.';
+    target.textContent=t('La carte que tu peux créer : ','The card you can create: ')+title+' · '+name+'.';
     $('calc-card-face').append(BeatOnStepSportCards.createFace(document,{
       title,distanceCm:row.distanceCm,difficulty,
     },lang));
