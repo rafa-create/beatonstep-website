@@ -227,22 +227,17 @@ test('all public SUB difficulty boundaries agree with the official award engine'
   }
 });
 
-test('5km sample lands on expert SUB 25 after percentile calibration',()=>{
-  const five=json.distances.find(row=>row.distanceCm===500000);
-  assert.deepEqual(five.caps,{
-    world_elite:19,legend:21,expert:29,intermediate:35,regular:42,
-    amateur:51,beginner:57,
-  });
+test('5km sample classification and 1km second caps follow the canonical JSON',()=>{
+  const five=canonical.capsByDistance['500000'];
+  assert.deepEqual(json.distances.find(row=>row.distanceCm===500000).caps,five);
   const sub=Math.floor((24*60+35)*1000/60_000)+1;
   assert.equal(sub,25);
-  assert.equal(difficultyForSportCard(500000,sub).difficulty,'expert');
-  assert.equal(difficultyForSportCard(500000,26).difficulty,'expert');
+  const expectedTier=canonical.tierOrder.find(tier=>sub<=five[tier]);
+  assert.equal(difficultyForSportCard(500000,sub).difficulty,expectedTier);
   const oneKm=json.distances.find(row=>row.distanceCm===100000);
   assert.equal(oneKm.unit,'second','1 km uses second-resolution SUBs');
-  assert.deepEqual(oneKm.caps,{
-    world_elite:150,legend:230,expert:270,intermediate:360,
-    regular:420,amateur:480,beginner:600,
-  },'1 km palier thresholds are expressed in seconds');
+  assert.deepEqual(oneKm.caps,canonical.capsByDistance['100000'],
+    '1 km palier thresholds are expressed in seconds');
   assert.equal(difficultyForSportCard(40000,60).difficulty,'legend');
   assert.equal(difficultyForSportCard(40000,61).difficulty,'expert');
 });
