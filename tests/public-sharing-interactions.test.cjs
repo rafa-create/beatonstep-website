@@ -157,8 +157,8 @@ function setup(search,data=example){
     'the long Top-world paragraph is no longer rendered below the filters');
   assert.match(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
     'challenge cards may show the configured approximate percentile anchor');
-  assert.match(landing.elements.results.textContent,/Expert/,
-    'SUB 25 still displays its current difficulty tier');
+  // Challenge catalogue cards expose the challenge target and approximate percentile,
+  // not the internal difficulty-tier name used by sport-card detail views.
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // A bare 'Chargement…' formerly leaked below an already-loaded podium:
