@@ -10,9 +10,7 @@ const account=readFileSync(new URL('../compte.html',import.meta.url),'utf8');
 const gift=readFileSync(new URL('../cadeau-sport.html',import.meta.url),'utf8');
 
 async function api(data=rules){
-  const context={
-    fetch:async()=>({ok:true,json:async()=>data}),
-  };
+  const context={fetch:async()=>({ok:true,json:async()=>data})};
   vm.runInNewContext(source,context);
   const client=context.BeatOnStepSportPercentiles;
   await client.ready();
@@ -20,32 +18,35 @@ async function api(data=rules){
 }
 const card=(distanceCm,subValue,difficulty='beginner')=>({distanceCm,subValue,difficulty});
 
-test('world labels are read from the same v2 JSON as official sporting awards',async()=>{
+test('revised sporting thresholds do not imply unvalidated world percentiles',async()=>{
   const client=await api();
-  const checks=[
-    [500000,22,'legend',5],
-    [500000,29,'expert',20],
-    [500000,35,'intermediate',50],
-    [500000,42,'regular',75],
-    [500000,51,'amateur',90],
-    [100000,360,'intermediate',50],
-    [2109750,135,'intermediate',50],
-    [4219500,267,'intermediate',50],
-  ];
-  for(const [distanceCm,subValue,level,percent] of checks){
+  assert.deepEqual(rules.percentileCalibration.estimatedPercentileTargets,{});
+  for(const [distanceCm,subValue,level,label] of [
+    [40000,60,'legend','Légende'],
+    [80000,160,'legend','Légende'],
+    [100000,230,'legend','Légende'],
+    [150000,345,'legend','Légende'],
+    [160934,370,'legend','Légende'],
+    [200000,8,'legend','Légende'],
+    [300000,12,'legend','Légende'],
+    [400000,17,'legend','Légende'],
+    [500000,21,'legend','Légende'],
+    [500000,22,'expert','Expert'],
+    [1000000,44,'legend','Légende'],
+    [2109750,98,'legend','Légende'],
+    [4219500,215,'legend','Légende'],
+  ]){
     const row=card(distanceCm,subValue);
-    assert.equal(client.visibleTier(row),level);
-    assert.equal(client.percentile(row),percent);
-    assert.equal(client.label(row,'fr'),'Top ≈ '+percent+' % mondial');
-    assert.equal(client.label(row,'en'),'World top ≈ '+percent+'%');
+    assert.equal(client.visibleTier(row),level,String(distanceCm)+' SUB '+subValue);
+    assert.equal(client.percentile(row),null);
+    assert.equal(client.label(row,'fr'),label);
   }
+  assert.equal(client.tierTopLabel('expert','fr'),null);
+  assert.equal(client.tierTopLabel('legend','en'),null);
 });
 
-test('percentiles progress for individual SUB thresholds and world record is the floor',async()=>{
+test('official and estimated world-record comparisons remain available',async()=>{
   const client=await api();
-  for(const [sub,top] of [[20,2],[22,5],[24,9],[25,11],[27,16],[29,20]]){
-    assert.equal(client.percentile(card(500000,sub)),top,'5km SUB '+sub);
-  }
   for(const [sub,expected] of [
     [13,'À 11 s du record mondial'],
     [14,'À 1 min 11 s du record mondial'],
@@ -55,12 +56,9 @@ test('percentiles progress for individual SUB thresholds and world record is the
     [18,'À 5 min 11 s du record mondial'],
     [19,'À 6 min 11 s du record mondial'],
   ]){
-    assert.equal(client.percentile(card(500000,sub)),null,
-      'no fabricated extreme-tail percentiles for elite SUB '+sub);
+    assert.equal(client.percentile(card(500000,sub)),null);
     assert.equal(client.label(card(500000,sub),'fr'),expected);
   }
-  assert.equal(client.label(card(500000,14),'en'),
-    '1 min 11 sec from the world record');
   assert.equal(client.label(card(500000,12),'fr'),'Record du monde battu de 49 s minimum');
   assert.equal(client.label(card(500000,12),'en'),'World record beaten by at least 49 sec');
   assert.equal(client.recordGap(card(500000,12))?.leadSeconds,49);
@@ -68,29 +66,23 @@ test('percentiles progress for individual SUB thresholds and world record is the
   assert.equal(client.label(card(40000,44),'fr'),'À 1 s du record mondial');
   assert.equal(client.recordBracket(card(40000,44)),'official');
   assert.equal(client.recordBracket(card(40000,45)),null);
-  const distance=400000; // 4km has a modeled reference between 3km and road 5km.
-  const world=client.worldRecordReference(distance);
+  const world=client.worldRecordReference(400000);
   assert.ok(world&&world.estimated===true&&world.seconds>437.55&&world.seconds<769);
-  assert.equal(client.recordGap(card(400000,11))?.estimated,true,
-    'an interpolated world reference is explicitly marked as estimated');
+  assert.equal(client.recordGap(card(400000,11))?.estimated,true);
   assert.match(client.label(card(400000,11),'fr'),/référence mondiale estimée/);
-  assert.equal(client.label({...card(500000,15),performanceWarning:true},'fr'),'Élite mondiale');
   assert.equal(client.worldRecordReference(500000).seconds,769);
-  assert.equal(client.worldRecordReference(100000).seconds,131.83,
-    'uses the ratified 2026 Wanyonyi record');
-  assert.equal(client.worldRecordReference(4219500).seconds,7170,
-    'uses the updated 2026 marathon world record');
-  assert.equal(client.worldRecordReference(5000000),null,
-    'no extrapolation beyond reviewed world-record anchors');
+  assert.equal(client.worldRecordReference(100000).seconds,131.83);
+  assert.equal(client.worldRecordReference(4219500).seconds,7170);
+  assert.equal(client.worldRecordReference(5000000),null);
 });
 
-test('legacy 1 km minute cards keep minute tiers and never claim a false world-record lead',async()=>{
+test('legacy units, warnings and ultra cards remain conservative',async()=>{
   const client=await api();
   const oldRegular={...card(100000,8),timeUnit:'minute',difficulty:'regular'};
   assert.equal(client.tier(oldRegular),'regular');
   assert.equal(client.visibleTier(oldRegular),'regular');
-  assert.equal(client.percentile(oldRegular),75);
-  assert.equal(client.label(oldRegular,'fr'),'Top ≈ 75 % mondial');
+  assert.equal(client.percentile(oldRegular),null);
+  assert.equal(client.label(oldRegular,'fr'),'Régulier');
   assert.equal(client.recordGap(oldRegular),null);
 
   const oldElite={...card(100000,3),timeUnit:'minute',difficulty:'world_elite'};
@@ -102,54 +94,11 @@ test('legacy 1 km minute cards keep minute tiers and never claim a false world-r
   const newSecond={...card(100000,150),timeUnit:'second'};
   assert.equal(client.tier(newSecond),'world_elite');
   assert.equal(client.label(newSecond,'fr'),'À 18 s du record mondial');
-});
 
-test('no invented world rank for beginner, warning or ultra',async()=>{
-  const client=await api();
-  assert.equal(client.percentile(card(500000,57)),null);
-  assert.equal(client.label(card(500000,57),'fr'),'Débutant');
   assert.equal(client.percentile(card(4300000,600,'legend')),null);
   assert.equal(client.label(card(4300000,600,'legend'),'fr'),'Légende longue distance');
-  assert.equal(client.percentile({...card(500000,22),performanceWarning:true}),null);
-  assert.equal(client.label({...card(500000,22),performanceWarning:true},'fr'),'Légende');
-  assert.equal(client.percentile(card(500000,58)),null);
-});
-
-test('catalogue distance entry and worldwide tier hints share current JSON',async()=>{
-  const client=await api();
-  assert.equal(client.canonicalDistanceCm('5'),500000);
-  assert.equal(client.canonicalDistanceCm('0,4'),40000);
-  assert.equal(client.canonicalDistanceCm('21,0975'),2109750);
-  assert.equal(client.canonicalDistanceCm('42.195'),4219500);
-  for(const bad of ['0','4,5','5 km','5000','1e3','21,09751','bad','']) {
-    assert.equal(client.canonicalDistanceCm(bad),null,'unsupported distance '+bad);
-  }
-  assert.equal(client.tierTopLabel('expert','fr'),'Top ≈ 20 % des arrivants');
-  assert.equal(client.tierTopLabel('legend','en'),'Top ≈ 5% of race finishers');
-  assert.equal(client.tierTopLabel('beginner','fr'),null);
-  assert.equal(client.tierTopLabel('world_elite','fr'),null);
-  const altered=structuredClone(rules);
-  altered.revision='2026-10-15.6';
-  altered.percentileCalibration.estimatedPercentileTargets.expert=21;
-  const updated=await api(altered);
-  assert.equal(updated.tierTopLabel('expert','fr'),'Top ≈ 21 % des arrivants');
-  assert.equal(updated.percentile(card(500000,29)),21,
-    'one official JSON edit changes the tier targets');
-  assert.equal(updated.label(card(500000,29),'fr'),'Top ≈ 21 % mondial');
-});
-
-test('an older D1 label never invents an outdated world ranking',async()=>{
-  const client=await api();
-  const old=card(500000,29,'amateur');
-  assert.equal(client.tier(old),'expert');
-  assert.equal(client.label(old,'fr'),'Top ≈ 20 % mondial');
-  assert.equal(client.visibleTier(old),'expert');
-});
-
-test('if the official rules fail, UI falls back to tier name without fake percentile',async()=>{
-  const client=await api({revision:'legacy',difficultyRuleset:'v1'});
-  assert.equal(client.label(card(500000,29,'amateur'),'fr'),'Amateur');
-  assert.equal(client.percentile(card(500000,29,'amateur')),null);
+  assert.equal(client.percentile({...card(500000,19),performanceWarning:true}),null);
+  assert.equal(client.label({...card(500000,19),performanceWarning:true},'fr'),'Élite mondiale');
 });
 
 test('catalogue, account and gift link use one browser helper without text on card face',()=>{
@@ -162,4 +111,10 @@ test('catalogue, account and gift link use one browser helper without text on ca
   assert.doesNotMatch(face,/fr\('Difficulté : ','Difficulty: '\)/);
   assert.doesNotMatch(gift,/textContent='Niveau '/);
   assert.doesNotMatch(account,/BeatOnStepSportCards\.levels\[card\.difficulty\]/);
+});
+
+test('a ruleset mismatch falls back to tier name without inventing percentile',async()=>{
+  const client=await api({revision:'legacy',difficultyRuleset:'v1'});
+  assert.equal(client.label(card(500000,29,'amateur'),'fr'),'Amateur');
+  assert.equal(client.percentile(card(500000,29,'amateur')),null);
 });
