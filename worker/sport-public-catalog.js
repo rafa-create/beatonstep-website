@@ -50,7 +50,7 @@ export async function readPublicSportCards(db,url,{
     const sub=rawSub&&rawSub!=='all'?Number(rawSub):null;
     if((distance!==null&&canonicalSportDistance(distance)===null)||
        (difficulty!=='all'&&!DIFFICULTIES.has(difficulty))||
-       !['default','difficulty_asc','difficulty_desc'].includes(sort)||
+       !['default','difficulty_asc','difficulty_desc','activity_desc','activity_asc'].includes(sort)||
        (sub!==null&&(!Number.isSafeInteger(sub)||sub<1||sub>1_000_000||distance===null)))
       return response({error:'invalid_sport_filter'},400);
     const rawPage=url.searchParams.get('page')||'1';
@@ -67,8 +67,11 @@ export async function readPublicSportCards(db,url,{
     // Strict SUB N: the sub-N card itself qualifies; faster tiers are lower N.
     if(sub!==null){filters.push('c.sub_value<=?');args.push(sub);}
     const where=filters.length?' WHERE '+filters.join(' AND '):'';
-    const order=sportCardDifficultyOrderSql(sort)||
-      'c.distance_cm ASC,c.sub_value DESC,c.id ASC';
+    const order=sort==='activity_desc'
+      ? "MAX(c.created_at,COALESCE((SELECT MAX(e.changed_at) FROM sport_card_ownership_events e WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim')),c.created_at)) DESC,c.created_at DESC,c.id DESC"
+      :sort==='activity_asc'
+        ? "MAX(c.created_at,COALESCE((SELECT MAX(e.changed_at) FROM sport_card_ownership_events e WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim')),c.created_at)) ASC,c.created_at ASC,c.id ASC"
+        :sportCardDifficultyOrderSql(sort)||'c.distance_cm ASC,c.sub_value DESC,c.id ASC';
     const count=await db.prepare('SELECT COUNT(*) AS total FROM sport_world_cards c'+where)
       .bind(...args).first();
     const rows=await db.prepare(
