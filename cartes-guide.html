@@ -81,6 +81,14 @@
       margin:21px auto 20px}
     .calc-preview-note{max-width:320px;text-align:center;font-size:12px;color:var(--muted)}
     .calc-world-note{max-width:400px;text-align:center;color:#efd685;font-weight:800;font-size:15px;margin:5px auto 0}
+    .calc-card-ownership{width:min(100%,560px);margin:8px auto 0;padding:16px;border:1px solid #50482f;border-radius:12px;background:#171711;color:var(--text);text-align:left}
+    .calc-card-ownership h3{margin:0 0 10px;font-size:16px}
+    .calc-card-ownership p{margin:7px 0;color:var(--muted);font-size:13px;line-height:1.5}
+    .calc-card-ownership strong{color:var(--text)}
+    .calc-card-history{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid #353429}
+    .calc-card-history li{padding:10px 0;border-bottom:1px solid #353429;font-size:13px;line-height:1.45}
+    .calc-card-history time{display:block;margin-bottom:3px;color:var(--muted);font-size:11px}
+    .calc-card-ownership .lookup-status{margin:0}
     .world-percent{color:#c8dae9;font-weight:750;font-size:13px;white-space:nowrap}
     .time-range{color:#eee9da;font-weight:600;min-width:180px}
     .muted{color:var(--muted)}
@@ -160,6 +168,7 @@
         <div id="calc-card-preview" class="calc-preview" hidden>
           <div id="calc-card-face"></div>
           <p id="calc-card-world-note" class="calc-world-note" aria-live="polite"></p>
+          <section id="calc-card-ownership" class="calc-card-ownership" aria-live="polite" aria-busy="false" hidden></section>
           <p class="calc-preview-note"><span data-fr>Simulation de carte : seul un résultat de course validé peut la faire gagner.</span><span data-en hidden>Card preview: only a validated run can earn this card.</span></p>
         </div>
       </div>
@@ -203,6 +212,7 @@
   let lang=params.get('lang')==='en'?'en':params.get('lang')==='fr'?'fr':
     (navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en';
   let guide=null;
+  let lookupRequest=0;
   // Names are translations only: tiers, stars and percentile targets all
   // derive from the generated guide, itself built from sport-card-rules.json.
   const levelNames={
@@ -295,7 +305,110 @@
       body.append(tr);
     }
   }
+  function clearCardLookup(){
+    lookupRequest++;
+    const panel=$('calc-card-ownership');
+    panel.hidden=true;panel.replaceChildren();panel.setAttribute('aria-busy','false');
+  }
+  function addLookupText(parent,tag,className,text){
+    const element=make(tag,className,text);parent.append(element);return element;
+  }
+  function lookupDate(value){
+    if(!Number.isSafeInteger(value)||value<=0)return null;
+    return new Date(value).toLocaleString(lang==='fr'?'fr-FR':'en-US',{
+      dateStyle:'medium',timeStyle:'short',timeZone:'UTC',
+    })+' UTC';
+  }
+  function ownerLabel(card){
+    if(!card.hasOwner)return t('Aucun propriétaire actuel : la carte est dans la réserve mondiale.',
+      'No current owner: the card is in the worldwide reserve.');
+    if(card.owner)return '@'+card.owner;
+    return t('Propriétaire actuel : profil masqué ou indisponible.',
+      'Current owner: profile hidden or unavailable.');
+  }
+  function eventDescription(event){
+    const from=event.from?'@'+event.from:null;
+    const to=event.to?'@'+event.to:null;
+    if(event.reason==='sport_win'){
+      if(from&&to)return t('Carte gagnée par '+to+' (précédemment détenue par '+from+').',
+        'Card won by '+to+' (previously held by '+from+').');
+      if(to)return t('Carte gagnée par '+to+'.','Card won by '+to+'.');
+      return t('Carte gagnée ; identité non affichée ou propriétaire précédent absent.',
+        'Card won; identity hidden or previous owner unavailable.');
+    }
+    if(event.reason==='gift_claim'){
+      if(from&&to)return t('Carte transmise en cadeau : '+from+' → '+to+'.',
+        'Card transferred as a gift: '+from+' → '+to+'.');
+      return t('Transfert par cadeau ; certaines identités ne sont pas affichées.',
+        'Gift transfer; some identities are not displayed.');
+    }
+    if(event.reason==='account_closed')return t('Carte libérée après la fermeture d’un compte.',
+      'Card released after an account was closed.');
+    return t('Événement de propriété enregistré.','Recorded ownership event.');
+  }
+  async function lookupSportCard(distanceCm,subValue){
+    const request=++lookupRequest;
+    const panel=$('calc-card-ownership');
+    panel.hidden=false;panel.replaceChildren();panel.setAttribute('aria-busy','true');
+    addLookupText(panel,'p','lookup-status',t('Vérification de la carte réelle…','Checking whether the real card exists…'));
+    try{
+      const query=new URLSearchParams({distance:String(distanceCm),sub:String(subValue),page:'1'});
+      const response=await fetch('/api/sport/cards?'+query.toString(),{cache:'no-store'});
+      if(!response.ok)throw Error('catalog_unavailable');
+      const data=await response.json();
+      if(request!==lookupRequest)return;
+      const card=Array.isArray(data.items)?data.items.find(item=>
+        item.distanceCm===distanceCm&&item.subValue===subValue):null;
+      panel.replaceChildren();
+      if(!card){
+        addLookupText(panel,'p','lookup-status',t(
+          'Cette carte n\'a pas encore été créée.',
+          'This card has not been created yet.'));
+        panel.setAttribute('aria-busy','false');return;
+      }
+      addLookupText(panel,'h3','',t('Carte déjà créée','Card already created'));
+      const owner=addLookupText(panel,'p','', '');
+      owner.append(document.createTextNode(t('Propriétaire actuel : ','Current owner: ')));
+      addLookupText(owner,'strong','',ownerLabel(card));
+      const detailResponse=await fetch('/api/sport/cards/'+encodeURIComponent(String(card.id)),{cache:'no-store'});
+      if(request!==lookupRequest)return;
+      if(!detailResponse.ok){
+        addLookupText(panel,'p','',t('Historique temporairement indisponible.','History is temporarily unavailable.'));
+        panel.setAttribute('aria-busy','false');return;
+      }
+      const detail=await detailResponse.json();
+      if(request!==lookupRequest)return;
+      const history=Array.isArray(detail.history)?detail.history.slice().reverse():[];
+      addLookupText(panel,'h3','',t('Historique de la carte','Card history'));
+      if(!history.length){
+        addLookupText(panel,'p','',t('Aucun événement d’historique n’est disponible pour cette carte.',
+          'No history events are available for this card.'));
+      }else{
+        const list=make('ol','calc-card-history');
+        for(const event of history){
+          const item=make('li');
+          const date=lookupDate(event.at);
+          if(date)addLookupText(item,'time','',date);
+          addLookupText(item,'span','',eventDescription(event));
+          list.append(item);
+        }
+        panel.append(list);
+        if(detail.historyHasMore)addLookupText(panel,'p','',t(
+          'Seuls les 100 événements les plus récents sont consultés par le catalogue.',
+          'The catalogue exposes up to the 100 most recent events.'));
+      }
+      panel.setAttribute('aria-busy','false');
+    }catch(_){
+      if(request!==lookupRequest)return;
+      panel.replaceChildren();
+      addLookupText(panel,'p','lookup-status',t(
+        'Impossible de vérifier l’existence de cette carte pour le moment. Réessaie plus tard.',
+        'Could not check whether this card exists right now. Please try again later.'));
+      panel.setAttribute('aria-busy','false');
+    }
+  }
   function renderThresholds(){
+    clearCardLookup();
     const row=selected();
     if(!row)return;
     const body=$('threshold-rows');body.replaceChildren();
@@ -364,6 +477,7 @@
       unit==='second'?Number($('time-centiseconds').value):0);
   }
   function checkTime(){
+    clearCardLookup();
     const row=selected();if(!row)return;
     const target=$('calc-result');
     target.classList.remove('error');
@@ -399,6 +513,7 @@
     if(note)note.textContent=t('Simulation de carte : seul un résultat de course validé peut la faire gagner.',
       'Card preview: only a validated run can earn this card.');
     $('calc-card-preview').hidden=false;
+    void lookupSportCard(row.distanceCm,sub);
   }
   function setLanguage(next){
     lang=next;document.documentElement.lang=lang;
@@ -489,6 +604,7 @@
       $('calc-result').classList.remove('error');
       $('calc-card-preview').hidden=true;
       $('calc-card-face').replaceChildren();
+      clearCardLookup();
     });
   }
   $('fr').addEventListener('click',()=>setLanguage('fr'));
