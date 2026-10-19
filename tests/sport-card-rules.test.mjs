@@ -192,34 +192,31 @@ test('one candidate only at last recognized checkpoint, never fallback',()=>{
   assert.equal(result(43,[[42.195,250],[43,300]],305).distanceCm,cm(43));
 });
 
-test('400m is timed per SECOND with seven levels, strict 1-minute milestone',()=>{
-  const tiers=[
-    [59.999,'legend',60],
-    [60,'expert',61],
-    [100.999,'expert',101],
-    [101,'intermediate',102],
-    [122.999,'intermediate',123],
-    [123,'regular',124],
-    [147.999,'regular',148],
-    [148,'amateur',149],
-    [177.999,'amateur',178],
-    [178,'beginner',179],
-    [200,'beginner',201],
-  ];
-  for(const [seconds,difficulty,subSecond] of tiers){
+test('400m is timed per SECOND with manifest-driven tiers and strict boundaries',()=>{
+  const caps=canonical.capsByDistance[String(cm(.4))];
+  const secondsToCheck=[...new Set(canonical.tierOrder.flatMap(tier=>[
+    caps[tier]-0.001,
+    caps[tier],
+  ]))].sort((a,b)=>a-b);
+  for(const seconds of secondsToCheck){
     const sec=Math.round(seconds*1000);
+    const subSecond=Math.floor(sec/1000)+1;
+    const expectedDifficulty=tierFor(cm(.4),subSecond);
     const p=evaluateSportCardCandidate({
       finalized:true,evidenceVerified:true,
       finalDistanceCm:cm(.4),finishedElapsedMs:sec,
       crossings:[{distanceCm:cm(.4),elapsedMs:sec}],
     });
-    assert.equal(p.status,'candidate',String(seconds));
-    assert.equal(p.difficulty,difficulty,String(seconds));
+    assert.equal(p.status,expectedDifficulty?'candidate':'none',String(seconds));
+    if(expectedDifficulty){
+      assert.equal(p.difficulty,expectedDifficulty,String(seconds));
+      assert.equal(p.skin,`difficulty_${expectedDifficulty}_v1`,String(seconds));
+      assert.equal(p.timeUnit,'second');
+      assert.equal(p.performanceKey,`${cm(.4)}:second:${subSecond}`);
+      assert.equal('rarity' in p,false);
+    }
     assert.equal(p.subSecond,subSecond,String(seconds));
     assert.equal(p.subMinute,null);
-    assert.equal(p.timeUnit,'second');
-    assert.equal(p.performanceKey,`${cm(.4)}:second:${subSecond}`);
-    assert.equal('rarity' in p,false);
   }
   assert.equal(effectiveSportSubSecond(59_999),60);
   assert.equal(effectiveSportSubSecond(60_000),61);
