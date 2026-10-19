@@ -35,6 +35,16 @@ const card=(difficulty='amateur')=>({
   id:42,distanceCm:500000,timeUnit:'minute',subValue:29,difficulty,
 });
 
+async function expectedClassification(rules, challenge){
+  const context={fetch:async()=>({ok:true,json:async()=>rules})};
+  vm.runInNewContext(percentileSource,context);
+  await context.BeatOnStepSportPercentiles.ready();
+  return {
+    tier:context.BeatOnStepSportPercentiles.visibleTier(challenge),
+    label:context.BeatOnStepSportPercentiles.label(challenge,'fr'),
+  };
+}
+
 async function render({rules=officialRules,available=true,cards=[card()],ghosts=[]}={}){
   const list=new Node('ul');
   const context={
@@ -72,33 +82,39 @@ test('public profile loads the same centralized rules as the authenticated deck'
   assert.doesNotThrow(()=>new vm.Script(page.match(/<script>([\s\S]*?)<\/script>/)[1]));
 });
 
-test('outdated D1 difficulty is not used for public card face or world top label',async()=>{
-  const list=await render();
+test('outdated D1 difficulty is not used for public card face or tier label',async()=>{
+  const challenge=card();
+  const expected=await expectedClassification(officialRules,challenge);
+  const list=await render({cards:[challenge]});
   assert.equal(list.children.length,1);
   const tile=list.children[0];
   const faceLink=tile.children[0];
   assert.equal(faceLink.tagName,'a');
   assert.equal(faceLink.href,'/partages.html?kind=challenge&sport=42');
   const face=faceLink.children[0];
-  assert.match(face.className,/sport-skin--intermediate/);
+  assert.ok(face.className.split(' ').includes(`sport-skin--${expected.tier}`));
   assert.equal(face.attributes.role,'img');
-  assert.match(face.attributes['aria-label'],/Intermédiaire, 4 étoiles sur 7/);
+  assert.ok(face.attributes['aria-label'].startsWith(expected.label+', '));
   assert.equal(firstNode(tile,'public-challenge-rank').textContent,
-    'Intermédiaire');
+    expected.label);
   assert.equal(tile.children[2].href,
     '/partages.html?kind=challenge&sport=42');
   assert.equal(tile.children[2].textContent,'Voir la fiche');
 });
 
 test('a future official JSON revision automatically changes the public card',async()=>{
+  const challenge=card();
+  const current=await expectedClassification(officialRules,challenge);
   const future=structuredClone(officialRules);
   future.revision='future-tier-test';
-  future.capsByDistance['500000'].expert=28;
-  const list=await render({rules:future});
-  assert.match(list.children[0].children[0].children[0].className,
-    /sport-skin--intermediate/);
-  assert.equal(firstNode(list,'public-challenge-rank').textContent,
-    'Top ≈ 24 % mondial');
+  future.capsByDistance['500000'].expert=30;
+  const expected=await expectedClassification(future,challenge);
+  assert.notEqual(expected.tier,current.tier,
+    'the fixture must cross a tier boundary when the official threshold changes');
+  const list=await render({rules:future,cards:[challenge]});
+  const face=list.children[0].children[0].children[0];
+  assert.ok(face.className.split(' ').includes(`sport-skin--${expected.tier}`));
+  assert.equal(firstNode(list,'public-challenge-rank').textContent,expected.label);
 });
 
 test('unavailable official rules fall back to the stored tier, never invent a percentile',async()=>{
