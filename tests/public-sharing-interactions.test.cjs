@@ -155,8 +155,8 @@ function setup(search,data=example){
     /^\/api\/sport\/cards\?distance=all&sort=activity_desc&page=1$/.test(url)));
   assert.equal(landing.elements['difficulty-hint'].textContent,'',
     'the long Top-world paragraph is no longer rendered below the filters');
-  assert.doesNotMatch(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
-    'worldwide percentile claims stay hidden while the official calibration is unvalidated');
+  assert.match(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
+    'challenge cards may show the configured approximate percentile anchor');
   assert.match(landing.elements.results.textContent,/Expert/,
     'SUB 25 still displays its current difficulty tier');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
