@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": "2026-10-18.5",
+  "revision": "2026-10-19.1",
   "ruleset": "sport-cards-v1",
   "difficultyRuleset": "v2",
   "tierOrder": [
@@ -223,7 +223,7 @@
   "capsByDistance": {
     "40000": {
       "world_elite": 45,
-      "legend": 77,
+      "legend": 60,
       "expert": 101,
       "intermediate": 123,
       "regular": 148,
@@ -232,7 +232,7 @@
     },
     "80000": {
       "world_elite": 104,
-      "legend": 190,
+      "legend": 160,
       "expert": 250,
       "intermediate": 302,
       "regular": 362,
@@ -241,7 +241,7 @@
     },
     "100000": {
       "world_elite": 150,
-      "legend": 225,
+      "legend": 230,
       "expert": 270,
       "intermediate": 360,
       "regular": 420,
@@ -250,7 +250,7 @@
     },
     "150000": {
       "world_elite": 214,
-      "legend": 369,
+      "legend": 345,
       "expert": 486,
       "intermediate": 587,
       "regular": 704,
@@ -259,7 +259,7 @@
     },
     "160934": {
       "world_elite": 230,
-      "legend": 397,
+      "legend": 370,
       "expert": 524,
       "intermediate": 632,
       "regular": 758,
@@ -268,7 +268,7 @@
     },
     "200000": {
       "world_elite": 5,
-      "legend": 9,
+      "legend": 8,
       "expert": 11,
       "intermediate": 14,
       "regular": 16,
@@ -277,7 +277,7 @@
     },
     "300000": {
       "world_elite": 8,
-      "legend": 13,
+      "legend": 12,
       "expert": 17,
       "intermediate": 21,
       "regular": 25,
@@ -286,7 +286,7 @@
     },
     "400000": {
       "world_elite": 11,
-      "legend": 18,
+      "legend": 17,
       "expert": 23,
       "intermediate": 28,
       "regular": 33,
@@ -295,7 +295,7 @@
     },
     "500000": {
       "world_elite": 19,
-      "legend": 22,
+      "legend": 21,
       "expert": 29,
       "intermediate": 35,
       "regular": 42,
@@ -322,7 +322,7 @@
     },
     "800000": {
       "world_elite": 30,
-      "legend": 34,
+      "legend": 35,
       "expert": 44,
       "intermediate": 52,
       "regular": 62,
@@ -331,7 +331,7 @@
     },
     "900000": {
       "world_elite": 33,
-      "legend": 38,
+      "legend": 39,
       "expert": 48,
       "intermediate": 57,
       "regular": 68,
@@ -340,7 +340,7 @@
     },
     "1000000": {
       "world_elite": 37,
-      "legend": 42,
+      "legend": 44,
       "expert": 53,
       "intermediate": 63,
       "regular": 74,
@@ -349,7 +349,7 @@
     },
     "1100000": {
       "world_elite": 41,
-      "legend": 47,
+      "legend": 49,
       "expert": 59,
       "intermediate": 69,
       "regular": 81,
@@ -358,7 +358,7 @@
     },
     "1200000": {
       "world_elite": 45,
-      "legend": 51,
+      "legend": 54,
       "expert": 65,
       "intermediate": 76,
       "regular": 89,
@@ -367,7 +367,7 @@
     },
     "1300000": {
       "world_elite": 49,
-      "legend": 56,
+      "legend": 59,
       "expert": 70,
       "intermediate": 82,
       "regular": 96,
@@ -376,7 +376,7 @@
     },
     "1400000": {
       "world_elite": 53,
-      "legend": 61,
+      "legend": 63,
       "expert": 76,
       "intermediate": 89,
       "regular": 103,
@@ -385,7 +385,7 @@
     },
     "1500000": {
       "world_elite": 58,
-      "legend": 65,
+      "legend": 68,
       "expert": 82,
       "intermediate": 95,
       "regular": 111,
@@ -394,7 +394,7 @@
     },
     "1600000": {
       "world_elite": 62,
-      "legend": 70,
+      "legend": 73,
       "expert": 87,
       "intermediate": 102,
       "regular": 118,
@@ -403,7 +403,7 @@
     },
     "1700000": {
       "world_elite": 66,
-      "legend": 75,
+      "legend": 78,
       "expert": 93,
       "intermediate": 108,
       "regular": 126,
@@ -412,7 +412,7 @@
     },
     "1800000": {
       "world_elite": 71,
-      "legend": 80,
+      "legend": 83,
       "expert": 99,
       "intermediate": 115,
       "regular": 133,
@@ -421,7 +421,7 @@
     },
     "1900000": {
       "world_elite": 75,
-      "legend": 85,
+      "legend": 88,
       "expert": 105,
       "intermediate": 122,
       "regular": 140,
@@ -430,7 +430,7 @@
     },
     "2000000": {
       "world_elite": 80,
-      "legend": 89,
+      "legend": 93,
       "expert": 110,
       "intermediate": 128,
       "regular": 148,
@@ -439,7 +439,7 @@
     },
     "2100000": {
       "world_elite": 84,
-      "legend": 94,
+      "legend": 98,
       "expert": 116,
       "intermediate": 135,
       "regular": 155,
@@ -448,7 +448,7 @@
     },
     "2109750": {
       "world_elite": 84,
-      "legend": 95,
+      "legend": 98,
       "expert": 117,
       "intermediate": 135,
       "regular": 156,
@@ -457,7 +457,7 @@
     },
     "2200000": {
       "world_elite": 88,
-      "legend": 99,
+      "legend": 103,
       "expert": 122,
       "intermediate": 141,
       "regular": 162,
@@ -466,7 +466,7 @@
     },
     "2300000": {
       "world_elite": 92,
-      "legend": 103,
+      "legend": 109,
       "expert": 127,
       "intermediate": 147,
       "regular": 169,
@@ -475,7 +475,7 @@
     },
     "2400000": {
       "world_elite": 96,
-      "legend": 108,
+      "legend": 114,
       "expert": 132,
       "intermediate": 154,
       "regular": 176,
@@ -484,7 +484,7 @@
     },
     "2500000": {
       "world_elite": 100,
-      "legend": 112,
+      "legend": 120,
       "expert": 138,
       "intermediate": 160,
       "regular": 183,
@@ -493,7 +493,7 @@
     },
     "2600000": {
       "world_elite": 105,
-      "legend": 117,
+      "legend": 125,
       "expert": 143,
       "intermediate": 166,
       "regular": 190,
@@ -502,7 +502,7 @@
     },
     "2700000": {
       "world_elite": 109,
-      "legend": 121,
+      "legend": 131,
       "expert": 149,
       "intermediate": 172,
       "regular": 197,
@@ -511,7 +511,7 @@
     },
     "2800000": {
       "world_elite": 113,
-      "legend": 126,
+      "legend": 136,
       "expert": 154,
       "intermediate": 179,
       "regular": 204,
@@ -520,7 +520,7 @@
     },
     "2900000": {
       "world_elite": 117,
-      "legend": 130,
+      "legend": 142,
       "expert": 159,
       "intermediate": 185,
       "regular": 211,
@@ -529,7 +529,7 @@
     },
     "3000000": {
       "world_elite": 121,
-      "legend": 135,
+      "legend": 147,
       "expert": 165,
       "intermediate": 191,
       "regular": 218,
@@ -538,7 +538,7 @@
     },
     "3100000": {
       "world_elite": 125,
-      "legend": 139,
+      "legend": 153,
       "expert": 170,
       "intermediate": 197,
       "regular": 225,
@@ -547,7 +547,7 @@
     },
     "3200000": {
       "world_elite": 129,
-      "legend": 144,
+      "legend": 158,
       "expert": 176,
       "intermediate": 204,
       "regular": 232,
@@ -556,7 +556,7 @@
     },
     "3300000": {
       "world_elite": 133,
-      "legend": 148,
+      "legend": 164,
       "expert": 181,
       "intermediate": 210,
       "regular": 239,
@@ -565,7 +565,7 @@
     },
     "3400000": {
       "world_elite": 137,
-      "legend": 153,
+      "legend": 170,
       "expert": 186,
       "intermediate": 216,
       "regular": 246,
@@ -574,7 +574,7 @@
     },
     "3500000": {
       "world_elite": 142,
-      "legend": 157,
+      "legend": 175,
       "expert": 192,
       "intermediate": 222,
       "regular": 253,
@@ -583,7 +583,7 @@
     },
     "3600000": {
       "world_elite": 146,
-      "legend": 162,
+      "legend": 181,
       "expert": 197,
       "intermediate": 229,
       "regular": 260,
@@ -592,7 +592,7 @@
     },
     "3700000": {
       "world_elite": 150,
-      "legend": 166,
+      "legend": 186,
       "expert": 202,
       "intermediate": 235,
       "regular": 267,
@@ -601,7 +601,7 @@
     },
     "3800000": {
       "world_elite": 154,
-      "legend": 171,
+      "legend": 192,
       "expert": 208,
       "intermediate": 241,
       "regular": 273,
@@ -610,7 +610,7 @@
     },
     "3900000": {
       "world_elite": 158,
-      "legend": 175,
+      "legend": 197,
       "expert": 213,
       "intermediate": 247,
       "regular": 280,
@@ -619,7 +619,7 @@
     },
     "4000000": {
       "world_elite": 162,
-      "legend": 180,
+      "legend": 203,
       "expert": 219,
       "intermediate": 253,
       "regular": 287,
@@ -628,7 +628,7 @@
     },
     "4100000": {
       "world_elite": 166,
-      "legend": 184,
+      "legend": 208,
       "expert": 224,
       "intermediate": 260,
       "regular": 294,
@@ -637,7 +637,7 @@
     },
     "4200000": {
       "world_elite": 170,
-      "legend": 189,
+      "legend": 214,
       "expert": 229,
       "intermediate": 266,
       "regular": 301,
@@ -646,7 +646,7 @@
     },
     "4219500": {
       "world_elite": 171,
-      "legend": 190,
+      "legend": 215,
       "expert": 230,
       "intermediate": 267,
       "regular": 302,
@@ -667,14 +667,7 @@
       4219500
     ],
     "modeledDistancesCm": "400 m, 800 m, 1500 m, 1 mile and 1-42 km other than 5 km, 10 km, half-marathon and marathon",
-    "estimatedPercentileTargets": {
-      "world_elite": 1,
-      "legend": 5,
-      "expert": 20,
-      "intermediate": 50,
-      "regular": 75,
-      "amateur": 90
-    },
+    "estimatedPercentileTargets": {},
     "beginnerRule": "Accessible extension beyond fastest 90%, preserving prior beginner ceiling where more generous; not a measured percentile",
     "method": "For 400 m through 4 km, only the world_elite SUB limit is recalibrated against a demanding men's international-level benchmark inspired by the 2025 World Athletics scoring tables; non-standard 1 km, 2 km and 4 km values are modeled from adjacent event standards. The other six tiers retain their previous finisher-percentile-derived thresholds except the 1 km, whose seven levels are manually calibrated as second-resolution targets. Second-resolution limits apply to 400 m, 800 m, 1 km, 1500 m and the mile. Minute-resolution limits remain for 2 km, 3 km and 4 km. For other distances, published percentiles and log-log time/distance interpolation remain unchanged.",
     "ultraDistanceException": "43-200 km retains historical Legend independent of pace: mixed ultra routes cannot support verified common worldwide time percentiles",
