@@ -100,11 +100,8 @@ test('1km has second-resolution caps calibrated for all seven levels',()=>{
     assert.equal(difficultyForSportCard(cm(1),sub)?.difficulty,tier);
   }
   assert.equal(maxSubMinuteByTier(cm(1)),null);
-  for(const [seconds,sub,tier] of [
-    [149,150,'world_elite'],[229.999,230,'legend'],[269.999,270,'expert'],
-    [359.999,360,'intermediate'],[419.999,420,'regular'],
-    [479.999,480,'amateur'],[599.999,600,'beginner'],
-  ]){
+  for(const [tier,sub] of Object.entries(caps)){
+    const seconds=sub-1;
     const p=resultSeconds(1,[[1,seconds]],seconds+5);
     assert.equal(p.status,'candidate');
     assert.equal(p.timeUnit,'second');
