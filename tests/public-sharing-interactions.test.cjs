@@ -143,7 +143,7 @@ function setup(search,data=example){
     'challenge catalogue has no redundant introduction');
   assert.equal(landing.elements.intro.textContent,'');
   assert.equal(landing.elements['distance-filter'].value,'all');
-  assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
+  assert.equal(landing.elements['difficulty-filter'].value,'activity_desc');
   assert.match(html,/id="distance-exact-filter"[\s\S]*?placeholder="Distance \(km\)"/);
   assert.equal(landing.elements['distance-exact-filter'].placeholder,'Distance (km)');
   assert.equal(landing.elements['distance-exact-filter'].value,'');
