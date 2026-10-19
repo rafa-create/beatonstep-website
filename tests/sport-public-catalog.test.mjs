@@ -64,7 +64,7 @@ test('SUB and difficulty filters use JSON-derived ranges before SQL paging',asyn
   assert.equal(r.status,200);
   const q=queries.find(q=>q.sql.includes(' LIMIT 20 OFFSET ?'));
   assert.match(q.sql,/c\.distance_cm=\?/);
-  assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 23 AND 29/);
+  assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 22 AND 26/);
   assert.doesNotMatch(q.sql,/c\.difficulty\s*(?:=|BETWEEN)/,
     'the old stored D1 tier is not the source of truth');
   assert.match(q.sql,/c\.sub_value<=\?/);
@@ -80,7 +80,7 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
     assert.equal(result.status,200);
     const q=queries.find(item=>item.sql.includes(' LIMIT 20 OFFSET ?'));
     assert.match(q.sql,/ORDER BY CASE WHEN /);
-    assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 23 AND 29/);
+    assert.match(q.sql,/c\.distance_cm=500000 AND c\.sub_value BETWEEN 22 AND 26/);
     assert.match(q.sql,new RegExp(
       'END '+(direction==='difficulty_asc'?'ASC':'DESC')+',c\\.distance_cm ASC'));
     assert.doesNotMatch(q.sql,/ORDER BY c\.difficulty/);
@@ -90,7 +90,7 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
   assert.match(sportCardDifficultyFilterSql('world_elite',500000),
     /c\.sub_value BETWEEN 1 AND 19/);
   assert.match(sportCardDifficultyFilterSql('legend',500000),
-    /c\.sub_value BETWEEN 20 AND 22/);
+    /c\.sub_value BETWEEN 20 AND 21/);
   assert.match(sportCardDifficultyFilterSql('legend',5000000),
     /c\.distance_cm IN \(5000000\)/);
   assert.equal(sportCardDifficultyFilterSql('expert',5000000),'(1=0)',
