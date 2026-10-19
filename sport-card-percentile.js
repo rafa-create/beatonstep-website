@@ -120,8 +120,12 @@
   }
   function percentile(item){
     // This is a modelled finisher fraction, never an actual personal rank.
+    // Cards saved with a legacy unit retain their old tier thresholds, but
+    // must not be mapped onto percentile anchors for the current unit system.
+    const configuredUnit=rules?.timeUnitByDistance?.[String(item?.distanceCm)];
     if(!rules||item?.distanceCm>=rules.ultraStartCm||
-       item?.performanceWarning===true||!Number.isSafeInteger(item?.subValue))
+       item?.performanceWarning===true||!Number.isSafeInteger(item?.subValue)||
+       (item?.timeUnit&&configuredUnit&&item.timeUnit!==configuredUnit))
       return null;
     const level=tier(item);
     if(!level||level==='beginner'||level==='world_elite')return null;
