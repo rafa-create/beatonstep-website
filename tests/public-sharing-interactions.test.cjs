@@ -154,8 +154,10 @@ function setup(search,data=example){
     /^\/api\/sport\/cards\?distance=all&sort=difficulty_desc&page=1$/.test(url)));
   assert.equal(landing.elements['difficulty-hint'].textContent,'',
     'the long Top-world paragraph is no longer rendered below the filters');
-  assert.match(landing.elements.results.textContent,/Top ≈ 11 % mondial/,
-    'SUB 25 has an estimated 11% finisher rank, not the whole expert-tier 20%');
+  assert.doesNotMatch(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
+    'worldwide percentile claims stay hidden while the official calibration is unvalidated');
+  assert.match(landing.elements.results.textContent,/Expert/,
+    'SUB 25 still displays its current difficulty tier');
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // A bare 'Chargement…' formerly leaked below an already-loaded podium:
