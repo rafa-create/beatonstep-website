@@ -110,7 +110,8 @@ test('1km has second-resolution caps calibrated for all seven levels',()=>{
     assert.equal(p.difficulty,tier);
     assert.equal(p.performanceKey,cm(1)+':second:'+sub);
   }
-  assert.equal(resultSeconds(1,[[1,600]],605).status,'none');
+  const overBeginner=caps.beginner+1;
+  assert.equal(resultSeconds(1,[[1,overBeginner]],overBeginner+5).status,'none');
 });
 
 test('novice 10km exactly 90:00 qualifies for beginner sub91',()=>{
