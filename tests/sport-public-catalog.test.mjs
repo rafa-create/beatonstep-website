@@ -14,7 +14,7 @@ const tierRange=tier=>{
 };
 const sqlRange=tier=>{
   const {lower,upper}=tierRange(tier);
-  return new RegExp('c\\\\.sub_value BETWEEN '+lower+' AND '+upper);
+  return new RegExp(String.raw`c\.sub_value BETWEEN ${lower} AND ${upper}`);
 };
 const url=path=>new URL('https://beatonstep.app'+path);
 const sport={id:17,distance_cm:500000,time_unit:'minute',sub_value:25,
