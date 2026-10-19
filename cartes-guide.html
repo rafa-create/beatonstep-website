@@ -89,6 +89,10 @@
     .calc-card-history li{padding:10px 0;border-bottom:1px solid #353429;font-size:13px;line-height:1.45}
     .calc-card-history time{display:block;margin-bottom:3px;color:var(--muted);font-size:11px}
     .calc-card-ownership .lookup-status{margin:0}
+    .calc-existing-card-link{display:inline-block;border-radius:12px;text-decoration:none;cursor:pointer}
+    .calc-existing-card-link:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .calc-existing-card-link:focus-visible{outline:3px solid var(--yellow);outline-offset:5px}
+    .calc-existing-card-link-label{display:block;margin:7px 0 0;text-align:center;color:var(--yellow);font-size:13px;font-weight:750}
     .world-percent{color:#c8dae9;font-weight:750;font-size:13px;white-space:nowrap}
     .time-range{color:#eee9da;font-weight:600;min-width:180px}
     .muted{color:var(--muted)}
@@ -367,6 +371,15 @@
           'This card has not been created yet.'));
         panel.setAttribute('aria-busy','false');return;
       }
+      const faceContainer=$('calc-card-face');
+      const cardLink=make('a','calc-existing-card-link');
+      cardLink.href='partages.html?kind=challenge&sport='+encodeURIComponent(String(card.id));
+      cardLink.setAttribute('aria-label',t('Ouvrir la fiche de la carte existante','Open the existing card page'));
+      cardLink.title=t('Ouvrir la fiche de la carte existante','Open the existing card page');
+      while(faceContainer.firstChild)cardLink.append(faceContainer.firstChild);
+      faceContainer.append(cardLink);
+      addLookupText(faceContainer,'span','calc-existing-card-link-label',
+        t('Voir la carte existante ↗','View existing card ↗'));
       addLookupText(panel,'h3','',t('Carte déjà créée','Card already created'));
       const owner=addLookupText(panel,'p','', '');
       owner.append(document.createTextNode(t('Propriétaire actuel : ','Current owner: ')));
