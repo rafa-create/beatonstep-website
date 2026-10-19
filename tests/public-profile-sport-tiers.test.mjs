@@ -80,11 +80,11 @@ test('outdated D1 difficulty is not used for public card face or world top label
   assert.equal(faceLink.tagName,'a');
   assert.equal(faceLink.href,'/partages.html?kind=challenge&sport=42');
   const face=faceLink.children[0];
-  assert.match(face.className,/sport-skin--expert/);
+  assert.match(face.className,/sport-skin--intermediate/);
   assert.equal(face.attributes.role,'img');
-  assert.match(face.attributes['aria-label'],/Expert, 5 étoiles sur 7/);
+  assert.match(face.attributes['aria-label'],/Intermédiaire, 4 étoiles sur 7/);
   assert.equal(firstNode(tile,'public-challenge-rank').textContent,
-    'Top ≈ 20 % mondial');
+    'Intermédiaire');
   assert.equal(tile.children[2].href,
     '/partages.html?kind=challenge&sport=42');
   assert.equal(tile.children[2].textContent,'Voir la fiche');
