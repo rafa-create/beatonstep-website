@@ -506,6 +506,7 @@ test('geographic route uploads TCX, then polls Strava without duplicate activity
      assert.equal(options.headers.authorization,'Bearer mock-access-token');
      assert.equal(options.headers['content-type'],undefined);
      assert.equal(options.body.get('data_type'),'tcx');
+     assert.equal(options.body.get('name'),'Séance GPS programmée');
      const tcx=await options.body.get('file').text();
      assert.match(tcx,/<LatitudeDegrees>48\.8566<\/LatitudeDegrees>/);
      assert.match(options.body.get('description'),/^Course avec BeatOnStep — la musique suit tes pas\./);
@@ -523,7 +524,9 @@ test('geographic route uploads TCX, then polls Strava without duplicate activity
  };
  try{
    const result=await call({startedAtMs:start,runId:'bos-'+start,
-     elapsedTime:60,distanceMeters:350,heartRateBpm:145,sportCardId:456,gpsTrack});
+     elapsedTime:60,distanceMeters:350,heartRateBpm:145,sportCardId:456,gpsTrack,
+     workout:{name:'Séance GPS programmée',goalMode:'time',
+       phases:[{name:'Endurance',durationSec:600,targetPpm:145}]}});
    assert.equal(result.status,200);
    assert.deepEqual(await result.json(),{ok:true,url:'https://www.strava.com/activities/7890'});
    const again=await call({startedAtMs:start,runId:'bos-'+start,gpsTrack});
