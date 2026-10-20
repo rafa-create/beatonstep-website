@@ -387,17 +387,24 @@ test('no-GPS description remains publishable without a synchronized card ID',asy
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
   globalThis.fetch=async(_url,init)=>{
-    const description=new URLSearchParams(init.body).get('description');
+    const form=new URLSearchParams(init.body);
+    const description=form.get('description');
+    assert.equal(form.get('name'),'Course BeatOnStep',
+      'invalid optional workout metadata falls back to the existing activity title');
     assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
     assert.match(description,/Durée : 1:30/);
     assert.doesNotMatch(description,/partages\.app|sport=/,
       'missing card ID must not block publication or create a fake link');
     return {ok:true,status:201,json:async()=>({id:8888})};
   };
-  try{const response=await call(); assert.equal(response.status,200);}
-  finally{globalThis.fetch=realFetch;}
+  try{
+    const response=await call({workout:{
+      name:'',phases:[{name:'',durationSec:-1}],
+      tracks:[{title:'',bpm:999}],
+    }});
+    assert.equal(response.status,200);
+  }finally{globalThis.fetch=realFetch;}
 });
-
 test('OTA: reject forged out-of-range optional metrics before posting to Strava',async()=>{
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
