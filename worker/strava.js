@@ -594,8 +594,10 @@ async function importActivityRoute(env,row,activityId,allowMissingTimes=false){
   if(Array.isArray(geo)&&geo.length>=2&&geo.length<=100000&&
     (allowMissingTimes||(Array.isArray(time)&&time.length===geo.length))){
     const hasTimes=Array.isArray(time)&&time.length===geo.length;
+    // Voyage conserve le flux GPS détaillé afin de pouvoir adapter la
+    // résolution au niveau de zoom, jusqu'au tracé complet.
     const sampled=[];
-    const limit=Math.min(120,geo.length);
+    const limit=geo.length;
     let valid=true,lastT=-1;
     for(let i=0;i<geo.length;i++){
       const a=geo[i],t=hasTimes?time[i]:null;
@@ -605,10 +607,7 @@ async function importActivityRoute(env,row,activityId,allowMissingTimes=false){
          (hasTimes&&(!Number.isFinite(t)||t<0||t<=lastT))){valid=false;break;}
       if(hasTimes)lastT=t;
     }
-    if(valid)for(let i=0;i<limit;i++){
-      const n=Math.floor(i*(geo.length-1)/(limit-1));
-      sampled.push(geo[n]);
-    }
+    if(valid)for(let i=0;i<limit;i++)sampled.push(geo[i]);
     if(valid&&Math.max(...sampled.map(a=>a[1]))-
        Math.min(...sampled.map(a=>a[1]))<=180)points=sampled;
   }
