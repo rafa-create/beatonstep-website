@@ -221,8 +221,8 @@ function validCadenceSamples(samples,start,elapsed){
 }
 function clean(value,maxLength){
   if(typeof value!=='string')return '';
-  return value.replace(/[\\u0000-\\u001f\\u007f]/g,' ')
-    .replace(/\\s+/g,' ').trim().slice(0,maxLength);
+  return value.replace(/[\u0000-\u001f\u007f]/g,' ')
+    .replace(/\s+/g,' ').trim().slice(0,maxLength);
 }
 function safeWorkoutMetadata(value){
   if(!value||typeof value!=='object'||Array.isArray(value))return null;
