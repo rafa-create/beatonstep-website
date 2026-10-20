@@ -608,8 +608,9 @@ async function importActivityRoute(env,row,activityId,allowMissingTimes=false){
       if(hasTimes)lastT=t;
     }
     if(valid)for(let i=0;i<limit;i++)sampled.push(geo[i]);
-    if(valid&&Math.max(...sampled.map(a=>a[1]))-
-       Math.min(...sampled.map(a=>a[1]))<=180)points=sampled;
+    let minLon=Infinity,maxLon=-Infinity;
+    for(const point of sampled){minLon=Math.min(minLon,point[1]);maxLon=Math.max(maxLon,point[1]);}
+    if(valid&&maxLon-minLon<=180)points=sampled;
   }
   return reply({
     geoRoute:points,
