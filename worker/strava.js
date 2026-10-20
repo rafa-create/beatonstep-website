@@ -231,10 +231,61 @@ function validCadenceSamples(samples,start,elapsed){
   }
   return valid;
 }
-function descriptionForMetrics({pace,distance,elapsedTime,hasGps,sportCardId}){
+function safeWorkoutMetadata(value){
+  if(!value||typeof value!=='object'||Array.isArray(value))return null;
+  const name=clean(value.name,100);
+  const goalMode=value.goalMode==='distance'||value.goalMode==='time'?value.goalMode:null;
+  const deadlineSec=Number.isSafeInteger(value.deadlineSec)&&value.deadlineSec>=60&&
+    value.deadlineSec<=86400?value.deadlineSec:null;
+  const phases=[];
+  if(Array.isArray(value.phases)){
+    for(const item of value.phases.slice(0,32)){
+      if(!item||typeof item!=='object')continue;
+      const phaseName=clean(item.name,80);
+      const durationSec=item.durationSec;
+      if(!phaseName||!Number.isSafeInteger(durationSec)||durationSec<0||durationSec>86400)continue;
+      const phase={name:phaseName,durationSec};
+      if(Number.isSafeInteger(item.distanceMeters)&&item.distanceMeters>0&&item.distanceMeters<=200000)
+        phase.distanceMeters=item.distanceMeters;
+      if(typeof item.targetPpm==='number'&&Number.isFinite(item.targetPpm)&&
+         item.targetPpm>=30&&item.targetPpm<=300)phase.targetPpm=Math.round(item.targetPpm);
+      phases.push(phase);
+    }
+  }
+  const tracks=[];
+  if(Array.isArray(value.tracks)){
+    for(const item of value.tracks.slice(0,20)){
+      if(!item||typeof item!=='object')continue;
+      const title=clean(item.title,100);
+      if(!title)continue;
+      const track={title,artist:clean(item.artist,80)};
+      if(Number.isSafeInteger(item.listenedSeconds)&&item.listenedSeconds>0&&
+         item.listenedSeconds<=604800)track.listenedSeconds=item.listenedSeconds;
+      if(typeof item.bpm==='number'&&Number.isFinite(item.bpm)&&item.bpm>0&&item.bpm<=400)
+        track.bpm=Math.round(item.bpm);
+      tracks.push(track);
+    }
+  }
+  if(!name&&!phases.length&&!tracks.length)return null;
+  return {name,goalMode,deadlineSec,phases,tracks};
+}
+function durationLabel(seconds){
+  if(!Number.isFinite(seconds)||seconds<=0)return '';
+  const rounded=Math.round(seconds);
+  if(rounded<60)return rounded+' s';
+  const hours=Math.floor(rounded/3600),minutes=Math.floor((rounded%3600)/60);
+  if(hours)return hours+' h'+(minutes?' '+minutes+' min':'');
+  return minutes+' min';
+}
+function distanceLabel(meters){
+  return meters>=1000
+    ?(meters/1000).toFixed(meters%1000===0?0:1).replace('.',',')+' km'
+    :meters+' m';
+}
+function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardId,workout}){
   const description=['Course avec BeatOnStep — la musique suit tes pas.'];
-  // GPS activities already carry their measured route and lap statistics in TCX.
-  // Keep the description compact; only manual no-GPS activities need summary stats.
+  // Keep the existing description content and card/map link intact.
+  // GPS activities already carry measured route and lap statistics in TCX.
   if(!hasGps){
     if(distance!==null){
       description.push('Distance : '+(distance/1000).toFixed(2).replace('.',',')+' km');
@@ -257,7 +308,54 @@ function descriptionForMetrics({pace,distance,elapsedTime,hasGps,sportCardId}){
   if(Number.isSafeInteger(sportCardId)&&sportCardId>0){
     description.push('https://beatonstep.app/partages?kind=challenge&sport='+sportCardId);
   }
-  return description.join(' | ');
+  const additions=[];
+  if(workout?.goalMode==='distance'&&workout.deadlineSec){
+    additions.push('Échéance de la séance : '+durationLabel(workout.deadlineSec));
+  }
+  if(workout?.phases.length){
+    const phases=workout.phases.map(phase=>{
+      const details=[];
+      if(workout.goalMode==='distance'&&phase.distanceMeters)
+        details.push(distanceLabel(phase.distanceMeters));
+      else if(phase.durationSec>0)details.push(durationLabel(phase.durationSec));
+      if(phase.targetPpm)details.push('cible '+phase.targetPpm+' pas/min');
+      return phase.name+(details.length?' ('+details.join(', ')+')':'');
+    });
+    additions.push('Structure de séance : '+phases.join(' → '));
+  }
+  if(workout?.tracks.length){
+    const tracks=workout.tracks.map(track=>{
+      const details=[];
+      if(track.artist)details.push(track.artist);
+      if(track.bpm)details.push(track.bpm+' BPM');
+      if(track.listenedSeconds)details.push(durationLabel(track.listenedSeconds));
+      return track.title+(details.length?' — '+details.join(', '):'');
+    });
+    additions.push('Musique : '+tracks.join(' · '));
+  }
+  // Strava descriptions have a finite size. Preserve the existing description
+  // (especially the challenge/map URL) first, then phases, then optional music.
+  const maxLength=9000;
+  let result=description.join(' | ');
+  for(const addition of additions){
+    const candidate=result+' | '+addition;
+    if(candidate.length<=maxLength){result=candidate;continue;}
+    if(addition.startsWith('Musique :')){
+      const tracks=workout?.tracks??[];
+      for(let count=Math.min(tracks.length,20)-1;count>=1;count--){
+        const compact=tracks.slice(0,count).map(track=>{
+          const details=[];
+          if(track.artist)details.push(track.artist);
+          if(track.bpm)details.push(track.bpm+' BPM');
+          if(track.listenedSeconds)details.push(durationLabel(track.listenedSeconds));
+          return track.title+(details.length?' — '+details.join(', '):'');
+        });
+        const shorter='Musique : '+compact.join(' · ')+'…';
+        if((result+' | '+shorter).length<=maxLength){result+=' | '+shorter;break;}
+      }
+    }
+  }
+  return {name:workout?.name||'Course BeatOnStep',description:result};
 }
 // TCX preserves real geolocated, timestamped points. Aggregate HR/cadence/pace
 // remain Lap summaries: never duplicate them into imaginary per-fix samples.
@@ -351,6 +449,9 @@ async function publish(request, env, device, row) {
   const pace=metric(b?.paceSecPerKm,1,86400);
   const sportCardId=Number.isSafeInteger(b?.sportCardId)&&b.sportCardId>0
     ?b.sportCardId:null;
+  // Optional descriptive metadata is best-effort: malformed phase/music fields
+  // are dropped rather than preventing the sporting activity from being exported.
+  const workout=safeWorkoutMetadata(b?.workout);
   const gps=validGpsTrack(b?.gpsTrack,startedAt,elapsedTime);
   const cadenceSamples=validCadenceSamples(b?.cadenceSamples,startedAt,elapsedTime);
   if (!/^bos-[0-9]{12,14}$/.test(runId) || !Number.isSafeInteger(startedAt) ||
@@ -384,25 +485,25 @@ async function publish(request, env, device, row) {
   ).bind(row.athlete_id,runId,Date.now()).run();
   if (!inserted.meta?.changes) return reply({error:'publication_pending_verify_strava'},409);
   try {
-    const description=descriptionForMetrics({
-      pace,distance,elapsedTime,hasGps:Boolean(gps),sportCardId,
+    const activity=buildStravaActivityContent({
+      pace,distance,elapsedTime,hasGps:Boolean(gps),sportCardId,workout,
     });
     let form,endpoint,headers={authorization:'Bearer '+token};
     if(gps){
       const tcx=buildStravaTcx({start:startedAt,elapsed:elapsedTime,distance,
         gps,heart,maxHeart,cadence,pace,cadenceSamples});
       form=new FormData();
-      form.set('name','Course BeatOnStep');
-      form.set('description',description);
+      form.set('name',activity.name);
+      form.set('description',activity.description);
       form.set('data_type','tcx');
       form.set('external_id',runId+'.tcx');
       form.set('file',new Blob([tcx],{type:'application/vnd.garmin.tcx+xml'}),runId+'.tcx');
       endpoint='https://www.strava.com/api/v3/uploads';
     }else{
       form=new URLSearchParams({
-        name:'Course BeatOnStep',sport_type:'Run',
+        name:activity.name,sport_type:'Run',
         start_date_local:new Date(startedAt).toISOString(),
-        elapsed_time:String(elapsedTime),description,
+        elapsed_time:String(elapsedTime),description:activity.description,
       });
       if(distance!==null)form.set('distance',String(distance));
       headers={...headers,'content-type':'application/x-www-form-urlencoded'};
