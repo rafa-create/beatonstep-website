@@ -353,7 +353,7 @@ test('no-GPS Strava export preserves its existing summary and appends programmed
     assert.equal(form.get('name'),'Fractionné progressif');
     assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
     assert.match(description,/Distance : 5,00 km/);
-    assert.match(description,/Durée : 30:00/);
+    assert.doesNotMatch(description,/Durée :/, 'elapsed duration is already shown by Strava');
     assert.match(description,/Allure moyenne : 6:00\/km/);
     const mapLink='https://beatonstep.app/partages?kind=challenge&sport=456';
     assert.ok(description.includes(mapLink),'existing challenge/map link must be preserved');
@@ -398,7 +398,7 @@ test('no-GPS description remains publishable without a synchronized card ID',asy
     assert.equal(form.get('name'),'Course BeatOnStep',
       'invalid optional workout metadata falls back to the existing activity title');
     assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
-    assert.match(description,/Durée : 1:30/);
+    assert.doesNotMatch(description,/Durée :/, 'elapsed duration is already shown by Strava');
     assert.doesNotMatch(description,/partages\.app|sport=/,
       'missing card ID must not block publication or create a fake link');
     return {ok:true,status:201,json:async()=>({id:8888})};
