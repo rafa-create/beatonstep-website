@@ -277,7 +277,6 @@ function distanceLabel(meters){
 }
 function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardId,workout}){
   const description=['Course avec BeatOnStep — la musique suit tes pas.'];
-  // Keep the existing description content and card/map link intact.
   // GPS activities already carry measured route and lap statistics in TCX.
   if(!hasGps){
     if(distance!==null){
@@ -312,39 +311,41 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
         details.push(distanceLabel(phase.distanceMeters));
       else if(phase.durationSec>0)details.push(durationLabel(phase.durationSec));
       if(phase.targetPpm)details.push('cible '+phase.targetPpm+' pas/min');
-      return phase.name+(details.length?' ('+details.join(', ')+')':'');
+      return '• '+phase.name+(details.length?' ('+details.join(', ')+')':'');
     });
-    additions.push('Structure de séance : '+phases.join(' → '));
+    additions.push('Structure de séance :\\n'+phases.join('\\n'));
   }
   if(workout?.tracks.length){
     const tracks=workout.tracks.map(track=>{
       const details=[];
       if(track.artist)details.push(track.artist);
       if(track.bpm)details.push(track.bpm+' BPM');
-      if(track.listenedSeconds)details.push(durationLabel(track.listenedSeconds));
-      return track.title+(details.length?' — '+details.join(', '):'');
+      return '• '+track.title+(details.length?' — '+details.join(', '):'');
     });
-    additions.push('Musique : '+tracks.join(' · '));
+    additions.push('Musique écoutée :\\n'+tracks.join('\\n'));
   }
-  // Strava descriptions have a finite size. Preserve the existing description
-  // (especially the challenge/map URL) first, then phases, then optional music.
+  // Keep the existing summary and challenge link first. Separate sections with
+  // blank lines for readability in Strava's mobile activity description.
+  // Omit per-track listening seconds: short skips make them misleading/noisy.
   const maxLength=9000;
-  let result=description.join(' | ');
+  let result=description.join('\\n');
   for(const addition of additions){
-    const candidate=result+' | '+addition;
+    const candidate=result+'\\n\\n'+addition;
     if(candidate.length<=maxLength){result=candidate;continue;}
-    if(addition.startsWith('Musique :')){
+    if(addition.startsWith('Musique écoutée :')){
       const tracks=workout?.tracks??[];
       for(let count=Math.min(tracks.length,20)-1;count>=1;count--){
         const compact=tracks.slice(0,count).map(track=>{
           const details=[];
           if(track.artist)details.push(track.artist);
           if(track.bpm)details.push(track.bpm+' BPM');
-          if(track.listenedSeconds)details.push(durationLabel(track.listenedSeconds));
-          return track.title+(details.length?' — '+details.join(', '):'');
+          return '• '+track.title+(details.length?' — '+details.join(', '):'');
         });
-        const shorter='Musique : '+compact.join(' · ')+'…';
-        if((result+' | '+shorter).length<=maxLength){result+=' | '+shorter;break;}
+        const shorter='Musique écoutée :\\n'+compact.join('\\n')+'\\n…';
+        if((result+'\\n\\n'+shorter).length<=maxLength){
+          result+='\\n\\n'+shorter;
+          break;
+        }
       }
     }
   }
