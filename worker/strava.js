@@ -182,18 +182,6 @@ function optionalMetric(value,min,max){
   return typeof value==='number'&&Number.isFinite(value)&&value>=min&&value<=max
     ?value:NaN;
 }
-function metricDescription({pace,averageHeartRate,maxHeartRate,cadence}){
-  const fields=['Course avec BeatOnStep — la musique au rythme des pas.'];
-  if(pace!==null){
-    const seconds=Math.round(pace);
-    fields.push('Allure moyenne : '+Math.floor(seconds/60)+':' +
-      String(seconds%60).padStart(2,'0')+'/km');
-  }
-  if(averageHeartRate!==null)fields.push('FC moyenne : '+Math.round(averageHeartRate)+' bpm');
-  if(maxHeartRate!==null)fields.push('FC max : '+Math.round(maxHeartRate)+' bpm');
-  if(cadence!==null)fields.push('Cadence moyenne : '+Math.round(cadence)+' pas/min');
-  return fields.join(' | ');
-}
 const metric=(value,min,max)=>
   value==null ? null : typeof value==='number'&&Number.isFinite(value)&&
   value>=min&&value<=max?value:NaN;
