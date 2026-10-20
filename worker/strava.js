@@ -230,7 +230,6 @@ function safeWorkoutMetadata(value){
   const goalMode=value.goalMode==='distance'||value.goalMode==='time'?value.goalMode:null;
   const deadlineSec=Number.isSafeInteger(value.deadlineSec)&&value.deadlineSec>=60&&
     value.deadlineSec<=86400?value.deadlineSec:null;
-  const trackListKind=value.trackListKind==='planned'?'planned':'listened';
   const phases=[];
   if(Array.isArray(value.phases)){
     for(const item of value.phases.slice(0,32)){
@@ -261,7 +260,7 @@ function safeWorkoutMetadata(value){
     }
   }
   if(!name&&!phases.length&&!tracks.length)return null;
-  return {name,goalMode,deadlineSec,phases,tracks,trackListKind};
+  return {name,goalMode,deadlineSec,phases,tracks};
 }
 function durationLabel(seconds){
   if(!Number.isFinite(seconds)||seconds<=0)return '';
@@ -323,7 +322,7 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
       if(track.bpm)details.push(track.bpm+' BPM');
       return '• '+track.title+(details.length?' — '+details.join(', '):'');
     });
-    additions.push((workout.trackListKind==='planned'?'Musique de la séance :\n':'Musique écoutée :\n')+tracks.join('\n'));
+    additions.push('Musique écoutée :\n'+tracks.join('\n'));
   }
   // Keep the existing summary and challenge link first. Separate sections with
   // blank lines for readability in Strava's mobile activity description.
@@ -333,7 +332,7 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
   for(const addition of additions){
     const candidate=result+'\n\n'+addition;
     if(candidate.length<=maxLength){result=candidate;continue;}
-    if(addition.startsWith('Musique écoutée :')||addition.startsWith('Musique de la séance :')){
+    if(addition.startsWith('Musique écoutée :')){
       const tracks=workout?.tracks??[];
       for(let count=Math.min(tracks.length,20)-1;count>=1;count--){
         const compact=tracks.slice(0,count).map(track=>{
@@ -342,8 +341,7 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
           if(track.bpm)details.push(track.bpm+' BPM');
           return '• '+track.title+(details.length?' — '+details.join(', '):'');
         });
-        const heading=workout?.trackListKind==='planned'?'Musique de la séance :':'Musique écoutée :';
-        const shorter=heading+'\n'+compact.join('\n')+'\n…';
+        const shorter='Musique écoutée :\n'+compact.join('\n')+'\n…';
         if((result+'\n\n'+shorter).length<=maxLength){
           result+='\n\n'+shorter;
           break;
