@@ -326,7 +326,7 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
   for(const addition of additions){
     const candidate=result+'\n\n'+addition;
     if(candidate.length<=maxLength){result=candidate;continue;}
-    if(addition.startsWith('Musique écoutée :')){
+    if(addition.startsWith('Musique écoutée :')||addition.startsWith('Musiques écoutées :')){
       const tracks=workout?.tracks??[];
       for(let count=Math.min(tracks.length,20)-1;count>=1;count--){
         const compact=tracks.slice(0,count).map(track=>{
