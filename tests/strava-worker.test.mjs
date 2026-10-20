@@ -359,7 +359,7 @@ test('no-GPS Strava export preserves its existing summary and appends programmed
     assert.ok(description.includes(mapLink),'existing challenge/map link must be preserved');
     assert.match(description,/Échéance de la séance : 1 h/);
     assert.match(description,/Structure de séance :\n• Échauffement \(1 km, cible 130 pas\/min\)\n• Effort \(2 km, cible 170 pas\/min\)/);
-    assert.match(description,/Musique écoutée :\n• Run Song — Artist, 160 BPM/);
+    assert.match(description,/Musiques écoutées :\n• Run Song — Artist, 160 BPM\n• Second Song — Other Artist, 150 BPM/);
     assert.doesNotMatch(description,/Run Song.*3 min/,
       'per-track listening duration is omitted because rapid skips make it misleading');
     assert.ok(description.includes('\n\n'),
@@ -382,7 +382,10 @@ test('no-GPS Strava export preserves its existing summary and appends programmed
           {name:'Échauffement',durationSec:600,distanceMeters:1000,targetPpm:130},
           {name:'Effort',durationSec:900,distanceMeters:2000,targetPpm:170},
         ],
-        tracks:[{title:'Run Song',artist:'Artist',listenedSeconds:180,bpm:160}],
+        tracks:[
+          {title:'Run Song',artist:'Artist',listenedSeconds:180,bpm:160},
+          {title:'Second Song',artist:'Other Artist',bpm:150},
+        ],
       },
     });
     assert.equal(response.status,200);
