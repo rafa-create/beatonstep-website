@@ -342,7 +342,7 @@ test('Strava 403 during revoke preserves the connection until explicit local unl
   }finally{globalThis.fetch=originalFetch;}
 });
 
-test('no-GPS Strava description includes only base text, distance, duration, pace and optional card link',async()=>{
+test('no-GPS Strava export preserves its existing summary and appends programmed workout details',async()=>{
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
   globalThis.fetch=async(url,init)=>{
@@ -350,11 +350,18 @@ test('no-GPS Strava description includes only base text, distance, duration, pac
       'no-GPS activity uses the manual activity endpoint');
     const form=new URLSearchParams(init.body);
     const description=form.get('description');
+    assert.equal(form.get('name'),'Fractionné progressif');
     assert.match(description,/^Course avec BeatOnStep — la musique suit tes pas\./);
     assert.match(description,/Distance : 5,00 km/);
     assert.match(description,/Durée : 30:00/);
     assert.match(description,/Allure moyenne : 6:00\/km/);
-    assert.match(description,/https:\/\/beatonstep\.app\/partages\?kind=challenge&sport=456/);
+    const mapLink='https://beatonstep.app/partages?kind=challenge&sport=456';
+    assert.ok(description.includes(mapLink),'existing challenge/map link must be preserved');
+    assert.match(description,/Échéance de la séance : 1 h/);
+    assert.match(description,/Structure de séance : Échauffement \(1 km, cible 130 pas\/min\) → Effort \(2 km, cible 170 pas\/min\)/);
+    assert.match(description,/Musique : Run Song — Artist, 160 BPM, 3 min/);
+    assert.ok(description.indexOf(mapLink)<description.indexOf('Structure de séance :'),
+      'workout details are appended after the existing description and map link');
     assert.doesNotMatch(description,/FC moyenne|FC max|Cadence moyenne/);
     assert.equal(form.get('distance'),'5000');
     return {ok:true,status:201,json:async()=>({id:101112})};
@@ -363,12 +370,19 @@ test('no-GPS Strava description includes only base text, distance, duration, pac
     const response=await call({
       elapsedTime:1800,distanceMeters:5000,paceSecPerKm:360,
       heartRateBpm:142,maxHeartRateBpm:171,cadencePpm:168,sportCardId:456,
+      workout:{
+        name:'Fractionné progressif',goalMode:'distance',deadlineSec:3600,
+        phases:[
+          {name:'Échauffement',durationSec:600,distanceMeters:1000,targetPpm:130},
+          {name:'Effort',durationSec:900,distanceMeters:2000,targetPpm:170},
+        ],
+        tracks:[{title:'Run Song',artist:'Artist',listenedSeconds:180,bpm:160}],
+      },
     });
     assert.equal(response.status,200);
     assert.match((await response.json()).url,/\/activities\/101112$/);
   }finally{globalThis.fetch=realFetch;}
 });
-
 test('no-GPS description remains publishable without a synchronized card ID',async()=>{
   const {call}=await publishingFixture();
   const realFetch=globalThis.fetch;
