@@ -313,7 +313,7 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
       if(phase.targetPpm)details.push('cible '+phase.targetPpm+' pas/min');
       return '• '+phase.name+(details.length?' ('+details.join(', ')+')':'');
     });
-    additions.push('Structure de séance :\\n'+phases.join('\\n'));
+    additions.push('Structure de séance :\n'+phases.join('\n'));
   }
   if(workout?.tracks.length){
     const tracks=workout.tracks.map(track=>{
@@ -322,15 +322,15 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
       if(track.bpm)details.push(track.bpm+' BPM');
       return '• '+track.title+(details.length?' — '+details.join(', '):'');
     });
-    additions.push('Musique écoutée :\\n'+tracks.join('\\n'));
+    additions.push('Musique écoutée :\n'+tracks.join('\n'));
   }
   // Keep the existing summary and challenge link first. Separate sections with
   // blank lines for readability in Strava's mobile activity description.
   // Omit per-track listening seconds: short skips make them misleading/noisy.
   const maxLength=9000;
-  let result=description.join('\\n');
+  let result=description.join('\n');
   for(const addition of additions){
-    const candidate=result+'\\n\\n'+addition;
+    const candidate=result+'\n\n'+addition;
     if(candidate.length<=maxLength){result=candidate;continue;}
     if(addition.startsWith('Musique écoutée :')){
       const tracks=workout?.tracks??[];
@@ -341,9 +341,9 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
           if(track.bpm)details.push(track.bpm+' BPM');
           return '• '+track.title+(details.length?' — '+details.join(', '):'');
         });
-        const shorter='Musique écoutée :\\n'+compact.join('\\n')+'\\n…';
-        if((result+'\\n\\n'+shorter).length<=maxLength){
-          result+='\\n\\n'+shorter;
+        const shorter='Musique écoutée :\n'+compact.join('\n')+'\n…';
+        if((result+'\n\n'+shorter).length<=maxLength){
+          result+='\n\n'+shorter;
           break;
         }
       }
