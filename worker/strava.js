@@ -282,13 +282,6 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
     if(distance!==null){
       description.push('Distance : '+(distance/1000).toFixed(2).replace('.',',')+' km');
     }
-    const hours=Math.floor(elapsedTime/3600);
-    const minutes=Math.floor((elapsedTime%3600)/60);
-    const seconds=elapsedTime%60;
-    const duration=hours>0
-      ?hours+':'+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0')
-      :minutes+':'+String(seconds).padStart(2,'0');
-    description.push('Durée : '+duration);
     const paceSeconds=pace!==null?pace:
       distance!==null&&distance>0?elapsedTime/(distance/1000):null;
     if(paceSeconds!==null&&Number.isFinite(paceSeconds)&&paceSeconds>0){
@@ -322,7 +315,8 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
       if(track.bpm)details.push(track.bpm+' BPM');
       return '• '+track.title+(details.length?' — '+details.join(', '):'');
     });
-    additions.push('Musique écoutée :\n'+tracks.join('\n'));
+    const musicHeading=tracks.length===1?'Musique écoutée :':'Musiques écoutées :';
+    additions.push(musicHeading+'\n'+tracks.join('\n'));
   }
   // Keep the existing summary and challenge link first. Separate sections with
   // blank lines for readability in Strava's mobile activity description.
@@ -341,7 +335,8 @@ function buildStravaActivityContent({pace,distance,elapsedTime,hasGps,sportCardI
           if(track.bpm)details.push(track.bpm+' BPM');
           return '• '+track.title+(details.length?' — '+details.join(', '):'');
         });
-        const shorter='Musique écoutée :\n'+compact.join('\n')+'\n…';
+        const heading=tracks.length===1?'Musique écoutée :':'Musiques écoutées :';
+        const shorter=heading+'\n'+compact.join('\n')+'\n…';
         if((result+'\n\n'+shorter).length<=maxLength){
           result+='\n\n'+shorter;
           break;
