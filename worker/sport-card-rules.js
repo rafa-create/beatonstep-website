@@ -124,19 +124,49 @@ export function sportCardDifficultyFilterSql(level,distanceCm=null){
   return parts.length?'('+parts.join(' OR ')+')':'(1=0)';
 }
 
-// Sorting is performed BEFORE database pagination, using the same manifest
-// cutoffs as the award path; c.difficulty is a historical, non-authoritative snapshot.
+// Sort comparable cards by the rounded worldwide finisher percentile shown
+// on the card, before SQL pagination. Lower "Top ≈ N%" means harder. Cards
+// without a calibrated percentile (world-elite benchmark, beginner, ultra,
+// or legacy-unit mismatch) sort after ranked cards. Ties use distance, then SUB.
+function sportCardPercentileOrderExpressionSql(){
+  const targets=sportTierRules.percentileCalibration?.estimatedPercentileTargets;
+  if(!targets)return 'NULL';
+  const rankedLevels=LEVELS.filter(name=>name!=='beginner');
+  const clauses=[];
+  for(const distance of sportTierRules.distancesCm){
+    if(distance>=ULTRA_START_CM)continue;
+    const configuredUnit=TIME_UNIT_BY_DISTANCE?.[String(distance)];
+    const caps=sportTierRules.capsByDistance[String(distance)];
+    if(!configuredUnit||!caps)continue;
+    const tiers=rankedLevels.filter(name=>Number.isFinite(targets[name])&&
+      Number.isSafeInteger(caps[name]));
+    if(tiers.length!==6||tiers[0]!=='world_elite')continue;
+    const ranges=[];
+    for(let i=1;i<tiers.length;i++){
+      const previous=tiers[i-1],current=tiers[i];
+      const lower=caps[previous],upper=caps[current];
+      if(upper<=lower)continue;
+      const from=targets[previous],to=targets[current];
+      ranges.push('WHEN c.sub_value<='+upper+' THEN ROUND('+
+        from+'+('+to+'-'+from+')*(c.sub_value-'+lower+')*1.0/('+upper+'-'+lower+'))');
+    }
+    if(ranges.length){
+      clauses.push('WHEN '+distance+' THEN CASE WHEN c.time_unit='+JSON.stringify(configuredUnit)+
+        ' AND c.sub_value>'+caps.world_elite+' THEN CASE '+ranges.join(' ')+
+        ' ELSE NULL END ELSE NULL END');
+    }
+  }
+  return 'CASE c.distance_cm '+clauses.join(' ')+' ELSE NULL END';
+}
 export function sportCardDifficultyOrderSql(sort){
   if(sort!=='difficulty_asc'&&sort!=='difficulty_desc')return null;
-  const expression='CASE '+LEVELS.map((name,index)=>
-    'WHEN '+sportCardDifficultyFilterSql(name)+' THEN '+(LEVELS.length-1-index)
-  ).join(' ')+' ELSE -1 END';
-  // Difficulty tier is the primary order. Distance is the next criterion,
-  // so a longer effort ranks ahead within the same tier. SUB/time is only
-  // compared after distance, and faster thresholds are harder within a
-  // distance. The canonical tier hierarchy always comes from the JSON.
+  const percentile=sportCardPercentileOrderExpressionSql();
   const descending=sort==='difficulty_desc';
-  return expression+(descending?' DESC':' ASC')+
+  // Keep unranked cards after cards with a comparable percentage in either
+  // direction. The visible integer percentage is primary; only equal values
+  // are broken by distance, then by the SUB threshold and stable card ID.
+  return 'CASE WHEN ('+percentile+') IS NULL THEN 1 ELSE 0 END ASC,'+
+    percentile+(descending?' ASC':' DESC')+
     (descending?',c.distance_cm DESC,c.sub_value ASC,c.id ASC':
       ',c.distance_cm ASC,c.sub_value DESC,c.id ASC');
 }
