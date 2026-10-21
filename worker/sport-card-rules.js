@@ -131,8 +131,10 @@ export function sportCardDifficultyOrderSql(sort){
   const expression='CASE '+LEVELS.map((name,index)=>
     'WHEN '+sportCardDifficultyFilterSql(name)+' THEN '+(LEVELS.length-1-index)
   ).join(' ')+' ELSE -1 END';
+  // The tier order is canonical JSON data. Once two cards share a tier,
+  // do not rank them by SUB/time; use distance and stable ID only.
   return expression+(sort==='difficulty_asc'?' ASC':' DESC')+
-    ',c.distance_cm ASC,c.sub_value DESC,c.id ASC';
+    ',c.distance_cm ASC,c.id ASC';
 }
 
 // Runs must be verified BEFORE this pure calculation by an independent,
