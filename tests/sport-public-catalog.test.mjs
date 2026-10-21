@@ -112,7 +112,8 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
     /c\.distance_cm IN \(5000000\)/);
   assert.equal(sportCardDifficultyFilterSql('expert',5000000),'(1=0)',
     'ultra race results do not get a modeled finisher difficulty');
-  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/THEN 6/);
+  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/ROUND\\(20\\+\\(50-20\\)\\*/);
+  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/IS NULL THEN 1 ELSE 0 END ASC/);
   assert.equal(sportCardDifficultyOrderSql('malicious;DROP TABLE'),null);
 });
 
