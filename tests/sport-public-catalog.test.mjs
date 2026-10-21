@@ -98,6 +98,8 @@ test('difficulty sorting uses JSON tiers, never D1 labels, before pagination',as
     assert.match(q.sql,new RegExp(
       'END '+(direction==='difficulty_asc'?'ASC':'DESC')+',c\\.distance_cm ASC'));
     assert.doesNotMatch(q.sql,/ORDER BY c\.difficulty/);
+    assert.doesNotMatch(q.sql,/c\.sub_value DESC,c\.id ASC/,
+      'time must not break ties between cards at the same difficulty tier');
     assert.deepEqual(q.args,[0]);
   }
   assert.equal(difficultyForSportCard(500000,25).difficulty,'expert');
