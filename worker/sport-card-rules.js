@@ -151,7 +151,7 @@ function sportCardPercentileOrderExpressionSql(){
         from+'+('+to+'-'+from+')*(c.sub_value-'+lower+')*1.0/('+upper+'-'+lower+'))');
     }
     if(ranges.length){
-      clauses.push('WHEN '+distance+' THEN CASE WHEN c.time_unit=\\''+configuredUnit+'\\''+
+      clauses.push('WHEN '+distance+' THEN CASE WHEN c.time_unit=\''+configuredUnit+'\''+
         ' AND c.sub_value>'+caps.world_elite+' THEN CASE '+ranges.join(' ')+
         ' ELSE NULL END ELSE NULL END');
     }
