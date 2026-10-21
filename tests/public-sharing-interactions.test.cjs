@@ -144,7 +144,7 @@ function setup(search,data=example){
     'challenge catalogue has no redundant introduction');
   assert.equal(landing.elements.intro.textContent,'');
   assert.equal(landing.elements['distance-filter'].value,'all');
-  assert.equal(landing.elements['difficulty-filter'].value,'activity_desc');
+  assert.equal(landing.elements['difficulty-filter'].value,'difficulty_desc');
   assert.match(html,/id="distance-exact-filter"[\s\S]*?placeholder="Distance \(km\)"/);
   assert.equal(landing.elements['distance-exact-filter'].placeholder,'Distance (km)');
   assert.equal(landing.elements['distance-exact-filter'].value,'');
@@ -152,7 +152,7 @@ function setup(search,data=example){
   assert.equal(landing.elements['source-picker'].hidden,true);
   assert.equal(landing.elements['distance-exact-picker'].hidden,false);
   assert(landing.apiCalls.some(url=>
-    /^\/api\/sport\/cards\?distance=all&sort=activity_desc&page=1$/.test(url)));
+    /^\/api\/sport\/cards\?distance=all&sort=difficulty_desc&page=1$/.test(url)));
   assert.equal(landing.elements['difficulty-hint'].textContent,'',
     'the long Top-world paragraph is no longer rendered below the filters');
   assert.match(landing.elements.results.textContent,/Top ≈ \d+ % mondial/,
