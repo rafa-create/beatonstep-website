@@ -92,16 +92,16 @@ test('difficulty sorting orders rounded worldwide percentiles before distance an
     const result=await readPublicSportCards(db,url('/api/sport/cards?sort='+direction));
     assert.equal(result.status,200);
     const q=queries.find(item=>item.sql.includes(' LIMIT 20 OFFSET ?'));
-    assert.match(q.sql,/ORDER BY CASE WHEN \\\(CASE c\\.distance_cm WHEN 40000 THEN CASE WHEN c\\.time_unit=/);
+    assert.ok(q.sql.includes('ORDER BY CASE WHEN (CASE c.distance_cm WHEN 40000 THEN CASE WHEN c.time_unit='));
     assert.ok(q.sql.includes("c.time_unit='minute' AND c.sub_value>19 THEN CASE WHEN c.sub_value<=21 THEN ROUND(0.5+(2-0.5)*(c.sub_value-19)*1.0/(21-19))"),
       '5 km cards use the same calibrated percentile interpolation as the visible label');
-    assert.match(q.sql,/IS NULL THEN 1 ELSE 0 END ASC,CASE c\\.distance_cm/,
+    assert.ok(q.sql.includes('IS NULL THEN 1 ELSE 0 END ASC,CASE c.distance_cm'),
       'cards without a calibrated percentile are placed after ranked cards');
     assert.ok(q.sql.includes(direction==='difficulty_desc'
       ?',c.distance_cm DESC,c.sub_value ASC,c.id ASC'
       :',c.distance_cm ASC,c.sub_value DESC,c.id ASC'),
       'distance breaks equal rounded percentiles before time');
-    assert.doesNotMatch(q.sql,/ORDER BY c\\.difficulty/);
+    assert.ok(!q.sql.includes('ORDER BY c.difficulty'));
     assert.deepEqual(q.args,[0]);
   }
   assert.equal(difficultyForSportCard(500000,25).difficulty,'expert');
@@ -110,11 +110,11 @@ test('difficulty sorting orders rounded worldwide percentiles before distance an
   assert.match(sportCardDifficultyFilterSql('legend',500000),
     sqlRange('legend'));
   assert.match(sportCardDifficultyFilterSql('legend',5000000),
-    /c\\.distance_cm IN \\(5000000\\)/);
+    /c\.distance_cm IN \(5000000\)/);
   assert.equal(sportCardDifficultyFilterSql('expert',5000000),'(1=0)',
     'ultra race results do not get a modeled finisher difficulty');
-  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/ROUND\\(20\\+\\(50-20\\)\\*/);
-  assert.match(sportCardDifficultyOrderSql('difficulty_desc'),/IS NULL THEN 1 ELSE 0 END ASC/);
+  assert.ok(sportCardDifficultyOrderSql('difficulty_desc').includes('ROUND(20+(50-20)*'));
+  assert.ok(sportCardDifficultyOrderSql('difficulty_desc').includes('IS NULL THEN 1 ELSE 0 END ASC'));
   assert.equal(sportCardDifficultyOrderSql('malicious;DROP TABLE'),null);
 });
 test('invalid and unscoped filters cannot enumerate arbitrary values',async()=>{
