@@ -139,3 +139,15 @@ test('ghosts on a public profile reuse the true card face and previous-ownership
   assert.match(tile.textContent,/Carte fantôme · Ancienne possession validée/);
   assert.equal(tile.children[2].href,'/partages.html?kind=challenge&sport=61');
 });
+
+
+test('public profile places the most recently active card first',async()=>{
+  const older={...card(),id:11,activityAt:100};
+  const newer={...card(),id:12,activityAt:300};
+  const ghost={...card(),id:13,activityAt:200,ghost:true};
+  const list=await render({cards:[older,newer],ghosts:[ghost]});
+  assert.deepEqual(list.children.map(tile=>{
+    const link=tile.children[0];
+    return Number(new URL(link.href,'https://beatonstep.app').searchParams.get('sport'));
+  }),[12,13,11]);
+});
