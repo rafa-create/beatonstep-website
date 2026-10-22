@@ -347,7 +347,7 @@ export async function accountRequest(request,env,url,ctx) {
                 WHERE sp.card_id=c.id AND sp.owner_epoch=c.owner_epoch)`:'NULL'}
             AS peak_speed_kmh
           FROM sport_world_cards c WHERE current_owner_id=?
-          ORDER BY distance_cm ASC,sub_value ASC,id ASC LIMIT 100`)
+          ORDER BY activity_at DESC,c.id DESC LIMIT 100`)
           .bind(user.id).all():null;
       // Ghosts are former holdings personally verified by this account,
       // not merely a sporting threshold reached while somebody else owned it.
@@ -379,7 +379,7 @@ export async function accountRequest(request,env,url,ctx) {
             AND EXISTS (SELECT 1 FROM sport_card_ownership_events e
               WHERE e.card_id=c.id AND e.new_owner_id=?
                 AND e.reason IN ('sport_win','gift_claim'))
-          ORDER BY c.distance_cm ASC,c.sub_value ASC,c.id ASC LIMIT 100`)
+          ORDER BY activity_at DESC,c.id DESC LIMIT 100`)
         .bind(user.id,user.id,user.id).all():null;
       const runRows=showChallenges?await db.prepare(
         'SELECT snapshot_json FROM account_run_records WHERE user_id=? '+
