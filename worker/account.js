@@ -334,6 +334,9 @@ export async function accountRequest(request,env,url,ctx) {
       // no collection, item IDs or counts leave the public profile API.
       const challenges=(showChallenges||ownerView) && env.SPORT_WORLD_CARDS_ENABLED==='true'
         ?await db.prepare(`SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,
+          MAX(c.created_at,COALESCE((SELECT MAX(e.changed_at) FROM sport_card_ownership_events e
+            WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim')),c.created_at))
+            AS activity_at,
           ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
             ?`(SELECT CASE WHEN tr.state='warning' THEN 1 ELSE 0 END
                 FROM sport_card_telemetry_reviews tr
@@ -350,6 +353,9 @@ export async function accountRequest(request,env,url,ctx) {
       // not merely a sporting threshold reached while somebody else owned it.
       const ghosts=(showChallenges||ownerView)&&env.SPORT_WORLD_CARDS_ENABLED==='true'
         ?await db.prepare(`SELECT c.id,c.distance_cm,c.time_unit,c.sub_value,c.difficulty,
+          MAX(c.created_at,COALESCE((SELECT MAX(e.changed_at) FROM sport_card_ownership_events e
+            WHERE e.card_id=c.id AND e.reason IN ('sport_win','gift_claim')),c.created_at))
+            AS activity_at,
           ${env.SPORT_ASYNC_TELEMETRY_ENABLED==='true'
             ?`EXISTS(SELECT 1 FROM sport_card_telemetry_reviews tr
                 JOIN sport_card_ownership_events e ON e.card_id=tr.card_id
@@ -391,6 +397,7 @@ export async function accountRequest(request,env,url,ctx) {
         ...(showChallenges||ownerView?{challenges:(challenges?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
           subValue:x.sub_value,difficulty:x.difficulty,
+          ...(typeof x.activity_at==='number'?{activityAt:x.activity_at}:{}),
           ...(x.performance_warning===1?{performanceWarning:true,
             ...(typeof x.peak_speed_kmh==='number'
               ?{peakSpeedKmh:x.peak_speed_kmh}:{})}:{}),
