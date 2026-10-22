@@ -404,7 +404,8 @@ export async function accountRequest(request,env,url,ctx) {
         })),
         ghosts:(ghosts?.results||[]).map(x=>({
           id:x.id,distanceCm:x.distance_cm,timeUnit:x.time_unit,
-          subValue:x.sub_value,difficulty:x.difficulty,ghost:true,
+          subValue:x.sub_value,difficulty:x.difficulty,
+          ...(typeof x.activity_at==='number'?{activityAt:x.activity_at}:{}),ghost:true,
           ...(x.performance_warning===1?{performanceWarning:true,
             ...(typeof x.peak_speed_kmh==='number'
               ?{peakSpeedKmh:x.peak_speed_kmh}:{})}:{}),
