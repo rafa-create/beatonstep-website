@@ -945,7 +945,10 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       list.append(li);
       return;
     }
-    for(const card of [...cards,...ghosts]){
+    // Match the catalogue's default activity-desc order: latest card activity first.
+    const ordered=[...cards,...ghosts].sort((a,b)=>
+      (Number(b.activityAt)||0)-(Number(a.activityAt)||0));
+    for(const card of ordered){
       const li=document.createElement('li');
       const title=sportPublicName(card),isGhost=card.ghost===true;
       const face=BeatOnStepSportCards.createFace(document,{
