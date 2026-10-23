@@ -97,6 +97,9 @@ test('outdated D1 difficulty is not used for public card face or tier label',asy
   assert.match(face.attributes['aria-label'],/, .+, \d+ étoiles sur 7/);
   assert.equal(firstNode(tile,'public-challenge-rank').textContent,
     expected.label);
+  assert.doesNotMatch(firstNode(tile,'public-challenge-rank').textContent,
+    /%|Top ≈|World top/i,
+    'public profile shows the tier label, not a percentile percentage');
   assert.equal(tile.children[2].href,
     '/partages.html?kind=challenge&sport=42');
   assert.equal(tile.children[2].textContent,'Voir la fiche');
