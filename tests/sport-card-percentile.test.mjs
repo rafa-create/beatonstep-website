@@ -18,7 +18,7 @@ async function api(data=rules){
 }
 const card=(distanceCm,subValue,difficulty='beginner')=>({distanceCm,subValue,difficulty});
 
-test('revised sporting thresholds expose approximate percentile anchors without claiming measured personal ranks',async()=>{
+test('sporting thresholds still classify and sort internally without exposing percentages in UI labels',async()=>{
   const client=await api();
   assert.deepEqual(rules.percentileCalibration.estimatedPercentileTargets,{world_elite:0.5,legend:2,expert:20,intermediate:50,regular:75,amateur:90});
   for(const [distanceCm,subValue,level,label] of [
@@ -39,10 +39,13 @@ test('revised sporting thresholds expose approximate percentile anchors without 
     const row=card(distanceCm,subValue);
     assert.equal(client.visibleTier(row),level,String(distanceCm)+' SUB '+subValue);
     assert.equal(client.percentile(row),level==='expert'?6:2);
-    assert.equal(client.label(row,'fr'),level==='expert'?'Top ≈ 6 % mondial':'Top ≈ 2 % mondial');
+    assert.equal(client.label(row,'fr'),label);
+    assert.doesNotMatch(client.label(row,'fr'),/%|Top ≈|World top/i);
   }
-  assert.equal(client.tierTopLabel('expert','fr'),'Top ≈ 20 % des arrivants');
-  assert.equal(client.tierTopLabel('legend','en'),'Top ≈ 2% of race finishers');
+  assert.equal(client.tierTopLabel('expert','fr'),null);
+  assert.equal(client.tierTopLabel('legend','en'),null);
+  assert.equal(client.percentile(card(500000,22)),6,
+    'numeric percentile remains available for internal difficulty ordering');
 });
 
 test('official and estimated world-record comparisons remain available',async()=>{
