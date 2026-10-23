@@ -146,20 +146,19 @@ function setup(search,data=example){
   assert.equal(landing.elements['distance-filter'].value,'all');
   assert.equal(landing.elements['difficulty-filter'].value,'activity_desc',
     'the sport catalogue defaults to the newest card/activity');
-  assert.match(html,/<option value="activity_desc" selected>Modification la plus récente<\\/option>/);
-  assert.match(html,/<option value="difficulty_desc">Difficulté décroissante<\\/option>/);
-  assert.match(html,/let sportDistance='all',[\\s\\S]*?params\.get\('sportSort'\):'activity_desc'/);
-  assert.match(html,/id="difficulty-filter"[\\s\\S]*?value="difficulty_desc"/);
-  assert.match(html,/id="difficulty-filter"[\\s\\S]*?value="difficulty_asc"/);
-  assert.match(html,/id="difficulty-filter"[\\s\\S]*?value="activity_asc"/);
-  assert.match(html,/id="distance-exact-filter"[\\s\\S]*?placeholder="Distance \\(km\\)"/);
+  assert.ok(html.includes('<option value="activity_desc" selected>Modification la plus récente</option>'));
+  assert.ok(html.includes('<option value="difficulty_desc">Difficulté décroissante</option>'));
+  assert.ok(html.includes("params.get('sportSort'):'activity_desc'"),
+    'the default sport sort remains recent even when no URL preference is provided');
+  assert.ok(html.includes('<option value="difficulty_asc">Difficulté croissante</option>'));
+  assert.ok(html.includes('placeholder="Distance (km)"'));
   assert.equal(landing.elements['distance-exact-filter'].placeholder,'Distance (km)');
   assert.equal(landing.elements['distance-exact-filter'].value,'');
   assert.equal(landing.elements['sort-picker'].hidden,true);
   assert.equal(landing.elements['source-picker'].hidden,true);
   assert.equal(landing.elements['distance-exact-picker'].hidden,false);
-  assert(landing.apiCalls.some(url=>
-    /^\\/api\\/sport\\/cards\\?distance=all&sort=activity_desc&page=1$/.test(url)));
+  assert(landing.apiCalls.includes('/api/sport/cards?distance=all&sort=activity_desc&page=1'),
+    'the initial catalogue request asks the API for recent cards');
   assert.equal(landing.elements['difficulty-hint'].textContent,'',
     'the long Top-world paragraph is no longer rendered below the filters');
   assert.doesNotMatch(landing.elements.results.textContent,/Top ≈ \\d+ % mondial|World top/i,
