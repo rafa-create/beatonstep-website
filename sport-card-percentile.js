@@ -23,12 +23,11 @@
       }).catch(()=>null);
     return pending;
   }
-  function tierTopLabel(level,lang='fr'){
-    if(!rules||level==='beginner'||level==='world_elite')return null;
-    const pct=rules.percentileCalibration?.estimatedPercentileTargets?.[level];
-    if(!Number.isFinite(pct)||pct<=0||pct>100)return null;
-    return lang==='en'?'Top ≈ '+pct+'% of race finishers'
-      :'Top ≈ '+pct+' % des arrivants';
+  // Percentile values remain available to the ranking/sorting logic, but
+  // are intentionally not presented in the public website UI while the
+  // calibration is under review.
+  function tierTopLabel(_level,_lang='fr'){
+    return null;
   }
   function canonicalDistanceCm(kilometers){
     if(!rules||typeof kilometers!=='string')return null;
@@ -173,9 +172,9 @@
         :(lang==='en'?duration+' from the world record'
           :'À '+duration+' du record mondial');
     }
-    const percent=percentile(item);
-    if(percent!==null)return lang==='en'
-      ?'World top ≈ '+percent+'%':'Top ≈ '+String(percent).replace('.',',')+' % mondial';
+    // Keep percentile(item) available for sorting and internal comparisons,
+    // but display only the human-readable tier while public percentages are
+    // under review.
     const level=visibleTier(item);
     if(level==='legend'&&rules&&item?.distanceCm>=rules.ultraStartCm)
       return lang==='en'?'Long-distance legend':'Légende longue distance';
