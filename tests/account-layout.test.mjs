@@ -120,3 +120,8 @@ test('private-profile opt-in is subtle and at the bottom of the signed-in accoun
   assert.match(html,/\.profile-visibility\{[^}]*border-top:1px solid var\(--line\)/);
   assert.doesNotMatch(html,/Visibilité de mon profil public/);
 });
+
+test('sporting history displays calculated pace only when the API supplies it',()=>{
+  assert.match(html,/historyPace\(event\.averagePaceSecPerKm\)/);
+  assert.match(html,/paceLine\.textContent='Allure moyenne : '\+pace/);
+});
