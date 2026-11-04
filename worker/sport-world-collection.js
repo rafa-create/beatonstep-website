@@ -152,6 +152,13 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
        WHEN e.reason='gift_claim' THEN 'given'
        ELSE 'lost' END AS event_type,
       NULL AS run_id,
+      CASE WHEN e.reason='sport_win' AND EXISTS (
+        SELECT 1 FROM sport_verified_runs r
+        JOIN strava_activity_award_claims sc
+          ON sc.user_id=r.user_id AND sc.run_id=r.run_id
+        WHERE r.card_id=e.card_id AND r.user_id=e.new_owner_id
+          AND r.verified_at=e.changed_at AND sc.state='complete'
+      ) THEN 1 ELSE 0 END AS strava_import,
       ${telemetryEnabled ? `CASE WHEN e.reason='sport_win' AND tr.state='warning'
         THEN 1 ELSE 0 END AS performance_warning,
         rd.reason_codes AS warning_reasons,spd.peak_speed_kmh AS peak_speed_kmh`
@@ -179,17 +186,26 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
   ORDER BY e.happened_at DESC,e.event_key DESC LIMIT 51`)
     .bind(userId,userId,userId,userId,
       beforeAt,beforeAt,beforeAt,beforeKey).all();
-  const result=pageResult(rows,row=>({
-    key:row.event_key,cardId:row.card_id,
-    name:displaySportCard(row.distance_cm,row.time_unit,row.sub_value),
-    eventType:row.event_type,at:date(row.happened_at),
-    runId:row.run_id||null,
-    ...(row.event_type==='won'&&bool(row.performance_warning)
-      ?{performanceWarning:true,
-        warningReasons:readSportWarningReasons(row.warning_reasons),
-        peakSpeedKmh:row.peak_speed_kmh??null}
-      :{}),
-  }));
+  const result=pageResult(rows,row=>{
+    const seconds=row.time_unit==='second'
+      ?Number(row.sub_value):Number(row.sub_value)*60;
+    const distanceKm=Number(row.distance_cm)/100000;
+    const pace=Math.round(seconds/distanceKm);
+    const stravaWin=row.event_type==='won'&&bool(row.strava_import);
+    return {
+      key:row.event_key,cardId:row.card_id,
+      name:displaySportCard(row.distance_cm,row.time_unit,row.sub_value),
+      eventType:row.event_type,at:date(row.happened_at),
+      runId:row.run_id||null,
+      ...(stravaWin&&Number.isSafeInteger(pace)&&pace>0
+        ?{averagePaceSecPerKm:pace}:{}),
+      ...(row.event_type==='won'&&bool(row.performance_warning)
+        ?{performanceWarning:true,
+          warningReasons:readSportWarningReasons(row.warning_reasons),
+          peakSpeedKmh:row.peak_speed_kmh??null}
+        :{}),
+    };
+  });
   return respond({items:result.items,
     nextCursor:result.hasMore?{
       beforeAt:result.last.happened_at,beforeKey:result.last.event_key,
