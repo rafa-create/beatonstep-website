@@ -125,3 +125,11 @@ test('sporting history displays calculated pace only when the API supplies it',(
   assert.match(html,/historyPace\(event\.averagePaceSecPerKm\)/);
   assert.match(html,/paceLine\.textContent='Allure moyenne : '\+pace/);
 });
+
+test('Strava sporting pace is placed under the card time in the compact French format',()=>{
+  assert.match(html,/function sportHistoryPace\(seconds\)/);
+  assert.match(html,/minutes\+' min '\+remainder/);
+  assert.match(html,/pace\+'\/km'/);
+  assert.match(html,/li\.append\(title\);[\s\S]*sportHistoryPace\(event\.averagePaceSecPerKm\)[\s\S]*li\.append\(meta\)/);
+  assert.doesNotMatch(html,/sportHistoryPace\(event\.averagePaceSecPerKm\)[\s\S]{0,180}historyPace\(/);
+});
