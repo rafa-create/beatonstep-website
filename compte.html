@@ -446,6 +446,17 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     const pace=historyClock(seconds);
     return pace?pace+'/km':null;
   }
+  // Sporting-card history uses a compact French pace format, distinct from
+  // the existing workout history format.
+  function sportHistoryPace(seconds){
+    if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<=0)return null;
+    const rounded=Math.round(seconds),minutes=Math.floor(rounded/60);
+    const remainder=String(rounded%60).padStart(2,'0');
+    const pace=minutes>=60
+      ?Math.floor(minutes/60)+' h '+(minutes%60)+' min '+remainder
+      :minutes+' min '+remainder;
+    return pace+'/km';
+  }
   function historyDateTime(timestamp){
     if(!Number.isSafeInteger(timestamp)||timestamp<=0)return 'Date inconnue';
     const date=new Date(timestamp);
@@ -558,7 +569,15 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         const meta=document.createElement('small');
         meta.textContent=(reasons[event.eventType]||'Événement sportif')+
           ' · '+date(event.at);
-        li.append(title,meta);history.append(li);
+        li.append(title);
+        const pace=sportHistoryPace(event.averagePaceSecPerKm);
+        if(pace){
+          const paceLine=document.createElement('small');
+          paceLine.textContent='Allure moyenne : '+pace;
+          li.append(paceLine);
+        }
+        li.append(meta);
+        history.append(li);
       }
       $('history-challenges-info').textContent=allEvents.length
         ?'Réussites et transferts datés, indépendants de la propriété actuelle.'
