@@ -558,7 +558,14 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         const meta=document.createElement('small');
         meta.textContent=(reasons[event.eventType]||'Événement sportif')+
           ' · '+date(event.at);
-        li.append(title,meta);history.append(li);
+        li.append(title,meta);
+        const pace=historyPace(event.averagePaceSecPerKm);
+        if(pace){
+          const paceLine=document.createElement('small');
+          paceLine.textContent='Allure moyenne : '+pace;
+          li.append(paceLine);
+        }
+        history.append(li);
       }
       $('history-challenges-info').textContent=allEvents.length
         ?'Réussites et transferts datés, indépendants de la propriété actuelle.'
