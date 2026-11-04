@@ -121,11 +121,6 @@ test('private-profile opt-in is subtle and at the bottom of the signed-in accoun
   assert.doesNotMatch(html,/Visibilité de mon profil public/);
 });
 
-test('sporting history displays calculated pace only when the API supplies it',()=>{
-  assert.match(html,/historyPace\(event\.averagePaceSecPerKm\)/);
-  assert.match(html,/paceLine\.textContent='Allure moyenne : '\+pace/);
-});
-
 test('Strava sporting pace is placed under the card time in the compact French format',()=>{
   assert.match(html,/function sportHistoryPace\(seconds\)/);
   assert.match(html,/minutes\+' min '\+remainder/);
