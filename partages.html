@@ -717,7 +717,11 @@
     return number(cm/100000)+' km';
   }
   function sportSubLabel(value,unit){
-    if(unit!=='second')return value+' min';
+    if(unit!=='second'){
+      const minutes=Math.max(0,Math.round(Number(value)||0));
+      const hours=Math.floor(minutes/60),remaining=minutes%60;
+      return hours?hours+' h '+String(remaining).padStart(2,'0'):minutes+' min';
+    }
     const minutes=Math.floor(value/60),seconds=value%60;
     return minutes?(minutes+' min'+(seconds?' '+String(seconds).padStart(2,'0')+' s':'')):seconds+' s';
   }

@@ -228,7 +228,12 @@
     const trackDuration = seconds => {
       if (!Number.isSafeInteger(seconds) || seconds <= 0) return '';
       if (seconds < 60) return `${seconds} S`;
-      return `${Math.max(1, Math.round(seconds / 60))} ${t('MIN', 'MIN')}`;
+      const totalMinutes = Math.max(1, Math.round(seconds / 60));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return hours
+        ? hours + ' H ' + String(minutes).padStart(2, '0')
+        : totalMinutes + ' ' + t('MIN', 'MIN');
     };
     const runDistance = meters => {
       if (meters === null) return '';

@@ -117,7 +117,10 @@
   function formatDuration(seconds) {
     if (!Number.isSafeInteger(seconds) || seconds <= 0) return '';
     if (seconds < 60) return `${seconds} s`;
-    return `${Math.max(1, Math.round(seconds / 60))} min`;
+    const totalMinutes = Math.max(1, Math.round(seconds / 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return hours ? hours + ' h ' + String(minutes).padStart(2, '0') : totalMinutes + ' min';
   }
 
   function trackOptionLabel(track) {
