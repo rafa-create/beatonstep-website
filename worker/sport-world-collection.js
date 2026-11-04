@@ -174,11 +174,11 @@ export async function readSportWorldCollection(db,userId,url,{telemetryEnabled=f
     UNION ALL
     SELECT r.verified_at AS happened_at,'run:'||r.run_id AS event_key,
       r.card_id,'verified' AS event_type,r.run_id,
-      0 AS performance_warning,NULL AS warning_reasons,NULL AS peak_speed_kmh
+      0 AS strava_import,0 AS performance_warning,NULL AS warning_reasons,NULL AS peak_speed_kmh
     FROM sport_verified_runs r WHERE r.user_id=?
   )
   SELECT e.happened_at,e.event_key,e.card_id,e.event_type,e.run_id,
-    e.performance_warning,e.warning_reasons,e.peak_speed_kmh,
+    e.strava_import,e.performance_warning,e.warning_reasons,e.peak_speed_kmh,
     c.distance_cm,c.time_unit,c.sub_value
   FROM event_feed e JOIN sport_world_cards c ON c.id=e.card_id
   WHERE ?=0 OR e.happened_at<? OR
