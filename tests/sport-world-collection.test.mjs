@@ -124,3 +124,27 @@ test('private history explains only the runner own sporting wins, not the winner
   assert.match(db.sql,/NULL AS warning_reasons,NULL AS peak_speed_kmh/,
     'both UNION arms expose the same telemetry columns');
 });
+
+test('only Strava-imported sporting wins expose pace from the official card SUB and distance',async()=>{
+  const fake={rows:[
+    {happened_at:1790000003000,event_key:'ownership:30',card_id:42,
+      event_type:'won',run_id:null,strava_import:1,distance_cm:3000000,
+      time_unit:'minute',sub_value:157},
+    {happened_at:1790000002000,event_key:'ownership:20',card_id:43,
+      event_type:'won',run_id:null,strava_import:0,distance_cm:3000000,
+      time_unit:'minute',sub_value:157},
+    {happened_at:1790000001000,event_key:'ownership:10',card_id:44,
+      event_type:'gift_received',run_id:null,strava_import:1,distance_cm:3000000,
+      time_unit:'minute',sub_value:157},
+  ]};
+  const response=await readSportWorldCollection(compact(fake),'test-member',
+    url('/api/account/device/sport/history'));
+  const body=await response.json();
+  assert.equal(body.items[0].averagePaceSecPerKm,314);
+  assert.equal(body.items[1].averagePaceSecPerKm,undefined,
+    'a non-Strava sporting win must not show a calculated pace');
+  assert.equal(body.items[2].averagePaceSecPerKm,undefined,
+    'a gift is not a sporting win, even if the card has a Strava performance');
+  assert.match(fake.sql,/JOIN strava_activity_award_claims sc/);
+  assert.match(fake.sql,/r\.verified_at=e\.changed_at/);
+});
