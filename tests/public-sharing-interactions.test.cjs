@@ -161,8 +161,10 @@ function setup(search,data=example){
     'the long Top-world paragraph is no longer rendered below the filters');
   assert.doesNotMatch(landing.elements.results.textContent,/Top ≈ \\d+ % mondial|World top/i,
     'public challenge cards must not expose approximate percentile percentages');
-  assert.match(landing.elements.results.textContent,/Expert|Légende|Élite mondiale|Intermédiaire|Régulier|Amateur|Débutant/,
-    'challenge cards expose the readable difficulty tier instead of a percentile');
+  assert.doesNotMatch(landing.elements.results.textContent,/Expert|Légende|Élite mondiale|Intermédiaire|Régulier|Amateur|Débutant/,
+    'catalogue cards show difficulty through the card artwork, not a redundant text label');
+  assert.ok(html.includes('html{overflow-x:clip}'),
+    'catalogue page clips horizontal overflow at the viewport root');
   // Challenge catalogue cards expose the challenge target and readable difficulty tier.
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
