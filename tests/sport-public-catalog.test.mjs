@@ -226,6 +226,16 @@ test('verified sport wins show whole run totals only, with strict SQL linking',a
   assert.match(sql,/verified\.verified_at=e\.changed_at/);
   assert.match(sql,/COUNT\(\*\) FROM sport_verified_runs candidate/);
   assert.match(sql,/saved\.ended_at=verified\.completed_at/);
+  assert.match(sql,/saved\.run_id=verified\.run_id/,
+    'native BeatOnStep archives keep their exact run-ID match');
+  assert.match(sql,/strava_activity_award_claims sc/,
+    'Strava imports are linked only through the completed server-side award claim');
+  assert.match(sql,/sc\.state='complete'/);
+  assert.match(sql,/saved\.run_id LIKE 'run-'\|\|sc\.activity_id\|\|'-'%/,
+    'the private Strava archive ID must contain the claimed activity ID');
+  assert.match(sql,/saved\.started_at=CAST\(/,
+    'the Strava archive start must match the start encoded in the verified award run');
+  assert.match(sql,/json_extract\(saved\.snapshot_json,'\$\.workoutName'\) LIKE 'Strava · %'/);
   assert.match(sql,/COALESCE\(consent\.show_challenges,1\)=1/);
   assert.match(sql,/WHERE e\.reason='sport_win' AND COALESCE\(consent\.show_challenges,1\)=1/,
     'consent must be required in WHERE, not only LEFT JOIN');
