@@ -792,7 +792,6 @@
       peakSpeedKmh:item.peakSpeedKmh,
     },lang);
     const copy=el('div','bos-sport-copy');
-    const title=el('h2','',sportName(item));
     const difficulty=el('p','sport-difficulty',
       BeatOnStepSportPercentiles.label(item,lang));
     const owner=el('p','sport-ownership');
@@ -801,7 +800,7 @@
       ?fr('Compte privé','Private account')
       :fr('Réserve BeatOnStep','BeatOnStep reserve')));
     owner.append(el('span','',fr('La carte que tu peux voler à ','The card you can steal from ')),ownerValue);
-    copy.append(head,owner,title,difficulty);
+    copy.append(head,owner,difficulty);
     summary.append(face,copy);
     if(item.performanceWarning===true)
       copy.append(el('p','sport-warning',
