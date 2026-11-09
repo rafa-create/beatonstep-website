@@ -109,8 +109,10 @@ test('catalogue, account and gift link use one browser helper without text on ca
     assert.match(page,/<script src="\/sport-card-percentile\.js"><\/script>/);
     assert.match(page,/BeatOnStepSportPercentiles\.ready\(\)/);
     assert.match(page,/BeatOnStepSportPercentiles\.visibleTier\(/);
-    assert.match(page,/BeatOnStepSportPercentiles\.label\(/);
   }
+  for(const page of [account,gift])
+    assert.match(page,/BeatOnStepSportPercentiles\.label\(/);
+  assert.doesNotMatch(face,/BeatOnStepSportPercentiles\.label\(/);
   assert.doesNotMatch(face,/fr\('Difficulté : ','Difficulty: '\)/);
   assert.doesNotMatch(gift,/textContent='Niveau '/);
   assert.doesNotMatch(account,/BeatOnStepSportCards\.levels\[card\.difficulty\]/);
