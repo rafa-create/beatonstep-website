@@ -70,8 +70,6 @@
       </div>
     </header>
     <main class="workouts-page" id="main">
-      <a class="workouts-back" data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à l’accueil</a>
-      <a class="workouts-back" data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to home</a>
       <div class="workouts-hero">
         <p class="workouts-eyebrow" data-fr>Séances et défis</p>
         <p class="workouts-eyebrow" data-en>Workouts and challenges</p>
@@ -81,20 +79,20 @@
         <p class="workouts-intro" data-en>A workout with music or a challenge card to win? Choose what moves you.</p>
         <div class="workouts-paths" aria-label="Séances et défis / Workouts and challenges">
           <article class="workouts-path">
-            <h2 data-fr>♫ Cartes Séances</h2>
-            <h2 data-en>♫ Workout cards</h2>
-            <p data-fr>Choisis une durée ou une distance. Ta playlist accompagne chaque étape.</p>
-            <p data-en>Choose a time or a distance. Your playlist follows each stage.</p>
-            <a class="workouts-catalogue" data-fr data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Voir les cartes Séances <span aria-hidden="true">→</span></a>
-            <a class="workouts-catalogue" data-en data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Browse workout cards <span aria-hidden="true">→</span></a>
-          </article>
-          <article class="workouts-path">
             <h2 data-fr>🏅 Cartes Défis</h2>
             <h2 data-en>🏅 Challenge cards</h2>
             <p data-fr>Cours, vise un chrono et gagne une carte. D’autres coureurs peuvent tenter de te la voler !</p>
             <p data-en>Run, chase a time and win a card. Other runners can try to steal it!</p>
-            <a class="workouts-catalogue workouts-catalogue-secondary" data-fr data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Voir les défis <span aria-hidden="true">→</span></a>
-            <a class="workouts-catalogue workouts-catalogue-secondary" data-en data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Browse challenges <span aria-hidden="true">→</span></a>
+            <a class="workouts-catalogue " data-fr data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Voir les défis <span aria-hidden="true">→</span></a>
+            <a class="workouts-catalogue " data-en data-keep-lang data-href="partages.html?kind=challenge" href="partages.html?kind=challenge">Browse challenges <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="workouts-path">
+            <h2 data-fr>♫ Cartes Séances</h2>
+            <h2 data-en>♫ Workout cards</h2>
+            <p data-fr>Choisis une durée ou une distance. Ta playlist accompagne chaque étape.</p>
+            <p data-en>Choose a time or a distance. Your playlist follows each stage.</p>
+            <a class="workouts-catalogue workouts-catalogue-secondary" data-fr data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Voir les cartes Séances <span aria-hidden="true">→</span></a>
+            <a class="workouts-catalogue workouts-catalogue-secondary" data-en data-keep-lang data-href="partages.html?kind=workout" href="partages.html?kind=workout">Browse workout cards <span aria-hidden="true">→</span></a>
           </article>
         </div>
       </div>
@@ -122,6 +120,8 @@
           </figcaption>
         </figure>
       </section>
+      <a class="workouts-back workouts-back-bottom" data-fr data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Retour à l’accueil</a>
+      <a class="workouts-back workouts-back-bottom" data-en data-keep-lang data-href="./#seances-programmees" href="./#seances-programmees">← Back to home</a>
       <script>
         window.BOS_onLangChange(function (lang) {
           document.querySelectorAll(".workouts-screens img").forEach(function (img) {
