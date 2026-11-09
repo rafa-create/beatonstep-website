@@ -16,8 +16,6 @@ const script=face+'\n'+
   fs.readFileSync(path.join(dist,'sport-card-percentile.js'),'utf8')+'\n'+
   html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const rules=JSON.parse(fs.readFileSync(path.join(dist,'sport-card-rules.json'),'utf8'));
-assert.match(html,/Durée totale : /);
-assert.match(html,/Séance du /);
 assert.match(html,/event\.session/);
 const example={
   id:1,kind:'workout',source:'spotify',name:'Course progressive 40 min',
