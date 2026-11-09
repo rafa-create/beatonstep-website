@@ -148,21 +148,35 @@ export async function readPublicSportCards(db,url,{
     'CASE WHEN COALESCE(prior_pref.show_challenges,1)=1 THEN prior.handle ELSE NULL END AS from_handle,'+
     'CASE WHEN COALESCE(recipient_pref.show_challenges,1)=1 THEN recipient.handle ELSE NULL END AS to_handle,'+
     // A win's epoch uses NEW.verified_at, so an equal verified_at + card/user
-    // uniquely identifies a qualifying receipt. Match its separately saved
-    // private run only by exact run ID AND completed timestamp. Return only
-    // allowlisted numbers, never its complete snapshot or proof.
+    // uniquely identifies a qualifying receipt. Native BeatOnStep archives use
+    // the verified run ID. Strava archives use run-<activity ID>-<start>, while
+    // the award ledger uses run-<start>-<end>; bridge them only through the
+    // completed server-side Strava claim and exact start/end timestamps.
+    // Return allowlisted metrics only, never the private snapshot or proof.
     `(SELECT json_object('endedAtMs',json_extract(saved.snapshot_json,'$.endedAtMs'),
        'durationSeconds',json_extract(saved.snapshot_json,'$.durationSeconds'),
        'distanceMeters',json_extract(saved.snapshot_json,'$.distanceMeters'),
        'averagePaceSecPerKm',json_extract(saved.snapshot_json,'$.averagePaceSecPerKm'))
        FROM sport_verified_runs verified
        JOIN account_run_records saved ON saved.user_id=verified.user_id
-         AND saved.run_id=verified.run_id AND saved.ended_at=verified.completed_at
+         AND saved.ended_at=verified.completed_at
+         AND json_extract(saved.snapshot_json,'$.endedAtMs')=verified.completed_at
+         AND (
+           saved.run_id=verified.run_id
+           OR EXISTS (
+             SELECT 1 FROM strava_activity_award_claims sc
+             WHERE sc.user_id=verified.user_id AND sc.run_id=verified.run_id
+               AND sc.state='complete'
+               AND saved.run_id LIKE 'run-'||sc.activity_id||'-%'
+               AND saved.started_at=CAST(
+                 substr(sc.run_id,5,instr(substr(sc.run_id,5),'-')-1) AS INTEGER)
+               AND json_extract(saved.snapshot_json,'$.workoutName') LIKE 'Strava · %'
+           )
+         )
        LEFT JOIN community_profile_settings consent ON consent.user_id=verified.user_id
        WHERE e.reason='sport_win' AND COALESCE(consent.show_challenges,1)=1
          AND verified.card_id=e.card_id
          AND verified.user_id=e.new_owner_id AND verified.verified_at=e.changed_at
-         AND json_extract(saved.snapshot_json,'$.endedAtMs')=verified.completed_at
          AND (SELECT COUNT(*) FROM sport_verified_runs candidate
            WHERE candidate.card_id=e.card_id AND candidate.user_id=e.new_owner_id
              AND candidate.verified_at=e.changed_at)=1
