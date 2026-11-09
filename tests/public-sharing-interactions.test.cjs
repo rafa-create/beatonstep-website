@@ -165,7 +165,7 @@ function setup(search,data=example){
     'catalogue cards show difficulty through the card artwork, not a redundant text label');
   assert.ok(html.includes('html{overflow-x:clip}'),
     'catalogue page clips horizontal overflow at the viewport root');
-  // Challenge catalogue cards expose the challenge target and readable difficulty tier.
+  // Challenge catalogue cards expose the target and owner; difficulty stays visual on the card face.
   assert.match(landing.elements.results.textContent,/SUB 25 min/);
   assert.match(landing.elements.results.textContent,/@runner_b/);
   // A bare 'Chargement…' formerly leaked below an already-loaded podium:
