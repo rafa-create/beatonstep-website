@@ -231,7 +231,7 @@ test('verified sport wins show whole run totals only, with strict SQL linking',a
   assert.match(sql,/strava_activity_award_claims sc/,
     'Strava imports are linked only through the completed server-side award claim');
   assert.match(sql,/sc\.state='complete'/);
-  assert.match(sql,/saved\.run_id LIKE 'run-'\|\|sc\.activity_id\|\|'-'%/,
+  assert.match(sql,/saved\.run_id LIKE 'run-'\|\|sc\.activity_id\|\|'-\%'/,
     'the private Strava archive ID must contain the claimed activity ID');
   assert.match(sql,/saved\.started_at=CAST\(/,
     'the Strava archive start must match the start encoded in the verified award run');
