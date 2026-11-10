@@ -24,7 +24,9 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/class="rule-note"/,
     'the guide explicitly explains worldwide uniqueness, ownership and fair performance tiers');
   assert.match(page,/<details class="threshold-details" id="ownership-details">/);
-  assert.match(page,/<summary><span data-fr>Mieux comprendre<\/span><span data-en hidden>Learn more<\/span><\/summary>/);
+  assert.match(page,/<h2 id="more-info-title"><span data-fr>En savoir plus<\/span><span data-en hidden>Learn more<\/span><\/h2>/);
+  assert.match(page,/<details class="stars-details" aria-labelledby="levels-title">/,
+    'the detailed star explanation is grouped in the expandable information section');
   assert.ok(page.indexOf('id="paliers"')<page.indexOf('id="ownership-details"'),
     'ownership explanations are expandable and placed after the chrono calculator');
   assert.match(page,/Une carte, un seul propriétaire dans le monde/);
@@ -263,15 +265,30 @@ test('5km sample classification and 1km second caps follow the canonical JSON',(
 
 
 
-test('challenge guide includes a bilingual FAQ covering the complete ownership rules',()=>{
+test('challenge guide keeps a concise bilingual FAQ and detailed rules in expandable sections',()=>{
   const faq=page.slice(page.indexOf('class="challenge-faq"'));
+  const ownership=page.slice(page.indexOf('id="ownership-details"'),page.indexOf('class="stars-details"'));
   assert.ok(faq.indexOf('class="challenge-faq"')<faq.indexOf('class="footer"'),
     'the FAQ is placed at the end of the guide, before the catalog link');
   for(const phrase of [
+    'Une course peut-elle me rapporter plusieurs cartes ?',
+    'Can one run earn me several cards?',
+    'une seule carte',
+    'one card only',
+    'Puis-je posséder plusieurs cartes ?',
+    'Can I own several cards?',
+    'Puis-je récupérer une carte fantôme ?',
+    'Can I win back a ghost card?',
+    'La simulation permet-elle de gagner une carte ?',
+    'Does the preview award a card?',
+    'course enregistrée et validée',
+    'run recorded and validated'
+  ]) {
+    assert.ok(faq.toLowerCase().includes(phrase.toLowerCase()),'FAQ covers: '+phrase);
+  }
+  for(const phrase of [
     'Comment gagner une carte Défi ?',
     'How do I win a Challenge Card?',
-    'une seule carte pour cette course',
-    'one card for that run',
     'strictement inférieur à 25 min',
     'strictly under 25:00',
     'SUB 21',
@@ -280,12 +297,10 @@ test('challenge guide includes a bilingual FAQ covering the complete ownership r
     'la carte t’est transférée',
     'the card is transferred to you',
     'carte fantôme',
-    'ghost card',
-    'Puis-je posséder plusieurs cartes Défis ?',
-    'Can I own several Challenge Cards?',
-    'Que représentent les étoiles ?',
-    'What do the stars mean?'
+    'ghost card'
   ]) {
-    assert.ok(faq.includes(phrase),'FAQ covers: '+phrase);
+    assert.ok(ownership.includes(phrase),'ownership explanation covers: '+phrase);
   }
+  assert.match(page,/<span data-fr>Comprendre les étoiles<\/span>/,
+    'the star explanation remains available separately');
 });
