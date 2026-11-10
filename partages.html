@@ -119,6 +119,8 @@
     .sport-card .collection-art{background:radial-gradient(ellipse at 50% 100%,#61532b91,transparent 65%),linear-gradient(130deg,#2b281a,#161710);border-color:#776532}
     .sport-card .collection-glyph{font-size:55px}
     .sport-ownership{font-size:14px;color:#dfd9bc;margin:12px 0 4px}
+    .sport-current-owner-label{display:block;margin-bottom:3px;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .sport-ownership-line{display:block}
     .sport-ownership strong{color:var(--yellow)}
     .profile-handle{color:var(--yellow);font-weight:750;text-decoration:underline;text-decoration-color:#fcea0790;text-underline-offset:3px}
     .profile-handle:hover{color:#fff59a;text-decoration-color:currentColor}
@@ -792,7 +794,11 @@
     ownerValue.append(profileHandle(item.owner,item.hasOwner===true
       ?fr('Compte privé','Private account')
       :fr('Réserve BeatOnStep','BeatOnStep reserve')));
-    owner.append(el('span','',fr('La carte que tu peux voler à ','The card you can steal from ')),ownerValue);
+    owner.append(el('span','sport-current-owner-label',
+      fr('Détenteur actuel','Current holder')),
+      el('span','sport-ownership-line',
+        el('span','',fr('La carte que tu peux voler à ','The card you can steal from '))));
+    owner.lastChild.append(ownerValue);
     copy.append(owner);
     summary.append(face,copy);
     if(item.performanceWarning===true)
