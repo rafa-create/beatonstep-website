@@ -287,17 +287,18 @@ test('challenge guide keeps a concise bilingual FAQ and detailed rules in expand
     assert.ok(faq.toLowerCase().includes(phrase.toLowerCase()),'FAQ covers: '+phrase);
   }
   for(const phrase of [
-    'Comment gagner une carte Défi ?',
-    'How do I win a Challenge Card?',
-    'strictement inférieur à 25 min',
-    'strictly under 25:00',
+    'Une carte, un seul propriétaire dans le monde.',
+    'One card, one owner worldwide.',
+    '5 km en 24 min 55 s',
+    'I run 5 km in 24:55.',
+    'SUB 25',
     'SUB 21',
-    'qu’un seul propriétaire à la fois, dans le monde entier',
-    'only one owner at a time, worldwide',
-    'la carte t’est transférée',
-    'the card is transferred to you',
+    'la carte quitte ma collection et rejoint la sienne',
+    'the card leaves my collection and joins theirs',
     'carte fantôme',
-    'ghost card'
+    'ghost card',
+    'tu n’es plus propriétaire de la carte',
+    'you no longer own the card'
   ]) {
     assert.ok(ownership.includes(phrase),'ownership explanation covers: '+phrase);
   }
