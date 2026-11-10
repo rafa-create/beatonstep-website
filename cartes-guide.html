@@ -148,27 +148,6 @@
     </section>
 
 
-    <section class="panel" aria-label="Règles de propriété des cartes">
-    <div class="rule-note" style="margin-top:18px;padding:16px;border:1px solid #6a5a31;border-radius:14px;background:#292518">
-      <p data-fr><strong>Une carte, un seul propriétaire dans le monde.</strong> Une carte correspond à une distance et à une tranche de chrono. Elle n’est pas débloquée séparément par chaque joueur : elle peut changer de propriétaire.</p>
-      <p data-en hidden><strong>One card, one owner worldwide.</strong> A card matches one distance and one time range. It is not unlocked separately by every player: ownership can change.</p>
-      <div class="table-scroll">
-        <table aria-label="Ce qui se passe pour la carte selon ma course">
-          <thead><tr><th><span data-fr>Ce que je fais</span><span data-en hidden>What I do</span></th><th><span data-fr>Ce qu’il se passe pour la carte</span><span data-en hidden>What happens to the card</span></th></tr></thead>
-          <tbody>
-            <tr><td><span data-fr>Je cours 5 km en 24 min 55 s.</span><span data-en hidden>I run 5 km in 24:55.</span></td><td><span data-fr>Je corresponds à <strong>SUB 25</strong>. Si personne ne la possède, je la gagne. Sinon, elle m’est transférée.</span><span data-en hidden>I match <strong>SUB 25</strong>. If no one owns it, I win it. Otherwise, it is transferred to me.</span></td></tr>
-            <tr><td><span data-fr>Je cours 5 km en 20 min au lieu de 25 min.</span><span data-en hidden>I run 5 km in 20:00 instead of 25:00.</span></td><td><span data-fr>Je corresponds à <strong>SUB 21</strong>, un palier plus élevé. Je ne prends pas la carte SUB 25.</span><span data-en hidden>I match <strong>SUB 21</strong>, a higher tier. I do not take the SUB 25 card.</span></td></tr>
-            <tr><td><span data-fr>Un autre coureur fait 5 km en 24 min 35 s alors que je possède SUB 25.</span><span data-en hidden>Another runner completes 5 km in 24:35 while I own SUB 25.</span></td><td><span data-fr>Il correspond aussi à <strong>SUB 25</strong>. Après validation de sa course, la carte quitte ma collection et rejoint la sienne.</span><span data-en hidden>They also match <strong>SUB 25</strong>. Once their run is validated, the card leaves my collection and joins theirs.</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="fine" data-fr><strong>Pourquoi c’est équitable ?</strong> Chaque tranche de chrono a sa propre carte. Un coureur très rapide qui fait 5 km en 20 min vise SUB 21, pas SUB 25 : il ne prend donc pas la carte d’un coureur plus lent simplement parce qu’il court plus vite.</p>
-      <p class="fine" data-en hidden><strong>Why is it fair?</strong> Each time range has its own card. A very fast runner completing 5 km in 20 minutes targets SUB 21, not SUB 25. They do not take a slower runner’s card just by running faster.</p>
-      <p class="fine" data-fr>Si tu as déjà gagné une carte et qu’un autre coureur te la prend, ta réussite reste visible dans ta collection sous forme de <strong>carte fantôme</strong>. Elle rappelle que tu as réussi cette performance, mais indique que tu n’es plus propriétaire de la carte.</p>
-      <p class="fine" data-en hidden>If you previously won a card and another runner takes it, your achievement remains visible in your collection as a <strong>ghost card</strong>. It shows that you achieved this performance, but that you no longer own the card.</p>
-    </div>
-    </section>
-
     <section class="panel" id="paliers" aria-labelledby="threshold-title">
       <h2 id="threshold-title"><span data-fr>Et avec mon chrono ?</span><span data-en hidden>What about my time?</span></h2>
       <p class="lead" data-fr>Choisis ta distance, indique ton chrono et découvre la carte que tu pourrais gagner.</p>
@@ -208,6 +187,28 @@
         </div>
       </details>
     </section>
+    <details class="threshold-details" id="ownership-details">
+      <summary><span data-fr>Mieux comprendre</span><span data-en hidden>Learn more</span></summary>
+    <div class="rule-note" style="margin-top:18px;padding:16px;border:1px solid #6a5a31;border-radius:14px;background:#292518">
+      <p data-fr><strong>Une carte, un seul propriétaire dans le monde.</strong> Une carte correspond à une distance et à une tranche de chrono. Elle n’est pas débloquée séparément par chaque joueur : elle peut changer de propriétaire.</p>
+      <p data-en hidden><strong>One card, one owner worldwide.</strong> A card matches one distance and one time range. It is not unlocked separately by every player: ownership can change.</p>
+      <div class="table-scroll">
+        <table aria-label="Ce qui se passe pour la carte selon ma course">
+          <thead><tr><th><span data-fr>Ce que je fais</span><span data-en hidden>What I do</span></th><th><span data-fr>Ce qu’il se passe pour la carte</span><span data-en hidden>What happens to the card</span></th></tr></thead>
+          <tbody>
+            <tr><td><span data-fr>Je cours 5 km en 24 min 55 s.</span><span data-en hidden>I run 5 km in 24:55.</span></td><td><span data-fr>Je corresponds à <strong>SUB 25</strong>. Si personne ne la possède, je la gagne. Sinon, elle m’est transférée.</span><span data-en hidden>I match <strong>SUB 25</strong>. If no one owns it, I win it. Otherwise, it is transferred to me.</span></td></tr>
+            <tr><td><span data-fr>Je cours 5 km en 20 min au lieu de 25 min.</span><span data-en hidden>I run 5 km in 20:00 instead of 25:00.</span></td><td><span data-fr>Je corresponds à <strong>SUB 21</strong>, un palier plus élevé. Je ne prends pas la carte SUB 25.</span><span data-en hidden>I match <strong>SUB 21</strong>, a higher tier. I do not take the SUB 25 card.</span></td></tr>
+            <tr><td><span data-fr>Un autre coureur fait 5 km en 24 min 35 s alors que je possède SUB 25.</span><span data-en hidden>Another runner completes 5 km in 24:35 while I own SUB 25.</span></td><td><span data-fr>Il correspond aussi à <strong>SUB 25</strong>. Après validation de sa course, la carte quitte ma collection et rejoint la sienne.</span><span data-en hidden>They also match <strong>SUB 25</strong>. Once their run is validated, the card leaves my collection and joins theirs.</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine" data-fr><strong>Pourquoi c’est équitable ?</strong> Chaque tranche de chrono a sa propre carte. Un coureur très rapide qui fait 5 km en 20 min vise SUB 21, pas SUB 25 : il ne prend donc pas la carte d’un coureur plus lent simplement parce qu’il court plus vite.</p>
+      <p class="fine" data-en hidden><strong>Why is it fair?</strong> Each time range has its own card. A very fast runner completing 5 km in 20 minutes targets SUB 21, not SUB 25. They do not take a slower runner’s card just by running faster.</p>
+      <p class="fine" data-fr>Si tu as déjà gagné une carte et qu’un autre coureur te la prend, ta réussite reste visible dans ta collection sous forme de <strong>carte fantôme</strong>. Elle rappelle que tu as réussi cette performance, mais indique que tu n’es plus propriétaire de la carte.</p>
+      <p class="fine" data-en hidden>If you previously won a card and another runner takes it, your achievement remains visible in your collection as a <strong>ghost card</strong>. It shows that you achieved this performance, but that you no longer own the card.</p>
+    </div>
+    </details>
+
     <details class="stars-details" aria-labelledby="levels-title">
       <summary><h2 id="levels-title"><span data-fr>Comprendre les étoiles</span><span data-en hidden>Understanding the stars</span></h2></summary>
       <p class="fine" data-fr>Référence internationale de coureurs arrivés en course, tous âges et sexes confondus. Pourcentage approximatif, jamais un classement personnel.</p>
