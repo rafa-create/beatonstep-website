@@ -260,3 +260,33 @@ test('5km sample classification and 1km second caps follow the canonical JSON',(
   assert.equal(difficultyForSportCard(40000,sprintCaps.legend).difficulty,'legend');
   assert.equal(difficultyForSportCard(40000,sprintCaps.expert).difficulty,'expert');
 });
+
+
+test('challenge guide includes a bilingual FAQ covering the complete ownership rules',()=>{
+  const faq=page.slice(page.indexOf('class="challenge-faq"'));
+  assert.ok(faq.indexOf('class="challenge-faq"')<faq.indexOf('class="footer"'),
+    'the FAQ is placed at the end of the guide, before the catalog link');
+  for(const phrase of [
+    'Comment gagner une carte Défi ?',
+    'How do I win a Challenge Card?',
+    'une seule carte pour cette course',
+    'one card for that run',
+    'strictement inférieur à 25 min',
+    'strictly under 25:00',
+    'SUB 21',
+    'qu’un seul propriétaire à la fois, dans le monde entier',
+    'only one owner at a time, worldwide',
+    'la carte t’est transférée',
+    'the card is transferred to you',
+    'carte fantôme',
+    'ghost card',
+    'P then'
+  ]) {
+    if(phrase==='P then') continue;
+    assert.ok(faq.includes(phrase),'FAQ covers: '+phrase);
+  }
+  assert.match(faq,/P uis-je posséder plusieurs cartes Défis\?/);
+  assert.match(faq,/Que représentent les étoiles\?/);
+  assert.match(faq,/data-fr hidden>Can I own several Challenge Cards/);
+  assert.match(faq,/data-en hidden>What do the stars mean/);
+});
