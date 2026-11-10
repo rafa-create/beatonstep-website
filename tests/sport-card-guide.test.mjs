@@ -281,7 +281,7 @@ test('challenge guide includes a bilingual FAQ covering the complete ownership r
     'the card is transferred to you',
     'carte fantôme',
     'ghost card',
-    'P uis-je posséder plusieurs cartes Défis ?',
+    'Puis-je posséder plusieurs cartes Défis ?',
     'Can I own several Challenge Cards?',
     'Que représentent les étoiles ?',
     'What do the stars mean?'
