@@ -23,6 +23,10 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'redundant introductory level explanation is removed');
   assert.match(page,/class="rule-note"/,
     'the guide explicitly explains worldwide uniqueness, ownership and fair performance tiers');
+  assert.match(page,/<details class="threshold-details" id="ownership-details">/);
+  assert.match(page,/<summary><span data-fr>Mieux comprendre<\/span><span data-en hidden>Learn more<\/span><\/summary>/);
+  assert.ok(page.indexOf('id="paliers"')<page.indexOf('id="ownership-details"'),
+    'ownership explanations are expandable and placed after the chrono calculator');
   assert.match(page,/Une carte, un seul propriétaire dans le monde/);
   assert.match(page,/5 km en 24 min 55 s/);
   assert.match(page,/de 24 min à moins de 25 min/);
