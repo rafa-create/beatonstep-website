@@ -43,7 +43,8 @@ test('special page has two short, distinct catalogue choices with clear game rul
   }
   assert.doesNotMatch(hero,/Explorer le catalogue|Browse the catalogue/,
     'replace the ambiguous single catalogue button');
-  assert.ok(hero.indexOf('Cartes Séances')<hero.indexOf('Cartes Défis'));
+  assert.ok(hero.indexOf('Cartes Défis')<hero.indexOf('Cartes Séances'),
+    'challenge cards appear before workout cards');
   assert.match(page,/id="main"/);
   assert.match(page,/workouts-screens/,'existing running screenshots stay in place');
 });
