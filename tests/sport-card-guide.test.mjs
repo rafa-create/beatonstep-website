@@ -21,14 +21,20 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/<span data-fr>Comprendre les étoiles<\/span>/);
   assert.doesNotMatch(page,/Les 7 niveaux de difficulté|Chaque étoile situe approximativement ton chrono/,
     'redundant introductory level explanation is removed');
-  assert.doesNotMatch(page,/class="rule-note"/,
-    'one-card rule, strict SUB and ownership are already summarized in three steps');
+  assert.match(page,/class="rule-note"/,
+    'the guide explicitly explains worldwide uniqueness, ownership and fair performance tiers');
+  assert.match(page,/Une carte, un seul propriétaire dans le monde/);
+  assert.match(page,/5 km en 24 min 55 s/);
+  assert.match(page,/5 km en 20 min au lieu de 25 min/);
+  assert.match(page,/la carte quitte ma collection et rejoint la sienne/);
+  assert.match(page,/ta réussite personnelle reste enregistrée/);
   assert.match(page,/Après une course validée, tu peux gagner/);
   assert.match(page,/Ton chrono fait la différence/);
   assert.match(page,/Pour chaque distance, plusieurs cartes existent selon ta performance/);
   assert.match(page,/Each distance has several cards depending on your performance/);
   assert.doesNotMatch(page,/À chaque palier, sa carte !/);
-  assert.match(page,/tu peux la voler à un autre coureur/);
+  assert.match(page,/ta course validée la lui retire et te la donne/);
+  assert.doesNotMatch(page,/tu peux la voler à un autre coureur/);
   assert.match(page,/id="threshold-title"/);
   assert.match(page,/Et avec mon chrono/);
   assert.match(page,/id="threshold-details"/);
