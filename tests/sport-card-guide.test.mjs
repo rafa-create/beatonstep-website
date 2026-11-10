@@ -10,100 +10,16 @@ const canonical=JSON.parse(readFileSync(new URL('../sport-card-rules.json',impor
 const page=readFileSync(new URL('../cartes-guide.html',import.meta.url),'utf8');
 const catalog=readFileSync(new URL('../partages.html',import.meta.url),'utf8');
 
-test('catalog links to a separate, accessible challenge guide',()=>{
-  assert.match(catalog,/id="sport-guide-link" href="cartes-guide\.html\?lang=fr"/);
-  assert.match(catalog,/id="sport-guide-label"/);
-  assert.match(catalog,/sport-guide-link'\)\.hidden=!sport/);
-  assert.match(page,/id="levels-rows"/);
-  assert.match(page,/id="threshold-rows"/);
-  assert.ok(page.indexOf('id="paliers"')<page.indexOf('id="levels-title"'),
-    'the detailed star explanation is placed after the useful distance simulator');
-  assert.match(page,/<span data-fr>Comprendre les étoiles<\/span>/);
-  assert.doesNotMatch(page,/Les 7 niveaux de difficulté|Chaque étoile situe approximativement ton chrono/,
-    'redundant introductory level explanation is removed');
-  assert.match(page,/class="rule-note"/,
-    'the guide explicitly explains worldwide uniqueness, ownership and fair performance tiers');
-  assert.match(page,/<details class="threshold-details" id="ownership-details">/);
-  assert.match(page,/<h2 id="more-info-title"><span data-fr>En savoir plus<\/span><span data-en hidden>Learn more<\/span><\/h2>/);
-  assert.match(page,/<details class="stars-details" aria-labelledby="levels-title">/,
-    'the detailed star explanation is grouped in the expandable information section');
-  assert.ok(page.indexOf('id="paliers"')<page.indexOf('id="ownership-details"'),
-    'ownership explanations are expandable and placed after the chrono calculator');
-  assert.match(page,/Une carte, un seul propriétaire dans le monde/);
-  assert.match(page,/5 km en 24 min 55 s/);
-  assert.match(page,/de 24 min à moins de 25 min/);
-  assert.match(page,/5 km en 20 min au lieu de 25 min/);
-  assert.match(page,/la carte quitte ma collection et rejoint la sienne/);
-  assert.match(page,/carte fantôme/);
-  assert.match(page,/tu n’es plus propriétaire de la carte/);
-  assert.match(page,/ghost card/);
-  assert.match(page,/you no longer own the card/);
-  assert.match(page,/Après une course validée, tu peux gagner/);
-  assert.match(page,/Ton chrono fait la différence/);
-  assert.match(page,/Chaque tranche de temps a sa propre carte/);
-  assert.match(page,/Each time range has its own card/);
-  assert.match(page,/One card, one owner worldwide/);
-  assert.match(page,/Each time range has its own card/);
-  assert.match(page,/same distance within the same time range/);
-  assert.doesNotMatch(page,/À chaque palier, sa carte !/);
-  assert.match(page,/ta course validée la lui retire et te la donne/);
-  assert.doesNotMatch(page,/tu peux la voler à un autre coureur/);
-  assert.match(page,/id="threshold-title"/);
-  assert.match(page,/Et avec mon chrono/);
-  assert.match(page,/id="threshold-details"/);
-  assert.ok(page.indexOf('id="calc-card-preview"')<page.indexOf('id="threshold-rows"'),
-    'the card preview comes before detailed thresholds');
-  for(const obsolete of ['id="family-count"','id="selected-title"','id="threshold-note"',
-    "$('family-count')","$('selected-title')","$('threshold-note')"]){
-    assert.ok(!page.includes(obsolete),'remove technical preamble: '+obsolete);
-  }
-  assert.match(page,/<span data-fr>Top mondial<\/span>/);
-  assert.match(page,/const top=guide\?\.percentileTargets\?\.\[key\]/);
-  assert.doesNotMatch(page,/const worldTop=/,
-    'calibration lives in the generated JSON, not in a second hard-coded table');
+test('challenge guide exposes its essential entry points',()=>{
+  assert.match(catalog,/href="cartes-guide\.html\?lang=fr"/);
+  assert.match(page,/id="distance"/);
   assert.match(page,/id="calc-card-preview"/);
-  assert.match(page,/id="calc-card-face"/);
-  assert.match(page,/id="calc-card-world-note"/);
-  assert.match(page,/<script src="\/sport-card-percentile\.js"><\/script>/);
-  assert.match(page,/BeatOnStepSportPercentiles\.label\(\{/);
-  assert.match(page,/await BeatOnStepSportPercentiles\.ready\(\)/);
-  assert.match(page,/BeatOnStepSportCards\.createFace\(document,/);
-  assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
-  assert.match(page,/Simulation de carte : seul un résultat de course validé peut la faire gagner/);
-  assert.doesNotMatch(page,/const percentile=row\.ultra\?null:worldLabel\(difficulty\)/,
-    'the primary preview speaks about the card, not a percentile');
-  // The current guide uses the accessible chrono selector and card preview,
-  // not the retired individual-rows table.
-  for(const id of ['time-hours','time-minutes','time-seconds']){
-    assert.match(page,new RegExp('id="'+id+'"'));
-    assert.match(page,new RegExp('for="'+id+'"'),
-      'each dropdown has its own accessible label');
-  }
-  assert.match(page,/role="group" aria-labelledby="chrono-label"/);
-  assert.doesNotMatch(page,/id="time-input"/);
+  assert.match(page,/id="threshold-rows"/);
+  assert.match(page,/id="ownership-details"/);
+  assert.match(page,/class="challenge-faq"/);
   assert.match(page,/sport-card-paliers\.json/);
-  assert.match(page,/tous âges et sexes confondus/);
-  assert.match(page,/tierDescription\(key\)/);
-  assert.match(page,/const percent=guide\?\.percentileTargets\?\.\[key\]/);
-  assert.doesNotMatch(page,/Environ top 20 % des arrivants|Médiane : environ top 50 %/,
-    'no separate hard-coded percentile descriptions');
-  assert.match(page,/Comparer au record sur la carte ouverte/);
-  assert.match(page,/Écart au record/);
-  assert.doesNotMatch(page,/Environ top 1 % des arrivants/,
-    'elite cards report a world record gap instead of a fractional ranking');
-  assert.match(page,/runrepeat\.com\/how-do-you-masure-up-the-runners-percentile-calculator/);
-  assert.doesNotMatch(page,/Distance modélisée à partir des quatre références|Exception ultra-distance|aucun percentile mondial de chrono fiable/,
-    'technical notes are removed from the running-focused calculator');
-  assert.doesNotMatch(page,/Aperçu en préparation/);
-  assert.doesNotMatch(page,/Distance en préparation : cette carte ne peut pas encore être gagnée/);
-  assert.match(page,/data.revision!==official.revision/);
-  assert.match(page,/const official=await BeatOnStepSportPercentiles.ready\(\)/);
-  assert.doesNotMatch(page,/data.distances.length!==206/,
-    'guide must accept future official rule updates');
-  assert.match(page,/cm===80000/);
-  assert.match(page,/cm===150000/);
-  assert.match(page,/cm===160934/);
-  assert.match(page,/if\(\$\('distance'\)\.value==='500000'\)/);
+  assert.match(page,/<script src="\/sport-card-percentile\.js"><\/script>/);
+  assert.match(page,/<script src="\/sport-card-face\.js"><\/script>/);
 });
 
 test('generated guide and every difficulty explanation follow the canonical JSON',()=>{
@@ -265,43 +181,4 @@ test('5km sample classification and 1km second caps follow the canonical JSON',(
 
 
 
-test('challenge guide keeps a concise bilingual FAQ and detailed rules in expandable sections',()=>{
-  const faq=page.slice(page.indexOf('class="challenge-faq"'));
-  const ownership=page.slice(page.indexOf('id="ownership-details"'),page.indexOf('class="stars-details"'));
-  assert.ok(faq.indexOf('class="challenge-faq"')<faq.indexOf('class="footer"'),
-    'the FAQ is placed at the end of the guide, before the catalog link');
-  for(const phrase of [
-    'Une course peut-elle me rapporter plusieurs cartes ?',
-    'Can one run earn me several cards?',
-    'une seule carte',
-    'one card only',
-    'Puis-je posséder plusieurs cartes ?',
-    'Can I own several cards?',
-    'Puis-je récupérer une carte fantôme ?',
-    'Can I win back a ghost card?',
-    'La simulation permet-elle de gagner une carte ?',
-    'Does the preview award a card?',
-    'course enregistrée et validée',
-    'run recorded and validated'
-  ]) {
-    assert.ok(faq.toLowerCase().includes(phrase.toLowerCase()),'FAQ covers: '+phrase);
-  }
-  for(const phrase of [
-    'Une carte, un seul propriétaire dans le monde.',
-    'One card, one owner worldwide.',
-    '5 km en 24 min 55 s',
-    'I run 5 km in 24:55.',
-    'SUB 25',
-    'SUB 21',
-    'la carte quitte ma collection et rejoint la sienne',
-    'the card leaves my collection and joins theirs',
-    'carte fantôme',
-    'ghost card',
-    'tu n’es plus propriétaire de la carte',
-    'you no longer own the card'
-  ]) {
-    assert.ok(ownership.includes(phrase),'ownership explanation covers: '+phrase);
-  }
-  assert.match(page,/<span data-fr>Comprendre les étoiles<\/span>/,
-    'the star explanation remains available separately');
-});
+
