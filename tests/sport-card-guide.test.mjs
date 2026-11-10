@@ -25,6 +25,7 @@ test('catalog links to a separate, accessible challenge guide',()=>{
     'the guide explicitly explains worldwide uniqueness, ownership and fair performance tiers');
   assert.match(page,/Une carte, un seul propriétaire dans le monde/);
   assert.match(page,/5 km en 24 min 55 s/);
+  assert.match(page,/de 24 min à moins de 25 min/);
   assert.match(page,/5 km en 20 min au lieu de 25 min/);
   assert.match(page,/la carte quitte ma collection et rejoint la sienne/);
   assert.match(page,/ta réussite personnelle reste enregistrée/);
@@ -33,7 +34,8 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/Chaque tranche de temps a sa propre carte/);
   assert.match(page,/Each time range has its own card/);
   assert.match(page,/One card, one owner worldwide/);
-  assert.match(page,/Each performance level has its own cards/);
+  assert.match(page,/Each time range has its own card/);
+  assert.match(page,/same distance within the same time range/);
   assert.doesNotMatch(page,/À chaque palier, sa carte !/);
   assert.match(page,/ta course validée la lui retire et te la donne/);
   assert.doesNotMatch(page,/tu peux la voler à un autre coureur/);
