@@ -41,9 +41,7 @@ var BeatOnStepSportCards=(function(){
       say('étoiles sur 7','stars out of 7',lang)+
       (item?.performanceWarning?say(', avertissement GPS',', GPS warning',lang):''));
     const top=create('div','bos-sport-top');
-    top.append(create('span','', 'BEATONSTEP'));
     if(item?.performanceWarning)top.append(create('span','bos-sport-warning-icon','⚠'));
-    top.append(create('span','bos-tier-icon',level[2]));
     const art=create('div','bos-sport-art');
     art.setAttribute('aria-hidden','true');
     const bars=create('div','bos-sport-bars');
@@ -59,8 +57,7 @@ var BeatOnStepSportCards=(function(){
         filled?'★':'☆'));
     }
     const foot=create('div','bos-sport-foot');
-    foot.append(create('span','bos-sport-category',say('CARTE DÉFI','CHALLENGE CARD',lang)),
-      create('strong','bos-sport-name',title),stars,
+    foot.append(create('strong','bos-sport-name',title),stars,
       create('span','bos-sport-unique',say('CARTE UNIQUE AU MONDE','ONE CARD WORLDWIDE',lang)));
     if(item?.performanceWarning){
       const warning=typeof item?.peakSpeedKmh==='number'
@@ -69,7 +66,8 @@ var BeatOnStepSportCards=(function(){
         :say('⚠ Performance à vérifier','⚠ Performance to review',lang);
       foot.append(create('span','bos-sport-warning-label',warning));
     }
-    face.append(top,art,foot);
+    face.append(art,foot);
+    if(item?.performanceWarning)face.insertBefore(top,art);
     return face;
   }
   return {createFace,signature,levels};
