@@ -97,6 +97,27 @@
     .time-range{color:#eee9da;font-weight:600;min-width:180px}
     .muted{color:var(--muted)}
     .footer{margin:25px 0;text-align:center;color:var(--muted);font-size:13px}
+
+    .challenge-faq{margin:26px 0}
+    .challenge-faq-shell{margin:0;border:1px solid #514b34;border-radius:16px;background:#181812;padding:0 18px}
+    .challenge-faq-shell[open]{border-color:#8c7b39}
+    .challenge-faq-shell>summary{display:flex;align-items:center;gap:12px;min-height:58px;list-style:none;cursor:pointer}
+    .challenge-faq-shell>summary::-webkit-details-marker,.challenge-faq-item>summary::-webkit-details-marker{display:none}
+    .challenge-faq-kicker{display:inline-block;padding:4px 10px;border-radius:999px;background:#fcea07;color:#17160c;font-size:11px;font-weight:850;letter-spacing:.12em}
+    .challenge-faq-shell>summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:2px solid #fcea07;border-bottom:2px solid #fcea07;transform:rotate(45deg);transition:transform .15s}
+    .challenge-faq-shell[open]>summary::after{transform:rotate(225deg)}
+    .challenge-faq-panel{padding:0 0 18px}
+    .challenge-faq-lead{color:#c3bdab;margin:0 0 14px}
+    .challenge-faq-list{display:flex;flex-direction:column;gap:9px}
+    .challenge-faq-item{margin:0;padding:0 15px;border:1px solid #514b34;border-radius:13px;background:#11110d}
+    .challenge-faq-item[open]{border-color:#8c7b39}
+    .challenge-faq-item>summary{display:flex;align-items:center;gap:10px;min-height:52px;list-style:none;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.01em}
+    .challenge-faq-item>summary::before{content:"Q";display:grid;place-items:center;flex:0 0 23px;width:23px;height:23px;border-radius:50%;background:#39331c;color:#fcea07;font-size:11px}
+    .challenge-faq-item>summary::after{content:"";flex:0 0 7px;width:7px;height:7px;margin-left:auto;border-right:2px solid #c3bdab;border-bottom:2px solid #c3bdab;transform:rotate(45deg)}
+    .challenge-faq-item[open]>summary::after{transform:rotate(225deg)}
+    .challenge-faq-item p{margin:0 0 14px;color:#c3bdab;font-size:13px;line-height:1.6}
+    .challenge-faq-item p strong{color:#f5f1e4}
+    @media(max-width:700px){.challenge-faq-shell{padding:0 13px}.challenge-faq-item{padding:0 12px}}
     [hidden]{display:none!important}
     @media(max-width:700px){.steps{grid-template-columns:1fr}.top{gap:10px}.back{margin-left:0}.lang{margin-left:auto}th,td{padding:9px 10px;font-size:12px}.stars{font-size:12px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -224,6 +245,67 @@
         </table>
       </div>
     </details>
+
+    <section class="challenge-faq" aria-labelledby="challenge-faq-title">
+      <details class="challenge-faq-shell">
+        <summary>
+          <span class="challenge-faq-kicker">FAQ</span>
+          <strong id="challenge-faq-title"><span data-fr>Tout comprendre sur les cartes Défis</span><span data-en hidden>Everything about Challenge Cards</span></strong>
+        </summary>
+        <div class="challenge-faq-panel">
+          <p class="challenge-faq-lead" data-fr>Les réponses aux questions que tu peux te poser avant de partir à la conquête d’une carte.</p>
+          <p class="challenge-faq-lead" data-en hidden>Answers to the questions you may have before setting out to win a card.</p>
+          <div class="challenge-faq-list">
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Comment gagner une carte Défi ?</span><span data-en hidden>How do I win a Challenge Card?</span></summary>
+              <p data-fr>Termine une course enregistrée et validée par BeatOnStep. Tu peux alors gagner <strong>une seule carte pour cette course</strong> : celle de la plus longue distance reconnue que tu as parcourue. Le guide te permet de simuler la carte correspondant à ton chrono, mais cette simulation ne la fait pas gagner.</p>
+              <p data-en hidden>Complete a run recorded and validated by BeatOnStep. You can then win <strong>one card for that run</strong>: the one matching the longest recognized distance you covered. The guide lets you preview the card matching your time, but the preview itself does not award it.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Comment savoir quelle carte correspond à mon chrono ?</span><span data-en hidden>How do I know which card matches my time?</span></summary>
+              <p data-fr>La carte dépend à la fois de la distance et de la tranche de temps. Par exemple, sur 5 km, <strong>SUB 25</strong> correspond à un chrono d’au moins 24 min et strictement inférieur à 25 min. À 25 min pile, tu passes au palier suivant.</p>
+              <p data-en hidden>Your card depends on both distance and time range. For example, over 5 km, <strong>SUB 25</strong> covers times of at least 24:00 and strictly under 25:00. At exactly 25:00, you move to the next tier.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Un chrono plus rapide me permet-il de prendre la carte d’un coureur moins rapide ?</span><span data-en hidden>Can a faster time take a slower runner’s card?</span></summary>
+              <p data-fr>Non, pas automatiquement. Chaque tranche de chrono possède sa propre carte. Par exemple, un 5 km en 20 min correspond à <strong>SUB 21</strong>, pas à SUB 25 : tu vises donc une autre carte.</p>
+              <p data-en hidden>No, not automatically. Each time range has its own card. For example, a 20-minute 5K matches <strong>SUB 21</strong>, not SUB 25, so it targets a different card.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Est-ce que plusieurs coureurs peuvent posséder la même carte ?</span><span data-en hidden>Can several runners own the same card?</span></summary>
+              <p data-fr>Non. Une carte correspondant à une distance et à une tranche de chrono n’existe qu’en un seul exemplaire et n’a <strong>qu’un seul propriétaire à la fois, dans le monde entier</strong>.</p>
+              <p data-en hidden>No. A card matching a distance and time range exists as a single copy and has <strong>only one owner at a time, worldwide</strong>.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Que se passe-t-il si la carte est déjà possédée ?</span><span data-en hidden>What if someone already owns the card?</span></summary>
+              <p data-fr>Si ta course validée correspond exactement à la même distance et à la même tranche de chrono, la carte t’est transférée. Tu en deviens le nouveau propriétaire et l’ancien propriétaire la perd.</p>
+              <p data-en hidden>If your validated run matches the exact same distance and time range, the card is transferred to you. You become its new owner and the previous owner loses ownership.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Est-ce que je perds toute trace d’une carte qu’on me prend ?</span><span data-en hidden>Do I lose all trace of a card someone takes from me?</span></summary>
+              <p data-fr>Non. La carte reste dans ta collection sous forme de <strong>carte fantôme</strong>. Elle conserve la trace de ta performance, mais indique clairement que tu n’en es plus propriétaire.</p>
+              <p data-en hidden>No. The card remains in your collection as a <strong>ghost card</strong>. It preserves the record of your achievement while making clear that you no longer own it.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Puis-je récupérer une carte fantôme ?</span><span data-en hidden>Can I win back a ghost card?</span></summary>
+              <p data-fr>Oui. Si tu réalises à nouveau une course validée sur la même distance et dans la même tranche de chrono, tu peux reprendre la carte à son propriétaire actuel.</p>
+              <p data-en hidden>Yes. If you complete another validated run over the same distance and within the same time range, you can take the card back from its current owner.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Puis-je posséder plusieurs cartes Défis ?</span><span data-en hidden>Can I own several Challenge Cards?</span></summary>
+              <p data-fr>Oui. Tu peux collectionner plusieurs cartes en réalisant différentes performances. La limite est qu’une même carte ne peut appartenir qu’à une seule personne à la fois ; une course validée ne rapporte, elle, qu’une carte.</p>
+              <p data-en hidden>Yes. You can collect several cards by achieving different performances. The only restriction is that each individual card can belong to only one person at a time; each validated run awards just one card.</p>
+            </details>
+            <details class="challenge-faq-item">
+              <summary><span data-fr>Que représentent les étoiles ?</span><span data-en hidden>What do the stars mean?</span></summary>
+              <p data-fr>Les étoiles indiquent le niveau de difficulté associé au palier. Les pourcentages affichés sont des repères internationaux approximatifs fondés sur des résultats de course : ce n’est ni un classement personnel ni une mesure exacte de tous les coureurs du monde. Les références et leurs limites sont détaillées dans la section « Comprendre les étoiles » ci-dessus.</p>
+              <p data-en hidden>Stars indicate the difficulty level associated with a tier. The displayed percentages are approximate international benchmarks based on race results: they are neither a personal ranking nor an exact measurement of every runner worldwide. Sources and limitations are explained in the “Understanding the stars” section above.</p>
+            </details>
+          </div>
+        </div>
+      </details>
+    </section>
+
     <p class="footer"><a href="partages.html?kind=challenge"><span data-fr>← Parcourir les cartes gagnées</span><span data-en hidden>← Browse earned cards</span></a></p>
   </main>
 </div>
