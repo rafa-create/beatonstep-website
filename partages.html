@@ -779,11 +779,6 @@
   function createSportCard(item,detailed,inFocus=false){
     const card=el('article','card sport-card');
     const summary=el('div','share-summary sport-summary');
-    const head=el('div','card-head');
-    const identity=el('span','collection-identity');
-    identity.append(el('span','collection-brand','BeatOnStep'),
-      el('span','collection-number','#'+item.id));
-    head.append(identity,el('span','badge',fr('Défi','Challenge')));
     // One face for catalogue, account and sport-gift views.
     const face=BeatOnStepSportCards.createFace(document,{
       title:sportName(item),distanceCm:item.distanceCm,
@@ -798,7 +793,7 @@
       ?fr('Compte privé','Private account')
       :fr('Réserve BeatOnStep','BeatOnStep reserve')));
     owner.append(el('span','',fr('La carte que tu peux voler à ','The card you can steal from ')),ownerValue);
-    copy.append(head,owner);
+    copy.append(owner);
     summary.append(face,copy);
     if(item.performanceWarning===true)
       copy.append(el('p','sport-warning',
