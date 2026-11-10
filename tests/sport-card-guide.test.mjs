@@ -28,7 +28,10 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/de 24 min à moins de 25 min/);
   assert.match(page,/5 km en 20 min au lieu de 25 min/);
   assert.match(page,/la carte quitte ma collection et rejoint la sienne/);
-  assert.match(page,/ta réussite personnelle reste enregistrée/);
+  assert.match(page,/carte fantôme/);
+  assert.match(page,/tu n’es plus propriétaire de la carte/);
+  assert.match(page,/ghost card/);
+  assert.match(page,/you no longer own the card/);
   assert.match(page,/Après une course validée, tu peux gagner/);
   assert.match(page,/Ton chrono fait la différence/);
   assert.match(page,/Chaque tranche de temps a sa propre carte/);
