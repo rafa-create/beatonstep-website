@@ -30,8 +30,10 @@ test('catalog links to a separate, accessible challenge guide',()=>{
   assert.match(page,/ta réussite personnelle reste enregistrée/);
   assert.match(page,/Après une course validée, tu peux gagner/);
   assert.match(page,/Ton chrono fait la différence/);
-  assert.match(page,/Pour chaque distance, plusieurs cartes existent selon ta performance/);
-  assert.match(page,/Each distance has several cards depending on your performance/);
+  assert.match(page,/Chaque tranche de temps a sa propre carte/);
+  assert.match(page,/Each time range has its own card/);
+  assert.match(page,/One card, one owner worldwide/);
+  assert.match(page,/Each performance level has its own cards/);
   assert.doesNotMatch(page,/À chaque palier, sa carte !/);
   assert.match(page,/ta course validée la lui retire et te la donne/);
   assert.doesNotMatch(page,/tu peux la voler à un autre coureur/);
