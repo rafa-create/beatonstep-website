@@ -42,9 +42,11 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .deck-tile small{color:var(--sub)}
 .created-cards-fold{margin:16px 0;border:1px solid var(--line);border-radius:14px;background:#171610;padding:12px 16px}
 .account-fold{display:block;margin:14px 0;border:1px solid var(--line);border-radius:14px;background:#171610;padding:13px 16px}
-.account-fold summary{display:flex;flex-direction:column;gap:3px;cursor:pointer;list-style:revert;padding:3px 0}
+.account-fold summary{cursor:pointer;padding:3px 0}
+.account-fold summary::marker{color:var(--accent)}
 .account-fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .account-fold[open] summary{margin-bottom:13px}
+.account-fold-title,.account-fold-description{display:block}
 .account-fold-title{font-size:17px;font-weight:850;color:var(--ink)}
 .account-fold-description{font-size:13px;font-weight:400;color:var(--sub)}
 .account-fold #session-type-filter{margin:0 0 14px}
@@ -147,8 +149,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 </form></section>
 <section id="forgot" hidden><h2>Retrouver mon compte</h2>
 <p>Saisissez l’adresse e-mail de votre compte. Si elle existe, vous recevrez un lien valable 20 minutes.</p>
-<form id="forgot-form">
-<label for="forgot-email">E-mail</label><input id="forgot-email" type="email" autocomplete="email" required>
+<form id="forgot-form"><label for="forgot-email">E-mail</label><input id="forgot-email" type="email" autocomplete="email" required>
 <div class="actions"><button type="submit">Recevoir un lien</button>
 <button type="button" class="secondary" id="forgot-back">Retour à la connexion</button></div>
 </form></section>
@@ -297,8 +298,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       password_reset_unavailable:'La récupération par e-mail n’est pas encore configurée.',
       invalid_password_reset:'Ce lien a expiré ou le mot de passe est invalide. Demandez un nouveau lien.',
       retry_later:'Trop de tentatives. Réessayez ultérieurement.',
-      invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.',
-      collection_not_ready:'La collection sera disponible après la migration D1.',
+      invalid_registration:'Vérifiez le pseudo, le mot de passe et les conditions.',      collection_not_ready:'La collection sera disponible après la migration D1.',
       pack_unavailable:'Aucune nouvelle carte disponible dans un pack.',
       gift_unavailable:'Ce lien de transfert a expiré ou a déjà été utilisé.',
       card_is_permanent:'Une carte de séance reste publique. Vous pouvez supprimer votre compte sans détruire la carte.'})[value.error]||
@@ -447,8 +447,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     const pace=historyClock(seconds);
     return pace?pace+'/km':null;
   }
-  // Sporting-card history uses a compact French pace format, distinct from
-  // the existing workout history format.  function sportHistoryPace(seconds){
+  // Sporting-card history uses a compact French pace format, distinct from  // the existing workout history format.  function sportHistoryPace(seconds){
     if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<=0)return null;
     const rounded=Math.round(seconds),minutes=Math.floor(rounded/60);
     const remainder=String(rounded%60).padStart(2,'0');
@@ -597,8 +596,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
           tenure(card.heldDurationMs);
         const face=BeatOnStepSportCards.createFace(document,{
           title:displaySportName(card.name),distanceCm:card.distanceCm,
-          difficulty:BeatOnStepSportPercentiles.visibleTier(card),          variant:category==='ghost'?'ghost':'owned',
-          performanceWarning:card.performanceWarning,
+          difficulty:BeatOnStepSportPercentiles.visibleTier(card),          variant:category==='ghost'?'ghost':'owned',          performanceWarning:card.performanceWarning,
           peakSpeedKmh:card.peakSpeedKmh,
         },'fr');
         const copy=document.createElement('div');copy.className='sport-deck-copy';
@@ -747,8 +745,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     }catch(error){
       input.checked=!storedShowChallenges;
       $('visibility-status').textContent='Modification impossible : '+error.message;    }finally{input.disabled=false}
-  };
-  async function account(){
+  };  async function account(){
     const me=await api('/api/account/me');
     if(!me.authenticated){
       $('admin-entry').hidden=true;
@@ -897,8 +894,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   }  $('reveal-close').onclick=closeCardReveal;
   $('card-reveal').addEventListener('keydown',event=>{
     if(event.key==='Escape'){event.preventDefault();closeCardReveal()}
-    if(event.key==='Tab'){
-      event.preventDefault();$('reveal-close').focus();
+    if(event.key==='Tab'){      event.preventDefault();$('reveal-close').focus();
     }
   });
   $('open-pack').onclick=async()=>{
@@ -1047,8 +1043,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       const imports=Number.isFinite(item.imports)
         ?Number(item.imports).toLocaleString('fr-FR')+' import'+(item.imports===1?'':'s')
         :null;
-      meta.textContent=[item.source,imports].filter(Boolean).join(' · ');
-      const link=document.createElement('a');
+      meta.textContent=[item.source,imports].filter(Boolean).join(' · ');      const link=document.createElement('a');
       link.href='/partages.html?id='+encodeURIComponent(item.id);
       link.textContent='Voir la séance';
       link.setAttribute('aria-label','Voir la séance : '+item.name);
