@@ -18,6 +18,8 @@ test('account presents private run history first, then both card decks as collap
   assert.match(html,/Archives privées de vos courses, sauvegardées sur votre compte\./);
   assert.match(html,/<details id="challenge-fold" class="account-fold">[\s\S]*?<span class="account-fold-title">Cartes Défis<\/span>/);
   assert.match(html,/<details id="session-fold" class="account-fold">[\s\S]*?<span class="account-fold-title">Cartes Séances<\/span>/);
+  assert.doesNotMatch(html,/<details id="(?:private-history-fold|challenge-fold|session-fold)"[^>]*\bopen\b/,
+    'all three main sections start collapsed for a compact account overview');
   assert.doesNotMatch(html,/id="deck-navigation"|id="deck-heading"|id="history-deck"/);
 });
 test('Records entry lives in the signed-in challenge fold, never in the public profile',()=>{
