@@ -41,6 +41,16 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .history-remove:disabled{opacity:.35}
 .deck-tile small{color:var(--sub)}
 .created-cards-fold{margin:16px 0;border:1px solid var(--line);border-radius:14px;background:#171610;padding:12px 16px}
+.account-fold{display:block;margin:14px 0;border:1px solid var(--line);border-radius:14px;background:#171610;padding:13px 16px}
+.account-fold summary{display:flex;flex-direction:column;gap:3px;cursor:pointer;list-style:revert;padding:3px 0}
+.account-fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.account-fold[open] summary{margin-bottom:13px}
+.account-fold-title{font-size:17px;font-weight:850;color:var(--ink)}
+.account-fold-description{font-size:13px;font-weight:400;color:var(--sub)}
+.account-fold #session-type-filter{margin:0 0 14px}
+.account-fold #history-sessions-panel>p{margin:0 0 12px}
+.account-fold #history-challenges-panel h3{color:var(--ink);font-size:16px;margin:18px 0 6px}
+
 .created-cards-fold summary{cursor:pointer;font-size:16px;font-weight:800;color:var(--ink);padding:5px 0}
 .created-cards-fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .created-cards-fold[open] summary{margin-bottom:10px}
@@ -147,8 +157,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <form id="password-reset-form">
 <label for="reset-new">Nouveau mot de passe</label>
 <input id="reset-new" type="password" autocomplete="new-password" minlength="6" maxlength="128" required>
-<p class="field-help">6 caractères minimum. Toutes vos anciennes connexions seront révoquées.</p>
-<label for="reset-confirm">Confirmer le mot de passe</label>
+<p class="field-help">6 caractères minimum. Toutes vos anciennes connexions seront révoquées.</p><label for="reset-confirm">Confirmer le mot de passe</label>
 <input id="reset-confirm" type="password" autocomplete="new-password" minlength="6" maxlength="128" required>
 <div class="actions"><button type="submit">Réinitialiser mon mot de passe</button>
 <button type="button" class="secondary" id="reset-back">Retour à la connexion</button></div>
@@ -178,15 +187,32 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <p>Vos futures séances seront signées automatiquement une fois votre application reliée.</p>
 <div id="link-panel" hidden><p>Autorisez BeatOnStep à signer vos séances et gérer votre collection de cartes dans l’application.</p>
 <button id="link-button" type="button">Relier mon application</button></div>
-<div id="deck-navigation" class="deck-toggles" role="group" aria-label="Type de collection et historique">
-<button type="button" id="deck-challenges" aria-pressed="true">🏆 Défis</button>
-<button type="button" id="deck-sessions" aria-pressed="false">♫ Séances</button></div>
-<h2 id="deck-heading">Mon deck · Défis</h2>
-<div id="session-type-filter" class="session-type-filter" role="group" aria-label="Type de carte de séance" hidden>
+<details id="private-history-fold" class="account-fold">
+<summary><span class="account-fold-title">Historique · Séances</span>
+<span class="account-fold-description">Archives privées de vos courses, sauvegardées sur votre compte.</span></summary>
+<div id="history-sessions-panel"><p id="history-sessions-info">Chargement…</p>
+<ul id="history-sessions-items"></ul>
+<button id="history-more" type="button" class="secondary" hidden>Afficher plus de séances</button></div>
+</details>
+<details id="challenge-fold" class="account-fold">
+<summary><span class="account-fold-title">Cartes Défis</span>
+<span class="account-fold-description">Vos défis sportifs, réussites et cartes détenues.</span></summary>
+<div id="challenge-deck">
+<a id="account-records-link" class="account-records-link" href="/partages.html?kind=challenge&amp;view=records">Voir les records des cartes →</a>
+<ul id="challenge-deck-cards"></ul></div>
+
+<div id="history-challenges-panel"><h3>Historique · Défis</h3><p id="history-challenges-info" aria-live="polite"></p>
+<ul id="history-challenges-items"></ul></div>
+</details>
+<details id="session-fold" class="account-fold">
+<summary><span class="account-fold-title">Cartes Séances</span>
+<span class="account-fold-description">Votre collection de séances musicales.</span></summary>
+<div id="session-type-filter" class="session-type-filter" role="group" aria-label="Type de carte de séance">
   <button id="session-time" type="button" aria-pressed="true">Durée</button>
   <button id="session-distance" type="button" aria-pressed="false">Distance</button>
 </div>
-<div id="session-deck" hidden><div id="collection-panel" hidden>
+
+<div id="session-deck"><div id="collection-panel" hidden>
 <ul id="owned-cards"></ul>
 <div id="pack-panel" class="pack-game">
   <div class="pack-image" aria-hidden="true">
@@ -204,15 +230,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 <div id="saved-workouts-panel"><h2>Mes séances dans l’app</h2>
 <p id="saved-workouts-status">Chargement des programmes…</p>
 <ul id="saved-workouts-items"></ul></div></div>
-<div id="challenge-deck">
-<a id="account-records-link" class="account-records-link" href="/partages.html?kind=challenge&amp;view=records">Voir les records des cartes →</a>
-<ul id="challenge-deck-cards"></ul></div>
-<div id="history-deck"><h2 id="history-heading">Historique · Défis</h2>
-<div id="history-sessions-panel" hidden><p id="history-sessions-info">Chargement…</p>
-<ul id="history-sessions-items"></ul>
-<button id="history-more" type="button" class="secondary" hidden>Afficher plus de séances</button></div>
-<div id="history-challenges-panel"><p id="history-challenges-info" aria-live="polite"></p>
-<ul id="history-challenges-items"></ul></div></div>
+
+</details>
 <div class="actions"><button class="secondary" type="button" id="delete-open">Supprimer mon compte</button></div>
 <div id="delete-panel" hidden><p>La suppression retire votre signature des anciennes séances et révoque les connexions. Les cartes restent anonymes.</p>
 <label for="delete-password">Confirmez votre mot de passe</label><input type="password" id="delete-password" autocomplete="current-password">
@@ -297,8 +316,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   function renderCards(items,element){
     if(element.id==='items'){
       savedCreatedCards=items;
-      // Run Mix remains shareable by direct link but is not a collectible
-      // session card and must not reappear in the cards deck.
+      // Run Mix remains shareable by direct link but is not a collectible      // session card and must not reappear in the cards deck.
       items=items.filter(item=>item.kind==='workout'&&currentCardGoal(item)===sessionGoal);
     }
     element.replaceChildren();
@@ -404,8 +422,6 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       li.append(chart,a,meta,offer);list.append(li);
     }
   }
-  // One category controls both the deck above and its history below.
-  let selectedDeck='challenges';
   const showSessionType=()=>{
     $('session-time').setAttribute('aria-pressed',String(sessionGoal==='time'));
     $('session-distance').setAttribute('aria-pressed',String(sessionGoal==='distance'));
@@ -414,21 +430,6 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
   };
   $('session-time').onclick=()=>{sessionGoal='time';showSessionType()};
   $('session-distance').onclick=()=>{sessionGoal='distance';showSessionType()};
-  function showDecks(){
-    const sessions=selectedDeck==='sessions';
-    $('session-deck').hidden=!sessions;
-    $('session-type-filter').hidden=!sessions;
-    $('challenge-deck').hidden=sessions;
-    $('history-deck').hidden=false;
-    $('history-sessions-panel').hidden=!sessions;
-    $('history-challenges-panel').hidden=sessions;
-    $('deck-sessions').setAttribute('aria-pressed',String(sessions));
-    $('deck-challenges').setAttribute('aria-pressed',String(!sessions));
-    $('deck-heading').textContent=sessions?'Mes cartes de séances':'Mes cartes Défi';
-    $('history-heading').textContent=sessions?'Historique · Séances':'Historique · Défis';
-  }
-  $('deck-sessions').onclick=()=>{selectedDeck='sessions';showDecks()};
-  $('deck-challenges').onclick=()=>{selectedDeck='challenges';showDecks()};
   let runHistoryCursor=null;
   // Saved run summaries already contain precise elapsed seconds, mean pace
   // and end timestamps. Format them at display time; never rewrite D1.
@@ -447,8 +448,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     return pace?pace+'/km':null;
   }
   // Sporting-card history uses a compact French pace format, distinct from
-  // the existing workout history format.
-  function sportHistoryPace(seconds){
+  // the existing workout history format.  function sportHistoryPace(seconds){
     if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<=0)return null;
     const rounded=Math.round(seconds),minutes=Math.floor(rounded/60);
     const remainder=String(rounded%60).padStart(2,'0');
@@ -512,7 +512,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       runHistoryCursor=runs.nextCursor||null;
       $('history-more').hidden=!runHistoryCursor;
       $('history-sessions-info').textContent=(runs.items||[]).length
-        ?'Archives privées de vos courses, sauvegardées sur votre compte.'
+        ?runs.items.length+' course'+(runs.items.length>1?'s':'')+' affichée'+(runs.items.length>1?'s':'')+'.'
         :append?'Toutes les courses ont été chargées.':'Aucune séance enregistrée pour le moment.';
     }catch{
       $('history-sessions-info').textContent='Synchronisation des courses indisponible. '
@@ -597,8 +597,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
           tenure(card.heldDurationMs);
         const face=BeatOnStepSportCards.createFace(document,{
           title:displaySportName(card.name),distanceCm:card.distanceCm,
-          difficulty:BeatOnStepSportPercentiles.visibleTier(card),
-          variant:category==='ghost'?'ghost':'owned',
+          difficulty:BeatOnStepSportPercentiles.visibleTier(card),          variant:category==='ghost'?'ghost':'owned',
           performanceWarning:card.performanceWarning,
           peakSpeedKmh:card.peakSpeedKmh,
         },'fr');
@@ -747,8 +746,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
         :'Profil privé activé.';
     }catch(error){
       input.checked=!storedShowChallenges;
-      $('visibility-status').textContent='Modification impossible : '+error.message;
-    }finally{input.disabled=false}
+      $('visibility-status').textContent='Modification impossible : '+error.message;    }finally{input.disabled=false}
   };
   async function account(){
     const me=await api('/api/account/me');
@@ -785,7 +783,6 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     const data=await api('/api/account/profile?handle='+encodeURIComponent(me.handle));
     renderCards(data.items,$('items'));
     await refreshCollection();
-    showDecks();
     void Promise.all([refreshSavedWorkouts(data.items),refreshHistory()]);
   }
   $('handle-edit').onclick=()=>{
@@ -896,9 +893,8 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     // Refreshing the collection hides an opened pack before the animation
     // closes. Do not move keyboard focus back to a hidden/disabled button.
     const packButton=$('open-pack');
-    (packButton.disabled||$('pack-panel').hidden?$('deck-sessions'):packButton).focus();
-  }
-  $('reveal-close').onclick=closeCardReveal;
+    (packButton.disabled||$('pack-panel').hidden?$('session-fold').querySelector('summary'):packButton).focus();
+  }  $('reveal-close').onclick=closeCardReveal;
   $('card-reveal').addEventListener('keydown',event=>{
     if(event.key==='Escape'){event.preventDefault();closeCardReveal()}
     if(event.key==='Tab'){
@@ -1047,8 +1043,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
       const kind=document.createElement('span');kind.className='bos-workout-kind';
       kind.textContent=distance?'OBJECTIF DISTANCE':'OBJECTIF DURÉE';
       foot.append(category,name,kind);
-      face.append(top,art,foot);
-      const meta=document.createElement('span');meta.className='public-session-meta';
+      face.append(top,art,foot);      const meta=document.createElement('span');meta.className='public-session-meta';
       const imports=Number.isFinite(item.imports)
         ?Number(item.imports).toLocaleString('fr-FR')+' import'+(item.imports===1?'':'s')
         :null;
