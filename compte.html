@@ -447,7 +447,9 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
     const pace=historyClock(seconds);
     return pace?pace+'/km':null;
   }
-  // Sporting-card history uses a compact French pace format, distinct from  // the existing workout history format.  function sportHistoryPace(seconds){
+  // Sporting-card history uses a compact French pace format, distinct from
+  // the existing workout history format.
+  function sportHistoryPace(seconds){
     if(typeof seconds!=='number'||!Number.isFinite(seconds)||seconds<=0)return null;
     const rounded=Math.round(seconds),minutes=Math.floor(rounded/60);
     const remainder=String(rounded%60).padStart(2,'0');
