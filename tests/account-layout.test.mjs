@@ -6,41 +6,38 @@ import vm from 'node:vm';
 const html = readFileSync(new URL('../compte.html', import.meta.url),'utf8');
 const at = marker => html.indexOf(marker);
 
-test('account uses just two category choices above deck and history',()=>{
-  assert.ok(at('id="deck-navigation"') >= 0);
-  // The challenge collection is intentionally the primary, left-hand choice.
-  assert.ok(at('id="deck-challenges"') > at('id="deck-navigation"'));
-  assert.ok(at('id="deck-sessions"') > at('id="deck-challenges"'));
-  assert.ok(at('id="deck-heading"') > at('id="deck-sessions"'));
-  assert.match(html, /id="deck-challenges" aria-pressed="true"/);
-  assert.match(html, /id="deck-sessions" aria-pressed="false"/);
-  assert.ok(at('id="history-deck"') > at('id="challenge-deck"'));
-  assert.doesNotMatch(html, /id="view-decks"|id="view-history"/);
-  assert.doesNotMatch(html, /id="history-sessions"|id="history-challenges"/);
+test('account presents private run history first, then both card decks as collapsible sections',()=>{
+  const ownStart=at('<section id="account" hidden>');
+  const history=at('id="private-history-fold"');
+  const challenges=at('id="challenge-fold"');
+  const sessions=at('id="session-fold"');
+  const footer=at('id="delete-open"');
+  assert.ok(ownStart>=0&&history>ownStart&&challenges>history&&sessions>challenges&&footer>sessions);
+  assert.match(html,/<details id="private-history-fold" class="account-fold">/);
+  assert.match(html,/<span class="account-fold-title">Historique · Séances<\/span>/);
+  assert.match(html,/Archives privées de vos courses, sauvegardées sur votre compte\./);
+  assert.match(html,/<details id="challenge-fold" class="account-fold">[\s\S]*?<span class="account-fold-title">Cartes Défis<\/span>/);
+  assert.match(html,/<details id="session-fold" class="account-fold">[\s\S]*?<span class="account-fold-title">Cartes Séances<\/span>/);
+  assert.doesNotMatch(html,/id="deck-navigation"|id="deck-heading"|id="history-deck"/);
 });
-test('Records entry lives in signed-in challenge deck, never in public profile',()=>{
+test('Records entry lives in the signed-in challenge fold, never in the public profile',()=>{
   const ownStart=at('<section id="account" hidden>');
   const ownEnd=at('<section id="public-profile" hidden>');
-  const deckStart=at('<div id="challenge-deck">');
+  const deckStart=at('<details id="challenge-fold"');
   const anchor=at('id="account-records-link"');
   assert.ok(ownStart>=0&&ownEnd>ownStart);
   assert.ok(deckStart>ownStart&&anchor>deckStart&&anchor<ownEnd);
   assert.match(html,/<a id="account-records-link" class="account-records-link" href="\/partages\.html\?kind=challenge&amp;view=records">Voir les records des cartes →<\/a>/);
   assert.doesNotMatch(html.slice(ownEnd),/id="account-records-link"/,
     'visiting a public profile must not show the link');
-  assert.match(html,/\$\('challenge-deck'\)\.hidden=sessions/,
-    'link follows challenge deck visibility rather than the music deck');
 });
-
-test('switching category shows matching deck and history together',()=>{
-  assert.match(html, /\$\('session-deck'\)\.hidden=!sessions/);
-  assert.match(html, /\$\('challenge-deck'\)\.hidden=sessions/);
-  assert.match(html, /\$\('history-sessions-panel'\)\.hidden=!sessions/);
-  assert.match(html, /\$\('history-challenges-panel'\)\.hidden=sessions/);
-  assert.match(html, /\$\('history-heading'\)\.textContent=sessions/);
+test('each account section can be expanded independently without hiding its contents',()=>{
+  assert.match(html,/<details id="private-history-fold" class="account-fold">[\s\S]*?id="history-sessions-items"/);
+  assert.match(html,/<details id="challenge-fold" class="account-fold">[\s\S]*?id="challenge-deck-cards"[\s\S]*?id="history-challenges-items"/);
+  assert.match(html,/<details id="session-fold" class="account-fold">[\s\S]*?id="session-type-filter"[\s\S]*?id="owned-cards"[\s\S]*?id="saved-workouts-items"/);
 });
 test('logout remains the final account action, after history and delete options',()=>{
-  assert.ok(at('id="account-signout"') > at('id="history-deck"'));
+  assert.ok(at('id="account-signout"') > at('id="session-fold"'));
   assert.ok(at('id="account-signout"') > at('id="delete-panel"'));
   assert.ok(at('id="logout"') > at('id="account-signout"'));
 });
@@ -75,7 +72,7 @@ test('musical cards are split by time or distance without mixing sporting trophi
   assert.match(html,/renderCards\(savedCreatedCards,\$\('items'\)\)/);
   assert.match(html,/card\.ghost&&card\.personallyValidated/,
     'ghost sporting trophies require a prior personal validated achievement');
-  assert.match(html,/\$\('session-type-filter'\)\.hidden=!sessions/);
+  assert.match(html,/id="session-type-filter" class="session-type-filter" role="group" aria-label="Type de carte de séance">/);
 });
 
 test('owned, gifted and ghost sporting cards open the exact public detail URL',()=>{
@@ -87,7 +84,7 @@ test('owned, gifted and ghost sporting cards open the exact public detail URL',(
 
 test('minimal profile copy keeps distinct deck titles and actionable controls',()=>{
   assert.match(html,/<h1 id="heading">Mon compte<\/h1><p id="intro" hidden><\/p>/);
-  assert.match(html,/\$\('deck-heading'\)\.textContent=sessions\?'Mes cartes de séances':'Mes cartes Défi'/);
+  assert.match(html,/<span class="account-fold-title">Cartes Défis<\/span>/);
   assert.doesNotMatch(html,/<h2>Mes défis sportifs<\/h2>/);
   assert.doesNotMatch(html,/<h2>Mes cartes de séances possédées<\/h2>/);
   assert.match(html,/id="account-records-link"/);
@@ -112,7 +109,7 @@ test('private-profile opt-in is subtle and at the bottom of the signed-in accoun
   const accountEnd=at('<div id="card-reveal"');
   const footer=at('id="profile-visibility"');
   assert.ok(footer>accountStart&&footer<accountEnd);
-  assert.ok(footer>at('id="history-deck"'),'privacy checkbox follows both decks');
+  assert.ok(footer>at('id="session-fold"'),'privacy checkbox follows both card decks');
   assert.ok(footer>at('id="delete-panel"'),'privacy checkbox is near the footer');
   assert.ok(footer<at('id="account-signout"'),'logout stays final account action');
   assert.match(html,/id="show-public-challenges" type="checkbox">Rendre mon profil privé/);
