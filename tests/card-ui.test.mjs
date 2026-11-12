@@ -17,32 +17,21 @@ test('account pack is collectible with an animated reveal, not a reserve invento
   assert.doesNotMatch(html,/Réserve : '\+pack\.remaining/);
   assert.doesNotMatch(html,/une nouvelle carte de séance anonyme attend un propriétaire/i);
 });
-test('account opens challenge deck first, with sessions on the right',()=>{
+test('account presents challenge cards before musical session cards',()=>{
   const html=read('compte.html');
-  const challengeButton=html.indexOf('id="deck-challenges"');
-  const sessionButton=html.indexOf('id="deck-sessions"');
-  assert.ok(challengeButton>0&&sessionButton>challengeButton,
-    'challenge control must be the first option');
-  assert.match(html,/id="deck-challenges" aria-pressed="true"/);
-  assert.match(html,/id="deck-sessions" aria-pressed="false"/);
-  assert.match(html,/let selectedDeck='challenges'/,
-    'a signed-in account defaults to its sporting challenges');
-  assert.match(html,/id="deck-heading">Mon deck · Défis<\/h2>/,
-    'one challenge-deck title remains visible before hydration');
-  assert.match(html,/id="challenge-deck">\s*<a id="account-records-link"/,
-    'sporting card collection remains accessible beneath that title');
-  assert.doesNotMatch(html,/<h2>Mes défis sportifs<\/h2>/,
-    'do not reintroduce a redundant challenge heading');
-  assert.match(html,/id="session-deck" hidden/,
-    'workout cards stay available on the second tab');
-  assert.match(html,/id="history-challenges-panel"><p/,
-    'sporting history is the initial timeline');
-  assert.match(html,/id="history-sessions-panel" hidden/,
-    'session history is only visible when its tab is selected');
-  assert.match(html,/\$\('deck-sessions'\)\.onclick=\(\)=>\{selectedDeck='sessions';showDecks\(\)\}/,
-    'switching back to music must still update deck and history');
+  const challengeFold=html.indexOf('id="challenge-fold"');
+  const sessionFold=html.indexOf('id="session-fold"');
+  assert.ok(challengeFold>0&&sessionFold>challengeFold,
+    'sporting challenge cards must appear before musical session cards');
+  assert.match(html,/<details id="challenge-fold" class="account-fold">/);
+  assert.match(html,/<div id="challenge-deck">[\\s\\S]*?<ul id="challenge-deck-cards"><\\/ul>/,
+    'the challenge collection remains inside its dedicated section');
+  assert.match(html,/<details id="session-fold" class="account-fold">/);
+  assert.match(html,/<div id="session-deck">/,
+    'musical session cards remain available in their own section');
+  assert.match(html,/<details id="private-history-fold" class="account-fold">/,
+    'private run history remains separate from collectible cards');
 });
-
 test('catalogue shows an accessible crown, not the proprietor word, and an icon-only phone profile',()=>{
   const html=read('partages.html');
   assert.match(html,/class="community-icon"/);
