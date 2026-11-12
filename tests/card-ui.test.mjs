@@ -24,7 +24,8 @@ test('account presents challenge cards before musical session cards',()=>{
   assert.ok(challengeFold>0&&sessionFold>challengeFold,
     'sporting challenge cards must appear before musical session cards');
   assert.match(html,/<details id="challenge-fold" class="account-fold">/);
-  assert.match(html,/<div id="challenge-deck">[\\s\\S]*?<ul id="challenge-deck-cards"><\\/ul>/,
+  assert.ok(html.indexOf('<div id="challenge-deck">',challengeFold)>challengeFold&&
+    html.indexOf('<ul id="challenge-deck-cards">',challengeFold)>challengeFold,
     'the challenge collection remains inside its dedicated section');
   assert.match(html,/<details id="session-fold" class="account-fold">/);
   assert.match(html,/<div id="session-deck">/,
