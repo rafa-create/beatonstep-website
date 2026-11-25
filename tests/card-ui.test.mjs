@@ -96,6 +96,15 @@ test('gift creation is owner-authorized; native acceptance requires a valid devi
   assert.match(pack,/COALESCE\(x\.profile_json,json_extract\(x\.payload_json/);
   assert.match(account,/DELETE FROM workout_card_gifts WHERE expected_owner_id=/);
 });
+test('public challenge detail page offers a discreet PNG download for the displayed card',()=>{
+  const html=read('partages.html');
+  assert.match(html,/<script src=\"\/sport-card-png\.js\"><\/script>/);
+  assert.match(html,/if\(detailed\)\{[\s\S]*?el\('button','sport-card-download'/);
+  assert.match(html,/BeatOnStepSportCardPng\.download\(\{/);
+  assert.match(html,/title:sportName\(item\),distanceCm:Number\(item\.distanceCm\)\|\|0/);
+  assert.match(html,/difficulty:BeatOnStepSportPercentiles\.visibleTier\(item\)/);
+});
+
 test('account sporting cards offer a discreet PNG download using the mobile card dimensions',()=>{
   const html=read('compte.html');
   const exporter=read('sport-card-png.js');
