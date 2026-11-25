@@ -96,6 +96,22 @@ test('gift creation is owner-authorized; native acceptance requires a valid devi
   assert.match(pack,/COALESCE\(x\.profile_json,json_extract\(x\.payload_json/);
   assert.match(account,/DELETE FROM workout_card_gifts WHERE expected_owner_id=/);
 });
+test('account sporting cards offer a discreet PNG download using the mobile card dimensions',()=>{
+  const html=read('compte.html');
+  const exporter=read('sport-card-png.js');
+  assert.match(html,/<script src="\/sport-card-png\.js"><\/script>/);
+  assert.match(html,/className='sport-card-download'/);
+  assert.match(html,/BeatOnStepSportCardPng\.download\(\{/);
+  assert.match(html,/distanceCm:Number\(card\.distanceCm\)\|\|0/);
+  assert.match(exporter,/width="720" height="986" viewBox="0 0 244 334"/);
+  assert.match(exporter,/canvas\.width=720;canvas\.height=986/);
+  assert.match(exporter,/toBlob\(blob=>blob\?resolve\(blob\):reject\(new Error\('png_export_failed'\)\),'image\/png'\)/);
+  const context={window:{}};
+  vm.runInNewContext(exporter,context,{filename:'sport-card-png.js'});
+  assert.equal(typeof context.window.BeatOnStepSportCardPng.download,'function');
+  assert.match(read('scripts/build-static.mjs'),/rootFile/);
+});
+
 test('website allows owners to share their cards and sign-in keeps gift tokens',()=>{
   const html=read('compte.html');
   assert.match(html,/Offrir cette carte/);

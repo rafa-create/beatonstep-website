@@ -68,6 +68,10 @@ button:disabled{opacity:.4;cursor:default}.secondary{background:transparent;bord
 .collection-item a{display:block;position:relative;z-index:1;color:var(--ink);font-size:14px;font-weight:850;line-height:1.22}
 .collection-item button{position:relative;z-index:1;width:100%;font-size:12px;margin-top:12px;min-height:37px;padding:7px;color:#fcea07;border:1px solid #fcea07;background:#282517}
 .collection-item small{display:block;color:var(--sub);font-size:10px;position:relative;z-index:1;margin-top:7px}
+.sport-card-media{display:flex;flex-direction:column;align-items:center;gap:8px;flex:none}
+.sport-card-download{min-height:29px;padding:4px 9px;font-size:11px;font-weight:700;
+  line-height:1;border:1px solid #655c3c;border-radius:18px;background:#201f17;color:var(--accent)}
+.sport-card-download:disabled{opacity:.45}
 #owned-cards{display:flex;gap:15px;flex-wrap:wrap;align-items:stretch}
 #owned-cards li:not(.collection-item){width:100%}
 .pack-game{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center;border:1px solid #756531;border-radius:19px;background:radial-gradient(ellipse at 17% 50%,#544b1d50,transparent 65%),#151511;padding:22px;margin-top:18px}
@@ -271,6 +275,7 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
 </main>
 <script src="/sport-card-face.js"></script>
 <script src="/sport-card-percentile.js"></script>
+<script src="/sport-card-png.js"></script>
 <script>
 (() => {
   'use strict';
@@ -612,12 +617,33 @@ li a{display:block;font-weight:700}.small{font-size:13px;color:var(--sub)}
           copy.append(warning);
         }
         li.className='deck-tile sport-deck-tile';
+        const media=document.createElement('div');media.className='sport-card-media';
         const faceLink=document.createElement('a');
         faceLink.className='sport-face-link';
         faceLink.href='/partages.html?kind=challenge&sport='+encodeURIComponent(card.id);
         faceLink.setAttribute('aria-label','Voir la fiche : '+displaySportName(card.name));
         faceLink.append(face);
-        li.append(faceLink,copy);
+        media.append(faceLink);
+        const download=document.createElement('button');download.type='button';
+        download.className='sport-card-download';download.textContent='↓ PNG';
+        download.setAttribute('aria-label','Télécharger la carte Défi '+displaySportName(card.name));
+        download.title='Télécharger cette carte en PNG';
+        download.addEventListener('click',async()=>{
+          if(download.disabled)return;
+          download.disabled=true;
+          try{
+            await window.BeatOnStepSportCardPng.download({
+              title:displaySportName(card.name),distanceCm:Number(card.distanceCm)||0,
+              difficulty:card.difficulty,
+              variant:category==='ghost'?'ghost':category==='gift'?'gift':'owned'
+            },'BeatOnStep-defi-'+Date.now()+'.png');
+          }catch(error){
+            console.warn('[SportCardDownload] PNG export failed',error);
+            alert('Impossible de télécharger cette carte pour le moment.');
+          }finally{download.disabled=false;}
+        });
+        media.append(download);
+        li.append(media,copy);
         if(card.verifiedAfterGiftAt){
           const history=document.createElement('small');
           history.textContent='Reçue le '+date(card.verifiedGiftAt||card.firstGiftAt)+
